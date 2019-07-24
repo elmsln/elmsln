@@ -10,7 +10,7 @@
  */
 class QuizNavigationTestCase extends QuizTestCase {
 
-  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
     $modules[] = 'truefalse';
     parent::setUp($modules);
   }
@@ -53,7 +53,7 @@ class QuizNavigationTestCase extends QuizTestCase {
     $this->drupalGet("node/{$quiz_node->nid}/take/1");
     $this->drupalPost(NULL, array(
       "question[$question_node1->nid][answer]" => 1,
-      ), t('Next'));
+    ), t('Next'));
     $this->drupalGet("node/{$quiz_node->nid}/take/2");
     $this->assertText("Page 2 of 3");
     $this->assertResponse(200);
@@ -64,7 +64,7 @@ class QuizNavigationTestCase extends QuizTestCase {
   /**
    * Test that all questions are available when quiz jumping is on.
    */
-  function testQuestionNavigationJumping() {
+  public function testQuestionNavigationJumping() {
     $this->drupalLogin($this->admin);
     $quiz_node = $this->drupalCreateQuiz(array('allow_jumping' => 1));
 
@@ -112,7 +112,7 @@ class QuizNavigationTestCase extends QuizTestCase {
   /**
    * Test that a user can skip a question.
    */
-  function testQuestionNavigationSkipping() {
+  public function testQuestionNavigationSkipping() {
     $this->drupalLogin($this->admin);
     // Default behavior, anyway.
     $quiz_node = $this->drupalCreateQuiz(array('allow_skipping' => 1));
@@ -137,8 +137,7 @@ class QuizNavigationTestCase extends QuizTestCase {
 
     // Leave a question blank.
     $this->drupalGet("node/{$quiz_node->nid}/take/1");
-    $this->drupalPost(NULL, array(
-      ), t('Leave blank'));
+    $this->drupalPost(NULL, array(), t('Leave blank'));
     // Now question 2 is accessible.
     $this->drupalGet("node/{$quiz_node->nid}/take/2");
     $this->assertResponse(200);
@@ -180,7 +179,7 @@ class QuizNavigationTestCase extends QuizTestCase {
     $this->drupalGet("node/{$quiz_node->nid}/take/1");
     $this->drupalPost(NULL, array(
       "question[$question_node1->nid][answer]" => 1,
-      ), t('Next'));
+    ), t('Next'));
     $this->drupalGet("node/{$quiz_node->nid}/take/2");
     $this->assertResponse(200);
     $this->drupalGet("node/{$quiz_node->nid}/take/1");

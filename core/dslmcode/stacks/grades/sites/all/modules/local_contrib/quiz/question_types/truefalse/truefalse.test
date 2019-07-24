@@ -20,14 +20,14 @@ class TrueFalseTestCase extends QuizQuestionTestCase {
     );
   }
 
-  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
     parent::setUp(array('truefalse'));
   }
 
   /**
    * Test adding and taking a truefalse question.
    */
-  function testCreateQuizQuestion() {
+  public function testCreateQuizQuestion() {
     // Login as our privileged user.
     $this->drupalLogin($this->admin);
 
@@ -41,7 +41,7 @@ class TrueFalseTestCase extends QuizQuestionTestCase {
     return $question_node;
   }
 
-  function testTakeQuestion() {
+  public function testTakeQuestion() {
     $question_node = $this->testCreateQuizQuestion();
 
     // Link the question.
@@ -69,18 +69,21 @@ class TrueFalseTestCase extends QuizQuestionTestCase {
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('You got 1 of 1 possible points.');
 
     // Test incorrect question.
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 0,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('You got 0 of 1 possible points.');
   }
 
-  function testQuestionFeedback() {
+  /**
+   * Test incorrect question with all feedbacks on.
+   */
+  public function testQuestionFeedback() {
     // Login as our privileged user.
     $this->drupalLogin($this->admin);
 
@@ -90,22 +93,20 @@ class TrueFalseTestCase extends QuizQuestionTestCase {
     // Link the question.
     $quiz_node = $this->linkQuestionToQuiz($question_node);
 
-    // Test incorrect question with all feedbacks on.
-
     // Login as non-admin.
     $this->drupalLogin($this->user);
     // Take the quiz.
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertRaw('quiz-score-icon correct');
     $this->assertRaw('quiz-score-icon should');
     // Take the quiz.
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 0,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertRaw('quiz-score-icon incorrect');
     $this->assertRaw('quiz-score-icon should');
   }
@@ -113,7 +114,7 @@ class TrueFalseTestCase extends QuizQuestionTestCase {
   /**
    * Test that the question response can be edited.
    */
-  function testEditQuestionResponse() {
+  public function testEditQuestionResponse() {
     // Create & link a question.
     $question_node = $this->testCreateQuizQuestion();
     $quiz_node = $this->linkQuestionToQuiz($question_node);
@@ -132,10 +133,11 @@ class TrueFalseTestCase extends QuizQuestionTestCase {
     $this->drupalGet("node/$quiz_node->nid/take/1");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 0,
-      ), t('Next'));
+    ), t('Next'));
     $this->drupalGet("node/$quiz_node->nid/take/1");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 1,
-      ), t('Next'));
+    ), t('Next'));
   }
+
 }

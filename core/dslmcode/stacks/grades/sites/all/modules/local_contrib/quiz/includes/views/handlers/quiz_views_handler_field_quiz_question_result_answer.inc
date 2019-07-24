@@ -5,7 +5,7 @@ class quiz_views_handler_field_quiz_question_result_answer extends views_handler
   /**
    * Working with node table, adding active credit types to it.
    */
-  function construct() {
+  public function construct() {
     parent::construct();
     $this->additional_fields['result_id'] = array(
       'table' => 'quiz_node_results',
@@ -16,12 +16,12 @@ class quiz_views_handler_field_quiz_question_result_answer extends views_handler
   /**
    * Add fields, alias.
    */
-  function query() {
+  public function query() {
     $this->add_additional_fields();
     $this->field_alias = $this->aliases['result_id'];
   }
 
-  function option_definition() {
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['question_nid'] = array(
@@ -36,7 +36,7 @@ class quiz_views_handler_field_quiz_question_result_answer extends views_handler
     return $options;
   }
 
-  function pre_render(&$values) {
+  public function pre_render(&$values) {
     $this->items = array();
 
     $result_ids = array();
@@ -62,7 +62,7 @@ class quiz_views_handler_field_quiz_question_result_answer extends views_handler
     }
   }
 
-  function render_item($count, $item) {
+  public function render_item($count, $item) {
     return parent::render_items($item);
   }
 

@@ -2,14 +2,14 @@
 
 /**
  * @file
- * matching install file.
+ * Matching questions install file.
  */
 
 /**
  * Implements hook_install().
  */
 function matching_install() {
-  // Add body field to matching node
+  // Add body field to matching node.
   quiz_question_add_body_field('matching');
 
   variable_set('node_options_matching', array('status'));
@@ -40,7 +40,7 @@ function matching_schema() {
       ),
     ),
     'primary key' => array(
-      'nid', 'vid'
+      'nid', 'vid',
     ),
   );
 
@@ -118,11 +118,7 @@ function matching_schema() {
 }
 
 /**
- * Implements hook_update_N()
- */
-
-/**
- * Add a table to store properties for the matching questions
+ * Add a table to store properties for the matching questions.
  */
 function matching_update_7400() {
   $schema = array(
@@ -145,13 +141,13 @@ function matching_update_7400() {
       ),
     ),
     'primary key' => array(
-      'nid', 'vid'
+      'nid', 'vid',
     ),
   );
 
   db_create_table('quiz_matching_properties', $schema);
 
-  // Insert default properties for all of the existing matching questions
+  // Insert default properties for all of the existing matching questions.
   $result = db_query("SELECT nid, vid FROM {node} WHERE type='matching'");
 
   foreach ($result as $question) {

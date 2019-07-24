@@ -20,13 +20,26 @@ class LongAnswerTestCase extends QuizQuestionTestCase {
     );
   }
 
-  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+  /**
+   * Set up a question test case.
+   *
+   * @param array $modules
+   *   Array of modules to enable.
+   * @param array $admin_permissions
+   *   Array of admin permissions to add.
+   * @param array $user_permissions
+   *   Array of user permissions to add.
+   *
+   * @return void|false
+   */
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
     parent::setUp(array('long_answer'), array('score any quiz'));
   }
 
   /**
-   * Test manually graded questions. Also test feedback here instead of its own
-   * test case.
+   * Test manually graded questions.
+   *
+   * Also test feedback here instead of its own test case.
    *
    * Note: we use two questions here to make sure the grading form is handled
    * correctly.
@@ -45,16 +58,16 @@ class LongAnswerTestCase extends QuizQuestionTestCase {
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node1->nid][answer]" => 'the answer is the zero one infinity rule',
-      ), t('Next'));
+    ), t('Next'));
     $this->drupalPost(NULL, array(
       "question[$question_node2->nid][answer]" => 'the number two really is ridiculous',
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('Your score: 0%');
     // Strange behavior - extra spacing in the HTML.
     //$this->assertText('Score ? of 10');
     $this->assertText('This answer has not yet been scored.');
-    $this->assertNoFieldByName('1[score]');
-    $this->assertNoFieldByName('2[score]');
+    $this->assertNoFieldByName('question[0][score]');
+    $this->assertNoFieldByName('question[1][score]');
     $url_of_result = $this->getUrl();
     $admin_url_of_result = preg_replace('#quiz-results/(\d+)#', 'quiz/results/$1', $this->getUrl());
 
@@ -62,13 +75,13 @@ class LongAnswerTestCase extends QuizQuestionTestCase {
     $this->drupalLogin($this->admin);
     $this->drupalGet($admin_url_of_result);
     $this->drupalPost(NULL, array(
-      "0[score]" => 3,
-      "1[score]" => 7,
-      "0[answer_feedback][value]" => 'Feedback for answer 1.',
-      "1[answer_feedback][value]" => 'Feedback for answer 2.',
-      "0[answer_feedback][format]" => 'filtered_html',
-      "1[answer_feedback][format]" => 'filtered_html',
-      ), t('Save score'));
+      "question[0][score]" => 3,
+      "question[1][score]" => 7,
+      "question[0][answer_feedback][value]" => 'Feedback for answer 1.',
+      "question[1][answer_feedback][value]" => 'Feedback for answer 2.',
+      "question[0][answer_feedback][format]" => 'filtered_html',
+      "question[1][answer_feedback][format]" => 'filtered_html',
+    ), t('Save score'));
     $this->assertText('The scoring data you provided has been saved.');
 
     // Test the score and feedback are visible to the user.
@@ -84,12 +97,16 @@ class LongAnswerTestCase extends QuizQuestionTestCase {
   }
 
   /**
-   * Test adding and taking a truefalse question.
+   * Test adding and taking a long answer question.
    */
-  function testCreateQuizQuestion($settings = array()) {
+  public function testCreateQuizQuestion($settings = array()) {
     if (!$settings) {
       $settings = array(
-        'rubric' => 'LA 1 rubric.',
+        'rubric' => array(
+          'value' => 'LA 1 rubric.',
+          'format' => 'plain_text',
+        ),
+        'answer_text_processing' => 0,
       );
     }
 
@@ -100,15 +117,71 @@ class LongAnswerTestCase extends QuizQuestionTestCase {
       'type' => $this->question_node_type,
       'title' => 'LA 1 title',
       'body' => array(LANGUAGE_NONE => array(array('value' => 'LA 1 body text.'))),
-      ) + $settings);
+    ) + $settings);
 
     return $question_node;
   }
 
   /**
+   * Test that rubric and answer filter settings are respected.
+   */
+  public function testFilterFormats() {
+    // Login as our privileged user.
+    $this->drupalLogin($this->admin);
+
+    // Question that has no filtering, for rubric or answer.
+    $question_node1 = $this->drupalCreateNode(array(
+      'type' => $this->question_node_type,
+      'title' => 'LA 1 title',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'LA 1 body text.'))),
+      'rubric' => array(
+        'value' => 'Rubric for LA 1, you will see the next tag <img src="http://httpbin.org/image/png?findmeRubricPlaintext"/>',
+        'format' => 'plain_text',
+      ),
+      'answer_text_processing' => 0,
+    ));
+
+    // Question that has filtering, for rubric and answer.
+    $question_node2 = $this->drupalCreateNode(array(
+      'type' => $this->question_node_type,
+      'title' => 'LA 2 title',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'LA 2 body text.'))),
+      'rubric' => array(
+        'value' => 'Rubric for LA 2, you will not see the next tag <img src="http://httpbin.org/image/png?findmeRubricFiltered"/>',
+        'format' => 'full_html',
+      ),
+      'answer_text_processing' => 1,
+    ));
+
+    $quiz = $this->linkQuestionToQuiz($question_node1);
+    $this->linkQuestionToQuiz($question_node2, $quiz);
+
+    // Login as a user and take the quiz.
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz->nid/take");
+    // Post plaintext answer.
+    $this->drupalPost(NULL, array(
+      "question[$question_node1->nid][answer]" => 'plaintext answer, you will see the next tag: <img src="http://httpbin.org/image/png?findmeAnswerPlaintext"/>',
+    ), t('Next'));
+    // Post rich text answer.
+    $this->drupalPost(NULL, array(
+      "question[$question_node2->nid][answer][value]" => 'filtered answer, you will see not see the next tag: <img src="http://httpbin.org/image/png?findmeAnswerFiltered"/>',
+      "question[$question_node2->nid][answer][format]" => 'filtered_html',
+    ), t('Finish'));
+
+    // Login as a user and check the result.
+    $this->drupalLogin($this->admin);
+    $this->drupalGet("node/$quiz->nid/quiz/results/1/view");
+    $this->assertText('findmeRubricPlaintext', 'Plain text rubric image tag did not get rendered on page');
+    $this->assertNoText('findmeRubricFiltered', 'Filtered text rubric image tag got stripped');
+    $this->assertText('findmeAnswerPlaintext', 'Plain text answer image tag did not get rendered on page');
+    $this->assertNoText('findmeAnswerFiltered', 'Filtered text answer image tag got stripped');
+  }
+
+  /**
    * Test that the question response can be edited.
    */
-  function testEditQuestionResponse() {
+  public function testEditQuestionResponse() {
     $this->drupalLogin($this->admin);
 
     // Create & link a question.
@@ -120,16 +193,15 @@ class LongAnswerTestCase extends QuizQuestionTestCase {
     // Login as non-admin.
     $this->drupalLogin($this->user);
 
-
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalGet("node/$quiz_node->nid/take/1");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'um some rule, I forget',
-      ), t('Next'));
+    ), t('Next'));
     $this->drupalGet("node/$quiz_node->nid/take/1");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'um some rule, I forget',
-      ), t('Next'));
+    ), t('Next'));
   }
 
 }

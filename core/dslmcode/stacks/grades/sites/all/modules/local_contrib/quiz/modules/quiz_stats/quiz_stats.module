@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Quiz stats
+ * Quiz stats.
  *
  * Module creates a report to analyse and compare the results of quiz attendees.
  */
@@ -125,14 +125,18 @@ function quiz_stats_theme() {
 }
 
 /**
- * Validate that a node is of type quiz, and that the user has access to it, and that the vid is a vid of that quiz
+ * Validate the node.
+ *
+ * Check if its of type quiz, and that the user has access to it, and that the
+ * vid is a vid of that quiz.
  *
  * @param $quiz
- *  The quiz node
+ *   The quiz node.
  * @param $vid
- *  The version id
+ *   The version id.
+ *
  * @return
- *  TRUE if user has access
+ *   TRUE if user has access.
  */
 function quiz_stats_validate_vid($quiz, $vid) {
   if ($quiz->type != 'quiz') {

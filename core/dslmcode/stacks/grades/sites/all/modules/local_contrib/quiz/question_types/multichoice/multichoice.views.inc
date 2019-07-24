@@ -7,7 +7,7 @@ function multichoice_views_data() {
   $data = array();
 
   $data['quiz_multichoice_answers'] = array(
-    // Table Definition
+    // Table Definition.
     'table' => array(
       'group' => 'Quiz Multichoice Answers',
       'join' => array(
@@ -18,7 +18,7 @@ function multichoice_views_data() {
         ),
       ),
     ),
-    // Field descriptions:
+    // Field descriptions.
     'id' => array(
       'title' => t('Answer ID'),
       'help' => t('The ID identifying an individual answer.'),
@@ -71,7 +71,7 @@ function multichoice_views_data() {
         'numeric' => TRUE,
         'validate type' => 'vid',
       ),
-      // Related to NODE
+      // Related to NODE.
       'relationship' => array(
         'handler' => 'views_handler_relationship',
         'base' => 'node_revision',
@@ -89,11 +89,11 @@ function multichoice_views_data() {
       ),
       'sort' => array('handler' => 'views_handler_sort'),
     ),
-  ); // End quiz_multichoice_answers
+  ); // End quiz_multichoice_answers.
 
 
   $data['quiz_multichoice_user_answers'] = array(
-    // Table Definition
+    // Table Definition.
     'table' => array(
       'group' => 'Quiz Multichoice Answers',
       'join' => array(
@@ -104,7 +104,7 @@ function multichoice_views_data() {
         ),
       ),
     ),
-    // Field descriptions:
+    // Field descriptions.
     'id' => array(
       'title' => t('User answer set ID'),
       'help' => t('The ID identifying an answer set for a user.'),
@@ -183,7 +183,7 @@ function multichoice_views_data() {
         'numeric' => TRUE,
         'validate type' => 'vid',
       ),
-      // Related to NODE
+      // Related to NODE.
       'relationship' => array(
         'handler' => 'views_handler_relationship',
         'base' => 'node_revision',
@@ -192,7 +192,7 @@ function multichoice_views_data() {
       ),
       'sort' => array('handler' => 'views_handler_sort'),
     ),
-  ); // End quiz_multichoice_user_answers
+  ); // End quiz_multichoice_user_answers.
 
   $data['quiz_multichoice_user_answer_multi'] = array(
     'table' => array(
@@ -205,7 +205,7 @@ function multichoice_views_data() {
         ),
       ),
     ),
-    // Field descriptions:
+    // Field descriptions.
     'user_answer_id' => array(
       'title' => t('User answer set id'),
       'help' => t("The ID of a user's answer set."),
@@ -238,7 +238,7 @@ function multichoice_views_data() {
         'label' => t('answer'),
       ),
     ),
-  ); // End quiz_multichoice_user_answer_multi
+  ); // End quiz_multichoice_user_answer_multi.
 
   return $data;
 }

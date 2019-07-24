@@ -1,19 +1,25 @@
 <?php
 /**
  * @file
- * Themes the question report
- *
+ * Themes the question report.
  */
+
 /*
  * Available variables:
  * $form - FAPI array
  *
  * All questions are in form[x] where x is an integer.
+ *
  * Useful values:
- * $form[x]['question'] - the question as a FAPI array(usually a form field of type "markup")
- * $form[x]['score'] - the users score on the current question.(FAPI array usually of type "markup" or "textfield")
- * $form[x]['max_score'] - the max score for the current question.(FAPI array of type "value")
- * $form[x]['response'] - the users response, usually a FAPI array of type markup.
+ * $form[x]['question']
+ *   The question as a FAPI array (usually a form field of type "markup").
+ * $form[x]['score']
+ *   The users score on the current question.(FAPI array usually of type
+ *   "markup" or "textfield").
+ * $form[x]['max_score']
+ *   The max score for the current question.(FAPI array of type "value").
+ * $form[x]['response']
+ *   The users response, usually a FAPI array of type markup.
  */
 ?>
 <?php if (isset($form[0]['question'])): ?>

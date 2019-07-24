@@ -6,6 +6,7 @@ dependencies[] = ctools
 dependencies[] = entity
 dependencies[] = filter
 dependencies[] = rules
+dependencies[] = token
 dependencies[] = views
 dependencies[] = views_bulk_operations
 test_dependencies[] = taxonomy
@@ -28,6 +29,7 @@ files[] = includes/QuizResultMetadataController.class.inc
 files[] = includes/views/handlers/quiz_views_handler_filter_quiz_question.inc
 files[] = includes/views/handlers/quiz_views_handler_filter_quiz_question_type.inc
 files[] = includes/views/handlers/quiz_views_handler_field_quiz_question_result_answer.inc
+files[] = tests/QuizAccessTestCase.test
 files[] = tests/QuizCreationTestCase.test
 files[] = tests/QuizFeedbackTestCase.test
 files[] = tests/QuizGradingTestCase.test
@@ -40,9 +42,8 @@ files[] = tests/QuizTestCase.test
 files[] = tests/QuizTimerTestCase.test
 files[] = tests/QuizUpgradeTestCase.test
 
-; Information added by Drupal.org packaging script on 2016-02-19
-version = "7.x-5.0-beta4"
+; Information added by Drupal.org packaging script on 2019-04-25
+version = "7.x-5.5"
 core = "7.x"
 project = "quiz"
-datestamp = "1455899370"
-
+datestamp = "1556201287"

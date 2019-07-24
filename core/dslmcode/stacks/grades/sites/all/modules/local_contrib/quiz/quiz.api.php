@@ -151,3 +151,48 @@ function hook_quiz_feedback_times_alter(&$feedback_times) {
 function hook_quiz_feedback_labels_alter(&$feedback_labels) {
   $feedback_labels['solution'] = t('The answer you should have chosen.');
 }
+
+/**
+ * Implements hook_quiz_access().
+ *
+ * Control access to Quizzes.
+ *
+ * @see quiz_quiz_access() for default access implementations.
+ *
+ * Modules may implement Quiz access control hooks to block access to a Quiz or
+ * display a non-blocking message. Blockers are keyed by a blocker name, and
+ * must be an array keyed by 'success' and 'message'.
+ */
+function hook_quiz_access($op, $quiz, $account) {
+  if ($op == 'take') {
+    $today = date('l');
+    if ($today == 'Monday') {
+      return array(
+        'monday' => array(
+          'success' => FALSE,
+          'message' => t('You cannot take quizzes on Monday.'),
+        ),
+      );
+    }
+    else {
+      return array(
+        'not_monday' => array(
+          'success' => TRUE,
+          'message' => t('It is not Monday so you may take quizzes.'),
+        ),
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_quiz_access_alter().
+ *
+ * Alter the access blockers for a Quiz.
+ *
+ */
+function hook_quiz_access_alter(&$hooks, $op, $quiz, $account) {
+  if ($op == 'take') {
+    unset($hooks['monday']);
+  }
+}

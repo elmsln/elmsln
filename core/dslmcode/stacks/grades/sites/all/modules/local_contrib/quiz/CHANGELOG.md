@@ -1,3 +1,12 @@
+version 7.x-5.0 (2016-10-19)
+----------------
+- First release of 5.x version
+- Added support for pages of questions
+- Entity, views, VBO, rules, field support
+- Improved feedback system
+- Added build-on-last functionality
+- Added loads of unit tests
+- Moved Drag and drop to own project
 
 version 6.x-4.x
 ----------------

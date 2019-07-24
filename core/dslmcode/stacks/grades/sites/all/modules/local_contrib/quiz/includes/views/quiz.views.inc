@@ -3,7 +3,6 @@
 /**
  * @file
  * This file provides metadata to the Views 2 API for views integration.
- *
  */
 
 /**

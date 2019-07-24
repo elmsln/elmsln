@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Matching question type for quiz module
+ * Matching question type for the Quiz module.
  *
  * Allows the creation of matching questions, which associate one term
- * with another
+ * with another.
  */
 
 /**
@@ -15,9 +15,11 @@ function matching_help($path, $args) {
   switch ($path) {
     case 'admin/modules#description':
       return t('Matching question type for quiz module.');
+
     case 'node/add#matching':
     case 'admin/help#matching':
       return t('A question type for the quiz module: allows you to create matching type questions, which connect terms with one another.');
+
     default:
       break;
   }
@@ -33,15 +35,14 @@ function matching_quiz_question_info() {
       'description' => t('Matching question type for quiz module. A question type for the quiz module: allows you to create matching type questions, which connect terms with one another.'),
       'question provider' => 'MatchingQuestion',
       'response provider' => 'MatchingResponse',
-      'module' => 'quiz_question', // All wrapper functions are in that module.
+      // All wrapper functions are in the quiz_question module.
+      'module' => 'quiz_question',
     ),
   );
 }
 
 /**
  * Implements hook_quiz_question_config().
- *
- * @return FAPI array
  */
 function matching_quiz_question_config() {
   $form['quiz_matching_form_size'] = array(
@@ -61,7 +62,7 @@ function matching_quiz_question_config() {
 }
 
 /**
- * Validate the matching config form values
+ * Validate the long_answer config form values.
  */
 function matching_config_validate($form, $form_state) {
   if (!_quiz_is_int($form_state['values']['quiz_matching_form_size'], 2, 50)) {

@@ -36,9 +36,9 @@ class QuizUpgradeTestCase extends UpdatePathTestCase {
   }
 
   /**
-   * Test an upgrade to Quiz from 7.x-4.0-beta2
+   * Test an upgrade to Quiz from 7.x-4.0-beta2.
    */
-  function test740Beta2Upgrade() {
+  public function test740Beta2Upgrade() {
     $this->databaseDumpFiles = array(
       drupal_get_path('module', 'quiz') . '/tests/upgrade/quiz-beta2.php.gz',
     );

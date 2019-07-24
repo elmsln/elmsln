@@ -1,16 +1,17 @@
 <?php
 
-
 /**
  * @file
- *   Themes for the matching module.
+ * Theme functions for the matching question type.
  */
 
 /**
  * Theme the matching question form.
  *
- * @param $form
- *   drupal form array
+ * @param $variables
+ *
+ * @return string
+ *   An HTML string.
  */
 function theme_matching_question_form($variables) {
   $form = $variables['form'];
@@ -32,7 +33,12 @@ function theme_matching_question_form($variables) {
 }
 
 /**
- * Theme the answering form
+ * Theme the answering form.
+ *
+ * @param $variables
+ *
+ * @return string
+ *   An HTML string.
  */
 function theme_matching_subquestion_form($variables) {
   $form = $variables['form'];
@@ -48,18 +54,20 @@ function theme_matching_subquestion_form($variables) {
 }
 
 /**
- * Theme the answer part of the node view
+ * Theme the answer part of the node view.
  *
- * @param $subquestions
- *  Array with all the data in the subquestions.
+ * @param $variables
+ *
+ * @return string
+ *   An HTML string.
  */
 function theme_matching_match_node_view($variables) {
   $subquestions = $variables['subquestions'];
-  // We know the correct answer for each subquestion
+  // We know the correct answer for each subquestion.
   if (isset($subquestions[0]['correct'])) {
     $header = array(t('Subquestion'), t('Correct match'), t('Feedback'));
   }
-  // We do not know the correct answer for each subquestion
+  // We do not know the correct answer for each subquestion.
   else {
     $header = array(t('Subquestion'), t('Possible match'));
   }
@@ -67,12 +75,12 @@ function theme_matching_match_node_view($variables) {
 }
 
 /**
- * Theme the contents of the matching response form
+ * Theme the contents of the matching response form.
  *
- * @param $metadata
- *  Can be used as a table header
- * @param $data
- *  Can be used as table rows
+ * @param $variables
+ *
+ * @return string
+ *   An HTML string.
  */
 function theme_matching_response($variables) {
   $metadata = $variables['metadata'];

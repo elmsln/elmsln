@@ -20,14 +20,14 @@ class QuizDirectionsTestCase extends QuizQuestionTestCase {
     );
   }
 
-  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
     parent::setUp(array('quiz_directions'));
   }
 
   /**
    * Test adding and taking a quiz directions question.
    */
-  function testCreateQuizQuestion($settings = array()) {
+  public function testCreateQuizQuestion($settings = array()) {
     // Login as our privileged user.
     $this->drupalLogin($this->admin);
 
@@ -35,7 +35,7 @@ class QuizDirectionsTestCase extends QuizQuestionTestCase {
       'type' => $this->question_node_type,
       'title' => 'QD 1 title',
       'body' => array(LANGUAGE_NONE => array(array('value' => 'QD 1 body text.'))),
-      ) + $settings);
+    ) + $settings);
 
     return $question_node;
   }

@@ -57,7 +57,7 @@ function quiz_generate_form($form, $form_state) {
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Generate')
+    '#value' => t('Generate'),
   );
 
   return $form;
@@ -94,14 +94,14 @@ function quiz_generate_form_submit($form, &$form_state) {
 function quiz_generate($quiz_type, $question_types, $question_limit, $quiz_results) {
   $users = array_filter(devel_get_users());
   $quiz = (object) array(
-      'type' => $quiz_type,
-      'title' => devel_create_greeking(rand(5, 10), TRUE),
-      'uid' => $users[array_rand($users)],
-      'created' => REQUEST_TIME,
-      'changed' => REQUEST_TIME,
+    'type' => $quiz_type,
+    'title' => devel_create_greeking(rand(5, 10), TRUE),
+    'uid' => $users[array_rand($users)],
+    'created' => REQUEST_TIME,
+    'changed' => REQUEST_TIME,
   );
 
-  // Populate all core fields on behalf of field.module
+  // Populate all core fields on behalf of field.module.
   module_load_include('inc', 'devel_generate', 'devel_generate.fields');
   devel_generate_fields($quiz, 'node', $quiz->type);
   node_save($quiz);
@@ -112,6 +112,7 @@ function quiz_generate($quiz_type, $question_types, $question_limit, $quiz_resul
 
   for ($i = 1; $i <= $quiz_results; $i++) {
     $quiz_result = entity_create('quiz_result', array(
+      'type' => 'quiz_result',
       'nid' => $quiz->nid,
       'vid' => $quiz->vid,
       'uid' => $users[array_rand($users)],
@@ -135,6 +136,7 @@ function quiz_generate($quiz_type, $question_types, $question_limit, $quiz_resul
 
 /**
  * Generate Quiz questions.
+ *
  * @param type $quiz
  * @param type $question_type
  */
@@ -150,7 +152,13 @@ function quiz_generate_questions($quiz, $question_type) {
     'sticky' => 0,
     'language' => LANGUAGE_NONE,
     'title' => devel_create_greeking(rand(5, 20), TRUE),
-    'body' => array(LANGUAGE_NONE => array(array('value' => devel_create_para(rand(20, 50), 1)))),
+    'body' => array(
+      LANGUAGE_NONE => array(
+        array(
+          'value' => devel_create_para(rand(20, 50), 1)
+        ),
+      ),
+    ),
     'uid' => $users[array_rand($users)],
   );
 
@@ -158,29 +166,34 @@ function quiz_generate_questions($quiz, $question_type) {
     case 'truefalse':
       $question_array += array('correct_answer' => rand(0, 1));
       break;
+
     case 'short_answer':
       $question_array += array(
         'correct_answer_evaluation' => rand(ShortAnswerQuestion::ANSWER_MATCH, ShortAnswerQuestion::ANSWER_MANUAL),
         'correct_answer' => devel_create_greeking(rand(10, 20)),
       );
       break;
+
     case 'long_answer':
       $question_array += array(
-        'rubric' => devel_create_greeking(rand(10, 20))
+        'rubric' => devel_create_greeking(rand(10, 20)),
       );
       break;
+
     case 'multichoice':
       $question_array += quiz_generate_dummy_multichoice_question_info();
       break;
+
     case 'quiz_directions':
       break;
+
     default:
       drupal_set_message('Unsupported question: ' . $question_type, 'error');
   }
 
-  // Create question node
+  // Create question node.
   $question = (object) $question_array;
-  // Populate all core fields on behalf of field.module
+  // Populate all core fields on behalf of field.module.
   module_load_include('inc', 'devel_generate', 'devel_generate.fields');
   devel_generate_fields($question, 'node', $question->type);
   node_save($question);

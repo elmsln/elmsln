@@ -10,7 +10,7 @@
  */
 class QuizCreationTestCase extends QuizTestCase {
 
-  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
     $modules[] = 'truefalse';
     $admin_permissions[] = "edit any truefalse content";
     parent::setUp($modules, $admin_permissions, $user_permissions);
@@ -32,7 +32,7 @@ class QuizCreationTestCase extends QuizTestCase {
     $this->drupalGet("node/add/quiz");
     $this->drupalPost(NULL, array(
       'title' => 'Test quiz creation',
-      ), t('Save'));
+    ), t('Save'));
     $this->assertText('has been created');
   }
 
@@ -96,7 +96,7 @@ class QuizCreationTestCase extends QuizTestCase {
       'title' => 'Test quiz',
       'allow_skipping' => FALSE,
       'remember_settings' => TRUE,
-      ), t('Save'));
+    ), t('Save'));
     $this->drupalGet("node/add/quiz");
     $this->assertNoFieldChecked('edit-allow-resume');
     $this->assertNoFieldChecked('edit-allow-skipping');
@@ -111,7 +111,7 @@ class QuizCreationTestCase extends QuizTestCase {
   /**
    * Test quiz revisioning.
    */
-  function testQuizRevisioning() {
+  public function testQuizRevisioning() {
     $this->drupalLogin($this->admin);
     $question_node = $this->drupalCreateNode(array(
       'title' => 'Revision 1',
@@ -141,7 +141,7 @@ class QuizCreationTestCase extends QuizTestCase {
       'body[und][0][value]' => 'Revision 2',
       'correct_answer' => 0,
       'feedback[value]' => 'Question feedback for Revision 2',
-      ), t('Save'));
+    ), t('Save'));
 
     // Finish on same revision.
     $this->drupalLogin($this->user);
@@ -149,7 +149,7 @@ class QuizCreationTestCase extends QuizTestCase {
     $this->assertText("Revision 1");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('You got 1 of 1 possible points.');
     $this->assertText('Question feedback for Revision 1');
 
@@ -163,7 +163,7 @@ class QuizCreationTestCase extends QuizTestCase {
     $this->drupalGet("node/$quiz_node->nid/quiz/questions");
     $this->drupalPost(NULL, array(
       "revision[{$question_node->nid}-{$question_node->vid}]" => TRUE,
-      ), t('Submit'));
+    ), t('Submit'));
 
     // Take quiz again. Should be on SAME revision. We have not yet finished
     // this attempt.
@@ -173,10 +173,9 @@ class QuizCreationTestCase extends QuizTestCase {
     // Finish the attempt.
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('You got 1 of 1 possible points.');
     $this->assertText('Question feedback for Revision 1');
-
 
     // Take quiz again we should be on the new result, finally.
     $this->drupalGet("node/$quiz_node->nid/take");
@@ -184,7 +183,7 @@ class QuizCreationTestCase extends QuizTestCase {
     // Finish the attempt.
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('You got 0 of 1 possible points.');
     $this->assertText('Question feedback for Revision 2');
   }
@@ -192,7 +191,7 @@ class QuizCreationTestCase extends QuizTestCase {
   /**
    * Test quiz with revisioning off.
    */
-  function testQuizNoRevisioning() {
+  public function testQuizNoRevisioning() {
     // No revisions. Ever!
     variable_set('quiz_auto_revisioning', 0);
 
@@ -224,7 +223,7 @@ class QuizCreationTestCase extends QuizTestCase {
       'body[und][0][value]' => 'Revision 2',
       'correct_answer' => 0,
       'feedback[value]' => 'Question feedback for Revision 2',
-      ), t('Save'));
+    ), t('Save'));
 
     // We have revisioning turned off. So, the new question text should be
     // present. Finish on same revision.
@@ -233,7 +232,7 @@ class QuizCreationTestCase extends QuizTestCase {
     $this->assertText("Revision 2");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('You got 0 of 1 possible points.');
     $this->assertText('Question feedback for Revision 2');
 
@@ -248,10 +247,9 @@ class QuizCreationTestCase extends QuizTestCase {
     // Finish the attempt.
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('You got 0 of 1 possible points.');
     $this->assertText('Question feedback for Revision 2');
-
 
     // Take quiz again we should be on the new result.
     $this->drupalGet("node/$quiz_node->nid/take");
@@ -259,7 +257,7 @@ class QuizCreationTestCase extends QuizTestCase {
     // Finish the attempt.
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('You got 0 of 1 possible points.');
     $this->assertText('Question feedback for Revision 2');
   }
@@ -294,7 +292,7 @@ class QuizCreationTestCase extends QuizTestCase {
   /**
    * Test quiz revisioning.
    */
-  function testQuestionRevisionActions() {
+  public function testQuestionRevisionActions() {
     $this->drupalLogin($this->admin);
     $question_node = $this->drupalCreateNode(array(
       'title' => 'Revision 1',
@@ -308,7 +306,7 @@ class QuizCreationTestCase extends QuizTestCase {
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->assertText("Revision 1");
 
-    // Save the question
+    // Save the question.
     $this->drupalGet("node/$question_node->nid/edit");
     $this->drupalPost(NULL, array(), t('Save'));
     $this->assertText(t('Revision actions'));
@@ -325,15 +323,13 @@ class QuizCreationTestCase extends QuizTestCase {
     $this->drupalGet("node/$question_node->nid/question-revision-actions");
     $this->drupalPost(NULL, array(
       "quizzes[$quiz_node->nid][revise]" => 'revise',
-      ), t('Submit')
-    );
+    ), t('Submit'));
     $this->assertText('succesfully revised');
 
     $this->drupalGet("node/$question_node->nid/question-revision-actions");
     $this->drupalPost(NULL, array(
       "quizzes[$quiz_node->nid][revise]" => 'nothing',
-      ), t('Submit')
-    );
+    ), t('Submit'));
     $this->assertText('Quiz not updated, please use the Quiz question listing to if you decide to update the quiz manually.');
 
     // Check that we no longer have the opportunity to revise the quiz.
@@ -341,13 +337,16 @@ class QuizCreationTestCase extends QuizTestCase {
     $this->assertNoField("edit-revision-{$question_node->nid}-{$question_node->vid}");
 
     // Check that a better admin can manually update the quiz (no revisioning).
-    $better_admin = $this->drupalCreateUser(array('edit any truefalse content', 'edit any quiz content', 'manual quiz revisioning'));
+    $better_admin = $this->drupalCreateUser(array(
+      'edit any truefalse content',
+      'edit any quiz content',
+      'manual quiz revisioning',
+    ));
     $this->drupalLogin($better_admin);
     $this->drupalGet("node/$question_node->nid/question-revision-actions");
     $this->drupalPost(NULL, array(
       "quizzes[$quiz_node->nid][revise]" => 'update',
-      ), t('Submit')
-    );
+    ), t('Submit'));
     $this->assertText('succesfully updated');
   }
 

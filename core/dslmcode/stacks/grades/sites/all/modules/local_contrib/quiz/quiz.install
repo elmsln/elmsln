@@ -2,8 +2,7 @@
 
 /**
  * @file
- * Quiz install schema for installing the quiz module
- *
+ * Quiz install schema for installing the quiz module.
  */
 
 /**
@@ -33,6 +32,11 @@ function quiz_install() {
 
   // Set up default quiz result answer display.
   quiz_update_7521();
+
+  // Install a default bundle.
+  db_insert('quiz_result_type')
+    ->fields(array('label' => 'Quiz result', 'type' => 'quiz_result'))
+    ->execute();
 }
 
 /**
@@ -40,10 +44,10 @@ function quiz_install() {
  */
 function quiz_schema() {
   $schema = array();
-  /**
+  /*
    * Connect all the quiz specific properties to the correct version of a quiz.
    */
-  // Create the quiz node properties table
+  // Create the quiz node properties table.
   $schema['quiz_node_properties'] = array(
     'description' => 'The base table for quiz nodes',
     'fields' => array(
@@ -57,7 +61,7 @@ function quiz_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
-        'description' => 'The current {quiz}.vid version identifier.'
+        'description' => 'The current {quiz}.vid version identifier.',
       ),
       'nid' => array(
         'type' => 'int',
@@ -191,13 +195,6 @@ function quiz_schema() {
         'default' => 0,
         'description' => 'Boolean indicating whether the quiz will ignore the quiz open and close dates.',
       ),
-      'tid' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-        'description' => 'Deprecated field? This may have moved to {quiz_terms}',
-      ),
       'time_left' => array(
         'type' => 'int',
         'size' => 'small',
@@ -274,21 +271,30 @@ function quiz_schema() {
         'serialize' => TRUE,
         'description' => 'Serialized field containing feedback times and options.',
       ),
+      'result_type' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => 'The result bundle to use.',
+      ),
     ),
     'primary key' => array('qnp_id'),
     'indexes' => array('quiz_id' => array('vid', 'nid')),
   );
+
   /*
-   * Both a quiz and a quiz question are nodes with versions.  A quiz is a parent node of a quiz question,
-   * making the quiz question the child.
+   * Both a quiz and a quiz question are nodes with versions. A quiz is a parent
+   * node of a quiz question, making the quiz question the child.
    *
-   * The quiz_node_relationship table stores this relationship in a way that allows a quiz question to be
-   * the child of multiple quizzes without losing version history.
+   * The quiz_node_relationship table stores this relationship in a way that
+   * allows a quiz question to be the child of multiple quizzes without losing
+   * version history.
    *
-   * Future functionality will allow a quiz question to be a parent of another quiz question with the same
-   * data model.  This will make adaptive quiz functionality possible without redesign.
+   * Future functionality will allow a quiz question to be a parent of another
+   * quiz question with the same data model. This will make adaptive quiz
+   * functionality possible without redesign.
    */
-  // Create the quiz node relationship table
+  // Create the quiz node relationship table.
   $schema['quiz_node_relationship'] = array(
     'description' => 'Table storing what questions belong to what quizzes',
     'fields' => array(
@@ -366,13 +372,16 @@ function quiz_schema() {
     'indexes' => array(
       'parent_id' => array('parent_vid'),
       'child_id' => array('child_vid'),
+      'parent_nid' => array('parent_nid'),
+      'child_nid' => array('child_nid'),
+      'qnr_pid' => array('qnr_pid'),
     ),
   );
 
-  /**
+  /*
    * Quiz specific options concerning  availability and access to scores.
    */
-  // Create the quiz node results table
+  // Create the quiz node results table.
   $schema['quiz_node_results'] = array(
     'description' => 'Table storing the total results for a quiz',
     'fields' => array(
@@ -429,7 +438,7 @@ function quiz_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
-        'description' => 'This field is not referenced.',
+        'description' => 'Boolean indicating if this result is marked for deletion.',
       ),
       'is_evaluated' => array(
         'type' => 'int',
@@ -452,6 +461,12 @@ function quiz_schema() {
         'default' => 1,
         'description' => 'The number of this attempt.',
       ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => 'The result bundle.',
+      ),
     ),
     'primary key' => array('result_id'),
     'indexes' => array(
@@ -460,14 +475,13 @@ function quiz_schema() {
     ),
   );
 
-  /**
-   * Information about a particular question in a result
+  /*
+   * Information about a particular question in a result.
    */
   $schema['quiz_node_results_answers'] = array(
     'description' => 'Table storing information about each question response in an attempt.',
     'fields' => array(
       'result_answer_id' => array(
-        'description' => 'The result answer ID',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -559,10 +573,10 @@ function quiz_schema() {
     ),
   );
 
-  /**
+  /*
    * Allows custom feedback based on the results of a user completing a quiz.
    */
-  // Create the quiz node result options table
+  // Create the quiz node result options table.
   $schema['quiz_node_result_options'] = array(
     'description' => 'Table storing result options for quizzes. Several result options may belong to a single quiz.',
     'fields' => array(
@@ -617,7 +631,7 @@ function quiz_schema() {
     'primary key' => array('option_id'),
     'indexes' => array(
       'quiz_id' => array('vid', 'nid'),
-    )
+    ),
   );
 
   $schema['quiz_terms'] = array(
@@ -667,20 +681,67 @@ function quiz_schema() {
       'version' => array('vid'),
     ),
   );
+
+  $schema['quiz_result_type'] = array(
+    'description' => 'Stores information about all defined quiz result types.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Unique result type ID.',
+      ),
+      'type' => array(
+        'description' => 'The machine-readable name of this result type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'The human-readable name of this result type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'type' => array('type'),
+    ),
+  );
+
   return $schema;
 }
 
 /**
- * Implements hook_update_N()
+ * Implements hook_update_N().
  */
-// should have been named quiz_update_7400
 function quiz_update_7100(&$sandbox) {
+  // Should have been named quiz_update_7400.
   db_add_field('quiz_node_properties', 'show_passed', array('type' => 'int', 'not null' => TRUE, 'default' => 1, 'size' => 'tiny'));
   return t('Show passed field added to quiz config.');
 }
 
-// should have been named quiz_update_7401
+/**
+ * Implements hook_update_N().
+ */
 function quiz_update_7101(&$sandbox) {
+  // Should have been named quiz_update_7401.
   db_add_field('quiz_user_settings', 'show_passed', array('type' => 'int', 'not null' => TRUE, 'default' => 1, 'size' => 'tiny'));
   return t('Done !');
 }
@@ -709,7 +770,7 @@ function quiz_update_7403() {
 }
 
 /**
- * Increase the maximum quiz size
+ * Increase the maximum quiz size.
  */
 function quiz_update_7404() {
   db_change_field('quiz_node_properties', 'number_of_random_questions', 'number_of_random_questions', array(
@@ -730,7 +791,8 @@ function quiz_update_7404() {
 }
 
 /**
- * Remove unsigned attribute from field time_start and time_end in quiz_node_results table.
+ * Remove unsigned attribute from field time_start and time_end in
+ * quiz_node_results table.
  */
 function quiz_update_7405() {
   $spec = array(
@@ -744,14 +806,14 @@ function quiz_update_7405() {
 }
 
 /**
- * Adding columns mark answers as doubtful
+ * Adding columns mark answers as doubtful.
  */
 function quiz_update_7406(&$sandbox) {
   $spec = array(
     'type' => 'int',
     'not null' => TRUE,
     'default' => 0,
-    'size' => 'tiny'
+    'size' => 'tiny',
   );
   db_add_field('quiz_node_results_answers', 'is_doubtful', $spec);
   db_add_field('quiz_node_properties', 'mark_doubtful', $spec);
@@ -759,7 +821,7 @@ function quiz_update_7406(&$sandbox) {
 }
 
 /**
- * Adding auto update max score
+ * Adding auto update max score.
  */
 function quiz_update_7407(&$sandbox) {
   $spec = array(
@@ -773,7 +835,7 @@ function quiz_update_7407(&$sandbox) {
 }
 
 /**
- * Adding userpoints tid column
+ * Adding userpoints tid column.
  */
 function quiz_update_7409(&$sandbox) {
   $table = 'quiz_node_properties';
@@ -913,7 +975,7 @@ function quiz_update_7506() {
   db_add_field('quiz_node_properties', 'qnp_id', array(
     'type' => 'serial',
     'not null' => TRUE,
-    ), array('primary key' => array('qnp_id')));
+  ), array('primary key' => array('qnp_id')));
 
   db_add_field('quiz_node_properties', 'uid', array(
     'type' => 'int',
@@ -949,8 +1011,7 @@ function quiz_update_7509() {
     'unsigned' => TRUE,
     'not null' => FALSE,
     'default' => NULL,
-    )
-  );
+  ));
 
   db_drop_field('quiz_node_results', 'layout');
 }
@@ -1199,4 +1260,108 @@ function quiz_update_7521() {
       ),
     ),
   ));
+}
+
+/**
+ * Add more indexes for really large question banks.
+ */
+function quiz_update_7522() {
+  if (!db_index_exists('quiz_node_relationship', 'parent_nid')) {
+    db_add_index('quiz_node_relationship', 'parent_nid', array('parent_nid'));
+  }
+
+  if (!db_index_exists('quiz_node_relationship', 'child_nid')) {
+    db_add_index('quiz_node_relationship', 'child_nid', array('child_nid'));
+  }
+  return t('Added indexes to {quiz_node_relationship} table.');
+}
+
+/**
+ * Add type for quiz results.
+ */
+function quiz_update_7523() {
+  db_create_table('quiz_result_type', array(
+    'description' => 'Stores information about all defined quiz result types.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Unique result type ID.',
+      ),
+      'type' => array(
+        'description' => 'The machine-readable name of this result type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'The human-readable name of this result type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'type' => array('type'),
+    ),
+  ));
+
+  db_add_field('quiz_node_properties', 'result_type', array(
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => FALSE,
+    'description' => 'The result bundle.',
+  ));
+  db_add_field('quiz_node_results', 'type', array(
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => FALSE,
+    'description' => 'The result bundle.',
+  ));
+  db_update('quiz_node_properties')
+    ->fields(array('result_type' => 'quiz_result'))
+    ->execute();
+  db_update('quiz_node_results')
+    ->fields(array('type' => 'quiz_result'))
+    ->execute();
+
+  db_insert('quiz_result_type')
+    ->fields(array('label' => 'Quiz result', 'type' => 'quiz_result'))
+    ->execute();
+  return t('Added quiz result bundle table and column.');
+}
+
+/**
+ * Remove old db structure for randomised questions.
+ */
+function quiz_update_7524() {
+  if (db_field_exists('quiz_node_properties', 'tid')) {
+    db_drop_field('quiz_node_properties', 'tid');
+  }
+}
+
+/**
+ * Add index to qnr_pid.
+ */
+function quiz_update_7525() {
+  if (!db_index_exists('quiz_node_relationship', 'qnr_pid')) {
+    db_add_index('quiz_node_relationship', 'qnr_pid', array('qnr_pid'));
+  }
 }

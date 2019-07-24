@@ -2,44 +2,16 @@
 
 /**
  * @file
- * Theme functions for long_answer.
+ * Theme functions for the long_answer question type.
  */
 
-
 /**
- * Theme the list of unscored long answer questions.
+ * Theme the long_answer response form.
  *
- * @param $unscored
- *  An array of objects, each with the question_nid, question_vid, and result_id of an unscored question.
- */
-function theme_long_answer_view_unscored($variables) {
-  $unscored = $variables['unscored'];
-  $output = '';
-  $header = array(
-    t('Question'),
-    t('Finished'),
-    t('Action')
-  );
-  $rows = array();
-
-  foreach ($unscored as $item) {
-    if ($item->time_end > 0) {
-      $rows[] = array(
-        check_plain($item->title),
-        date('Y-m-d H:i', $item->time_end),
-        l(t('Score this response'), 'admin/quiz/reports/score-long-answer/' . $item->question_vid . '/' . $item->result_id, array('query' => drupal_get_destination())),
-      );
-    }
-  }
-  $output .= !empty($rows) ? theme('table', array('header' => $header, 'rows' => $rows)) : t('There are no unscored essays.');
-  return $output;
-}
-
-/**
- * Theme the long_answer response form
+ * @param array $variables
  *
- * @param $form
- *  The response form
+ * @return string
+ *   An HTML string.
  */
 function theme_long_answer_response_form($variables) {
   $form = $variables['form'];

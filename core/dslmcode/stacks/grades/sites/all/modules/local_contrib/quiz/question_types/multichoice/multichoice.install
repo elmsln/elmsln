@@ -1,18 +1,15 @@
 <?php
 
 /**
- * Sponsored by: Norwegian Centre for Telemedicine
- * Code: falcon
- *
  * @file
- * multichoice Install (a quiz question type)
+ * Multichoice questions install file.
  */
 
 /**
  * Implements hook_install().
  */
 function multichoice_install() {
-  // Add body field to multichoice node
+  // Add body field to multichoice node.
   quiz_question_add_body_field('multichoice');
 
   variable_set('node_options_multichoice', array('status'));
@@ -40,7 +37,7 @@ function multichoice_schema() {
       ),
     ),
     'primary key' => array(
-      'id'
+      'id',
     ),
     'unique keys' => array(
       'result_answer_id' => array('result_answer_id'),
@@ -61,7 +58,7 @@ function multichoice_schema() {
       ),
     ),
     'primary key' => array(
-      'user_answer_id', 'answer_id'
+      'user_answer_id', 'answer_id',
     ),
     'indexes' => array(
       'answer_id' => array('user_answer_id'),
@@ -100,7 +97,7 @@ function multichoice_schema() {
       ),
     ),
     'primary key' => array(
-      'nid', 'vid'
+      'nid', 'vid',
     ),
   );
 
@@ -172,7 +169,7 @@ function multichoice_schema() {
     ),
     'indexes' => array(
       'quiz_id' => array('question_nid', 'question_vid'),
-    )
+    ),
   );
 
   $schema['quiz_multichoice_user_settings'] = array(
@@ -202,7 +199,7 @@ function multichoice_schema() {
       ),
     ),
     'primary key' => array(
-      'uid'
+      'uid',
     ),
   );
   return $schema;
@@ -225,13 +222,17 @@ function multichoice_uninstall() {
  * Change answer_format to a varchar.
  */
 function multichoice_update_7500() {
-  foreach (array('answer_format', 'feedback_if_chosen_format', 'feedback_if_not_chosen_format') as $field) {
+  $fields = array(
+    'answer_format',
+    'feedback_if_chosen_format',
+    'feedback_if_not_chosen_format',
+  );
+  foreach ($fields as $field) {
     db_change_field('quiz_multichoice_answers', $field, $field, array(
       'type' => 'varchar',
       'length' => 255,
       'not null' => TRUE,
-      )
-    );
+    ));
   }
 }
 
@@ -254,11 +255,17 @@ function multichoice_update_7501() {
  * Normalize data storage.
  */
 function multichoice_update_7502() {
+  // Cleanup duplicates from 4.x.
+  $sql = "delete from {quiz_multichoice_user_answers}
+    where id in (select id from (select id from {quiz_multichoice_user_answers} ua group by result_id, question_nid, question_vid having count(*) > 1) as q)";
+  while (db_query($sql)->rowCount());
+
   db_add_field('quiz_multichoice_user_answers', 'result_answer_id', array(
     'type' => 'int',
     'unsigned' => TRUE,
     'not null' => FALSE,
   ));
+
   db_query("UPDATE {quiz_multichoice_user_answers} qtua
     INNER JOIN {quiz_node_results_answers} qnra ON (qtua.question_nid = qnra.question_nid
     AND qtua.question_vid = qnra.question_vid

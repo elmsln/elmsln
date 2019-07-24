@@ -12,7 +12,7 @@ class QuizPageTestCase extends QuizQuestionTestCase {
     );
   }
 
-  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
     $modules[] = 'quiz_page';
     $modules[] = 'truefalse';
     parent::setUp($modules, $admin_permissions, $user_permissions);
@@ -21,7 +21,7 @@ class QuizPageTestCase extends QuizQuestionTestCase {
   /**
    * Test that question parentage saves.
    */
-  function testQuizPageParentage() {
+  public function testQuizPageParentage() {
     $this->drupalLogin($this->admin);
 
     // Create Quiz with review of score.
@@ -64,9 +64,11 @@ class QuizPageTestCase extends QuizQuestionTestCase {
         case 2:
           $this->assertEqual($rel->qnr_pid, 4);
           break;
+
         case 3:
           $this->assertEqual($rel->qnr_pid, 5);
           break;
+
         case 4:
         case 5:
           $this->assertNull($rel->qnr_pid);
@@ -84,14 +86,14 @@ class QuizPageTestCase extends QuizQuestionTestCase {
     $this->drupalPost(NULL, array(
       "question[{$question_node1->nid}][answer]" => 1,
       "question[{$question_node2->nid}][answer]" => 1,
-      ), t('Next'));
+    ), t('Next'));
     // Questions 1 and 2 are gone. Question 3 is present.
     $this->assertNoFieldByName("question[{$question_node1->nid}][answer]");
     $this->assertNoFieldByName("question[{$question_node2->nid}][answer]");
     $this->assertFieldByName("question[{$question_node3->nid}][answer]");
     $this->drupalPost(NULL, array(
       "question[{$question_node3->nid}][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
 
     // Check that the results page contains all the questions.
     $this->assertText('You got 3 of 3 possible points.');
@@ -129,7 +131,7 @@ class QuizPageTestCase extends QuizQuestionTestCase {
     $this->drupalPost(NULL, array(
       "question[{$question_node1->nid}][answer]" => 1,
       "question[{$question_node2->nid}][answer]" => 1,
-      ), t('Next'));
+    ), t('Next'));
     // Questions 1 and 2 are gone. Question 3 is present.
     $this->assertText("Page 2 of 2");
     $this->assertNoFieldByName("question[{$question_node1->nid}][answer]");
@@ -137,13 +139,13 @@ class QuizPageTestCase extends QuizQuestionTestCase {
     $this->assertFieldByName("question[{$question_node3->nid}][answer]");
     $this->drupalPost(NULL, array(
       "question[{$question_node3->nid}][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
   }
 
   /**
    * Test adding and taking a quiz page question.
    */
-  function testCreateQuizQuestion($settings = array()) {
+  public function testCreateQuizQuestion($settings = array()) {
     // Login as our privileged user.
     $this->drupalLogin($this->admin);
 
@@ -151,16 +153,16 @@ class QuizPageTestCase extends QuizQuestionTestCase {
       'type' => $this->question_node_type,
       'title' => 'PG 1 title',
       'body' => array(LANGUAGE_NONE => array(array('value' => 'PG 1 body text.'))),
-      ) + $settings);
+    ) + $settings);
 
     return $question_node;
   }
 
-  function testEditQuestionResponse() {
+  public function testEditQuestionResponse() {
     // Not takeable.
   }
 
-  function testPageFeedback() {
+  public function testPageFeedback() {
     $this->drupalLogin($this->admin);
 
     $quiz_node = $this->drupalCreateQuiz(
@@ -195,7 +197,6 @@ class QuizPageTestCase extends QuizQuestionTestCase {
     $quiz_question->feedback_format = filter_default_format();
     entity_save('quiz_question', $quiz_question);
 
-
     $this->linkQuestionToQuiz($question_node2, $quiz_node); // QNR ID 2
     // Create the page.
     $page_node1 = $this->drupalCreateNode(array('type' => 'quiz_page', 'body' => array(LANGUAGE_NONE => array(array('value' => 'PG 1 body text')))));
@@ -219,7 +220,7 @@ class QuizPageTestCase extends QuizQuestionTestCase {
     $this->drupalPost(NULL, array(
       "question[{$question_node1->nid}][answer]" => 1,
       "question[{$question_node2->nid}][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
 
     $this->assertText('This is the feedback for question 1');
     $this->assertText('This is the feedback for question 2');

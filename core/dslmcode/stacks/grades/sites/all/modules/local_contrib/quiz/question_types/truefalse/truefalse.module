@@ -2,11 +2,10 @@
 
 /**
  * @file
- * TrueFalse question type for quiz module
+ * TrueFalse question type for the Quiz module.
  *
- * Allows the creation of "True or False" questions
+ * Allows the creation of "True or False" questions.
  */
-
 
 /**
  * Implements hook_help().
@@ -15,9 +14,11 @@ function truefalse_help($path, $args) {
   switch ($path) {
     case 'admin/modules#description':
       return t('TrueFalse question type for the quiz module.');
+
     case 'node/add#truefalse':
     case 'admin/help#truefalse':
       return t('A question type for the quiz module. A simplified version of multichoice where "true" and "false" are the alternatives.');
+
     default:
       break;
   }
@@ -33,7 +34,8 @@ function truefalse_quiz_question_info() {
       'description' => t('Quiz questions that allow a user to select "true" or "false" as his response to a statement.'),
       'question provider' => 'TrueFalseQuestion',
       'response provider' => 'TrueFalseResponse',
-      'module' => 'quiz_question', // All wrapper functions are in that module.
+      // All wrapper functions are in the quiz_question module.
+      'module' => 'quiz_question',
     ),
   );
 }
@@ -65,12 +67,12 @@ function truefalse_theme() {
 }
 
 /**
- * Theme the response part of the response report
+ * Theme the truefalse response form.
  *
- * @param $metadata
- *  Can be used as a table header
- * @param $data
- *  Can be used as table rows
+ * @param array $variables
+ *
+ * @return string
+ *   An HTML string.
  */
 function theme_truefalse_response($variables) {
   $metadata = $variables['metadata'];

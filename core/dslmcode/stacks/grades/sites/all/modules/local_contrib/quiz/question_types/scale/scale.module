@@ -1,15 +1,11 @@
 <?php
 
 /**
- * The main file for scale.
- *
- * Sponsored by: Norwegian Centre for Telemedicine
- * Code: falcon
- *
  * @file
  * Scale question type for the Quiz module.
  *
- * Allows the creation of scale questions (ex: likert scale)
+ * Allows the creation of scale questions (ex: likert scale). Mainly used for
+ * creating survey like questions within the quiz framework.
  */
 
 /**
@@ -44,7 +40,7 @@ function scale_theme($existing, $type, $theme, $path) {
   return array(
     'scale_creation_form' => array(
       'render element' => 'form',
-      'path' =>  $module_path . '/theme',
+      'path' => $module_path . '/theme',
       'file' => 'scale.theme.inc',
     ),
     'scale_response_form' => array(
@@ -88,7 +84,8 @@ function scale_quiz_question_info() {
       'description' => t('Quiz questions that allow a user to choose from a scale.'),
       'question provider' => 'ScaleQuestion',
       'response provider' => 'ScaleResponse',
-      'module' => 'quiz_question', // All wrapper functions are in that module.
+      // All wrapper functions are in the quiz_question module.
+      'module' => 'quiz_question',
     ),
   );
 }
@@ -108,7 +105,7 @@ function scale_quiz_question_config() {
 }
 
 /**
- * Validate the scale config form values
+ * Validate the scale config form values.
  */
 function scale_config_validate($form, $form_state) {
   if (!_quiz_is_int($form_state['values']['scale_max_num_of_alts'], 2, 50)) {
@@ -117,7 +114,17 @@ function scale_config_validate($form, $form_state) {
 }
 
 /**
- * Implements hook_get_answer().
+ * Get the answer data for a specific result.
+ *
+ * @param int $question_nid
+ *   The Question node ID.
+ * @param int $question_vid
+ *   The Question revision ID.
+ * @param int $result_id
+ *   The result ID for this attempt.
+ *
+ * @return array|false
+ *   Array containing the answer data.
  */
 function scale_get_answer($question_nid, $question_vid, $result_id) {
   $results = db_query('SELECT answer_id, question_vid, question_nid, result_id
@@ -131,16 +138,16 @@ function scale_get_answer($question_nid, $question_vid, $result_id) {
  */
 function scale_user_cancel($edit, $account, $method) {
   $results = db_query('SELECT id FROM {quiz_scale_answer_collection} ac
-              JOIN {quiz_scale_user} u ON(ac.id = u.answer_collection_id)
-              WHERE uid = :uid
-              AND ac.for_all = :for_all
-              AND ac.id NOT IN
-                (SELECT answer_collection_id
-                 FROM {quiz_scale_node_properties})
-              AND ac.id NOT IN
-                (SELECT answer_collection_id
-                 FROM {quiz_scale_user}
-                 WHERE NOT uid = :uid)', array(':uid' => $account->uid, ':for_all' => 0));
+    JOIN {quiz_scale_user} u ON(ac.id = u.answer_collection_id)
+    WHERE uid = :uid
+    AND ac.for_all = :for_all
+    AND ac.id NOT IN
+      (SELECT answer_collection_id
+       FROM {quiz_scale_node_properties})
+    AND ac.id NOT IN
+      (SELECT answer_collection_id
+       FROM {quiz_scale_user}
+       WHERE NOT uid = :uid)', array(':uid' => $account->uid, ':for_all' => 0));
   foreach ($results as $result) {
     db_delete('quiz_scale_answer')
       ->condition('answer_collection_id', $result->id)
@@ -160,9 +167,6 @@ function scale_user_cancel($edit, $account, $method) {
  *
  * Users with the Edit global presets permissions can also add new global
  * presets here.
- *
- * @param $form_state
- * @return form
  */
 function scale_manage_collection_form($form, &$form_state) {
   global $user;
@@ -172,7 +176,8 @@ function scale_manage_collection_form($form, &$form_state) {
   $scale_question = new ScaleQuestion(new stdClass());
   $collections = $scale_question->getPresetCollections($edit_globals_access);
 
-  // If user is allowed to edit global answer collections he is also allowed to add new global presets
+  // If user is allowed to edit global answer collections he is also allowed
+  // to add new global presets.
   if ($edit_globals_access) {
     $new_col = new stdClass();
     $new_col->for_all = 1;
@@ -187,7 +192,7 @@ function scale_manage_collection_form($form, &$form_state) {
     );
     return $form;
   }
-  // Populate the form
+  // Populate the form.
   foreach ($collections as $col_id => $obj) {
     $form["collection$col_id"] = array(
       '#type' => 'fieldset',
@@ -222,7 +227,8 @@ function scale_manage_collection_form($form, &$form_state) {
         '#options' => array(
           t('Save changes, do not change questions using this preset'),
           t('Save changes, and change your own questions who uses this preset'),
-          t('Delete this preset(This will not affect existing questions)')),
+          t('Delete this preset(This will not affect existing questions)')
+        ),
       );
     }
     else {
@@ -250,9 +256,6 @@ function scale_manage_collection_form($form, &$form_state) {
 
 /**
  * Handles the scale collection form.
- *
- * @param $form
- * @param $form_state
  */
 function scale_collection_form_submit($form, &$form_state) {
   global $user;
@@ -264,9 +267,14 @@ function scale_collection_form_submit($form, &$form_state) {
     if ($col_id = _scale_get_col_id($key)) {
       $s_q = new ScaleQuestion(new stdClass());
       $s_q->initUtil($col_id);
-      switch ($alternatives['to-do']) { // @todo: Rename to-do to $op
-        case 0: //Save, but don't change
-        case 1: //Save and change existing questions
+
+      // @todo Rename to-do to $op
+      switch ($alternatives['to-do']) {
+        // Save, but don't change.
+        case 0:
+
+        // Save and change existing questions.
+        case 1:
           $new_col_id = $s_q->saveAnswerCollection(FALSE, $alternatives, 1);
           if (isset($alternatives['for_all'])) {
             _scale_set_for_all($new_col_id, $alternatives['for_all']);
@@ -275,11 +283,12 @@ function scale_collection_form_submit($form, &$form_state) {
             break;
           }
           $changed++;
-          // We save the changes, but don't change existing questions
+          // We save the changes, but don't change existing questions.
           if ($alternatives['to-do'] == 0) {
-            // The old version of the collection shall not be a preset anymore
+            // The old version of the collection shall not be a preset anymore.
             _scale_unpreset_collection($col_id, $user->uid);
-            // If the old version of the collection doesn't belong to any questions it is safe to delete it.
+            // If the old version of the collection doesn't belong to any
+            // questions it is safe to delete it.
             $s_q->deleteCollectionIfNotUsed($col_id);
 
             if (isset($alternatives['for_all'])) {
@@ -287,7 +296,7 @@ function scale_collection_form_submit($form, &$form_state) {
             }
           }
           elseif ($alternatives['to-do'] == 1) {
-            // Update all the users questions where the collection is used
+            // Update all the users questions where the collection is used.
             $nids = db_query('SELECT nid FROM {node} WHERE uid = :uid', array(':uid' => 1))->fetchCol();
             db_update('quiz_scale_node_properties')
               ->fields(array('answer_collection_id' => $new_col_id))
@@ -301,14 +310,18 @@ function scale_collection_form_submit($form, &$form_state) {
             $s_q->deleteCollectionIfNotUsed($col_id);
           }
           break;
-        case 2: //Delete
+
+        // Delete.
+        case 2:
           $got_deleted = $s_q->deleteCollectionIfNotUsed($col_id);
           if (!$got_deleted) {
             _scale_unpreset_collection($col_id, $user->uid);
           }
           $deleted++;
           break;
-        case 3: //New
+
+        // New.
+        case 3:
           if (drupal_strlen($alternatives['alternative0']) > 0) {
             $new_col_id = $s_q->saveAnswerCollection(FALSE, $alternatives, 1);
             _scale_set_for_all($new_col_id, $alternatives['for_all']);
@@ -327,25 +340,28 @@ function scale_collection_form_submit($form, &$form_state) {
 }
 
 /**
- * Validates the scale collection form
+ * Validates the scale collection form.
  */
 function scale_collection_form_validate($form, &$form_state) {
-  // If the user is trying to create a new collection
+  // If the user is trying to create a new collection.
   if (drupal_strlen($form_state['values']['collectionnew']['alternative0']) > 0) {
-    // If the new collection don't have two alternatives
+    // If the new collection don't have two alternatives.
     if (drupal_strlen($form_state['values']['collectionnew']['alternative1']) == 0) {
-      // This can't be replaced by adding #required to the form elements. If we did so we would always have to
-      // create a new collection when we press submit
+      // This can't be replaced by adding #required to the form elements. If
+      // we did so we would always have to create a new collection when we
+      // press submit.
       form_set_error('collectionnew][alternative1', t('New preset must have atleast two alternatives.'));
     }
   }
 }
 
 /**
- * Searches a string for the answer collection id
+ * Searches a string for the answer collection id.
  *
- * @param $string
- * @return answer collection id
+ * @param string $string
+ *
+ * @return int|false
+ *   answer collection id.
  */
 function _scale_get_col_id($string) {
   $res = array();
@@ -356,9 +372,9 @@ function _scale_get_col_id($string) {
 /**
  * Make sure an answer collection isn't a preset for a given user.
  *
- * @param $col_id
- *  Answer_collection_id
- * @param $user_id
+ * @param int $col_id
+ *   Answer_collection_id.
+ * @param int $user_id
  */
 function _scale_unpreset_collection($col_id, $user_id) {
   db_delete('quiz_scale_user')
@@ -367,7 +383,7 @@ function _scale_unpreset_collection($col_id, $user_id) {
     ->execute();
   if (user_access('Edit global presets')) {
     db_update('quiz_scale_answer_collection')
-      ->fields(array('for_all' =>  0))
+      ->fields(array('for_all' => 0))
       ->execute();
   }
 }
@@ -375,11 +391,10 @@ function _scale_unpreset_collection($col_id, $user_id) {
 /**
  * Make an answer collection (un)available for all question creators.
  *
- * @param $new_col_id
- *  Answer collection id
- * @param $for_all
- *  0 if not for all,
- *  1 if for all
+ * @param int $new_col_id
+ *   Answer collection id.
+ * @param int $for_all
+ *   Use 0 if not for all, 1 if for all.
  */
 function _scale_set_for_all($new_col_id, $for_all) {
   db_update('quiz_scale_answer_collection')

@@ -1,5 +1,5 @@
 name = Quiz - Matching question
-package = Quiz Question
+package = Quiz question
 description = Provide a way to create matching type of questions.
 core = 7.x
 dependencies[] = quiz
@@ -8,9 +8,8 @@ dependencies[] = quiz_question
 files[] = matching.classes.inc
 files[] = matching.test
 
-; Information added by Drupal.org packaging script on 2016-02-19
-version = "7.x-5.0-beta4"
+; Information added by Drupal.org packaging script on 2019-04-25
+version = "7.x-5.5"
 core = "7.x"
 project = "quiz"
-datestamp = "1455899370"
-
+datestamp = "1556201287"
