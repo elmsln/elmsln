@@ -74,7 +74,7 @@ function print_pdf_controller() {
 
   $nodepath = (isset($node->nid)) ? 'node/' . $node->nid : drupal_get_normal_path($path);
   db_merge('print_pdf_page_counter')
-    ->key(array('path' => $nodepath))
+    ->key(array('path' => substr($nodepath, 0, 255)))
     ->fields(array(
       'totalcount' => 1,
       'timestamp' => REQUEST_TIME,
@@ -116,9 +116,7 @@ function print_pdf_generate_path($path, $query = NULL, $cid = NULL, $pdf_filenam
     $cache_enabled = variable_get('print_pdf_cache_enabled', PRINT_PDF_CACHE_ENABLED_DEFAULT);
 
     $function = $pdf_tool[0] . '_pdf_tool_info';
-    if (function_exists($function)) {
-      $info = $function();
-    }
+    $info = function_exists($function) ? $function() : array();
     $expand = isset($info['expand_css']) ? $info['expand_css'] : FALSE;
 
     $html = theme('print', array(

@@ -59,7 +59,9 @@ function print_pdf_dompdf_menu() {
  * Implements hook_pdf_tool_version().
  */
 function print_pdf_dompdf_pdf_tool_version($pdf_tool) {
-  require_once DRUPAL_ROOT . '/' . $pdf_tool;
+  if (file_exists(DRUPAL_ROOT . '/' . $pdf_tool)) {
+    include_once DRUPAL_ROOT . '/' . $pdf_tool;
+  }
 
   if (basename($pdf_tool) == 'Dompdf.php') {
     $dompdf_base = dirname(dirname($pdf_tool));

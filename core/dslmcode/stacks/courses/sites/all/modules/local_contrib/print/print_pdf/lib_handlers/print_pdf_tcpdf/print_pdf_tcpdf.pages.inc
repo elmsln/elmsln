@@ -69,7 +69,14 @@ function print_pdf_tcpdf_print_pdf_generate($html, $meta, $paper_size = NULL, $p
   $pattern = "!(<img\s[^>]*?src\s*?=\s*?['\"]?{$base_url}[^>]*?)(?:%3F|\?)[^\s'\"]+([^>]*?>)!is";
   $html = preg_replace($pattern, '$1$2', $html);
 
-  require_once DRUPAL_ROOT . '/' . $pdf_tool[1];
+  $tool_path = DRUPAL_ROOT . '/' . $pdf_tool[1];
+  if (file_exists($tool_path)) {
+    require_once $tool_path;
+  }
+  else {
+    watchdog('print_pdf', 'Configured PDF tool does not exist at path: %path', array('%path' => $tool_path), WATCHDOG_ERROR);
+    throw new Exception("Configured PDF tool does not exist, unable to generate PDF.");
+  }
   module_load_include('inc', 'print_pdf_tcpdf', 'print_pdf_tcpdf.class');
 
   $font = array(

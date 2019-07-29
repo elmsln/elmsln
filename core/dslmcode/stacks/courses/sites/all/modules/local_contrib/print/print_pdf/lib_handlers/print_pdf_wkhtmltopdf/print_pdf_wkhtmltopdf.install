@@ -12,6 +12,7 @@
  */
 function print_pdf_wkhtmltopdf_uninstall() {
   variable_del('print_pdf_wkhtmltopdf_options');
+  variable_del('print_pdf_wkhtmltopdf_use_input_file');
   variable_del('print_pdf_wkhtmltopdf_version');
 }
 

@@ -9,6 +9,7 @@
 
 define('PRINT_PDF_WKHTMLTOPDF_OPTIONS', "--footer-font-size 7 --footer-right '[page]'");
 define('PRINT_PDF_WKHTMLTOPDF_VERSION_DEFAULT', '');
+define('PRINT_PDF_WKHTMLTOPDF_USE_INPUT_FILE_DEFAULT', FALSE);
 
 /**
  * Implements hook_pdf_tool_info().
@@ -93,6 +94,14 @@ function print_pdf_wkhtmltopdf_pdf_tool_version($pdf_tool, $reset = TRUE) {
 function print_pdf_wkhtmltopdf_print_pdf_available_libs_alter(&$pdf_tools) {
   module_load_include('inc', 'print', 'includes/print');
   $tools = _print_scan_libs('wkhtmltopdf', '!^wkhtmltopdf!');
+
+  // See if there is a binary version of wkhtmltopdf available.
+  if (drupal_substr(php_uname('s'), 0, 3) !== 'Win') {
+    exec('export PATH="$PATH:/usr/local/bin" ; which wkhtmltopdf', $binary_output, $binary_status);
+    if (count($binary_output) > 0 && $binary_status == 0) {
+      $tools[] = $binary_output[0];
+    }
+  }
 
   foreach ($tools as $tool) {
     $version = print_pdf_wkhtmltopdf_pdf_tool_version($tool, TRUE);

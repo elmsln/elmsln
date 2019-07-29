@@ -1,0 +1,8 @@
+mPDF support:
+
+  1. Download mPDF from https://github.com/mpdf/mpdf/releases.
+  2. Extract the contents of the downloaded package into one of the
+  supported paths.
+  3. If using mPDF 7.0 or later don't forget to run 'composer install' in the
+  mpdf directory.
+  4. Check https://mpdf.github.io/ for further information.

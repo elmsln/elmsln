@@ -41,7 +41,7 @@ function print_controller_html() {
 
     $nodepath = (isset($node->nid)) ? 'node/' . $node->nid : drupal_get_normal_path($path);
     db_merge('print_page_counter')
-      ->key(array('path' => $nodepath))
+      ->key(array('path' => substr($nodepath, 0, 255)))
       ->fields(array(
         'totalcount' => 1,
         'timestamp' => REQUEST_TIME,
@@ -92,12 +92,13 @@ function print_controller($path, $format, $cid = NULL, $view_mode = PRINT_VIEW_M
     $path = $alias;
   }
   $parts = explode('/', $path);
-  if (($parts[0] == 'node') && (count($parts) > 1) && ctype_digit($parts[1])) {
+  $node_router = variable_get('print_node_router', FALSE);
+  if (($parts[0] == 'node') && (count($parts) > 1) && ctype_digit($parts[1]) && !$node_router) {
     array_shift($parts);
     $path = implode('/', $parts);
   }
   $revision_view = preg_match('!^[\d]*/revisions/[\d]*/view$!', $path);
-  if (ctype_digit($parts[0]) && ((count($parts) == 1) || $revision_view)) {
+  if (ctype_digit($parts[0]) && ((count($parts) == 1) || $revision_view) && !$node_router) {
     $vid = $revision_view ? $parts[2] : NULL;
     $node = _print_generate_node($path, $format, $vid, $cid, $view_mode);
   }
@@ -192,9 +193,9 @@ function print_preprocess_print(&$variables) {
   $variables['css'] = _print_css_generator($variables['expand_css']);
 
   if (variable_get('print_html_sendtoprinter', PRINT_HTML_SENDTOPRINTER_DEFAULT) && ($format == 'html')) {
-    drupal_add_js('misc/drupal.js', array('weight' => JS_LIBRARY));
+    drupal_add_js('misc/drupal.js', array('group' => JS_LIBRARY));
 
-    $window_close = (variable_get('print_html_new_window', PRINT_HTML_NEW_WINDOW_DEFAULT) && variable_get('print_html_windowclose', PRINT_HTML_WINDOWCLOSE_DEFAULT)) ? 'window.close();' : '';
+    $window_close = (variable_get('print_html_new_window', PRINT_HTML_NEW_WINDOW_DEFAULT) && variable_get('print_html_windowclose', PRINT_HTML_WINDOWCLOSE_DEFAULT)) ? 'setTimeout(function(){window.close();}, 1);' : '';
     $variables['sendtoprinter'] = '<script type="text/javascript">(function ($) { Drupal.behaviors.print = {attach: function() {$(window).load(function() {window.print();' . $window_close . '})}}})(jQuery);</script>';
   }
 
@@ -375,7 +376,7 @@ function _print_robots_meta_generator() {
   }
 
   if (count($robots_meta) > 0) {
-    return '<meta name="robots" content=' . implode(', ', $robots_meta) . ' />';
+    return '<meta name="robots" content="' . implode(', ', $robots_meta) . '" />';
   }
   else {
     return '';
@@ -702,9 +703,9 @@ function _print_generate_node($nid, $format, $vid = NULL, $cid = NULL, $view_mod
 function _print_generate_path($path, $format) {
   global $_print_urls;
 
-  // Handle node tabs.
+  // Handle node tabs, or cases where the 'node_router' option is enabled.
   $parts = explode('/', $path);
-  if (ctype_digit($parts[0]) && (count($parts) > 1)) {
+  if (ctype_digit($parts[0]) && ((count($parts) > 1) || variable_get('print_node_router', FALSE))) {
     $path = 'node/' . $path;
   }
 
@@ -723,16 +724,19 @@ function _print_generate_path($path, $format) {
       case MENU_NOT_FOUND:
         drupal_not_found();
         drupal_exit();
+        break;
 
       case MENU_ACCESS_DENIED:
         drupal_access_denied();
         drupal_exit();
+        break;
     }
   }
 
   $node->title = drupal_get_title();
   $node->path = $path;
   $node->changed = REQUEST_TIME;
+  $node->type = '';
 
   // Delete any links area.
   $node->content = preg_replace('!\s*<div class="links">.*?</div>!sim', '', $node->content);

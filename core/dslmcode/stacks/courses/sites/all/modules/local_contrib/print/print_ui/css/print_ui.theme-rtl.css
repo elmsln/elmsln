@@ -7,7 +7,10 @@
   */
 }
 
-.print_html, .print_mail, .print_pdf, .print_epub {
+.print_html,
+.print_mail,
+.print_pdf,
+.print_epub {
   margin-left: 0;
   margin-right: 1em;
 }

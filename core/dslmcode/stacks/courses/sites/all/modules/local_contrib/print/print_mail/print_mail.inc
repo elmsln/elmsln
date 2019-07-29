@@ -101,10 +101,10 @@ function print_mail_form_for_path($form, &$form_state, $path, $query = NULL, $us
   $options = array();
   if ($print_mail_user_recipients_default) {
     if (module_exists('realname')) {
-      $sql = "SELECT u.mail, r.realname AS name from {users} u LEFT JOIN {realname} r ON u.uid = r.uid WHERE u.uid <> :uid ORDER BY name ASC";
+      $sql = "SELECT u.mail, r.realname AS name from {users} u LEFT JOIN {realname} r ON u.uid = r.uid WHERE u.uid <> :uid AND status = 1 ORDER BY name ASC";
     }
     else {
-      $sql = "SELECT mail, name from {users} WHERE uid <> :uid ORDER BY name ASC";
+      $sql = "SELECT mail, name from {users} WHERE uid <> :uid AND status = 1 ORDER BY name ASC";
     }
     $recipients = db_query($sql, array(':uid' => drupal_anonymous_user()->uid));
     foreach ($recipients as $recipient) {
@@ -115,7 +115,7 @@ function print_mail_form_for_path($form, &$form_state, $path, $query = NULL, $us
   if (count($form_state['input']) == 0) {
     $nodepath = drupal_get_normal_path($path);
     db_merge('print_mail_page_counter')
-      ->key(array('path' => $nodepath))
+      ->key(array('path' => substr($nodepath, 0, 255)))
       ->fields(array(
         'totalcount' => 1,
         'timestamp' => REQUEST_TIME,
@@ -196,12 +196,16 @@ function print_mail_form_for_path($form, &$form_state, $path, $query = NULL, $us
     $form['chk_teaser'] = array('#type' => 'value', '#value' => $print_mail_teaser_default);
   }
 
-  $form['btn_submit'] = array(
+  $form['actions'] = array(
+    '#type' => 'actions',
+  );
+
+  $form['actions']['submit'] = array(
     '#name' => 'submit',
     '#type' => 'submit',
     '#value' => t('Send email'),
   );
-  $form['btn_cancel'] = array(
+  $form['actions']['cancel'] = array(
     '#name' => 'cancel',
     '#type' => 'submit',
     '#value' => t('Cancel'),
@@ -384,7 +388,7 @@ function print_mail_form_validate($form, &$form_state) {
  * @ingroup forms
  */
 function print_mail_form_submit($form, &$form_state) {
-  if (!array_key_exists('cancel', $form_state['values'])) {
+  if (!array_key_exists('cancel', $form_state['input'])) {
     module_load_include('inc', 'print', 'print.pages');
     module_load_include('inc', 'print', 'includes/print');
 

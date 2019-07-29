@@ -4,9 +4,8 @@ core = 7.x
 package = "Printer, email and PDF versions"
 dependencies[] = print_pdf
 
-; Information added by Drupal.org packaging script on 2016-12-06
-version = "7.x-2.0+13-dev"
+; Information added by Drupal.org packaging script on 2018-10-05
+version = "7.x-2.2"
 core = "7.x"
 project = "print"
-datestamp = "1481048287"
-
+datestamp = "1538760185"

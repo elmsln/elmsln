@@ -72,9 +72,15 @@ function _print_drush_download_lib($library, $url) {
 function _print_drush_github_latest_url($github_url) {
   $filename = _print_drush_download_file($github_url);
   $contents = file_get_contents($filename);
-  $json = json_decode($contents);
-  $download_url = $json->assets[0]->browser_download_url;
   drush_op('unlink', $filename);
+  $json = json_decode($contents);
+  if (isset($json->assets[0])) {
+    $download_url = $json->assets[0]->browser_download_url;
+  }
+  else {
+    // Try the zipball_url.
+    $download_url = $json->zipball_url;
+  }
 
   return $download_url;
 }

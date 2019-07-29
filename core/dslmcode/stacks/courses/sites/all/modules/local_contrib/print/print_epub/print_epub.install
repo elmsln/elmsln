@@ -47,6 +47,42 @@ function print_epub_uninstall() {
   }
 }
 
+
+/**
+ * Implements hook_requirements().
+ */
+function print_epub_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  switch ($phase) {
+    // At runtime, make sure that a EPUB generation tool is selected.
+    case 'runtime':
+      $print_epub_epub_tool = variable_get('print_epub_epub_tool', PRINT_EPUB_EPUB_TOOL_DEFAULT);
+      if (empty($print_epub_epub_tool)) {
+        $requirements['print_epub_tool'] = array(
+          'title' => $t('Printer, email and EPUB versions - EPUB generation library'),
+          'value' => $t('No EPUB tool selected'),
+          'description' => $t('Please configure it in the !url.', array('!url' => l($t('EPUB settings page'), 'admin/config/user-interface/print/epub'))),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      else {
+        $tool = explode('|', $print_epub_epub_tool);
+
+        if (!is_file($tool[1]) || !is_readable($tool[1])) {
+          $requirements['print_epub_tool'] = array(
+            'title' => $t('Printer, email and EPUB versions - EPUB generation library'),
+            'value' => $t('File not found'),
+            'description' => $t('The currently selected EPUB generation library (%file) is no longer accessible.', array('%file' => $tool[1])),
+            'severity' => REQUIREMENT_ERROR,
+          );
+        }
+      }
+      break;
+  }
+  return $requirements;
+}
+
 /**
  * Implements hook_schema().
  */

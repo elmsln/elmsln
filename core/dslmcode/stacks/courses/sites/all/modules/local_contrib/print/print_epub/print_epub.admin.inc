@@ -53,14 +53,9 @@ function print_epub_settings() {
     );
     if (module_exists('token')) {
       $form['settings']['print_epub_filename_patterns'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Replacement patterns'),
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
-      );
-      $form['settings']['print_epub_filename_patterns']['descriptions'] = array(
         '#theme' => 'token_tree',
         '#token_types' => array('node'),
+        '#dialog' => TRUE,
       );
     }
 

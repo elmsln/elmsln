@@ -15,7 +15,6 @@
  */
 function print_pdf_dompdf_print_pdf_generate($html, $meta, $paper_size = NULL, $page_orientation = NULL) {
   module_load_include('inc', 'print', 'includes/print');
-  drupal_load('module', 'print_pdf_dompdf');
 
   $pdf_tool = explode('|', variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT));
   if (empty($paper_size)) {
@@ -65,7 +64,15 @@ function print_pdf_dompdf_print_pdf_generate($html, $meta, $paper_size = NULL, $
   }
   else {
     // Version of dompdf is >= 0.7.
-    require_once dirname($pdf_tool[1]) . '/../autoload.inc.php';
+    $tool_path = dirname($pdf_tool[1]) . '/../autoload.inc.php';
+    if (file_exists($tool_path)) {
+      require_once $tool_path;
+    }
+    else {
+      watchdog('print_pdf', 'Configured PDF tool does not exist at path: %path', array('%path' => $tool_path), WATCHDOG_ERROR);
+      throw new Exception("Configured PDF tool does not exist, unable to generate PDF.");
+    }
+
     $dompdf = new \Dompdf\Dompdf();
     $unicode = TRUE;
 
@@ -80,6 +87,8 @@ function print_pdf_dompdf_print_pdf_generate($html, $meta, $paper_size = NULL, $
 
   // Try to use local file access for image files.
   $html = _print_access_images_via_file($html, $images_via_file);
+  // Remove all scripts due to security concerns.
+  $html = preg_replace('!<script(.*?)>(.*?)</script>!is', '', $html);
 
   // Spaces in img URLs must be replaced with %20, when using external access.
   if (!$images_via_file) {
