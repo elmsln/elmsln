@@ -1056,7 +1056,6 @@ function elmsln_core_page_build(&$page) {
     }
   </style>',
   );
-  drupal_add_html_head($colorcssvars, 'webcomponents');
   drupal_add_html_head($preconnect, 'elmsln_core');
   if (user_access('access contextual links')) {
     drupal_add_library('contextual', 'contextual-links');
