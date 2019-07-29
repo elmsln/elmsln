@@ -1,0 +1,13 @@
+{
+  "name": "drupal/uuid",
+  "description": "Extends the entity functionality and adds support for universally unique identifiers.",
+  "type": "drupal-module",
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev",
+  "require-dev": {
+    "drupal/ctools": "1.x-dev",
+    "drupal/rest_server": "~3.0",
+    "drupal/services": "~3.0",
+    "drupal/entity": "~1.0"
+  }
+}
