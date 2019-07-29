@@ -445,7 +445,16 @@ function _filefield_paths_replace_path($old, $new, $entity) {
   $pattern = "/({$prefixes})({$styles})*({$paths}){$itok}/";
 
   // Create an anonymous function for the replacement via preg_replace_callback.
-  $callback = create_function('$matches', "return filefield_paths_replace_path_callback(\$matches, '{$new}', '{$old}');");
+  $callback = function ($matches) use ($new, $old) {
+    return filefield_paths_replace_path_callback($matches, $new, $old);
+  };
+  if (!$callback) {
+    watchdog('filefield_paths', 'Unable to create an anonymous function to find references of %old and replace with %new.', array(
+      '%old' => $old,
+      '%new' => $new,
+    ));
+    return;
+  }
 
   $fields = field_info_fields();
   foreach ($fields as $name => $field) {
