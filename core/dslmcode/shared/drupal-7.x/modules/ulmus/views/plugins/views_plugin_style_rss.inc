@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the RSS style plugin.
+ * Definition of views_plugin_style_rss.
  */
 
 /**
@@ -11,7 +11,11 @@
  * @ingroup views_style_plugins
  */
 class views_plugin_style_rss extends views_plugin_style {
-  function attach_to($display_id, $path, $title) {
+
+  /**
+   *
+   */
+  public function attach_to($display_id, $path, $title) {
     $display = $this->view->display[$display_id]->handler;
     $url_options = array();
     $input = $this->view->get_exposed_input();
@@ -36,12 +40,15 @@ class views_plugin_style_rss extends views_plugin_style {
         'rel' => 'alternate',
         'type' => 'application/rss+xml',
         'title' => $title,
-        'href' => $url
+        'href' => $url,
       ));
     }
   }
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['description'] = array('default' => '', 'translatable' => TRUE);
@@ -49,7 +56,10 @@ class views_plugin_style_rss extends views_plugin_style {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     $form['description'] = array(
@@ -67,7 +77,7 @@ class views_plugin_style_rss extends views_plugin_style {
    * @return
    *   An array that can be passed to format_xml_elements().
    */
-  function get_channel_elements() {
+  public function get_channel_elements() {
     return array();
   }
 
@@ -80,7 +90,7 @@ class views_plugin_style_rss extends views_plugin_style {
    * @return
    *   An array that can be passed to format_xml_elements().
    */
-  function get_channel_elements_atom_link() {
+  public function get_channel_elements_atom_link() {
     $url_options = array('absolute' => TRUE);
     $input = $this->view->get_exposed_input();
     if ($input) {
@@ -107,7 +117,7 @@ class views_plugin_style_rss extends views_plugin_style {
    * @return string
    *   The string containing the description with the tokens replaced.
    */
-  function get_description() {
+  public function get_description() {
     $description = $this->options['description'];
 
     // Allow substitutions from the first row.
@@ -116,7 +126,10 @@ class views_plugin_style_rss extends views_plugin_style {
     return $description;
   }
 
-  function render() {
+  /**
+   * {@inheritdoc}
+   */
+  public function render() {
     if (empty($this->row_plugin)) {
       vpr('views_plugin_style_default: Missing row plugin');
       return;
@@ -148,9 +161,10 @@ class views_plugin_style_rss extends views_plugin_style {
       array(
         'view' => $this->view,
         'options' => $this->options,
-        'rows' => $rows
+        'rows' => $rows,
       ));
     unset($this->view->row_index);
     return $output;
   }
+
 }

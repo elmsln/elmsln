@@ -6,12 +6,12 @@
  */
 
 /**
- * Implementation of hook_views_default_views()
+ * Implements hook_views_default_views().
  */
 function search_views_default_views() {
   $views = array();
 
-  $view = new view;
+  $view = new view();
   $view->name = 'backlinks';
   $view->description = 'Displays a list of nodes that link to the node, using the search backlinks table.';
   $view->tag = 'default';

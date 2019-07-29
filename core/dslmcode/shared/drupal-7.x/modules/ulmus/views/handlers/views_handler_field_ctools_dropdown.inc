@@ -11,7 +11,11 @@
  * @ingroup views_field_handlers
  */
 class views_handler_field_ctools_dropdown extends views_handler_field_links {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['views_admin_css'] = array('default' => TRUE, 'bool' => TRUE);
@@ -19,7 +23,10 @@ class views_handler_field_ctools_dropdown extends views_handler_field_links {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['fields']['#description'] = t('Fields to be included as ctools dropdown button.');
     $form['destination']['#description'] = t('Include a "destination" parameter in the link to return the user to the original view upon completing a link action.');
@@ -35,7 +42,7 @@ class views_handler_field_ctools_dropdown extends views_handler_field_links {
   /**
    * Render the dropdown button.
    */
-  function render($values) {
+  public function render($values) {
     static $added_admin_css;
     $links = $this->get_links();
 
@@ -46,10 +53,20 @@ class views_handler_field_ctools_dropdown extends views_handler_field_links {
         $added_admin_css = TRUE;
       }
 
-      return theme('links__ctools_dropbutton', array('links' => $links, 'attributes' => array('class' => array('links', 'inline'))));
+      $vars = array(
+        'links' => $links,
+        'attributes' => array(
+          'class' => array(
+            'links',
+            'inline',
+          ),
+        ),
+      );
+      return theme('links__ctools_dropbutton', $vars);
     }
     else {
       return '';
     }
   }
+
 }

@@ -13,9 +13,9 @@
 class views_handler_field_links extends views_handler_field {
 
   /**
-   * Overrides views_handler_field::option_definition().
+   * {@inheritdoc}
    */
-  function option_definition() {
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['fields'] = array('default' => array());
@@ -26,9 +26,9 @@ class views_handler_field_links extends views_handler_field {
   }
 
   /**
-   * Overrides views_handler_field::options_form().
+   * {@inheritdoc}
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     $all_fields = $this->view->display_handler->get_field_labels();
@@ -59,11 +59,12 @@ class views_handler_field_links extends views_handler_field {
   }
 
   /**
-   * Overrides views_handler_field::options_form().
+   * {@inheritdoc}
    */
-  function options_submit(&$form, &$form_state) {
+  public function options_submit(&$form, &$form_state) {
     // Remove unselected options.
     $form_state['values']['options']['fields'] = array_filter($form_state['values']['options']['fields']);
+    parent::options_submit($form, $form_state);
   }
 
   /**
@@ -72,7 +73,7 @@ class views_handler_field_links extends views_handler_field {
    * @return array
    *   The links which are used by the render function.
    */
-  function get_links() {
+  public function get_links() {
     $links = array();
     foreach ($this->options['fields'] as $field) {
       if (empty($this->view->field[$field]->last_render_text)) {
@@ -121,7 +122,6 @@ class views_handler_field_links extends views_handler_field {
         }
 
         // Omit tweaks of query, fragment, and link_class.
-
         $alt = strtr($alter['alt'], $tokens);
         if ($alt && $alt != $title) {
           // Set the title attribute only if it improves accessibility.
@@ -148,8 +148,9 @@ class views_handler_field_links extends views_handler_field {
   }
 
   /**
-   * Overrides views_handler_field::query().
+   * {@inheritdoc}
    */
-  function query() { }
+  public function query() {
+  }
 
 }

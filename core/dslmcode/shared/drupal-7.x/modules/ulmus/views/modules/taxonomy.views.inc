@@ -14,13 +14,12 @@ function taxonomy_views_data() {
   $data = array();
 
   // ----------------------------------------------------------------------
-  // taxonomy_vocabulary table
-
+  // 'taxonomy_vocabulary' table.
   $data['vocabulary']['moved to'] = 'taxonomy_vocabulary';
   $data['taxonomy_vocabulary']['table']['group']  = t('Taxonomy vocabulary');
-
+  $data['taxonomy_vocabulary']['table']['entity type'] = 'taxonomy_vocabulary';
   $data['taxonomy_vocabulary']['table']['join'] = array(
-    // vocabulary links to taxonomy_term_data directly via vid.
+    // Vocabulary links to taxonomy_term_data directly via vid.
     'taxonomy_term_data' => array(
       'left_field' => 'vid',
       'field' => 'vid',
@@ -35,9 +34,10 @@ function taxonomy_views_data() {
     ),
   );
 
-  // vocabulary name
+  // Vocabulary name.
   $data['taxonomy_vocabulary']['name'] = array(
-    'title' => t('Name'), // The item it appears as on the UI,
+    // The item it appears as on the UI,
+    'title' => t('Name'),
     'field' => array(
       'help' => t('Name of the vocabulary a term is a member of. This will be the vocabulary that whichever term the "Taxonomy: Term" field is; and can similarly cause duplicates.'),
       'handler' => 'views_handler_field',
@@ -49,7 +49,8 @@ function taxonomy_views_data() {
     ),
   );
   $data['taxonomy_vocabulary']['machine_name'] = array(
-    'title' => t('Machine name'), // The item it appears as on the UI,
+    // The item it appears as on the UI,
+    'title' => t('Machine name'),
     'field' => array(
       'help' => t('Machine-Name of the vocabulary a term is a member of. This will be the vocabulary that whichever term the "Taxonomy: Term" field is; and can similarly cause duplicates.'),
       'handler' => 'views_handler_field',
@@ -65,7 +66,8 @@ function taxonomy_views_data() {
     ),
   );
   $data['taxonomy_vocabulary']['vid'] = array(
-    'title' => t('Vocabulary ID'), // The item it appears as on the UI,
+    // The item it appears as on the UI,
+    'title' => t('Vocabulary ID'),
     'help' => t('The taxonomy vocabulary ID'),
     'field' => array(
       'handler' => 'views_handler_field_numeric',
@@ -80,7 +82,8 @@ function taxonomy_views_data() {
     ),
   );
   $data['taxonomy_vocabulary']['description'] = array(
-    'title' => t('Description'), // The item it appears as on the UI,
+    // The item it appears as on the UI,
+    'title' => t('Description'),
     'help' => t('The taxonomy vocabulary description'),
     'field' => array(
       'handler' => 'views_handler_field',
@@ -106,8 +109,7 @@ function taxonomy_views_data() {
   );
 
   // ----------------------------------------------------------------------
- // taxonomy_term_data table
-
+  // 'taxonomy_term_data' table.
   $data['term_data']['moved to'] = 'taxonomy_term_data';
   $data['taxonomy_term_data']['table']['group']  = t('Taxonomy term');
   $data['taxonomy_term_data']['table']['base'] = array(
@@ -118,15 +120,13 @@ function taxonomy_views_data() {
   );
   $data['taxonomy_term_data']['table']['entity type'] = 'taxonomy_term';
 
-
-
-  // The term data table
+  // The term data table.
   $data['taxonomy_term_data']['table']['join'] = array(
     'taxonomy_vocabulary' => array(
       'field' => 'vid',
       'left_field' => 'vid',
     ),
-    // This is provided for many_to_one argument
+    // This is provided for many_to_one argument.
     'taxonomy_index' => array(
       'field' => 'tid',
       'left_field' => 'tid',
@@ -141,7 +141,7 @@ function taxonomy_views_data() {
     ),
   );
 
-  // tid field
+  // Term ID / 'tid' field.
   $data['taxonomy_term_data']['tid'] = array(
     'title' => t('Term ID'),
     'help' => t('The tid of a taxonomy term.'),
@@ -166,7 +166,7 @@ function taxonomy_views_data() {
     ),
   );
 
-  // raw tid field
+  // The raw term 'tid' field.
   $data['taxonomy_term_data']['tid_raw'] = array(
     'title' => t('Term ID'),
     'help' => t('The tid of a taxonomy term.'),
@@ -186,13 +186,13 @@ function taxonomy_views_data() {
       'relationship field' => 'tid',
       'outer field' => 'taxonomy_term_data.tid',
       'argument table' => 'taxonomy_term_data',
-      'argument field' =>  'tid',
+      'argument field' => 'tid',
       'base'   => 'node',
       'field'  => 'nid',
     ),
   );
 
-  // Term name field
+  // Term name field.
   $data['taxonomy_term_data']['name'] = array(
     'title' => t('Name'),
     'help' => t('The taxonomy term name.'),
@@ -215,7 +215,7 @@ function taxonomy_views_data() {
     ),
   );
 
-  // taxonomy weight
+  // Term weight.
   $data['taxonomy_term_data']['weight'] = array(
     'title' => t('Weight'),
     'help' => t('The term weight field'),
@@ -234,7 +234,7 @@ function taxonomy_views_data() {
     ),
   );
 
-  // Term description
+  // Term description.
   $data['taxonomy_term_data']['description'] = array(
     'title' => t('Term description'),
     'help' => t('The description associated with a taxonomy term.'),
@@ -247,7 +247,7 @@ function taxonomy_views_data() {
     ),
   );
 
-  // Term vocabulary
+  // Term vocabulary.
   $data['taxonomy_term_data']['vid'] = array(
     'title' => t('Vocabulary'),
     'help' => t('Filter the results of "Taxonomy: Term" to a particular vocabulary.'),
@@ -256,7 +256,7 @@ function taxonomy_views_data() {
     ),
   );
 
-  // Link to edit the term
+  // Link to edit the term.
   $data['taxonomy_term_data']['edit_term'] = array(
     'field' => array(
       'title' => t('Term edit link'),
@@ -266,19 +266,18 @@ function taxonomy_views_data() {
   );
 
   // ----------------------------------------------------------------------
-  // taxonomy_index table
-
+  // 'taxonomy_index' table.
   $data['term_node']['moved to'] = 'taxonomy_index';
   $data['taxonomy_index']['table']['group']  = t('Taxonomy term');
 
   $data['taxonomy_index']['table']['join'] = array(
     'taxonomy_term_data' => array(
-      // links directly to taxonomy_term_data via tid
+      // Links directly to taxonomy_term_data via tid.
       'left_field' => 'tid',
       'field' => 'tid',
     ),
     'node' => array(
-      // links directly to node via nid
+      // Links directly to node via nid.
       'left_field' => 'nid',
       'field' => 'nid',
     ),
@@ -300,9 +299,8 @@ function taxonomy_views_data() {
     ),
   );
 
-  // @todo This stuff needs to move to a node field since
-  // really it's all about nodes.
-  // tid field
+  // @todo Should be moved to a node field since really it's all about nodes.
+  // Term ID / 'tid' field.
   $data['taxonomy_index']['tid'] = array(
     'group' => t('Content'),
     'title' => t('Has taxonomy term ID'),
@@ -326,19 +324,18 @@ function taxonomy_views_data() {
   );
 
   // ----------------------------------------------------------------------
-  // term_hierarchy table
-
+  // 'term_hierarchy' table.
   $data['taxonomy_term_hierarchy']['table']['group']  = t('Taxonomy term');
 
   $data['term_hierarchy']['moved to'] = 'taxonomy_term_hierarchy';
   $data['taxonomy_term_hierarchy']['table']['join'] = array(
     'taxonomy_term_hierarchy' => array(
-      // links to self through left.parent = right.tid (going down in depth)
+      // Links to self through left.parent = right.tid (going down in depth).
       'left_field' => 'tid',
       'field' => 'parent',
     ),
     'taxonomy_term_data' => array(
-      // links directly to taxonomy_term_data via tid
+      // Links directly to taxonomy_term_data via tid.
       'left_field' => 'tid',
       'field' => 'tid',
     ),
@@ -433,8 +430,8 @@ function taxonomy_views_data_alter(&$data) {
 /**
  * Implements hook_field_views_data().
  *
- * Views integration for taxonomy_term_reference fields. Adds a term relationship to the default
- * field data.
+ * Views integration for taxonomy_term_reference fields. Adds a term
+ * relationship to the default field data.
  *
  * @see field_views_field_default_views_data()
  */
@@ -455,7 +452,6 @@ function taxonomy_field_views_data($field) {
       'base field' => 'tid',
       'label' => t('term from !field_name', array('!field_name' => $field['field_name'])),
     );
-
   }
 
   return $data;
@@ -507,12 +503,13 @@ function taxonomy_field_views_data_views_data_alter(&$data, $field) {
  */
 function taxonomy_views_plugins() {
   return array(
-    'module' => 'views', // This just tells our themes are elsewhere.
+    // This just tells our themes are elsewhere.
+    'module' => 'views',
     'argument validator' => array(
       'taxonomy_term' => array(
         'title' => t('Taxonomy term'),
         'handler' => 'views_plugin_argument_validate_taxonomy_term',
-        'path' => drupal_get_path('module', 'views') . '/modules/taxonomy', // not necessary for most modules
+        'path' => drupal_get_path('module', 'views') . '/modules/taxonomy',
       ),
     ),
     'argument default' => array(

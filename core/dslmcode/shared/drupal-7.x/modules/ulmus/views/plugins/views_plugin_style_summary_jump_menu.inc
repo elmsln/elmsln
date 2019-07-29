@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the default summary style plugin, which displays items in an HTML list.
+ * Definition of views_plugin_style_summary_jump_menu.
  */
 
 /**
@@ -11,7 +11,11 @@
  * @ingroup views_style_plugins
  */
 class views_plugin_style_summary_jump_menu extends views_plugin_style {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['base_path'] = array('default' => '');
@@ -26,7 +30,10 @@ class views_plugin_style_summary_jump_menu extends views_plugin_style {
     return $options;
   }
 
-  function query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     // Copy the offset option.
     $pager = array(
       'type' => 'none',
@@ -35,7 +42,10 @@ class views_plugin_style_summary_jump_menu extends views_plugin_style {
     $this->display->handler->set_option('pager', $pager);
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     $form['base_path'] = array(
       '#type' => 'textfield',
       '#title' => t('Base path'),
@@ -56,7 +66,7 @@ class views_plugin_style_summary_jump_menu extends views_plugin_style {
       '#type' => 'checkbox',
       '#title' => t('Hide the "Go" button'),
       '#default_value' => !empty($this->options['hide']),
-      '#description' => t('If hidden, this button will only be hidden for users with javascript and the page will automatically jump when the select is changed.'),
+      '#description' => t('If hidden, this button will only be hidden for users with JavaScript and the page will automatically jump when the select is changed.'),
     );
 
     $form['text'] = array(
@@ -93,7 +103,10 @@ class views_plugin_style_summary_jump_menu extends views_plugin_style {
     );
   }
 
-  function render() {
+  /**
+   * {@inheritdoc}
+   */
+  public function render() {
     $argument = $this->view->argument[$this->view->build_info['summary_level']];
 
     $url_options = array();
@@ -143,4 +156,5 @@ class views_plugin_style_summary_jump_menu extends views_plugin_style {
     $form = drupal_get_form('ctools_jump_menu', $options, $settings);
     return drupal_render($form);
   }
+
 }

@@ -37,7 +37,7 @@ class ViewsGlossaryTestCase extends ViewsSqlTest {
     );
     foreach ($nodes_per_char as $char => $count) {
       $setting = array(
-        'type' => $type->type
+        'type' => $type->type,
       );
       for ($i = 0; $i < $count; $i++) {
         $node = $setting;
@@ -46,7 +46,7 @@ class ViewsGlossaryTestCase extends ViewsSqlTest {
       }
     }
 
-    // Execute glossary view
+    // Execute glossary view.
     $view = views_get_view('glossary');
     $view->set_display('attachment');
     $view->execute_display('attachment');
@@ -57,4 +57,5 @@ class ViewsGlossaryTestCase extends ViewsSqlTest {
       $this->assertEqual($nodes_per_char[$item->title_truncated], $item->num_records);
     }
   }
+
 }

@@ -17,13 +17,20 @@
  * @ingroup views_sort_handlers
  */
 class views_handler_sort_menu_hierarchy extends views_handler_sort {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['sort_within_level'] = array('default' => FALSE);
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['sort_within_level'] = array(
       '#type' => 'checkbox',
@@ -33,7 +40,10 @@ class views_handler_sort_menu_hierarchy extends views_handler_sort {
     );
   }
 
-  function query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     $this->ensure_my_table();
     $max_depth = isset($this->definition['max depth']) ? $this->definition['max depth'] : MENU_MAX_DEPTH;
     for ($i = 1; $i <= $max_depth; ++$i) {
@@ -51,4 +61,5 @@ class views_handler_sort_menu_hierarchy extends views_handler_sort {
       $this->query->add_orderby($this->table_alias, $this->field . $i, $this->options['order']);
     }
   }
+
 }

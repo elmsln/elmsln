@@ -2,22 +2,25 @@
 
 /**
  * @file
- * Contains views_test_area_access
+ * Definition of views_test_area_access.
  */
 
+/**
+ * A test access plugin.
+ */
 class views_test_area_access extends views_handler_area {
 
   /**
    * {@inheritdoc}
    */
-  function access() {
+  public function access() {
     return $this->options['custom_access'];
- }
+  }
 
   /**
    * {@inheritdoc}
    */
-  function option_definition() {
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['custom_access'] = array('default' => TRUE, 'bool' => TRUE);

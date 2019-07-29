@@ -213,14 +213,14 @@ fieldset.fieldset-no-legend {
 /* Override for input elements that are themed like ctools-buttons */
 .ctools-button-processed input.form-submit:hover {
   background-image: none;
-  color: #0074BD;
+  color: #0074bd;
   text-shadow: none;
 }
 
 .ctools-button-processed input.form-submit:active {
   background: none;
   border: medium none;
-  color: #0074BD;
+  color: #0074bd;
   text-shadow: none;
 }
 
@@ -238,7 +238,7 @@ table th {
 /* @group Attachment details */
 
 #edit-display-settings-title {
-  color: #008BCB;
+  color: #008bcb;
 }
 
 /* @end */
@@ -249,11 +249,11 @@ table th {
  */
 
 .views-displays .secondary {
- text-align: left; /* LTR */
+  text-align: left; /* LTR */
 }
 
 .views-displays .secondary > li:first-child {
- padding-left: 0;
+  padding-left: 0;
 }
 
 .views-admin .icon.add {
@@ -265,7 +265,7 @@ table th {
   -moz-border-radius: 7px;
   -webkit-border-radius: 7px;
   border-radius: 7px;
-  color: #008BCB;
+  color: #008bcb;
 }
 
 .views-displays .secondary a:hover > .icon.add {
@@ -280,7 +280,7 @@ table th {
 
 .views-displays .secondary .open > a:hover {
   background-color: #f1f1f1;
-  color: #008BCB;
+  color: #008bcb;
 }
 
 .views-displays .secondary .action-list  li:first-child {
@@ -299,7 +299,7 @@ table th {
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   border-radius: 0;
-  color: #008BCB;
+  color: #008bcb;
 }
 
 /* @end */
@@ -349,11 +349,11 @@ table th {
 }
 
 #views-ui-rearrange-filter-form tr.drag td {
-  background-color: #FFEE77 !important;
+  background-color: #ffee77 !important;
 }
 
 #views-ui-rearrange-filter-form tr.drag-previous td {
-  background-color: #FFFFBB !important;
+  background-color: #ffffbb !important;
 }
 
 /* @end */
@@ -402,7 +402,7 @@ table th {
   -moz-box-shadow: none;
   -webkit-box-shadow: none;
   box-shadow: none;
-  border-color: #cccccc;
+  border-color: #ccc;
   right: -27px;
   top: -1px;
 }
@@ -429,84 +429,81 @@ table th {
 /* @group Buttons */
 
 .ctools-button-processed {
-  background-image:
-    -moz-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
-  background-image:
-    -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      color-stop(0.0, rgba(255, 255, 255, 1.0)),
-      color-stop(1.0, rgba(249, 249, 249, 1.0))
-    );
-  background-image:
-    -webkit-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
-  background-image:
-    linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
+  background-image: -moz-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
+  background-image: -webkit-gradient(
+  linear,
+  left top,
+  left bottom,
+  color-stop(0.0, rgba(255, 255, 255, 1.0)),
+  color-stop(1.0, rgba(249, 249, 249, 1.0))
+  );
+  background-image: -webkit-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
+  background-image: linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
   -moz-border-radius: 11px 11px 11px 11px;
   -webkit-border-radius: 11px 11px 11px 11px;
   border-radius: 11px 11px 11px 11px;
 }
 
 .ctools-button-processed:hover {
-  background-image:
-    -moz-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f1f1f1 100%);
-  background-image:
-    -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      color-stop(0.0, rgba(255, 255, 255, 1.0)),
-      color-stop(1.0, rgba(241, 241, 241, 1.0))
-    );
-  background-image:
-    -webkit-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f1f1f1 100%);
-  background-image:
-    linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f1f1f1 100%);
+  background-image: -moz-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f1f1f1 100%
+  );
+  background-image: -webkit-gradient(
+  linear,
+  left top,
+  left bottom,
+  color-stop(0.0, rgba(255, 255, 255, 1.0)),
+  color-stop(1.0, rgba(241, 241, 241, 1.0))
+  );
+  background-image: -webkit-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f1f1f1 100%
+  );
+  background-image: linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f1f1f1 100%
+  );
 }
 
 .ctools-dropbutton-processed.open:hover {
-  background-image:
-    -moz-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
-  background-image:
-    -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      color-stop(0.0, rgba(255, 255, 255, 1.0)),
-      color-stop(1.0, rgba(249, 249, 249, 1.0))
-    );
-  background-image:
-    -webkit-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
-  background-image:
-    linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
+  background-image: -moz-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
+  background-image: -webkit-gradient(
+  linear,
+  left top,
+  left bottom,
+  color-stop(0.0, rgba(255, 255, 255, 1.0)),
+  color-stop(1.0, rgba(249, 249, 249, 1.0))
+  );
+  background-image: -webkit-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
+  background-image: linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
 }
 
 .ctools-dropbutton-processed.open {
@@ -528,7 +525,7 @@ table th {
 }
 
 .views-display-settings .ctools-toggle {
-  color: #008BCB;
+  color: #008bcb;
 }
 
 .views-display-column > .ctools-toggle {
@@ -540,11 +537,11 @@ table th {
 }
 
 .views-display-column > .ctools-collapsible-handle {
-  color: #008BCB;
+  color: #008bcb;
 }
 
 .views-ui-display-tab-actions .ctools-button-processed input {
-  color: #0074BD;
+  color: #0074bd;
 }
 
 /* @end */

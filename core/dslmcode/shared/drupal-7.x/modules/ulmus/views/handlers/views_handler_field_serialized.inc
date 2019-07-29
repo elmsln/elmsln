@@ -12,15 +12,20 @@
  */
 class views_handler_field_serialized extends views_handler_field {
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['format'] = array('default' => 'unserialized');
     $options['key'] = array('default' => '');
     return $options;
   }
 
-
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     $form['format'] = array(
@@ -42,14 +47,20 @@ class views_handler_field_serialized extends views_handler_field {
     );
   }
 
-  function options_validate(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_validate(&$form, &$form_state) {
     // Require a key if the format is key.
     if ($form_state['values']['options']['format'] == 'key' && $form_state['values']['options']['key'] == '') {
       form_error($form['key'], t('You have to enter a key if you want to display a key of the data.'));
     }
   }
 
-  function render($values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render($values) {
     $value = $values->{$this->field_alias};
 
     if ($this->options['format'] == 'unserialized') {
@@ -60,6 +71,7 @@ class views_handler_field_serialized extends views_handler_field {
       return check_plain($value[$this->options['key']]);
     }
 
-    return $value;
+    return check_plain($value);
   }
+
 }

@@ -6,18 +6,21 @@
  */
 
 /**
- * Simple filter to handle equal to / not equal to filters
+ * Simple filter to handle equal to / not equal to filters.
  *
  * @ingroup views_filter_handlers
  */
 class views_handler_filter_equality extends views_handler_filter {
-  // exposed filter options
-  var $always_multiple = TRUE;
 
   /**
-   * Provide simple equality operator
+   * Exposed filter options.
    */
-  function operator_options() {
+  public $always_multiple = TRUE;
+
+  /**
+   * Provide simple equality operator.
+   */
+  public function operator_options() {
     return array(
       '=' => t('Is equal to'),
       '!=' => t('Is not equal to'),
@@ -25,9 +28,9 @@ class views_handler_filter_equality extends views_handler_filter {
   }
 
   /**
-   * Provide a simple textfield for equality
+   * Provide a simple textfield for equality.
    */
-  function value_form(&$form, &$form_state) {
+  public function value_form(&$form, &$form_state) {
     $form['value'] = array(
       '#type' => 'textfield',
       '#title' => t('Value'),
@@ -42,4 +45,5 @@ class views_handler_filter_equality extends views_handler_filter {
       }
     }
   }
+
 }

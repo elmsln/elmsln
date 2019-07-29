@@ -2,38 +2,55 @@
 
 /**
  * @file
- * Contains the node RSS row style plugin.
+ * Definition of views_plugin_row_comment_view.
  */
 
 /**
  * Plugin which performs a comment_view on the resulting object.
  */
 class views_plugin_row_comment_view extends views_plugin_row {
-  var $base_field = 'cid';
-  var $base_table = 'comment';
+
+  /**
+   * {@inheritdoc}
+   */
+  public $base_field = 'cid';
+
+  /**
+   * {@inheritdoc}
+   */
+  public $base_table = 'comment';
 
   /**
    * Stores all comments which are preloaded.
    */
-  var $comments = array();
+  public $comments = array();
 
   /**
    * Stores all nodes of all comments which are preloaded.
    */
-  var $nodes = array();
+  public $nodes = array();
 
-  function summary_title() {
+  /**
+   * {@inheritdoc}
+   */
+  public function summary_title() {
     return t('Settings');
   }
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['links'] = array('default' => TRUE, 'bool' => TRUE);
     $options['view_mode'] = array('default' => 'full');
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     $options = $this->options_form_summary_options();
@@ -51,11 +68,10 @@ class views_plugin_row_comment_view extends views_plugin_row {
     );
   }
 
-
   /**
    * Return the main options, which are shown in the summary title.
    */
-  function options_form_summary_options() {
+  public function options_form_summary_options() {
     $entity_info = entity_get_info('comment');
     $options = array();
     if (!empty($entity_info['view modes'])) {
@@ -72,7 +88,10 @@ class views_plugin_row_comment_view extends views_plugin_row {
     return $options;
   }
 
-  function pre_render($result) {
+  /**
+   * {@inheritdoc}
+   */
+  public function pre_render($result) {
     $cids = array();
 
     foreach ($result as $row) {
@@ -94,4 +113,5 @@ class views_plugin_row_comment_view extends views_plugin_row {
       $this->nodes[$node->nid] = $node;
     }
   }
+
 }

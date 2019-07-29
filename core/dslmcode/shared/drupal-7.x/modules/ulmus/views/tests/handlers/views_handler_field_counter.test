@@ -48,7 +48,7 @@ class ViewsHandlerFilterCounterTest extends ViewsSqlTest {
         'table' => 'views',
         'field' => 'counter',
         'relationship' => 'none',
-        'counter_start' => $rand_start
+        'counter_start' => $rand_start,
       ),
       'name' => array(
         'id' => 'name',
@@ -64,7 +64,8 @@ class ViewsHandlerFilterCounterTest extends ViewsSqlTest {
     $this->assertEqual(2 + $rand_start, $view->style_plugin->rendered_fields[2]['counter']);
   }
 
-  // @TODO: Write tests for pager.
+  // @todo Write tests for pager.
   function testPager() {
   }
+
 }

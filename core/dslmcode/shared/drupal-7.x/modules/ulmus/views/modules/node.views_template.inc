@@ -2,15 +2,19 @@
 
 /**
  * @file
- * Contains views templates on behalf of the node module.
+ * Definition of views templates on behalf of the node module.
  */
 
+/**
+ * Implements hook_views_templates().
+ */
 function node_views_templates() {
-  // Only the standard install profile has the image field provided so only show it for it.
+  // Only the standard install profile has the image field provided so only
+  // show it for it.
   if (variable_get('install_profile', 'standard') != 'standard') {
     return array();
   }
-  $view = new view;
+  $view = new view();
   $view->name = 'image_gallery';
   $view->description = 'Shows all images which was uploaded on the "field_image" field';
   $view->tag = '';

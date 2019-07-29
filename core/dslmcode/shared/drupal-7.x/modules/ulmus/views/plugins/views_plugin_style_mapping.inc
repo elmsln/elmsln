@@ -27,9 +27,9 @@ abstract class views_plugin_style_mapping extends views_plugin_style {
   abstract protected function define_mapping();
 
   /**
-   * Overrides views_plugin_style::option_definition().
+   * {@inheritdoc}
    */
-  function option_definition() {
+  public function option_definition() {
     $options = parent::option_definition();
 
     // Parse the mapping and add a default for each.
@@ -50,9 +50,9 @@ abstract class views_plugin_style_mapping extends views_plugin_style {
   }
 
   /**
-   * Overrides views_plugin_style::options_form().
+   * {@inheritdoc}
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     // Get the mapping.
@@ -110,11 +110,10 @@ abstract class views_plugin_style_mapping extends views_plugin_style {
   }
 
   /**
-   * Overrides views_plugin_style::render().
-   *
-   * Provides the mapping definition as an available variable.
+   * {@inheritdoc}
    */
-  function render() {
+  public function render() {
+    // Provides the mapping definition as an available variable.
     return theme($this->theme_functions(), array(
       'view' => $this->view,
       'options' => $this->options,

@@ -10,8 +10,12 @@
  *
  * @ingroup views_relationship_handlers
  */
-class views_handler_relationship_entity_reverse extends views_handler_relationship  {
-  function init(&$view, &$options) {
+class views_handler_relationship_entity_reverse extends views_handler_relationship {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function init(&$view, &$options) {
     parent::init($view, $options);
 
     $this->field_info = field_info_field($this->definition['field_name']);
@@ -20,7 +24,7 @@ class views_handler_relationship_entity_reverse extends views_handler_relationsh
   /**
    * Called to implement a relationship in a query.
    */
-  function query() {
+  public function query() {
     $this->ensure_my_table();
     // First, relate our base table to the current base table to the
     // field, using the base table's id field to the field's column.
@@ -76,9 +80,10 @@ class views_handler_relationship_entity_reverse extends views_handler_relationsh
     $second_join->construct();
     $second_join->adjusted = TRUE;
 
-    // use a short alias for this:
+    // Use a short alias for this.
     $alias = $this->definition['field_name'] . '_' . $this->table;
 
     $this->alias = $this->query->add_relationship($alias, $second_join, $this->definition['base'], $this->relationship);
   }
+
 }

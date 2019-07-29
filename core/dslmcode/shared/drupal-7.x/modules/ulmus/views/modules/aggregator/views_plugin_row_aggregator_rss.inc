@@ -2,17 +2,28 @@
 
 /**
  * @file
- * Contains the Aggregator Item RSS row style plugin.
+ * Definition of views_plugin_row_aggregator_rss.
  */
 
 /**
  * Plugin which loads an aggregator item and formats it as an RSS item.
  */
 class views_plugin_row_aggregator_rss extends views_plugin_row {
-  var $base_table = 'aggregator_item';
-  var $base_field = 'iid';
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public $base_table = 'aggregator_item';
+
+  /**
+   * {@inheritdoc}
+   */
+  public $base_field = 'iid';
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['item_length'] = array('default' => 'default');
@@ -20,7 +31,10 @@ class views_plugin_row_aggregator_rss extends views_plugin_row {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     $form['item_length'] = array(
       '#type' => 'select',
       '#title' => t('Display type'),
@@ -34,9 +48,12 @@ class views_plugin_row_aggregator_rss extends views_plugin_row {
     );
   }
 
-  function render($row) {
-    $iid =  $row->{$this->field_alias};
-    $sql =  "SELECT ai.iid, ai.fid, ai.title, ai.link, ai.author, ai.description, ";
+  /**
+   * {@inheritdoc}
+   */
+  public function render($row) {
+    $iid = $row->{$this->field_alias};
+    $sql = "SELECT ai.iid, ai.fid, ai.title, ai.link, ai.author, ai.description, ";
     $sql .= "ai.timestamp, ai.guid, af.title AS feed_title, ai.link AS feed_LINK ";
     $sql .= "FROM {aggregator_item} ai LEFT JOIN {aggregator_feed} af ON ai.fid = af.fid ";
     $sql .= "WHERE ai.iid = :iid";
@@ -55,7 +72,7 @@ class views_plugin_row_aggregator_rss extends views_plugin_row {
       array(
         'key' => 'guid',
         'value' => $item->guid,
-        'attributes' => array('isPermaLink' => 'false')
+        'attributes' => array('isPermaLink' => 'false'),
       ),
     );
 
@@ -68,7 +85,8 @@ class views_plugin_row_aggregator_rss extends views_plugin_row {
     return theme($this->theme_functions(), array(
       'view' => $this->view,
       'options' => $this->options,
-      'row' => $item
+      'row' => $item,
     ));
   }
+
 }

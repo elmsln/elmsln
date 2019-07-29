@@ -108,7 +108,14 @@ function field_views_field_default_views_data($field) {
   $revision_tables = array();
   $groups = array();
 
-  $group_name = count($field['bundles']) > 1 ? t('Field') : NULL;
+  // Store translations to avoid being called thousands of times.
+  $translations['no_value_bracket'] = t('<No value>');
+  $translations['no_value_dash'] = t('- No value -');
+  $translations['field'] = t('Field');
+  $translations['node'] = t('Node');
+  $translations['content'] = t('Content');
+
+  $group_name = count($field['bundles']) > 1 ? $translations['field'] : NULL;
 
   // Build the relationships between the field table and the entity tables.
   foreach ($field['bundles'] as $entity => $bundles) {
@@ -116,8 +123,8 @@ function field_views_field_default_views_data($field) {
     $groups[$entity] = $entity_info['label'];
 
     // Override Node to Content.
-    if ($groups[$entity] == t('Node')) {
-      $groups[$entity] = t('Content');
+    if ($groups[$entity] == $translations['node']) {
+      $groups[$entity] = $translations['content'];
     }
 
     // If only one bundle use this as the default name.
@@ -175,6 +182,15 @@ function field_views_field_default_views_data($field) {
   // and take the one which is used the most frequently.
   $field_name = $field['field_name'];
   list($label, $all_labels) = field_views_field_label($field_name);
+
+  $bundle_names_text = implode(', ', $bundles_names);
+  $translations['appears_in_help'] = t('Appears in: @bundles.', array('@bundles' => $bundle_names_text));
+  $translations['delta_appears_in_help'] = t('Delta - Appears in: @bundles.', array('@bundles' => $bundle_names_text));
+  $translations['language_appears_in_help'] = t('Language - Appears in: @bundles.', array('@bundles' => $bundle_names_text));
+  $translations['group_historical'] = t('@group (historical data)', array('@group' => $group_name));
+  $translations['alias_help'] = t('This is an alias of @group: @field.', array('@group' => $group_name, '@field' => $label));
+  $translations['label_short_language'] = t('@label:language', array('@label' => $label));
+
   foreach ($tables as $type => $table) {
     if ($type == FIELD_LOAD_CURRENT) {
       $group = $group_name;
@@ -182,7 +198,7 @@ function field_views_field_default_views_data($field) {
       $column = $field['field_name'];
     }
     else {
-      $group = t('@group (historical data)', array('@group' => $group_name));
+      $group = $translations['group_historical'];
       $old_column = 'revision_id';
       $column = $field['field_name'] . '-' . $old_column;
     }
@@ -192,7 +208,7 @@ function field_views_field_default_views_data($field) {
       'group' => $group,
       'title' => $label,
       'title short' => $label,
-      'help' =>  t('Appears in: @bundles.', array('@bundles' => implode(', ', $bundles_names))),
+      'help' => $translations['appears_in_help'],
     );
 
     // Go through and create a list of aliases for all possible combinations of
@@ -207,7 +223,7 @@ function field_views_field_default_views_data($field) {
               'base' => $current_tables[$entity_name],
               'group' => $groups[$entity_name],
               'title' => $label_name,
-              'help' => t('This is an alias of @group: @field.', array('@group' => $group_name, '@field' => $label)),
+              'help' => $translations['alias_help'],
             );
           }
           $also_known[] = t('@group: @field', array('@group' => $groups[$entity_name], '@field' => $label_name));
@@ -218,7 +234,7 @@ function field_views_field_default_views_data($field) {
               'base' => $revision_tables[$entity_name],
               'group' => t('@group (historical data)', array('@group' => $groups[$entity_name])),
               'title' => $label_name,
-              'help' => t('This is an alias of @group: @field.', array('@group' => $group_name, '@field' => $label)),
+              'help' => $translations['alias_help'],
             );
           }
           $also_known[] = t('@group (historical data): @field', array('@group' => $groups[$entity_name], '@field' => $label_name));
@@ -250,7 +266,8 @@ function field_views_field_default_views_data($field) {
   foreach ($field['columns'] as $column => $attributes) {
     $allow_sort = TRUE;
 
-    // Identify likely filters and arguments for each column based on field type.
+    // Identify likely filters and arguments for each column based on field
+    // type.
     switch ($attributes['type']) {
       case 'int':
       case 'mediumint':
@@ -263,6 +280,7 @@ function field_views_field_default_views_data($field) {
         $argument = 'views_handler_argument_numeric';
         $sort = 'views_handler_sort';
         break;
+
       case 'text':
       case 'blob':
         // It does not make sense to sort by blob or text.
@@ -273,7 +291,6 @@ function field_views_field_default_views_data($field) {
         $sort = 'views_handler_sort';
         break;
     }
-
 
     if (count($field['columns']) == 1 || $column == 'value') {
       $title = t('@label (!name)', array('@label' => $label, '!name' => $field['field_name']));
@@ -290,7 +307,7 @@ function field_views_field_default_views_data($field) {
         $group = $group_name;
       }
       else {
-        $group = t('@group (historical data)', array('@group' => $group_name));
+        $group = $translations['group_historical'];
       }
       $column_real_name = $field['storage']['details']['sql'][$type][$table][$column];
 
@@ -301,19 +318,20 @@ function field_views_field_default_views_data($field) {
         'group' => $group,
         'title' => $title,
         'title short' => $title_short,
-        'help' =>  t('Appears in: @bundles.', array('@bundles' => implode(', ', $bundles_names))),
+        'help' => $translations['appears_in_help'],
       );
 
-      // Go through and create a list of aliases for all possible combinations of
-      // entity type + name.
+      // Go through and create a list of aliases for all possible combinations
+      // of entity type + name.
       $aliases = array();
       $also_known = array();
       foreach ($all_labels as $entity_name => $labels) {
         foreach ($labels as $label_name => $true) {
           if ($group_name != $groups[$entity_name] || $label != $label_name) {
             if (count($field['columns']) == 1 || $column == 'value') {
+              // CCK used the first 10 characters of $label. Probably doesn't
+              // matter.
               $alias_title = t('@label (!name)', array('@label' => $label_name, '!name' => $field['field_name']));
-              // CCK used the first 10 characters of $label. Probably doesn't matter.
             }
             else {
               $alias_title = t('@label (!name:!column)', array('@label' => $label_name, '!name' => $field['field_name'], '!column' => $column));
@@ -338,7 +356,7 @@ function field_views_field_default_views_data($field) {
         'handler' => $argument,
         'additional fields' => $additional_fields,
         'field_name' => $field['field_name'],
-        'empty field name' => t('- No value -'),
+        'empty field name' => $translations['no_value_dash'],
       );
       $data[$table][$column_real_name]['filter'] = array(
         'field' => $column_real_name,
@@ -367,7 +385,7 @@ function field_views_field_default_views_data($field) {
           'group' => $group,
           'title' => $title_delta,
           'title short' => $title_short_delta,
-          'help' => t('Delta - Appears in: @bundles.', array('@bundles' => implode(', ', $bundles_names))),
+          'help' => $translations['delta_appears_in_help'],
         );
         $data[$table]['delta']['field'] = array(
           'handler' => 'views_handler_field_numeric',
@@ -377,7 +395,7 @@ function field_views_field_default_views_data($field) {
           'table' => $table,
           'handler' => 'views_handler_argument_numeric',
           'additional fields' => $additional_fields,
-          'empty field name' => t('- No value -'),
+          'empty field name' => $translations['no_value_dash'],
           'field_name' => $field['field_name'],
         );
         $data[$table]['delta']['filter'] = array(
@@ -416,7 +434,7 @@ function field_views_field_default_views_data($field) {
           'table' => $table,
           'handler' => 'views_handler_argument_locale_language',
           'additional fields' => $additional_fields,
-          'empty field name' => t('<No value>'),
+          'empty field name' => $translations['no_value_bracket'],
           'field_name' => $field['field_name'],
         );
         $data[$table]['language']['filter'] = array(
@@ -442,7 +460,9 @@ function field_views_field_default_views_data($field) {
 }
 
 /**
- * Have a different filter handler for lists. This should allow to select values of the list.
+ * Have a different filter handler for lists.
+ *
+ * This should allow to select values of the list.
  */
 function list_field_views_data($field) {
   $data = field_views_field_default_views_data($field);

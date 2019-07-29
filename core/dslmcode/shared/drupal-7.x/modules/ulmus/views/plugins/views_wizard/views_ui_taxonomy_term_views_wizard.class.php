@@ -39,4 +39,5 @@ class ViewsUiTaxonomyTermViewsWizard extends ViewsUiBaseViewsWizard {
 
     return $display_options;
   }
+
 }

@@ -169,8 +169,10 @@ Each field is described in the view data with an array, keyed to the database na
 
 <pre>
 $data['node']['nid'] = array(
+  // The item it appears as on the UI,
   'title' =&gt; t('Nid'),
-  'help' =&gt; t('The node ID of the node.'), // The help that appears on the UI,
+  // The help that appears on the UI,
+  'help' =&gt; t('The node ID of the node.'),
   // Information for displaying the nid
   'field' =&gt; array(
     'handler' =&gt; 'views_handler_field_node',
@@ -179,7 +181,8 @@ $data['node']['nid'] = array(
   // Information for accepting a nid as an argument
   'argument' =&gt; array(
     'handler' =&gt; 'views_handler_argument_node_nid',
-    'name field' =&gt; 'title', // the field to display in the summary.
+    // The field to display in the summary.
+    'name field' =&gt; 'title',
     'numeric' =&gt; TRUE,
     'validate type' =&gt; 'nid',
   ),

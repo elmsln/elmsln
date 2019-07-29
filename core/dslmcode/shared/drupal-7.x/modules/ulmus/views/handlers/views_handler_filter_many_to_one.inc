@@ -6,8 +6,9 @@
  */
 
 /**
- * Complex filter to handle filtering for many to one relationships,
- * such as terms (many terms per node) or roles (many roles per user).
+ * Complex filter to handle filtering for many to one relationships.
+ *
+ * Examples: terms (many terms per node), roles (many roles per user).
  *
  * The construct method needs to be overridden to provide a list of options;
  * alternately, the value_form and admin_summary methods need to be overriden
@@ -16,19 +17,31 @@
  * @ingroup views_filter_handlers
  */
 class views_handler_filter_many_to_one extends views_handler_filter_in_operator {
+
   /**
    * @var views_many_to_one_helper
    *
    * Stores the Helper object which handles the many_to_one complexity.
    */
-  var $helper = NULL;
+  public $helper = NULL;
 
-  function init(&$view, &$options) {
+  /**
+   *
+   */
+  public $value_form_type = 'select';
+
+  /**
+   * {@inheritdoc}
+   */
+  public function init(&$view, &$options) {
     parent::init($view, $options);
     $this->helper = new views_many_to_one_helper($this);
   }
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['operator']['default'] = 'or';
@@ -45,7 +58,10 @@ class views_handler_filter_many_to_one extends views_handler_filter_in_operator 
     return $options;
   }
 
-  function operators() {
+  /**
+   * {@inheritdoc}
+   */
+  public function operators() {
     $operators = array(
       'or' => array(
         'title' => t('Is one of'),
@@ -93,8 +109,10 @@ class views_handler_filter_many_to_one extends views_handler_filter_in_operator 
     return $operators;
   }
 
-  var $value_form_type = 'select';
-  function value_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function value_form(&$form, &$form_state) {
     parent::value_form($form, $form_state);
 
     if (empty($form_state['exposed'])) {
@@ -106,7 +124,7 @@ class views_handler_filter_many_to_one extends views_handler_filter_in_operator 
    * Override ensure_my_table so we can control how this joins in.
    * The operator actually has influence over joining.
    */
-  function ensure_my_table() {
+  public function ensure_my_table() {
     // Defer to helper if the operator specifies it.
     $info = $this->operators();
     if (isset($info[$this->operator]['ensure_my_table']) && $info[$this->operator]['ensure_my_table'] == 'helper') {
@@ -116,10 +134,14 @@ class views_handler_filter_many_to_one extends views_handler_filter_in_operator 
     return parent::ensure_my_table();
   }
 
-  function op_helper() {
+  /**
+   * {@inheritdoc}
+   */
+  public function op_helper() {
     if (empty($this->value)) {
       return;
     }
     $this->helper->add_filter();
   }
+
 }

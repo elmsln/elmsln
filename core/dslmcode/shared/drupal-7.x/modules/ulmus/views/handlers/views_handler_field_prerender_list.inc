@@ -16,17 +16,22 @@
  * @ingroup views_field_handlers
  */
 class views_handler_field_prerender_list extends views_handler_field {
+
   /**
    * Stores all items which are used to render the items.
+   *
    * It should be keyed first by the id of the base table, for example nid.
    * The second key is the id of the thing which is displayed multiple times
    * per row, for example the tid.
    *
    * @var array
    */
-  var $items = array();
+  public $items = array();
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['type'] = array('default' => 'separator');
@@ -35,7 +40,10 @@ class views_handler_field_prerender_list extends views_handler_field {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     $form['type'] = array(
       '#type' => 'radios',
       '#title' => t('Display type'),
@@ -63,7 +71,7 @@ class views_handler_field_prerender_list extends views_handler_field {
    * yet or won't update their prerender list fields. If a render_item method
    * exists, this will not get used by advanced_render.
    */
-  function render($values) {
+  public function render($values) {
     $field = $this->get_value($values);
     if (!empty($this->items[$field])) {
       if ($this->options['type'] == 'separator') {
@@ -74,7 +82,7 @@ class views_handler_field_prerender_list extends views_handler_field {
           array(
             'items' => $this->items[$field],
             'title' => NULL,
-            'type' => $this->options['type']
+            'type' => $this->options['type'],
           ));
       }
     }
@@ -86,7 +94,7 @@ class views_handler_field_prerender_list extends views_handler_field {
    * When using advanced render, each possible item in the list is rendered
    * individually. Then the items are all pasted together.
    */
-  function render_items($items) {
+  public function render_items($items) {
     if (!empty($items)) {
       if ($this->options['type'] == 'separator') {
         return implode($this->sanitize_value($this->options['separator'], 'xss_admin'), $items);
@@ -96,7 +104,7 @@ class views_handler_field_prerender_list extends views_handler_field {
           array(
             'items' => $items,
             'title' => NULL,
-            'type' => $this->options['type']
+            'type' => $this->options['type'],
           ));
       }
     }
@@ -105,14 +113,18 @@ class views_handler_field_prerender_list extends views_handler_field {
   /**
    * Return an array of items for the field.
    *
-   * Items should be stored in the result array, if possible, as an array
-   * with 'value' as the actual displayable value of the item, plus
-   * any items that might be found in the 'alter' options array for
-   * creating links, such as 'path', 'fragment', 'query' etc, such a thing
-   * is to be made. Additionally, items that might be turned into tokens
-   * should also be in this array.
+   * Items should be stored in the result array, if possible, as an array with
+   * 'value' as the actual displayable value of the item, plus any items that
+   * might be found in the 'alter' options array for creating links, such as
+   * 'path', 'fragment', 'query' etc, such a thing is to be made. Additionally,
+   * items that might be turned into tokens should also be in this array.
+   *
+   * @param mixed $values
+   *
+   * @return array
+   *   The items.
    */
-  function get_items($values) {
+  public function get_items($values) {
     // Only the parent get_value returns a single field.
     $field = parent::get_value($values);
     if (!empty($this->items[$field])) {
@@ -125,14 +137,14 @@ class views_handler_field_prerender_list extends views_handler_field {
   /**
    * Get the value that's supposed to be rendered.
    *
-   * @param $values
+   * @param object $values
    *   An object containing all retrieved values.
-   * @param $field
+   * @param string $field
    *   Optional name of the field where the value is stored.
-   * @param $raw
+   * @param bool $raw
    *   Use the raw data and not the data defined in pre_render
    */
-  function get_value($values, $field = NULL, $raw = FALSE) {
+  public function get_value($values, $field = NULL, $raw = FALSE) {
     if ($raw) {
       return parent::get_value($values, $field);
     }
@@ -149,10 +161,14 @@ class views_handler_field_prerender_list extends views_handler_field {
    *
    * By default, advanced rendering will NOT be allowed if the class
    * inheriting from this does not implement a 'render_items' method.
+   *
+   * @return bool
+   *   Whether or not the the render method exists.
    */
-  function allow_advanced_render() {
+  public function allow_advanced_render() {
     // Note that the advanced render bits also use the presence of
     // this method to determine if it needs to render items as a list.
     return method_exists($this, 'render_item');
   }
+
 }

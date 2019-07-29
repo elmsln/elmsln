@@ -7,15 +7,23 @@
 
 /**
  * Returns a pure file extension of the file, for example 'module'.
+ *
  * @ingroup views_field_handlers
  */
 class views_handler_field_file_extension extends views_handler_field {
+
+  /**
+   * {@inheritdoc}
+   */
   public function option_definition() {
     $options = parent::option_definition();
     $options['extension_detect_tar'] = array('default' => FALSE, 'bool' => TRUE);
     return $options;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['extension_detect_tar'] = array(
@@ -26,7 +34,10 @@ class views_handler_field_file_extension extends views_handler_field {
     );
   }
 
-  function render($values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render($values) {
     $value = $this->get_value($values);
     if (!$this->options['extension_detect_tar']) {
       if (preg_match('/\.([^\.]+)$/', $value, $match)) {
@@ -46,4 +57,5 @@ class views_handler_field_file_extension extends views_handler_field {
       }
     }
   }
+
 }

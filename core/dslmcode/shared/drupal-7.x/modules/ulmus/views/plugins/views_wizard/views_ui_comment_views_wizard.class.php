@@ -105,4 +105,5 @@ class ViewsUiCommentViewsWizard extends ViewsUiBaseViewsWizard {
 
     return $display_options;
   }
+
 }

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the raw value argument default plugin.
+ * Definition of views_plugin_argument_default_raw.
  */
 
 /**
@@ -11,7 +11,11 @@
  * @ingroup views_argument_default_plugins
  */
 class views_plugin_argument_default_raw extends views_plugin_argument_default {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['index'] = array('default' => '');
     $options['use_alias'] = array('default' => FALSE, 'bool' => TRUE);
@@ -19,7 +23,10 @@ class views_plugin_argument_default_raw extends views_plugin_argument_default {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     // Using range(1, 10) will create an array keyed 0-9, which allows arg() to
     // properly function since it is also zero-based.
@@ -38,7 +45,10 @@ class views_plugin_argument_default_raw extends views_plugin_argument_default {
     );
   }
 
-  function get_argument() {
+  /**
+   * {@inheritdoc}
+   */
+  public function get_argument() {
     $path = NULL;
     if ($this->options['use_alias']) {
       $path = drupal_get_path_alias();
@@ -47,4 +57,5 @@ class views_plugin_argument_default_raw extends views_plugin_argument_default {
       return $arg;
     }
   }
+
 }

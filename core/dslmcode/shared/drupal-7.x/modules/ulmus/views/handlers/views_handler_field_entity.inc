@@ -11,7 +11,7 @@
  * Fields based upon this handler work with all query-backends if the tables
  * used by the query backend have an 'entity type' specified. In order to
  * make fields based upon this handler automatically available to all compatible
- * query backends, the views field can be defined in the table
+ * query backends, the views field can be defined in the table.
  * @code views_entity_{ENTITY_TYPE} @endcode.
  *
  * @ingroup views_field_handlers
@@ -41,13 +41,15 @@ class views_handler_field_entity extends views_handler_field {
 
     // Initialize the entity-type used.
     $table_data = views_fetch_data($this->table);
-    $this->entity_type = $table_data['table']['entity type'];
+    if (isset($table_data['table']['entity type'])) {
+      $this->entity_type = $table_data['table']['entity type'];
+    }
   }
 
   /**
    * Overriden to add the field for the entity id.
    */
-  function query() {
+  public function query() {
     $this->table_alias = $base_table = $this->view->base_table;
     $this->base_field = $this->view->base_field;
 
@@ -75,16 +77,16 @@ class views_handler_field_entity extends views_handler_field {
   /**
    * Load the entities for all rows that are about to be displayed.
    */
-  function pre_render(&$values) {
+  public function pre_render(&$values) {
     if (!empty($values)) {
       list($this->entity_type, $this->entities) = $this->query->get_result_entities($values, !empty($this->relationship) ? $this->relationship : NULL, $this->field_alias);
     }
   }
 
   /**
-   * Overridden to return the entity object, or a certain property of the entity.
+   * Return the entity object or a certain property of the entity.
    */
-  function get_value($values, $field = NULL) {
+  public function get_value($values, $field = NULL) {
     if (isset($this->entities[$this->view->row_index])) {
       $entity = $this->entities[$this->view->row_index];
       // Support to get a certain part of the entity.
@@ -101,4 +103,5 @@ class views_handler_field_entity extends views_handler_field {
     }
     return FALSE;
   }
+
 }

@@ -11,12 +11,20 @@
  * @ingroup views_sort_handlers
  */
 class views_handler_sort_random extends views_handler_sort {
-  function query() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     $this->query->add_orderby('rand');
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['order']['#access'] = FALSE;
   }
+
 }

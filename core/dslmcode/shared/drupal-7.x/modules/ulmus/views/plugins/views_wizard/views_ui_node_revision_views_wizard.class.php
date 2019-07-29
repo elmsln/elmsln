@@ -65,4 +65,5 @@ class ViewsUiNodeRevisionViewsWizard extends ViewsUiNodeViewsWizard {
 
     return $display_options;
   }
+
 }

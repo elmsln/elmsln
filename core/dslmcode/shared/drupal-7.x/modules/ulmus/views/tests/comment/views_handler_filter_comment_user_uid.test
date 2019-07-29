@@ -38,4 +38,5 @@ class viewsHandlerFilterCommentUserUidTest extends viewsHandlerArgumentCommentUs
 
     return $view;
   }
+
 }

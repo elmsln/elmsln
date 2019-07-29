@@ -35,7 +35,7 @@ function views_test_views_data() {
   $count = variable_get('views_test_views_data_count', 0);
   $count++;
   variable_set('views_test_views_data_count', $count);
-  return  variable_get('views_test_views_data', array());
+  return variable_get('views_test_views_data', array());
 }
 
 /**

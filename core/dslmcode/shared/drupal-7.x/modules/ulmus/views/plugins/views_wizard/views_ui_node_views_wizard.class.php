@@ -118,20 +118,24 @@ class ViewsUiNodeViewsWizard extends ViewsUiBaseViewsWizard {
         $display_options['row_options']['links'] = !empty($row_options['links']);
         $display_options['row_options']['comments'] = !empty($row_options['comments']);
         break;
+
       case 'teasers':
         $display_options['row_plugin'] = 'node';
         $display_options['row_options']['build_mode'] = 'teaser';
         $display_options['row_options']['links'] = !empty($row_options['links']);
         $display_options['row_options']['comments'] = !empty($row_options['comments']);
         break;
+
       case 'titles_linked':
         $display_options['row_plugin'] = 'fields';
         $display_options['field']['title']['link_to_node'] = 1;
         break;
+
       case 'titles':
         $display_options['row_plugin'] = 'fields';
         $display_options['field']['title']['link_to_node'] = 0;
         break;
     }
   }
+
 }

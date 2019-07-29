@@ -11,7 +11,11 @@
  * @ingroup views_argument_handlers
  */
 class views_handler_argument_null extends views_handler_argument {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['must_not_be'] = array('default' => FALSE, 'bool' => TRUE);
     return $options;
@@ -21,7 +25,7 @@ class views_handler_argument_null extends views_handler_argument {
    * Override options_form() so that only the relevant options
    * are displayed to the user.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['must_not_be'] = array(
       '#type' => 'checkbox',
@@ -38,9 +42,9 @@ class views_handler_argument_null extends views_handler_argument {
    * Override default_actions() to remove actions that don't
    * make sense for a null argument.
    */
-  function default_actions($which = NULL) {
+  public function default_actions($which = NULL) {
     if ($which) {
-      if (in_array($which, array('ignore', 'not found', 'empty', 'default'))) {
+      if (in_array($which, array('ignore', 'not found', 'empty', 'default', 'access denied'))) {
         return parent::default_actions($which);
       }
       return;
@@ -51,7 +55,10 @@ class views_handler_argument_null extends views_handler_argument {
     return $actions;
   }
 
-  function validate_argument_basic($arg) {
+  /**
+   * {@inheritdoc}
+   */
+  public function validate_argument_basic($arg) {
     if (!empty($this->options['must_not_be'])) {
       return !isset($arg);
     }
@@ -63,5 +70,7 @@ class views_handler_argument_null extends views_handler_argument {
    * Override the behavior of query() to prevent the query
    * from being changed in any way.
    */
-  function query($group_by = FALSE) {}
+  public function query($group_by = FALSE) {
+  }
+
 }

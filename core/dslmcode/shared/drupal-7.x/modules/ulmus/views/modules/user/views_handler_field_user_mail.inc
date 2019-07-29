@@ -11,13 +11,20 @@
  * @ingroup views_field_handlers
  */
 class views_handler_field_user_mail extends views_handler_field_user {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['link_to_user'] = array('default' => 'mailto');
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['link_to_user'] = array(
       '#title' => t('Link this field'),
@@ -31,7 +38,10 @@ class views_handler_field_user_mail extends views_handler_field_user {
     );
   }
 
-  function render_link($data, $values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render_link($data, $values) {
     parent::render_link($data, $values);
 
     if ($this->options['link_to_user'] == 'mailto') {
@@ -41,4 +51,5 @@ class views_handler_field_user_mail extends views_handler_field_user {
 
     return $data;
   }
+
 }

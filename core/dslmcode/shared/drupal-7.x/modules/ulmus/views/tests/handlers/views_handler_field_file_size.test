@@ -61,4 +61,5 @@ class ViewsHandlerTestFileSize extends ViewsSqlTest {
     $this->assertEqual($view->field['age']->advanced_render($view->result[2]), 1000);
     $this->assertEqual($view->field['age']->advanced_render($view->result[3]), 10000);
   }
+
 }

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of views_handler_filter_locale_version.
+ * Contains .
  */
 
 /**
@@ -11,7 +11,11 @@
  * @ingroup views_filter_handlers
  */
 class views_handler_filter_locale_version extends views_handler_filter_in_operator {
-  function get_value_options() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function get_value_options() {
     if (!isset($this->value_options)) {
       $this->value_title = t('Version');
       // Enable filtering by the current installed Drupal version.
@@ -25,4 +29,5 @@ class views_handler_filter_locale_version extends views_handler_filter_in_operat
       $this->value_options = $versions;
     }
   }
+
 }

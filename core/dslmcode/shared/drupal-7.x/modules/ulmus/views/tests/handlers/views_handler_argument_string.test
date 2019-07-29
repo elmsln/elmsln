@@ -53,6 +53,7 @@ class ViewsHandlerArgumentStringTest extends ViewsSqlTest {
    * Provide a test view for testGlossary.
    *
    * @see testGlossary
+   *
    * @return view
    */
   function viewGlossary() {
@@ -93,4 +94,5 @@ class ViewsHandlerArgumentStringTest extends ViewsSqlTest {
 
     return $view;
   }
+
 }

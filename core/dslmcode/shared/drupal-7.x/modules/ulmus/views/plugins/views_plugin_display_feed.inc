@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the feed display plugin.
+ * Definition of views_plugin_display_feed.
  */
 
 /**
@@ -13,7 +13,11 @@
  * @ingroup views_display_plugins
  */
 class views_plugin_display_feed extends views_plugin_display_page {
-  function init(&$view, &$display, $options = NULL) {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function init(&$view, &$display, $options = NULL) {
     parent::init($view, $display, $options);
 
     // Set the default row style. Ideally this would be part of the option
@@ -26,23 +30,40 @@ class views_plugin_display_feed extends views_plugin_display_page {
     }
   }
 
-  function uses_breadcrumb() { return FALSE; }
-  function get_style_type() { return 'feed'; }
+  /**
+   * {@inheritdoc}
+   */
+  public function uses_breadcrumb() {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function get_style_type() {
+    return 'feed';
+  }
 
   /**
    * Feeds do not go through the normal page theming mechanism. Instead, they
    * go through their own little theme function and then return NULL so that
    * Drupal believes that the page has already rendered itself...which it has.
    */
-  function execute() {
+  public function execute() {
     $output = $this->view->render();
+    if (!empty($this->view->build_info['denied'])) {
+      return MENU_ACCESS_DENIED;
+    }
     if (empty($output)) {
       return MENU_NOT_FOUND;
     }
     print $output;
   }
 
-  function preview() {
+  /**
+   * {@inheritdoc}
+   */
+  public function preview() {
     if (!empty($this->view->live_preview)) {
       return '<pre>' . check_plain($this->view->render()) . '</pre>';
     }
@@ -53,11 +74,14 @@ class views_plugin_display_feed extends views_plugin_display_page {
    * Instead of going through the standard views_view.tpl.php, delegate this
    * to the style handler.
    */
-  function render() {
+  public function render() {
     return $this->view->style_plugin->render($this->view->result);
   }
 
-  function defaultable_sections($section = NULL) {
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultable_sections($section = NULL) {
     if (in_array($section, array('style_options', 'style_plugin', 'row_options', 'row_plugin',))) {
       return FALSE;
     }
@@ -74,12 +98,15 @@ class views_plugin_display_feed extends views_plugin_display_page {
     return $sections;
   }
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['displays'] = array('default' => array());
 
-    // Overrides for standard stuff:
+    // Overrides for standard stuff.
     $options['style_plugin']['default'] = 'rss';
     $options['style_options']['default']  = array('description' => '');
     $options['sitename_title']['default'] = FALSE;
@@ -92,8 +119,11 @@ class views_plugin_display_feed extends views_plugin_display_page {
     return $options;
   }
 
-  function options_summary(&$categories, &$options) {
-    // It is very important to call the parent function here:
+  /**
+   * {@inheritdoc}
+   */
+  public function options_summary(&$categories, &$options) {
+    // It is very important to call the parent function here.
     parent::options_summary($categories, $options);
 
     // Since we're childing off the 'page' type, we'll still *call* our
@@ -138,7 +168,7 @@ class views_plugin_display_feed extends views_plugin_display_page {
   /**
    * Provide the default form for setting options.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     // It is very important to call the parent function here.
     parent::options_form($form, $form_state);
 
@@ -155,6 +185,7 @@ class views_plugin_display_feed extends views_plugin_display_page {
         $form['title'] = $title;
         $form['title']['#dependency'] = array('edit-sitename-title' => array(FALSE));
         break;
+
       case 'displays':
         $form['#title'] .= t('Attach to');
         $displays = array();
@@ -170,8 +201,10 @@ class views_plugin_display_feed extends views_plugin_display_page {
           '#default_value' => $this->get_option('displays'),
         );
         break;
+
       case 'path':
         $form['path']['#description'] = t('This view will be displayed by visiting this path on your site. It is recommended that the path be something like "path/%/%/feed" or "path/%/%/rss.xml", putting one % in the path for each contextual filter you have defined in the view.');
+        break;
     }
   }
 
@@ -179,13 +212,14 @@ class views_plugin_display_feed extends views_plugin_display_page {
    * Perform any necessary changes to the form values prior to storage.
    * There is no need for this function to actually store the data.
    */
-  function options_submit(&$form, &$form_state) {
-    // It is very important to call the parent function here:
+  public function options_submit(&$form, &$form_state) {
+    // It is very important to call the parent function here.
     parent::options_submit($form, $form_state);
     switch ($form_state['section']) {
       case 'title':
         $this->set_option('sitename_title', $form_state['values']['sitename_title']);
         break;
+
       case 'displays':
         $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]);
         break;
@@ -195,7 +229,7 @@ class views_plugin_display_feed extends views_plugin_display_page {
   /**
    * Attach to another view.
    */
-  function attach_to($display_id) {
+  public function attach_to($display_id) {
     $displays = $this->get_option('displays');
     if (empty($displays[$display_id])) {
       return;
@@ -216,7 +250,11 @@ class views_plugin_display_feed extends views_plugin_display_page {
     }
   }
 
-  function uses_link_display() {
+  /**
+   * {@inheritdoc}
+   */
+  public function uses_link_display() {
     return TRUE;
   }
+
 }

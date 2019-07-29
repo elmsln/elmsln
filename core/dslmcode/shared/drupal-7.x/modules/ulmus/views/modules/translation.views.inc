@@ -13,14 +13,13 @@
  * Add translation information to the node table.
  */
 function translation_views_data_alter(&$data) {
-
-  // Joins
+  // Joins.
   $data['node']['table']['join']['node'] = array(
     'left_field' => 'tnid',
     'field' => 'tnid',
   );
 
-  // The translation ID (nid of the "source" translation)
+  // The translation ID (nid of the "source" translation).
   $data['node']['tnid'] = array(
     'group' => t('Content translation'),
     'title' => t('Translation set node ID'),
@@ -34,7 +33,8 @@ function translation_views_data_alter(&$data) {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_node_tnid',
-      'name field' => 'title', // the field to display in the summary.
+      // The field to display in the summary.
+      'name field' => 'title',
       'numeric' => TRUE,
       'validate type' => 'tnid',
     ),
@@ -88,7 +88,7 @@ function translation_views_data_alter(&$data) {
     ),
   );
 
-  // Translation status
+  // Translation status.
   $data['node']['translate'] = array(
     'group' => t('Content translation'),
     'title' => t('Translation status'),
@@ -116,6 +116,5 @@ function translation_views_data_alter(&$data) {
       'handler' => 'views_handler_field_node_link_translate',
     ),
   );
-
 
 }

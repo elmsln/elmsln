@@ -14,8 +14,7 @@ if (module_exists('taxonomy')) {
       'class' => 'ViewsUiTaxonomyTermViewsWizard',
     ),
     'title' => t('Taxonomy terms'),
-    'filters' => array(
-    ),
+    'filters' => array(),
     'path_field' => array(
       'id' => 'tid',
       'table' => 'taxonomy_term_data',

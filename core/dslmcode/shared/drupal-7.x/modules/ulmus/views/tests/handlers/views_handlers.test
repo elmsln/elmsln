@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains ViewsHandlerTest.
+ * Definition of ViewsHandlerTest.
  */
 
 /**
@@ -42,7 +42,7 @@ class ViewsHandlerTest extends ViewsSqlTest {
   public function testHandlerAccess() {
     $view = $this->getBasicView();
 
-    // add a test area
+    // add a test area.
     $view->display['default']->handler->override_option('header', array(
       'test_access' => array(
         'id' => 'test_access',
@@ -61,7 +61,7 @@ class ViewsHandlerTest extends ViewsSqlTest {
 
     $view = $this->getBasicView();
 
-    // add a test area
+    // add a test area.
     $view->display['default']->handler->override_option('header', array(
       'test_access' => array(
         'id' => 'test_access',

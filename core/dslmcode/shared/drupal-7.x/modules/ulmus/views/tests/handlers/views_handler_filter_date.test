@@ -168,7 +168,7 @@ class ViewsHandlerFilterDateTest extends ViewsSqlTest {
     $view = $this->views_test_between();
     $view->save();
 
-    $admin_user =   $this->drupalCreateUser(array('administer views', 'administer site configuration'));
+    $admin_user = $this->drupalCreateUser(array('administer views', 'administer site configuration'));
     $this->drupalLogin($admin_user);
     menu_rebuild();
     $this->drupalGet('admin/structure/views/view/test_filter_date_between/edit');
@@ -182,7 +182,7 @@ class ViewsHandlerFilterDateTest extends ViewsSqlTest {
   }
 
   function views_test_between() {
-    $view = new view;
+    $view = new view();
     $view->name = 'test_filter_date_between';
     $view->description = '';
     $view->tag = '';
@@ -218,4 +218,5 @@ class ViewsHandlerFilterDateTest extends ViewsSqlTest {
     $view = $this->views_test_between();
     return $view;
   }
+
 }

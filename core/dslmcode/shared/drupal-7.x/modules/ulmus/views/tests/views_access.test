@@ -17,6 +17,9 @@ class ViewsAccessTest extends ViewsSqlTest {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     parent::setUp();
 

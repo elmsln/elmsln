@@ -12,7 +12,10 @@
  */
 class views_handler_area_result extends views_handler_area {
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['content'] = array(
@@ -23,7 +26,10 @@ class views_handler_area_result extends views_handler_area {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $variables = array(
       'items' => array(
@@ -47,11 +53,10 @@ class views_handler_area_result extends views_handler_area {
     );
   }
 
-
   /**
    * Find out the information to render.
    */
-  function render($empty = FALSE) {
+  public function render($empty = FALSE) {
     // Must have options and does not work on summaries.
     if (!isset($this->options['content']) || $this->view->plugin_name == 'default_summary') {
       return;
@@ -61,7 +66,7 @@ class views_handler_area_result extends views_handler_area {
     // Calculate the page totals.
     $current_page = (int) $this->view->get_current_page() + 1;
     $per_page = (int) $this->view->get_items_per_page();
-    // @TODO: Maybe use a possible is views empty functionality.
+    // @todo Maybe use a possible is views empty functionality.
     // Not every view has total_rows set, use view->result instead.
     $total = isset($this->view->total_rows) ? $this->view->total_rows : count($this->view->result);
     $name = check_plain($this->view->human_name);
@@ -81,15 +86,25 @@ class views_handler_area_result extends views_handler_area {
     }
     $current_record_count = ($end - $start) + 1;
     // Get the search information.
-    $items = array('start', 'end', 'total', 'name', 'per_page', 'current_page', 'current_record_count', 'page_count');
+    $items = array(
+      'start',
+      'end',
+      'total',
+      'name',
+      'per_page',
+      'current_page',
+      'current_record_count',
+      'page_count',
+    );
     $replacements = array();
     foreach ($items as $item) {
       $replacements["@$item"] = ${$item};
     }
     // Send the output.
-    if (!empty($total)) {
+    if (!empty($total) || !empty($this->options['empty'])) {
       $output .= filter_xss_admin(str_replace(array_keys($replacements), array_values($replacements), $format));
     }
     return $output;
   }
+
 }

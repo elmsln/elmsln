@@ -17,7 +17,7 @@
 
 /**
  * IE7 has no idea how large this container should be and it doesn't
- * apply has-layout. Expand it's width to 100% and trigger has-layout.
+ * apply has-layout. Expand its width to 100% and trigger has-layout.
  */
 .views-edit-view .views-displays {
   height: 1%;

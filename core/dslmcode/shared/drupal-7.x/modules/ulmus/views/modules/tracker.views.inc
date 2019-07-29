@@ -6,8 +6,9 @@
  *
  * @ingroup views_module_handlers
  */
+
 /**
- * Implementation of hook_views_data().
+ * Implements hook_views_data().
  */
 function tracker_views_data() {
   $data = array();
@@ -158,10 +159,10 @@ function tracker_views_data() {
 }
 
 /**
- * Implementation of hook_views_data_alter().
+ * Implements hook_views_data_alter().
  */
 function tracker_views_data_alter(&$data) {
-  // Provide additional uid_touch handlers which are handled by tracker
+  // Provide additional uid_touch handlers which are handled by tracker.
   $data['node']['uid_touch_tracker'] = array(
     'group' => t('Tracker - User'),
     'title' => t('User posted or commented'),
@@ -177,7 +178,7 @@ function tracker_views_data_alter(&$data) {
       'field' => 'uid',
       'name table' => 'users',
       'name field' => 'name',
-      'handler' => 'views_handler_filter_tracker_comment_user_uid'
+      'handler' => 'views_handler_filter_tracker_comment_user_uid',
     ),
   );
 }

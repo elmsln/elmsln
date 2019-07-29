@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Handler for node path field.
+ * Definition of views_handler_field_node_path.
  */
 
 /**
@@ -12,19 +12,28 @@
  */
 class views_handler_field_node_path extends views_handler_field {
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['absolute'] = array('default' => FALSE, 'bool' => TRUE);
 
     return $options;
   }
 
-  function construct() {
+  /**
+   * {@inheritdoc}
+   */
+  public function construct() {
     parent::construct();
     $this->additional_fields['nid'] = 'nid';
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['absolute'] = array(
       '#type' => 'checkbox',
@@ -35,13 +44,20 @@ class views_handler_field_node_path extends views_handler_field {
     );
   }
 
-  function query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     $this->ensure_my_table();
     $this->add_additional_fields();
   }
 
-  function render($values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render($values) {
     $nid = $this->get_value($values, 'nid');
     return url("node/$nid", array('absolute' => $this->options['absolute']));
   }
+
 }

@@ -11,12 +11,19 @@
  * @ingroup views_filter_handlers
  */
 class views_handler_filter_user_current extends views_handler_filter_boolean_operator {
-  function construct() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function construct() {
     parent::construct();
     $this->value_value = t('Is the logged in user');
   }
 
-  function query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     $this->ensure_my_table();
 
     $field = $this->table_alias . '.' . $this->real_field . ' ';
@@ -33,4 +40,5 @@ class views_handler_filter_user_current extends views_handler_filter_boolean_ope
     }
     $this->query->add_where($this->options['group'], $or);
   }
+
 }

@@ -1,0 +1,73 @@
+diff --git a/js/ajax_view.js b/js/ajax_view.js
+index aa10a00..6e44c52 100644
+--- a/js/ajax_view.js
++++ b/js/ajax_view.js
+@@ -116,6 +116,10 @@ Drupal.views.ajaxView.prototype.attachPagerLinkAjax = function(id, link) {
+     }
+     var viewData = {};
+     var href = $link.attr('href');
++    // Leave the function early if there is no href to be parsed.
++    if (!href) {
++      return;
++    }
+ 
+     // Provide a default page if none has been set. This must be done
+     // prior to merging with settings to avoid accidentally using the
+diff --git a/js/base.js b/js/base.js
+index ce5bf6a..b68e296 100644
+--- a/js/base.js
++++ b/js/base.js
+@@ -42,6 +42,10 @@ Drupal.behaviors.viewsTabs = {
+  * Helper function to parse a querystring.
+  */
+   Drupal.Views.parseQueryString = function (query) {
++    // Exit early if called without query.
++    if (!query) {
++      return;
++    }
+     var args = {};
+     var pos = query.indexOf('?');
+     if (pos != -1) {
+@@ -64,7 +68,10 @@ Drupal.Views.parseQueryString = function (query) {
+  * Helper function to return a view's arguments based on a path.
+  */
+   Drupal.Views.parseViewArgs = function (href, viewPath) {
+-
++    // Exit early if called without href or viewPath.
++    if (!(href && viewPath)) {
++      return;
++    }
+     // Provide language prefix.
+     if (Drupal.settings.pathPrefix) {
+       var viewPath = Drupal.settings.pathPrefix + viewPath;
+@@ -72,7 +79,7 @@ Drupal.Views.parseViewArgs = function (href, viewPath) {
+     var returnObj = {};
+     var path = Drupal.Views.getPath(href);
+     // Ensure we have a correct path.
+-    if (viewPath && path.substring(0, viewPath.length + 1) == viewPath + '/') {
++    if (path && path.substring(0, viewPath.length + 1) == viewPath + '/') {
+       var args = decodeURIComponent(path.substring(viewPath.length + 1, path.length));
+       returnObj.view_args = args;
+       returnObj.view_path = path;
+@@ -84,6 +91,10 @@ Drupal.Views.parseViewArgs = function (href, viewPath) {
+  * Strip off the protocol plus domain from an href.
+  */
+   Drupal.Views.pathPortion = function (href) {
++    // Exit early if called without href.
++    if (!href) {
++      return;
++    }
+     // Remove e.g. http://example.com if present.
+     var protocol = window.location.protocol;
+     if (href.substring(0, protocol.length) == protocol) {
+@@ -97,6 +108,10 @@ Drupal.Views.pathPortion = function (href) {
+  * Return the Drupal path portion of an href.
+  */
+   Drupal.Views.getPath = function (href) {
++    // Exit early if called without href.
++    if (!href) {
++      return;
++    }
+     href = Drupal.Views.pathPortion(href);
+     href = href.substring(Drupal.settings.basePath.length, href.length);
+     // 3 is the length of the '?q=' added to the url without clean urls.

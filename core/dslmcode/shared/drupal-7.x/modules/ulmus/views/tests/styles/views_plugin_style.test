@@ -78,6 +78,7 @@ class ViewsPluginStyleTestCase extends ViewsPluginStyleTestBase {
     $expected = array();
     $expected['Job: Singer'] = array();
     $expected['Job: Singer']['group'] = 'Job: Singer';
+    $expected['Job: Singer']['level'] = '0';
     $expected['Job: Singer']['rows'][0] = new StdClass();
     $expected['Job: Singer']['rows'][0]->views_test_name = 'John';
     $expected['Job: Singer']['rows'][0]->views_test_job = 'Singer';
@@ -88,6 +89,7 @@ class ViewsPluginStyleTestCase extends ViewsPluginStyleTestBase {
     $expected['Job: Singer']['rows'][1]->views_test_id = '2';
     $expected['Job: Drummer'] = array();
     $expected['Job: Drummer']['group'] = 'Job: Drummer';
+    $expected['Job: Drummer']['level'] = '0';
     $expected['Job: Drummer']['rows'][2] = new StdClass();
     $expected['Job: Drummer']['rows'][2]->views_test_name = 'Ringo';
     $expected['Job: Drummer']['rows'][2]->views_test_job = 'Drummer';
@@ -161,8 +163,10 @@ class ViewsPluginStyleTestCase extends ViewsPluginStyleTestBase {
     $expected = array();
     $expected['Job: Singer'] = array();
     $expected['Job: Singer']['group'] = 'Job: Singer';
+    $expected['Job: Singer']['level'] = 0;
     $expected['Job: Singer']['rows']['Age: 25'] = array();
     $expected['Job: Singer']['rows']['Age: 25']['group'] = 'Age: 25';
+    $expected['Job: Singer']['rows']['Age: 25']['level'] = 1;
     $expected['Job: Singer']['rows']['Age: 25']['rows'][0] = new StdClass();
     $expected['Job: Singer']['rows']['Age: 25']['rows'][0]->views_test_name = 'John';
     $expected['Job: Singer']['rows']['Age: 25']['rows'][0]->views_test_job = 'Singer';
@@ -170,6 +174,7 @@ class ViewsPluginStyleTestCase extends ViewsPluginStyleTestBase {
     $expected['Job: Singer']['rows']['Age: 25']['rows'][0]->views_test_id = '1';
     $expected['Job: Singer']['rows']['Age: 27'] = array();
     $expected['Job: Singer']['rows']['Age: 27']['group'] = 'Age: 27';
+    $expected['Job: Singer']['rows']['Age: 27']['level'] = 1;
     $expected['Job: Singer']['rows']['Age: 27']['rows'][1] = new StdClass();
     $expected['Job: Singer']['rows']['Age: 27']['rows'][1]->views_test_name = 'George';
     $expected['Job: Singer']['rows']['Age: 27']['rows'][1]->views_test_job = 'Singer';
@@ -177,14 +182,15 @@ class ViewsPluginStyleTestCase extends ViewsPluginStyleTestBase {
     $expected['Job: Singer']['rows']['Age: 27']['rows'][1]->views_test_id = '2';
     $expected['Job: Drummer'] = array();
     $expected['Job: Drummer']['group'] = 'Job: Drummer';
+    $expected['Job: Drummer']['level'] = 0;
     $expected['Job: Drummer']['rows']['Age: 28'] = array();
     $expected['Job: Drummer']['rows']['Age: 28']['group'] = 'Age: 28';
+    $expected['Job: Drummer']['rows']['Age: 28']['level'] = 1;
     $expected['Job: Drummer']['rows']['Age: 28']['rows'][2] = new StdClass();
     $expected['Job: Drummer']['rows']['Age: 28']['rows'][2]->views_test_name = 'Ringo';
     $expected['Job: Drummer']['rows']['Age: 28']['rows'][2]->views_test_job = 'Drummer';
     $expected['Job: Drummer']['rows']['Age: 28']['rows'][2]->views_test_age = '28';
     $expected['Job: Drummer']['rows']['Age: 28']['rows'][2]->views_test_id = '3';
-
 
     // Alter the results to support the stripped case.
     if ($stripped) {
@@ -205,7 +211,6 @@ class ViewsPluginStyleTestCase extends ViewsPluginStyleTestBase {
       $view->style_plugin->options['grouping'][0] = array('field' => 'job', 'rendered' => TRUE, 'rendered_strip' => TRUE);
       $view->style_plugin->options['grouping'][1] = array('field' => 'age', 'rendered' => TRUE, 'rendered_strip' => TRUE);
     }
-
 
     // The newer api passes the value of the grouping as well.
     $sets_new_rendered = $view->style_plugin->render_grouping($view->result, $view->style_plugin->options['grouping'], TRUE);
@@ -261,4 +266,5 @@ class ViewsPluginStyleTestCase extends ViewsPluginStyleTestBase {
       $count++;
     }
   }
+
 }

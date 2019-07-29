@@ -2,21 +2,28 @@
 
 /**
  * @file
- * Contains the user from URL argument default plugin.
+ * Definition of views_plugin_argument_default_user.
  */
 
 /**
  * Default argument plugin to extract a user via menu_get_object.
  */
 class views_plugin_argument_default_user extends views_plugin_argument_default {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['user'] = array('default' => '', 'bool' => TRUE, 'translatable' => FALSE);
 
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     $form['user'] = array(
       '#type' => 'checkbox',
       '#title' => t('Also look for a node and use the node author'),
@@ -24,13 +31,19 @@ class views_plugin_argument_default_user extends views_plugin_argument_default {
     );
   }
 
-  function convert_options(&$options) {
+  /**
+   * {@inheritdoc}
+   */
+  public function convert_options(&$options) {
     if (!isset($options['user']) && isset($this->argument->options['default_argument_user'])) {
       $options['user'] = $this->argument->options['default_argument_user'];
     }
   }
 
-  function get_argument() {
+  /**
+   * {@inheritdoc}
+   */
+  public function get_argument() {
     foreach (range(1, 3) as $i) {
       $user = menu_get_object('user', $i);
       if (!empty($user)) {
@@ -67,11 +80,13 @@ class views_plugin_argument_default_user extends views_plugin_argument_default {
       }
     }
 
-    // If the current page is a view that takes uid as an argument, return the uid.
+    // If the current page is a view that takes uid as an argument, return the
+    // uid.
     $view = views_get_page_view();
 
     if ($view && isset($view->argument['uid'])) {
       return $view->argument['uid']->argument;
     }
   }
+
 }

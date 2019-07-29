@@ -11,7 +11,11 @@
  * @ingroup views_field_handlers
  */
 class views_handler_field_search_score extends views_handler_field_numeric {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['alternate_sort'] = array('default' => '');
@@ -20,7 +24,10 @@ class views_handler_field_search_score extends views_handler_field_numeric {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     $style_options = $this->view->display_handler->get_option('style_options');
     if (isset($style_options['default']) && $style_options['default'] == $this->options['id']) {
       $handlers = $this->view->display_handler->get_handlers('field');
@@ -48,7 +55,10 @@ class views_handler_field_search_score extends views_handler_field_numeric {
     parent::options_form($form, $form_state);
   }
 
-  function query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     // Check to see if the search filter added 'score' to the table.
     // Our filter stores it as $handler->search_score -- and we also
     // need to check its relationship to make sure that we're using the same
@@ -65,17 +75,22 @@ class views_handler_field_search_score extends views_handler_field_numeric {
     $this->options['exclude'] = TRUE;
     if (!empty($this->options['alternate_sort'])) {
       if (isset($this->view->style_plugin->options['default']) && $this->view->style_plugin->options['default'] == $this->options['id']) {
-        // Since the style handler initiates fields, we plug these values right into the active handler.
+        // Since the style handler initiates fields, we plug these values right
+        // into the active handler.
         $this->view->style_plugin->options['default'] = $this->options['alternate_sort'];
         $this->view->style_plugin->options['order'] = $this->options['alternate_order'];
       }
     }
   }
 
-  function render($values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render($values) {
     // Only render if we exist.
     if (isset($this->table_alias)) {
       return parent::render($values);
     }
   }
+
 }
