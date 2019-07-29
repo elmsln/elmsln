@@ -3,6 +3,20 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- ...
+
+Imagecache Actions 7.x-1.10
+---------------------------
+- Use json for exporting image styles.
+- [#2988487] by AdamEvertsson: Minor spelling error.
+
+Imagecache Actions 7.x-1.9
+--------------------------
+- [#2760121] by lebster, fietserwin: Add a "Perspective" effect.
+- [#2947014]: PHP 7.2 warning that each() has been deprecated.
+
+Imagecache Actions 7.x-1.8
+--------------------------
 - [#2917097]: PHP 7.1 Warning "A non-numeric value encountered".
 - [#2905130] by bserem, fietserwin: Remove animation from moving images.
 - [#2888678] by das-peter: ImageMagick: Add support for invert effect.

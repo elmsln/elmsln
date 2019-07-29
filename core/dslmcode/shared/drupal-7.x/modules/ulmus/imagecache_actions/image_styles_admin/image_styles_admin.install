@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * Rebuild the menu.
+ */
+function image_styles_admin_update_7001(&$sandbox) {
+  menu_rebuild();
+}

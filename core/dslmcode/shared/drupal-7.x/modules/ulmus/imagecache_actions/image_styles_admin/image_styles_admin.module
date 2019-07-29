@@ -4,6 +4,25 @@
  */
 
 /**
+ * Implements hook_permission().
+ */
+function image_styles_admin_permission() {
+  return array(
+    'import image styles' => array(
+      'title' => t('Import image styles.') ,
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Determines access to the import image style form for the current user.
+ */
+function image_styles_admin_access() {
+  return user_access('import image styles') && user_access('administer image styles');
+}
+
+/**
  * Implements hook_menu().
  */
 function image_styles_admin_menu() {
@@ -29,7 +48,7 @@ function image_styles_admin_menu() {
     'description' => 'Import an image style.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('image_styles_admin_import_form'),
-    'access arguments' => array('administer image styles'),
+    'access callback' => array('image_styles_admin_access'),
     'type' => MENU_LOCAL_ACTION,
     'weight' => 3,
     'file' => 'image_styles_admin.inc',
