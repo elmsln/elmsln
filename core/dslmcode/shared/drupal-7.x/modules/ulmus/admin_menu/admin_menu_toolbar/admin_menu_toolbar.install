@@ -34,4 +34,3 @@ function admin_menu_toolbar_update_6300() {
     ->condition('name', 'admin_menu_toolbar')
     ->execute();
 }
-

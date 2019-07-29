@@ -1,4 +1,3 @@
-
 #admin-menu {
   text-align: right;
 }
@@ -25,7 +24,7 @@
   border-right: 0;
 }
 #admin-menu .dropdown .admin-menu-tab a {
-  border-left: 1px solid #52565E;
+  border-left: 1px solid #52565e;
   border-right: 0;
 }
 #admin-menu .dropdown li li a {
@@ -42,13 +41,13 @@
 /* Second-level lists */
 #admin-menu .dropdown li ul {
   left: auto;
-  right: -999em;
+  right: auto;
 }
 
 /* Third-and-above-level lists */
 #admin-menu .dropdown li li.expandable ul {
-  margin-left: 0;
-  margin-right: 160px;
+  margin-left: 0 !important;
+  margin-right: 160px !important;
 }
 
 /* Lists nested under hovered list items */

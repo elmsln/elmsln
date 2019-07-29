@@ -1,4 +1,3 @@
-
 /**
  * @file
  * Administration menu color override.
@@ -17,7 +16,7 @@
   border-right-color: #a91f1f;
 }
 #admin-menu ul li.admin-menu-tab a {
-  border-right-color: #52565E;
+  border-right-color: #52565e;
 }
 #admin-menu li li a {
   border-top-color: #801f1f;
