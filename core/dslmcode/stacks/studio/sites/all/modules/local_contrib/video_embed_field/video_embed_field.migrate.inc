@@ -4,7 +4,7 @@
  * Migrate support for Video Embed Field module.
  */
 
-/*
+/**
  * Implements hook_migrate_api().
  */
 function video_embed_field_migrate_api() {
@@ -19,10 +19,14 @@ function video_embed_field_migrate_api() {
  * Custom extended MigrateFieldHandler class for Video Embed Field module.
  */
 class MigrateVideoEmbedFieldFieldHandler extends MigrateFieldHandler {
+
   public function __construct() {
     $this->registerTypes(array('video_embed_field'));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fields($type, $parent_field, $migration = NULL) {
     $fields = array(
       'video_url' => t('Video: The video URL.'),
@@ -30,6 +34,9 @@ class MigrateVideoEmbedFieldFieldHandler extends MigrateFieldHandler {
     return $fields;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function prepare($entity, array $field_info, array $instance, array $values) {
     $arguments = array();
     if (isset($values['arguments'])) {

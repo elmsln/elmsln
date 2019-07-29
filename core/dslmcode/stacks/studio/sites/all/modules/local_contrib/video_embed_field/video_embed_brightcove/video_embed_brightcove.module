@@ -1,0 +1,168 @@
+<?php
+
+/**
+ * @file
+ * Add a handler for brightcove videos to Video Embed Field.
+ * @see video_embed_field.api.php for more documentation.
+ */
+
+/**
+ * Implements hook_video_embed_handler_info().
+ */
+function video_embed_brightcove_video_embed_handler_info() {
+  $handlers = array();
+  $handlers['brightcove'] = array(
+    'title' => 'Brightcove Video',
+    'function' => 'video_embed_brightcove_handle_video',
+    'thumbnail_default' => drupal_get_path('module', 'video_embed_brightcove') . '/img/brightcove.jpg',
+    'form' => 'video_embed_brightcove_form',
+    'form_validate' => 'video_embed_field_handler_brightcove_form_validate',
+    'domains' => array(
+      'brightcove.com',
+      'link.brightcove.com',
+    ),
+    'defaults' => array(
+      'width' => 640,
+      'height' => 360,
+      'class' => '',
+    ),
+  );
+
+  return $handlers;
+}
+
+/**
+ * Form to configure out video settings.
+ *
+ * @param array $defaults
+ *   Values for your provider.
+ *
+ * @return array
+ *   A form as defined by form API.
+ */
+function video_embed_brightcove_form($defaults) {
+  $form = array();
+  // Element for the width of the player.
+  $form['width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Player Width'),
+    '#description' => t('The width of the player.'),
+    '#default_value' => $defaults['width'],
+  );
+
+  // Element for the height of the player.
+  $form['height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Player Height'),
+    '#description' => t('The height of the player.'),
+    '#default_value' => $defaults['height'],
+  );
+
+  $form['class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Player CSS class'),
+    '#description' => t('CSS class to add to the player'),
+    '#default_value' => $defaults['class'],
+  );
+
+  return $form;
+}
+
+/**
+ * Validates the form elements for the Brightcove configuration form.
+ */
+function video_embed_field_handler_brightcove_form_validate($element, &$form_state, $form) {
+  video_embed_field_validate_dimensions($element);
+}
+
+/**
+ * The video handler.
+ *
+ * @param string $url
+ *   The full video url.
+ * @param array $settings
+ *   Handlers settings from the settings form.
+ *
+ * @return array|string
+ *   The embed code for the video.
+ */
+function video_embed_brightcove_handle_video($url, $settings) {
+  $parameters = _video_embed_brightcove_get_video_properties($url);
+
+  if (isset($parameters['id']) && isset($parameters['key'])) {
+    // Embed code.
+    $embed = '<object class="@class" id="myExperience" class="BrightcoveExperience">
+      <param name="bgcolor" value="#FFFFFF" />
+      <param name="width" value="@width" />
+      <param name="height" value="@height" />
+      <param name="playerID" value="!id" />
+      <param name="playerKey" value="!key" />
+      <param name="isVid" value="true" />
+      <param name="isUI" value="true" />
+      <param name="dynamicStreaming" value="true" />
+      <param name="@videoPlayer" value="!videoplayer" />
+    </object>';
+    // Replace our placeholders with the values from the settings.
+    $embed = format_string($embed, array(
+      '!id' => $parameters['id'],
+      '!key' => $parameters['key'],
+      '@width' => $settings['width'],
+      '@height' => $settings['height'],
+      '@class' => $settings['class'],
+      '!videoplayer' => $parameters['player'],
+    ));
+
+    $video = array(
+      '#markup' => $embed,
+      '#suffix' => '<script type="text/javascript">brightcove.createExperiences();</script>',
+      '#attached' => array(
+        'js' => array(
+          '//admin.brightcove.com/js/BrightcoveExperiences.js' => array(
+            'type' => 'external',
+          ),
+        ),
+      ),
+    );
+
+    return $video;
+  }
+  return '';
+}
+
+/**
+ * Helper function to take a brightcove video url and return its id.
+ *
+ * @param string $url
+ *   The full brightcove video url.
+ *
+ * @return array
+ *   The video properties.
+ */
+function _video_embed_brightcove_get_video_properties($url) {
+  // Easy way to break a url into its components.
+  $components = array(
+    'id' => array(
+      'start' => 'bcpid',
+      'finish' => '\?bckey',
+    ),
+    'key' => array(
+      'start' => 'bckey=',
+      'finish' => '&bctid',
+    ),
+    'player' => array(
+      'start' => 'bctid=',
+      'finish' => '',
+    ),
+  );
+
+  $matches = array();
+  $return = array();
+  foreach ($components as $key => $component) {
+    $string = "/(.*){$component['start']}(.*){$component['finish']}/";
+    preg_match($string, $url, $matches);
+    if ($matches && !empty($matches[2])) {
+      $return[$key] = check_plain($matches[2]);
+    }
+  }
+  return $return;
+}

@@ -8,6 +8,9 @@
 // The Youtube’s API url.
 define('YT_API_URL', 'http://gdata.youtube.com/feeds/api/videos?q=');
 
+/**
+ * Devel generate plugin definition.
+ */
 function video_embed_field_devel_generate($object, $field, $instance, $bundle) {
   if (field_behaviors_widget('multiple values', $instance) == FIELD_BEHAVIOR_CUSTOM) {
     return devel_generate_multiple('_video_embed_field_devel_generate', $object, $field, $instance, $bundle);
@@ -17,6 +20,21 @@ function video_embed_field_devel_generate($object, $field, $instance, $bundle) {
   }
 }
 
+/**
+ * Generates a random video_embed_field item.
+ *
+ * @param object $object
+ *   The devel_generate object.
+ * @param array $field
+ *   The field definition.
+ * @param array $instance
+ *   The field instance definition.
+ * @param array $bundle
+ *   The bundle definition.
+ *
+ * @return array
+ *   The video_embed_field item.
+ */
 function _video_embed_field_devel_generate($object, $field, $instance, $bundle) {
   $video = video_embed_field_retrieve_video();
   $object_field = array();
@@ -29,6 +47,9 @@ function _video_embed_field_devel_generate($object, $field, $instance, $bundle) 
 
 /**
  * Retrieves a random youtube video info from the bunch.
+ *
+ * @return array
+ *   The video definition.
  */
 function video_embed_field_retrieve_video() {
   $videos = video_embed_field_generate_videos();
@@ -37,6 +58,9 @@ function video_embed_field_retrieve_video() {
 
 /**
  * Generates a pseudo random bunch of youtube videos.
+ *
+ * @return array
+ *   A bunch of youtube videos.
  */
 function video_embed_field_generate_videos() {
   $videos = &drupal_static(__FUNCTION__);
