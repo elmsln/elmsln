@@ -11,7 +11,7 @@
  * @class
  * @augments H5P.EventDispatcher
  */
-H5P.ContentType = function (isRootLibrary, library) {
+H5P.ContentType = function (isRootLibrary) {
 
   function ContentType() {}
 

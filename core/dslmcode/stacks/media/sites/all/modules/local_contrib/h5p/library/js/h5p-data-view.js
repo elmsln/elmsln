@@ -1,3 +1,4 @@
+/* global H5PUtils */
 var H5PDataView = (function ($) {
 
   /**
@@ -198,7 +199,6 @@ var H5PDataView = (function ($) {
    * @param number col ID of column
    */
   H5PDataView.prototype.createFacets = function (input, col) {
-    var self = this;
     var facets = '';
 
     if (input instanceof Array) {

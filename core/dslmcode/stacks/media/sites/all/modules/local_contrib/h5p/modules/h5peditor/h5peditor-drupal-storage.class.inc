@@ -35,6 +35,36 @@ class H5peditorDrupalStorage implements H5peditorStorage {
     return ($lang === FALSE ? NULL : $lang);
   }
 
+  /**
+   * Load a list of available language codes from the database.
+   *
+   * @param string $machineName The machine readable name of the library(content type)
+   * @param int $majorVersion Major part of version number
+   * @param int $minorVersion Minor part of version number
+   * @return array List of possible language codes
+   */
+  public function getAvailableLanguages($machineName, $majorVersion, $minorVersion) {
+    $results = db_query(
+        "SELECT language_code
+           FROM {h5p_libraries_languages} hlt
+           JOIN {h5p_libraries} hl
+             ON hl.library_id = hlt.library_id
+          WHERE hl.machine_name = :name
+            AND hl.major_version = :major
+            AND hl.minor_version = :minor",
+        array(
+          ':name' => $machineName,
+          ':major' => $majorVersion,
+          ':minor' => $minorVersion
+        ));
+
+    $codes = array('en'); // Semantics is 'en' by default. 
+    foreach ($results as $result) {
+      $codes[] = $result->language_code;
+    }
+
+    return $codes;
+  }
 
   /**
    * "Callback" for mark the given file as a permanent file.
@@ -71,7 +101,7 @@ class H5peditorDrupalStorage implements H5peditorStorage {
       $librariesWithDetails = array();
       foreach ($libraries as $library) {
         $details = db_query(
-          "SELECT title, runnable, restricted, tutorial_url
+          "SELECT title, runnable, restricted, tutorial_url, metadata_settings
            FROM {h5p_libraries}
            WHERE machine_name = :name
            AND major_version = :major
@@ -88,6 +118,7 @@ class H5peditorDrupalStorage implements H5peditorStorage {
           $library->title = $details->title;
           $library->runnable = $details->runnable;
           $library->restricted = $super_user ? FALSE : ($details->restricted === '1' ? TRUE : FALSE);
+          $library->metadataSettings = json_decode($details->metadata_settings);
           $librariesWithDetails[] = $library;
         }
       }
@@ -103,7 +134,8 @@ class H5peditorDrupalStorage implements H5peditorStorage {
               major_version,
               minor_version,
               restricted,
-              tutorial_url
+              tutorial_url,
+              metadata_settings
        FROM {h5p_libraries}
        WHERE runnable = 1
        AND semantics IS NOT NULL
@@ -112,10 +144,11 @@ class H5peditorDrupalStorage implements H5peditorStorage {
       // Convert result object properties to camelCase.
       $library = H5PCore::snakeToCamel($library, true);
 
+      $library->metadataSettings = json_decode($library->metadataSettings);
+
       // Make sure we only display the newest version of a library.
       foreach ($libraries as $existingLibrary) {
         if ($library->name === $existingLibrary->name) {
-
           // Mark old ones
           // This is the newest
           if (($library->majorVersion === $existingLibrary->majorVersion && $library->minorVersion > $existingLibrary->minorVersion) ||

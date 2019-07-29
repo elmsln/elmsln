@@ -8,3 +8,14 @@
   font-weight: normal;
   font-style: normal;
 }
+
+@font-face {
+  font-family: 'h5p-metadata-icons';
+  src:  url('fonts/h5p-metadata-icons.eot?cr978i');
+  src:  url('fonts/h5p-metadata-icons.eot?cr978i#iefix') format('embedded-opentype'),
+    url('fonts/h5p-metadata-icons.ttf?cr978i') format('truetype'),
+    url('fonts/h5p-metadata-icons.woff?cr978i') format('woff'),
+    url('fonts/h5p-metadata-icons.svg?cr978i#h5p-metadata-icons') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}

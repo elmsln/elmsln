@@ -261,15 +261,19 @@ function h5p_form(&$node, $form_state) {
 
   $core = _h5p_get_instance('core');
 
+  // When a node is being translated, the original node is found in $node->translation_source
+  // We need to use that to get metadata and other H5P-specific data
+  $source_node = isset($node->translation_source) ? $node->translation_source : $node;
+
   $type = node_type_get_type($node);
 
   $form['#validate'][] = 'h5p_form_validate';
 
   $form['title'] = array(
-    '#type' => 'textfield',
-    '#title' => check_plain($type->title_label),
-    '#required' => TRUE,
-    '#default_value' => $node->title,
+    '#type' => 'hidden',
+    '#required' => FALSE, // Does not get set when using Legacy upload
+    '#default_value' => $source_node->title,
+    '#attributes' => array('id' => 'h5p-plugin-form-title', 'style' => 'display: none;')
   );
 
   $form['#attributes'] = array('enctype' => "multipart/form-data");
@@ -281,37 +285,44 @@ function h5p_form(&$node, $form_state) {
     '#weight' => 2,
   );
 
-  if (isset($node->json_content) || isset($node->translation_source) && isset($node->translation_source->json_content)) {
-    $content = h5p_get_content(isset($node->translation_source) ? $node->translation_source : $node);
+  if (isset($source_node->json_content)) {
+    $content = h5p_get_content($source_node);
     $filtered_params = $core->filterParameters($content);
   }
   else {
     $filtered_params = '{}';
   }
 
+  // Combine params and metadata in one JSON object
+  $main_content_data = array('params' => json_decode($filtered_params));
+  if (isset($source_node->metadata)) {
+    $main_content_data['metadata'] = $source_node->metadata;
+  }
+  $main_content_data = json_encode($main_content_data, TRUE);
+
   $form['json_content'] = array(
     '#type' => 'hidden',
-    '#default_value' => $filtered_params,
+    '#default_value' => $main_content_data,
   );
 
   $form['main_library_id'] = array(
     '#type' => 'value',
-    '#default_value' => isset($node->main_library_id) ? $node->main_library_id : '',
+    '#default_value' => isset($source_node->main_library_id) ? $source_node->main_library_id : '',
   );
 
   $form['embed_type'] = array(
     '#type' => 'value',
-    '#default_value' => isset($node->embed_type) ? $node->embed_type : 'div',
+    '#default_value' => isset($source_node->embed_type) ? $source_node->embed_type : 'div',
   );
 
-  if (!isset($node->disable)) {
+  if (!isset($source_node->disable)) {
     $node->disable = H5PCore::DISABLE_NONE;
   }
 
   // Keep track of the old disable value
   $form['disable'] = array(
     '#type' => 'value',
-    '#value' => $node->disable
+    '#value' => $source_node->disable
   );
 
   // Display options
@@ -331,14 +342,14 @@ function h5p_form(&$node, $form_state) {
     );
 
     // Add display options
-    $display_options = $core->getDisplayOptionsForEdit($node->disable !== H5PCore::DISABLE_NONE ? $node->disable : NULL);
+    $display_options = $core->getDisplayOptionsForEdit($source_node->disable !== H5PCore::DISABLE_NONE ? $source_node->disable : NULL);
     $labels = _h5p_get_disable_labels();
     foreach ($display_options as $name => $value) {
       _h5p_add_display_option($form['h5p_options'], $name, $labels[$name], $value, ($name === H5PCore::DISPLAY_OPTION_FRAME ? '.h5p-action-bar-settings .form-item:not(.form-item-frame)' : NULL));
     }
-
-    $form['#submit'][] = '_h5p_form_submit';
   }
+
+  $form['#submit'][] = '_h5p_form_submit';
 
   return $form;
 }
@@ -378,6 +389,26 @@ function _h5p_add_display_option (&$element, $name, $title, $value, $visibility_
 function _h5p_form_submit($form, &$form_state) {
   $core = _h5p_get_instance('core');
   $form_state['values']['disable'] = $core->getStorableDisplayOptions($form_state['values'], $form_state['values']['disable']);
+
+  $json_content = json_decode($form_state['values']['json_content']);
+  if ($json_content === NULL) {
+    // Error in JSON, prevent saving it and use the old one
+    unset($form_state['values']['json_content']);
+  }
+  else {
+    $form_state['values']['json_content'] = json_encode($json_content->params);
+    $form_state['values']['metadata'] = $json_content->metadata;
+  }
+
+  if (!empty($_SESSION['h5p_upload'])) { // Legacy upload active
+    if (empty($form_state['values']['metadata']) || empty($form_state['values']['metadata']['title'])) {
+      // Fix for legacy content upload to work.
+      // Fetch title from h5p.json or use a default string if not available
+      $h5p_validator = _h5p_get_instance('validator');
+      $form_state['values']['metadata']['title'] = empty($h5p_validator->h5pC->mainJsonData['title']) ? 'Uploaded Content' : $h5p_validator->h5pC->mainJsonData['title'];
+    }
+    $form_state['values']['title'] = $form_state['values']['metadata']['title']; // Sort of a hack, but there is no JavaScript that sets the value when there is no editor...
+  }
 }
 
 /**
@@ -386,7 +417,7 @@ function _h5p_form_submit($form, &$form_state) {
 function _h5p_get_disable_labels() {
   return array(
     H5PCore::DISPLAY_OPTION_FRAME => t('Display buttons (download, embed and copyright)'),
-    H5PCore::DISPLAY_OPTION_DOWNLOAD => t('Download button'),
+    H5PCore::DISPLAY_OPTION_DOWNLOAD => t('Allow download'),
     H5PCore::DISPLAY_OPTION_EMBED => t('Embed button'),
     H5PCore::DISPLAY_OPTION_COPYRIGHT => t('Copyright button'),
     H5PCore::DISPLAY_OPTION_ABOUT => t('About H5P button')
@@ -428,6 +459,17 @@ function h5p_validate($node, &$form) {
   if (isset($_SESSION['h5p_upload'])) {
     $h5p_validator = _h5p_get_instance('validator');
     $valid = $h5p_validator->isValidPackage();
+
+    foreach ($h5p_validator->h5pC->mainJsonData['preloadedDependencies'] as $dep) {
+      if ($dep['machineName'] === $h5p_validator->h5pC->mainJsonData['mainLibrary']) {
+        if ($h5p_validator->h5pF->libraryHasUpgrade($dep)) {
+          // We do not allow storing old content due to security concerns
+          form_set_error('h5p', t("You're trying to upload content of an older version of H5P. Please upgrade the content on the server it originated from and try to upload again or turn on the H5P Hub to have this server upgrade it for your automaticall."));
+          break;
+        }
+      }
+    }
+
     if (!$valid) {
       form_set_error('h5p', t('The uploaded file was not a valid H5P package'));
       // Nothing is valid, nothing is kept.
@@ -478,6 +520,7 @@ function h5p_insert($node) {
       'id' => h5p_get_content_id($node),
       'title' => $node->title,
       'params' => $node->json_content,
+      'metadata' => $node->metadata,
       'embed_type' => $node->embed_type,
       'disable' => $node->disable,
       'library' => $lib,
@@ -587,6 +630,7 @@ function h5p_load($nodes) {
       $node->filtered = $content['filtered'];
       $node->disable = $content['disable'];
       $node->h5p_slug = $content['slug'];
+      $node->metadata = $content['metadata'];
     }
   }
 }
@@ -817,6 +861,9 @@ function h5p_get_core_settings() {
   global $user, $base_url;
 
   $core = _h5p_get_instance('core');
+  // Enable reporting features if Drupal Quiz module is active or and LRS
+  $enableReportingFeatures = (module_exists('quiz') && module_exists('quiz_h5p')) ||
+                             $core->h5pF->getOption('enable_lrs_content_types');
   $settings = array(
     'baseUrl' => $base_url,
     'url' => base_path() . _h5p_get_h5p_path(),
@@ -829,7 +876,12 @@ function h5p_get_core_settings() {
     'l10n' => array(
       'H5P' => $core->getLocalization()
     ),
-    'hubIsEnabled' => variable_get('h5p_hub_is_enabled', TRUE) ? TRUE : FALSE
+    'hubIsEnabled' => variable_get('h5p_hub_is_enabled', TRUE) ? TRUE : FALSE,
+    'reportingIsEnabled' => $enableReportingFeatures,
+    'crossorigin' => variable_get('h5p_crossorigin', NULL),
+    'libraryConfig' => $core->h5pF->getLibraryConfig(),
+    'pluginCacheBuster' => '?' . variable_get('css_js_query_string', ''),
+    'libraryUrl' => url(drupal_get_path('module', 'h5p') . '/library/js')
   );
 
   if ($user->uid) {
@@ -848,6 +900,10 @@ function h5p_get_core_settings() {
 function h5p_get_content($node) {
   $core = _h5p_get_instance('core');
 
+  if (isset($node->in_preview)) {
+    return array();
+  }
+
   return array(
     'id' => h5p_get_content_id($node),
     'mainId' => $node->nid,
@@ -857,9 +913,10 @@ function h5p_get_content($node) {
     'library' => $node->main_library,
     'embedType' => 'div',
     'filtered' => $node->filtered,
-    'url' => url('node/' . $node->nid, array('absolute' => TRUE)),
+    'url' => url('node/' . $node->nid, array('absolute' => TRUE, 'alias' => TRUE)),
     'displayOptions' => $core->getDisplayOptionsForView($node->disable, $node->nid),
-    'slug' => $node->h5p_slug
+    'slug' => $node->h5p_slug,
+    'metadata' => $node->metadata
   );
 }
 
@@ -899,6 +956,7 @@ function h5p_get_content_settings($content) {
       'state' => '{}'
     )
   );
+
   foreach ($results as $result) {
     $content_user_data[$result->sub_content_id][$result->data_id] = $result->data;
   }
@@ -912,9 +970,9 @@ function h5p_get_content_settings($content) {
     'resizeCode' => '<script src="' . h5p_get_resize_url() . '" charset="UTF-8"></script>',
     'mainId' => $content['mainId'],
     'url' => $content['url'],
-    'title' => $content['title'],
     'contentUserData' => $content_user_data,
     'displayOptions' => $content['displayOptions'],
+    'metadata' => $content['metadata']
   );
 }
 
@@ -1407,11 +1465,16 @@ function h5p_content_user_data($content_id, $data_id, $sub_content_id) {
 /**
  * Generate embed page to be included in iframe.
  */
-function h5p_embed($node) {
+function h5p_embed($nid = NULL) {
   global $language;
 
+  if (empty($nid)) {
+    drupal_not_found();
+    exit;
+  }
+
   $module_path = base_path() . drupal_get_path('module', 'h5p');
-  $node = node_load($node);
+  $node = node_load($nid);
   if (!$node || !node_access('view', $node) || !isset($node->json_content)) {
     print '<body style="margin:0"><div style="background: #fafafa url(' . $module_path . '/library/images/h5p.svg) no-repeat center;background-size: 50% 50%;width: 100%;height: 100%;"></div><div style="width:100%;position:absolute;top:75%;text-align:center;color:#434343;font-family: Consolas,monaco,monospace">' . t('Content unavailable.') . '</div></body>';
     return;

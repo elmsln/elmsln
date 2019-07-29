@@ -1,6 +1,4 @@
-var H5PEditor = H5PEditor || {};
-var ns = H5PEditor;
-
+/* global ns */
 /**
  * Creates a coordinates picker for the form.
  *

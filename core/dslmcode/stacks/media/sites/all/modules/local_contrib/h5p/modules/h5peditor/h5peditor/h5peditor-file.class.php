@@ -26,41 +26,22 @@ class H5peditorFile {
     // Get the field.
     $this->field = json_decode($field);
 
-    // Check if uploaded base64 encoded file
-    if (isset($_POST) && isset($_POST['dataURI']) && $_POST['dataURI'] !== '') {
-      $data = $_POST['dataURI'];
-
-      // Extract data from string
-      list($type, $data) = explode(';', $data);
-      list(, $data)      = explode(',', $data);
-      $this->data = base64_decode($data);
-
-      // Extract file type and extension
-      list(, $type) = explode(':', $type);
-      list(, $extension) = explode('/', $type);
-      $this->type = $type;
-      $this->extension = $extension;
-      $this->size = strlen($this->data);
+    // Handle temporarily uploaded form file
+    if (function_exists('finfo_file')) {
+      $finfo = finfo_open(FILEINFO_MIME_TYPE);
+      $this->type = finfo_file($finfo, $_FILES['file']['tmp_name']);
+      finfo_close($finfo);
+    }
+    elseif (function_exists('mime_content_type')) {
+      // Deprecated, only when finfo isn't available.
+      $this->type = mime_content_type($_FILES['file']['tmp_name']);
     }
     else {
-
-      // Handle temporarily uploaded form file
-      if (function_exists('finfo_file')) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $this->type = finfo_file($finfo, $_FILES['file']['tmp_name']);
-        finfo_close($finfo);
-      }
-      elseif (function_exists('mime_content_type')) {
-        // Deprecated, only when finfo isn't available.
-        $this->type = mime_content_type($_FILES['file']['tmp_name']);
-      }
-      else {
-        $this->type = $_FILES['file']['type'];
-      }
-
-      $this->extension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
-      $this->size = $_FILES['file']['size'];
+      $this->type = $_FILES['file']['type'];
     }
+
+    $this->extension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+    $this->size = $_FILES['file']['size'];
   }
 
   /**
@@ -137,21 +118,8 @@ class H5peditorFile {
           return FALSE;
         }
 
-        // Get image size from base64 string
-        if (isset($this->data)) {
-
-          if (!function_exists('getimagesizefromstring')) {
-            $uri = 'data://application/octet-stream;base64,'  . base64_encode($this->data);
-            $image =  getimagesize($uri);
-          }
-          else {
-            $image = getimagesizefromstring($this->data);
-          }
-        }
-        else {
-          // Image size from temp file
-          $image = @getimagesize($_FILES['file']['tmp_name']);
-        }
+        // Image size from temp file
+        $image = @getimagesize($_FILES['file']['tmp_name']);
 
         if (!$image) {
           $this->result->error = $this->interface->t('File is not an image.');
@@ -167,6 +135,7 @@ class H5peditorFile {
         $allowed = array(
           'audio/mpeg' => 'mp3',
           'audio/mp3' => 'mp3',
+          'audio/mp4' => 'm4a',
           'audio/x-wav' => 'wav',
           'audio/wav' => 'wav',
           //'application/ogg' => 'ogg',
@@ -225,16 +194,10 @@ class H5peditorFile {
     if (empty($name)) {
       $name = uniqid($this->field->name . '-');
 
-      // Add extension to name
-      if (isset($this->data)) {
-        $name .= '.' . $this->extension;
-      }
-      else {
-        $matches = array();
-        preg_match('/([a-z0-9]{1,})$/i', $_FILES['file']['name'], $matches);
-        if (isset($matches[0])) {
-          $name .= '.' . $matches[0];
-        }
+      $matches = array();
+      preg_match('/([a-z0-9]{1,})$/i', $_FILES['file']['name'], $matches);
+      if (isset($matches[0])) {
+        $name .= '.' . $matches[0];
       }
     }
 
@@ -242,12 +205,10 @@ class H5peditorFile {
   }
 
   /**
-   * Get file data if created from string.
-   *
-   * @return string|NULL
+   * Get result from file processing.
    */
-  public function getData() {
-    return (empty($this->data) ? NULL : $this->data);
+  public function getResult() {
+    return json_encode($this->result);
   }
 
   /**
@@ -258,8 +219,8 @@ class H5peditorFile {
 
     // text/plain is used to support IE
     header('Cache-Control: no-cache');
-    header('Content-type: text/plain; charset=utf-8');
+    header('Content-Type: text/plain; charset=utf-8');
 
-    print json_encode($this->result);
+    print $this->getResult();
   }
 }

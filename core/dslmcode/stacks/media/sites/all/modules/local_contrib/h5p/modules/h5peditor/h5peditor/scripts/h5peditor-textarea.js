@@ -1,7 +1,4 @@
-// DEPRECATED: This widget will be removed and replaced with the HTML widget
-var H5PEditor = H5PEditor || {};
-var ns = H5PEditor;
-
+/* global ns */
 /**
  * Create a text field for the form.
  *
@@ -30,7 +27,7 @@ ns.Textarea.prototype.appendTo = function ($wrapper) {
   this.$item = ns.$(this.createHtml()).appendTo($wrapper);
   this.$input = this.$item.find('textarea');
   this.$errors = this.$item.find('.h5p-errors');
-  
+
   ns.bindImportantDescriptionEvents(this, this.field.name, this.parent);
 
   this.$input.change(function () {
@@ -66,23 +63,25 @@ ns.Textarea.prototype.createHtml = function () {
  */
 ns.Textarea.prototype.validate = function () {
   var value = H5P.trim(this.$input.val());
-
-  if (this.$errors.html().length > 0) {
-    this.$input.addClass('error');
-  }
+  var valid = true;
 
   // Clear errors before showing new ones
   this.$errors.html('');
 
   if ((this.field.optional === undefined || !this.field.optional) && !value.length) {
     this.$errors.append(ns.createError(ns.t('core', 'requiredProperty', {':property': ns.t('core', 'textField')})));
+    valid = false;
   }
   else if (value.length > this.field.maxLength) {
     this.$errors.append(ns.createError(ns.t('core', 'tooLong', {':max': this.field.maxLength})));
+    valid = false;
   }
   else if (this.field.regexp !== undefined && !value.match(new RegExp(this.field.regexp.pattern, this.field.regexp.modifiers))) {
     this.$errors.append(ns.createError(ns.t('core', 'invalidFormat')));
+    valid = false;
   }
+
+  this.$input.toggleClass('error', !valid);
 
   return ns.checkErrors(this.$errors, this.$input, value);
 };

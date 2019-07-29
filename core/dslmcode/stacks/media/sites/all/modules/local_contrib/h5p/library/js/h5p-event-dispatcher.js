@@ -1,4 +1,4 @@
-var H5P = H5P || {};
+var H5P = window.H5P = window.H5P || {};
 
 /**
  * The Event class for the EventDispatcher.
@@ -10,7 +10,7 @@ var H5P = H5P || {};
  * @param {boolean} [extras.bubbles]
  * @param {boolean} [extras.external]
  */
-H5P.Event = function(type, data, extras) {
+H5P.Event = function (type, data, extras) {
   this.type = type;
   this.data = data;
   var bubbles = false;
@@ -34,7 +34,7 @@ H5P.Event = function(type, data, extras) {
   /**
    * Prevent this event from bubbling up to parent
    */
-  this.preventBubbling = function() {
+  this.preventBubbling = function () {
     bubbles = false;
   };
 
@@ -44,7 +44,7 @@ H5P.Event = function(type, data, extras) {
    * @returns {boolean}
    *   true if bubbling false otherwise
    */
-  this.getBubbles = function() {
+  this.getBubbles = function () {
     return bubbles;
   };
 
@@ -54,7 +54,7 @@ H5P.Event = function(type, data, extras) {
    * @returns {boolean}
    *   true if external and not already scheduled, otherwise false
    */
-  this.scheduleForExternal = function() {
+  this.scheduleForExternal = function () {
     if (external && !scheduledForExternal) {
       scheduledForExternal = true;
       return true;

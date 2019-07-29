@@ -1,9 +1,7 @@
-var H5PEditor = H5PEditor || {};
-var ns = H5PEditor;
-
+/* global ns */
 /**
  * Create a field without html
- * 
+ *
  * @param {mixed} parent
  * @param {object} field
  * @param {mixed} params
@@ -18,16 +16,14 @@ ns.None = function (parent, field, params, setValue) {
 
 /**
  * Implementation of appendTo
- * 
+ *
  * None doesn't append anything
- * 
- * @param {jQuery} $wrapper
  */
-ns.None.prototype.appendTo = function ($wrapper) {};
+ns.None.prototype.appendTo = function () {};
 
 /**
  * Implementation of validate
- * 
+ *
  * None allways validates
  */
 ns.None.prototype.validate = function () {
@@ -36,7 +32,7 @@ ns.None.prototype.validate = function () {
 
 /**
  * Collect functions to execute once the tree is complete.
- * 
+ *
  * @param {function} ready
  */
 ns.None.prototype.ready = function (ready) {

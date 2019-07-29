@@ -1,6 +1,4 @@
-var H5PEditor = H5PEditor || {};
-var ns = H5PEditor;
-
+/* global ns */
 /**
  * Create a group of fields.
  *
@@ -102,20 +100,20 @@ ns.Group.prototype.appendTo = function ($wrapper) {
   });
 
   // Add content container
-  var $content = ns.$('<div/>', {
+  this.$content = ns.$('<div/>', {
     'class': 'content',
     appendTo: this.$group
   });
 
   if (this.hasSingleChild() && !this.isSubContent()) {
-    $content.addClass('h5peditor-single');
+    this.$content.addClass('h5peditor-single');
     this.children = [];
     var field = this.field.fields[0];
     var widget = field.widget === undefined ? field.type : field.widget;
     this.children[0] = new ns.widgets[widget](this, field, this.params, function (field, value) {
       that.setValue(that.field, value);
     });
-    this.children[0].appendTo($content);
+    this.children[0].appendTo(this.$content);
   }
   else {
     if (this.params === undefined) {
@@ -125,7 +123,7 @@ ns.Group.prototype.appendTo = function ($wrapper) {
 
     this.params = this.initSubContent(this.params);
 
-    ns.processSemanticsChunk(this.field.fields, this.params, $content, this);
+    ns.processSemanticsChunk(this.field.fields, this.params, this.$content, this);
   }
 
   // Set summary
@@ -158,7 +156,7 @@ ns.Group.prototype.hasSingleChild = function () {
  */
 ns.Group.prototype.initSubContent = function (params) {
   // If group contains library-like sub content that needs UUIDs
-  if(this.isSubContent()){
+  if (this.isSubContent()) {
     params['subContentId'] = params['subContentId'] || H5P.createUUID();
   }
 
@@ -245,11 +243,39 @@ ns.Group.prototype.findSummary = function () {
       break;
     }
     else if (widget === 'library') {
-      if (params !== undefined) {
+      let lastLib;
+      if (child.params !== undefined) {
         summary = child.$select.children(':selected').text();
+        if (child.params.metadata && child.params.metadata.title) {
+          // The given title usually makes more sense than the type name
+          summary = child.params.metadata.title + (!child.libraries || (child.libraries.length > 1 && child.params.metadata.title.indexOf(summary) === -1) ? ' (' +  summary + ')' : '');
+        }
+        else if (!child.params.library) {
+          // Nothing selected
+          summary = that.field.label;
+        }
+      }
+      const setSummary = function () {
+        if (child.params && child.params.metadata && child.params.metadata.title) {
+          // The given title usually makes more sense than the type name
+          that.setSummary(child.params.metadata.title + (child.libraries.length > 1 && child.params.metadata.title.indexOf(lastLib.title) === -1 ? ' (' +  lastLib.title + ')' : ''));
+        }
+        else {
+          that.setSummary(lastLib ? lastLib.title : that.field.label);
+        }
+      };
+      if (child.metadataForm) {
+        child.metadataForm.on('titlechange', setSummary);
       }
       child.change(function (library) {
-        that.setSummary(library.title);
+        lastLib = library;
+        setSummary();
+
+        if (child.metadataForm) {
+          // Update summary when metadata title changes
+          child.metadataForm.off('titlechange', setSummary);
+          child.metadataForm.on('titlechange', setSummary);
+        }
       });
       break;
     }
@@ -277,7 +303,7 @@ ns.Group.prototype.setSummary = function (summary) {
   this.trigger('summary', summaryText);
 
   if (summaryText !== undefined) {
-    summaryText = this.field.label + ': ' + (summaryText.length > 48 ? summaryText.substr(0, 45) + '...' : summaryText);
+    summaryText = (summaryText.length > 48 ? summaryText.substr(0, 45) + '...' : summaryText);
   }
   else {
     summaryText = this.field.label;
@@ -341,6 +367,17 @@ ns.Group.prototype.remove = function () {
  */
 ns.Group.prototype.getFields = function () {
   return H5PEditor.$.extend(true, [], this.field.fields);
+};
+
+/**
+ * When someone from the outside wants to set a value.
+ *
+ * @param {Object} value
+ */
+ns.Group.prototype.forceValue = function (value) {
+  for (let i = 0; i < this.children.length; i++) {
+    this.children[i].forceValue(value[this.children[i].field.name]);
+  }
 };
 
 // Tell the editor what widget we are.

@@ -1,5 +1,4 @@
-/*global H5P*/
-var H5PEditor = H5PEditor || {};
+var H5PEditor = window.H5PEditor = window.H5PEditor || {};
 var ns = H5PEditor;
 
 /**
@@ -52,19 +51,14 @@ ns.widgets.image = function (parent, field, params, setValue) {
   self.on('upload', function () {
     // Hide edit image button
     self.$editImage.addClass('hidden');
-
-    if (!self.isUploadingData()) {
-      // Uploading new original image
-      self.isOriginalImage = true;
-    }
   });
 
   // When a new file has been uploaded
   self.on('fileUploaded', function (event) {
     // Uploaded new original image
     if (self.isOriginalImage) {
-      self.isOriginalImage = false;
       delete self.params.originalImage;
+      self.editImagePopup.mime = self.params.mime
     }
 
     // Store width and height
@@ -90,17 +84,21 @@ ns.widgets.image.prototype.appendTo = function ($wrapper) {
 
   var htmlString = '<div class="file"></div>' +
     '<div class="h5p-editor-image-buttons">' +
-      '<button class="h5peditor-button-textual h5p-editing-image-button">' + ns.t('core', 'editImage') + '</button>' +
-      '<button class="h5peditor-button-textual h5p-copyright-button">' + ns.t('core', 'editCopyright') + '</button>' +
-    '</div>' +
+      '<button class="h5peditor-button-textual h5p-editing-image-button">' + ns.t('core', 'editImage') + '</button>';
+
+  if (!this.field.disableCopyright) {
+    htmlString += '<button class="h5peditor-button-textual h5p-copyright-button">' + ns.t('core', 'editCopyright') + '</button>';
+  }
+
+  htmlString += '</div>' +
     '<div class="h5p-editor-dialog">' +
       '<a href="#" class="h5p-close" title="' + ns.t('core', 'close') + '"></a>' +
     '</div>';
 
-
   var html = ns.createFieldMarkup(this.field, htmlString);
 
   var $container = ns.$(html).appendTo($wrapper);
+  this.$item = $container;
   this.$editImage = $container.find('.h5p-editing-image-button');
   this.$copyrightButton = $container.find('.h5p-copyright-button');
   this.$file = $container.find('.file');
@@ -113,7 +111,7 @@ ns.widgets.image.prototype.appendTo = function ($wrapper) {
     return false;
   });
 
-  var editImagePopup = new H5PEditor.ImageEditingPopup(this.field.ratio);
+  var editImagePopup = self.editImagePopup = new H5PEditor.ImageEditingPopup(this.field.ratio);
   editImagePopup.on('savedImage', function (e) {
 
     // Not editing any longer
@@ -132,8 +130,10 @@ ns.widgets.image.prototype.appendTo = function ($wrapper) {
       };
     }
 
+    const filenameparts = self.params.path.match(/([^\/]+)\.([^#]+)/);
+
     // Upload new image
-    self.uploadData(e.data);
+    self.upload(e.data, filenameparts[1] + '-edit.' + filenameparts[2]);
   });
 
   editImagePopup.on('resetImage', function () {
@@ -203,6 +203,7 @@ ns.widgets.image.prototype.addFile = function () {
       )
       .children('.add')
       .click(function () {
+        that.isOriginalImage = true;
         that.openFileSelector();
         return false;
       });
@@ -226,6 +227,7 @@ ns.widgets.image.prototype.addFile = function () {
   this.$file.html(fileHtmlString)
     .children(':eq(0)')
     .click(function () {
+      that.isOriginalImage = true;
       that.openFileSelector();
       return false;
     })
@@ -237,6 +239,12 @@ ns.widgets.image.prototype.addFile = function () {
       that.confirmRemovalDialog.show(that.$file.offset().top);
       return false;
     });
+
+  var $img = this.$file.find('img');
+  $img.one('load', function () {
+    // Make editor resize
+    $img.addClass('loaded');
+  });
 
   // Uploading original image
   that.$editImage.removeClass('hidden');

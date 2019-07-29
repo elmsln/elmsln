@@ -1,15 +1,25 @@
+/* global ns */
 /**
  * This file contains helper functions for the editor.
  */
 
 // Grab common resources set in parent window, but avoid sharing back resources set in iframe)
-var ns = H5PEditor = H5P.jQuery.extend(false, {}, window.parent.H5PEditor);
+window.ns = window.H5PEditor = H5P.jQuery.extend(false, {}, window.parent.H5PEditor);
 ns.$ = H5P.jQuery;
 
 // Load needed resources from parent.
-H5PIntegration = window.parent.H5PIntegration;
-H5PIntegration.loadedJs = {};
-H5PIntegration.loadedCss = {};
+H5PIntegration = H5P.jQuery.extend(false, {}, window.parent.H5PIntegration);
+H5PIntegration.loadedJs = [];
+H5PIntegration.loadedCss = [];
+
+/**
+ * Constants used within editor
+ *
+ * @type {{otherLibraries: string}}
+ */
+ns.constants = {
+  otherLibraries: 'Other Libraries',
+};
 
 /**
  * Keep track of our widgets.
@@ -24,7 +34,7 @@ ns.libraryCache = {};
 /**
  * Keeps track of callbacks to run once a library gets loaded.
  */
-ns.loadedCallbacks = {};
+ns.loadedCallbacks = [];
 
 /**
  * Keep track of which libraries have been loaded in the browser, i.e CSS is
@@ -40,6 +50,42 @@ ns.libraryLoaded = {};
 ns.isIE = navigator.userAgent.match(/; MSIE \d+.\d+;/) !== null;
 
 /**
+ * Keep track of renderable common fields.
+ *
+ * @type {Object}
+ */
+ns.renderableCommonFields = {};
+
+/**
+ * Help load JavaScripts, prevents double loading.
+ *
+ * @param {string} src
+ * @param {Function} done Callback
+ */
+ns.loadJs = function (src, done) {
+  if (H5P.jsLoaded(src)) {
+    // Already loaded
+    done();
+  }
+  else {
+    // Loading using script tag
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.charset = 'UTF-8';
+    script.async = false;
+    script.onload = function () {
+      H5PIntegration.loadedJs.push(src);
+      done();
+    };
+    script.onerror = function (err) {
+      done(err);
+    };
+    script.src = src;
+    document.head.appendChild(script);
+  }
+}
+
+/**
  * Helper function invoked when a library is requested. Will add CSS and eval JS
  * if not already done.
  *
@@ -53,36 +99,62 @@ ns.libraryRequested = function (libraryName, callback) {
   if (!ns.libraryLoaded[libraryName]) {
     // Add CSS.
     if (libraryData.css !== undefined) {
-      var css = '';
-      for (var path in libraryData.css) {
+      libraryData.css.forEach(function (path) {
         if (!H5P.cssLoaded(path)) {
-          css += libraryData.css[path];
           H5PIntegration.loadedCss.push(path);
+          if (path) {
+            ns.$('head').append('<link ' +
+              'rel="stylesheet" ' +
+              'href="' + path + '" ' +
+              'type="text/css" ' +
+              '/>');
+          }
         }
-      }
-      if (css) {
-        ns.$('head').append('<style class="h5p-editor-style" type="text/css">' + css + '</style>');
-      }
+      });
     }
 
-    // Add JS.
-    if (libraryData.javascript !== undefined) {
-      var js = '';
-      for (var path in libraryData.javascript) {
+    // Add JS
+    var loadingJs = false;
+    if (libraryData.javascript !== undefined && libraryData.javascript.length) {
+      libraryData.javascript.forEach(function (path) {
         if (!H5P.jsLoaded(path)) {
-          js += libraryData.javascript[path];
-          H5PIntegration.loadedJs.push(path);
+          loadingJs = true;
+          ns.loadJs(path, function (err) {
+            if (err) {
+              console.error('Error while loading script', err);
+              return;
+            }
+
+            var isFinishedLoading = libraryData.javascript.reduce(function (hasLoaded, jsPath) {
+              return hasLoaded && H5P.jsLoaded(jsPath);
+            }, true);
+
+            if (isFinishedLoading) {
+              ns.libraryLoaded[libraryName] = true;
+
+              // Need to set translations after all scripts have been loaded
+              if (libraryData.translations) {
+                for (var machineName in libraryData.translations) {
+                  H5PEditor.language[machineName] = libraryData.translations[machineName];
+                }
+              }
+
+              callback(ns.libraryCache[libraryName].semantics);
+            }
+          });
         }
-      }
-      if (js) {
-        var k = eval.apply(window, [js]);
-      }
+      });
     }
-
-    ns.libraryLoaded[libraryName] = true;
+    if (!loadingJs) {
+      // Don't have to wait for any scripts, run callback
+      ns.libraryLoaded[libraryName] = true;
+      callback(ns.libraryCache[libraryName].semantics);
+    }
   }
-
-  callback(ns.libraryCache[libraryName].semantics);
+  else {
+    // Already loaded, run callback
+    callback(ns.libraryCache[libraryName].semantics);
+  }
 };
 
 /**
@@ -103,6 +175,9 @@ ns.loadLibrary = function (libraryName, callback) {
 
     case 0:
       // Add to queue.
+      if (ns.loadedCallbacks[libraryName] === undefined) {
+        ns.loadedCallbacks[libraryName] = [];
+      }
       ns.loadedCallbacks[libraryName].push(callback);
       break;
 
@@ -118,36 +193,82 @@ ns.loadLibrary = function (libraryName, callback) {
       if (ns.contentLanguage !== undefined) {
         url += (url.indexOf('?') === -1 ? '?' : '&') + 'language=' + ns.contentLanguage;
       }
+      // Add common fields default lanuage to URL
+      const defaultLanguage = ns.defaultLanguage; // Avoid changes after sending AJAX
+      if (defaultLanguage !== undefined) {
+        url += (url.indexOf('?') === -1 ? '?' : '&') + 'default-language=' + defaultLanguage;
+      }
 
       // Fire away!
       ns.$.ajax({
         url: url,
         success: function (libraryData) {
-          var semantics = libraryData.semantics;
+          libraryData.translation = { // Used to cache all the translations
+            en: libraryData.semantics
+          };
+          let languageSemantics = [];
           if (libraryData.language !== null) {
-            var language = JSON.parse(libraryData.language);
-            semantics = ns.$.extend(true, [], semantics, language.semantics);
+            languageSemantics = JSON.parse(libraryData.language).semantics;
+            delete libraryData.language; // Avoid caching a lot of unused data
+          }
+          var semantics = ns.$.extend(true, [], libraryData.semantics, languageSemantics);
+          if (libraryData.defaultLanguage !== null) {
+            libraryData.translation[defaultLanguage] = JSON.parse(libraryData.defaultLanguage).semantics;
+            delete libraryData.defaultLanguage; // Avoid caching a lot of unused data
+            ns.updateCommonFieldsDefault(semantics, libraryData.translation[defaultLanguage]);
           }
           libraryData.semantics = semantics;
           ns.libraryCache[libraryName] = libraryData;
 
-          ns.libraryRequested(libraryName, callback);
+          ns.libraryRequested(libraryName, function (semantics) {
+            callback(semantics);
 
-          // Run queue.
-          for (var i = 0; i < ns.loadedCallbacks[libraryName].length; i++) {
-            ns.loadedCallbacks[libraryName][i](libraryData.semantics);
-          }
+            // Run queue.
+            if (ns.loadedCallbacks[libraryName]) {
+              for (var i = 0; i < ns.loadedCallbacks[libraryName].length; i++) {
+                ns.loadedCallbacks[libraryName][i](semantics);
+              }
+            }
+          });
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function (jqXHR, textStatus, errorThrown) {
           if (window['console'] !== undefined) {
-            console.log('Ajax request failed');
-            console.log(jqXHR);
-            console.log(textStatus);
-            console.log(errorThrown);
+            console.warn('Ajax request failed');
+            console.warn(jqXHR);
+            console.warn(textStatus);
+            console.warn(errorThrown);
           }
         },
         dataType: 'json'
       });
+  }
+};
+
+/**
+ * Update common fields default values for the given semantics.
+ * Works by reference.
+ *
+ * @param {Array} semantics
+ * @param {Array} translation
+ * @param {boolean} [parentIsCommon] Used to indicated that one of the ancestors is a common field
+ */
+ns.updateCommonFieldsDefault = function (semantics, translation, parentIsCommon) {
+  for (let i = 0; i < semantics.length; i++) {
+    const isCommon = (semantics[i].common === true || parentIsCommon);
+    if (isCommon && semantics[i].default !== undefined &&
+        translation[i] !== undefined && translation[i].default !== undefined) {
+      // Update value
+      semantics[i].default = translation[i].default;
+    }
+    if (semantics[i].fields !== undefined && semantics[i].fields.length &&
+        translation[i].fields !== undefined && translation[i].fields.length) {
+      // Look into sub fields
+      ns.updateCommonFieldsDefault(semantics[i].fields, translation[i].fields, isCommon);
+    }
+    if (semantics[i].field !== undefined && translation[i].field !== undefined ) {
+      // Look into sub field
+      ns.updateCommonFieldsDefault([semantics[i].field], [translation[i].field], isCommon);
+    }
   }
 };
 
@@ -160,9 +281,101 @@ ns.resetLoadedLibraries = function () {
   ns.$('head style.h5p-editor-style').remove();
   H5PIntegration.loadedCss = [];
   H5PIntegration.loadedJs = [];
-  ns.loadedCallbacks = {};
+  ns.loadedCallbacks = [];
   ns.libraryLoaded = {};
-}
+};
+
+/**
+ * Render common fields of content type with given machine name
+ *
+ * @param {string} machineName Machine name of content type with common fields
+ * @param {Array} [libraries] Library data for machine name
+ */
+ns.renderCommonField = function (machineName, libraries) {
+  var commonFields = ns.renderableCommonFields[machineName].fields;
+  var renderableCommonFields = [];
+
+  commonFields.forEach(function (field) {
+    if (!field.rendered) {
+      var commonField = ns.addCommonField(field.field, field.parent, field.params, field.ancestor);
+      if (commonField.setValues.length === 1) {
+        renderableCommonFields.push({
+          field: field,
+          instance: commonField.instance
+        });
+        field.instance = commonField.instance;
+      }
+    }
+    field.rendered = true;
+  });
+
+  // Render common fields if found
+  if (renderableCommonFields.length) {
+    var libraryName = machineName === ns.constants.otherLibraries ? machineName
+      : (machineName.length ? machineName.split(' ')[0] : '');
+    if (libraries.length && libraries[0].title) {
+      libraryName = libraries[0].title;
+    }
+
+    // Create a library wrapper
+    var hasLibraryWrapper = !!ns.renderableCommonFields[machineName].wrapper;
+    var commonFieldsLibraryWrapper = ns.renderableCommonFields[machineName].wrapper;
+    if (!hasLibraryWrapper) {
+      commonFieldsLibraryWrapper = document.createElement('fieldset');
+      var libraryWrapperClass = libraryName.replace(/\s+/g, '-').toLowerCase();
+
+      commonFieldsLibraryWrapper.classList.add('common-fields-library-wrapper');
+      commonFieldsLibraryWrapper.classList.add('common-fields-' + libraryWrapperClass);
+
+      var libraryTitle = document.createElement('legend');
+      libraryTitle.classList.add('common-field-legend');
+      libraryTitle.textContent = libraryName;
+      libraryTitle.tabIndex = '0';
+      libraryTitle.setAttribute('role', 'button');
+      libraryTitle.addEventListener('click', function () {
+        commonFieldsLibraryWrapper.classList.toggle('expanded');
+      });
+      libraryTitle.addEventListener('keypress', function (e) {
+        if (e.which === 32) {
+          commonFieldsLibraryWrapper.classList.toggle('expanded');
+        }
+      });
+      commonFieldsLibraryWrapper.appendChild(libraryTitle);
+
+      ns.renderableCommonFields[machineName].wrapper = commonFieldsLibraryWrapper;
+    }
+
+    renderableCommonFields.forEach(function (commonField) {
+      commonField.instance.appendTo(ns.$(commonFieldsLibraryWrapper));
+      // Gather under a common ancestor
+      if (commonField.field && commonField.field.ancestor) {
+        ancestor = commonField.field.ancestor;
+      }
+    });
+
+    if (!hasLibraryWrapper && ancestor) {
+      ancestor.$common[0].appendChild(commonFieldsLibraryWrapper);
+    }
+  }
+};
+
+/**
+ * Recursively traverse parents to find the library our field belongs to
+ *
+ * @param parent
+ * @returns {*}
+ */
+ns.getParentLibrary = function (parent) {
+  if (!parent) {
+    return null;
+  }
+
+  if (parent.currentLibrary) {
+    return parent.currentLibrary;
+  }
+
+  return ns.getParentLibrary(parent.parent);
+};
 
 /**
  * Recursive processing of the semantics chunks.
@@ -171,9 +384,10 @@ ns.resetLoadedLibraries = function () {
  * @param {object} params
  * @param {jQuery} $wrapper
  * @param {mixed} parent
+ * @param {string} [machineName] Machine name of library that is being processed
  * @returns {undefined}
  */
-ns.processSemanticsChunk = function (semanticsChunk, params, $wrapper, parent) {
+ns.processSemanticsChunk = function (semanticsChunk, params, $wrapper, parent, machineName) {
   var ancestor;
   parent.children = [];
 
@@ -216,7 +430,22 @@ ns.processSemanticsChunk = function (semanticsChunk, params, $wrapper, parent) {
         ancestor = ns.findAncestor(parent);
       }
 
-      ns.addCommonField(field, parent, params, ancestor);
+      var parentLibrary = ns.getParentLibrary(parent);
+      var library = machineName ? machineName
+        : (field.library ? field.library
+          : (parentLibrary ? parentLibrary
+            : ns.constants.otherLibraries));
+      ns.renderableCommonFields[library] = ns.renderableCommonFields[library] || {};
+      ns.renderableCommonFields[library].fields = ns.renderableCommonFields[library].fields || [];
+
+      // Add renderable if it doesn't exist
+      ns.renderableCommonFields[library].fields.push({
+        field: field,
+        parent: parent,
+        params: params,
+        ancestor: ancestor,
+        rendered: false
+      });
       continue;
     }
 
@@ -232,13 +461,42 @@ ns.processSemanticsChunk = function (semanticsChunk, params, $wrapper, parent) {
     parent.children.push(fieldInstance);
   }
 
+  // Render all gathered common field
+  if (ns.renderableCommonFields) {
+    for (var commonFieldMachineName in ns.renderableCommonFields) {
+      if (commonFieldMachineName === ns.constants.otherLibraries) {
+        // No need to grab library info
+        ns.renderCommonField(commonFieldMachineName);
+      }
+      else {
+        // Get title for common fields group
+        H5PEditor.LibraryListCache.getLibraries(
+          [commonFieldMachineName],
+          ns.renderCommonField.bind(this, commonFieldMachineName)
+        );
+      }
+    }
+  }
+
   if (!parent.passReadies) {
     // Run ready callbacks.
-    for (var i = 0; i < parent.readies.length; i++) {
+    for (i = 0; i < parent.readies.length; i++) {
       parent.readies[i]();
     }
     delete parent.readies;
   }
+};
+
+/**
+ * Attach ancestor of parent's common fields to a new wrapper
+ *
+ * @param {Object} parent Parent content type instance that common fields should be attached to
+ * @param {HTMLElement} wrapper New wrapper of common fields
+ */
+ns.setCommonFieldsWrapper = function (parent, wrapper) {
+  var ancestor = ns.findAncestor(parent);
+  // Hide the ancestor whose children will be reattached elsewhere
+  wrapper.appendChild(ancestor.$common[0]);
 };
 
 /**
@@ -248,31 +506,32 @@ ns.processSemanticsChunk = function (semanticsChunk, params, $wrapper, parent) {
  * @param {object} parent
  * @param {object} params
  * @param {object} ancestor
+ * @param {boolean} skipAppendTo
  * @returns {undefined}
  */
-ns.addCommonField = function (field, parent, params, ancestor) {
+ns.addCommonField = function (field, parent, params, ancestor, skipAppendTo) {
   var commonField;
-  if (ancestor.commonFields[parent.library] === undefined) {
-    ancestor.commonFields[parent.library] = {};
+
+  // Group all fields based on library name + version
+  if (ancestor.commonFields[parent.currentLibrary] === undefined) {
+    ancestor.commonFields[parent.currentLibrary] = {};
   }
 
-  ancestor.commonFields[parent.library][parent.currentLibrary] =
-    ancestor.commonFields[parent.library][parent.currentLibrary] || {};
-
-  if (ancestor.commonFields[parent.library][parent.currentLibrary][field.name] === undefined) {
+  // Field name will have to be unique for library
+  if (ancestor.commonFields[parent.currentLibrary][field.name] === undefined) {
     var widget = ns.getWidgetName(field);
-    ancestor.commonFields[parent.library][parent.currentLibrary][field.name] = {
+    ancestor.commonFields[parent.currentLibrary][field.name] = {
       instance: new ns.widgets[widget](parent, field, params[field.name], function (field, value) {
-          for (var i = 0; i < commonField.setValues.length; i++) {
-            commonField.setValues[i](field, value);
-          }
-        }),
+        for (var i = 0; i < commonField.setValues.length; i++) {
+          commonField.setValues[i](field, value);
+        }
+      }),
       setValues: [],
       parents: []
     };
   }
 
-  commonField = ancestor.commonFields[parent.library][parent.currentLibrary][field.name];
+  commonField = ancestor.commonFields[parent.currentLibrary][field.name];
   commonField.parents.push(ns.findLibraryAncestor(parent));
   commonField.setValues.push(function (field, value) {
     if (value === undefined) {
@@ -285,7 +544,9 @@ ns.addCommonField = function (field, parent, params, ancestor) {
 
   if (commonField.setValues.length === 1) {
     ancestor.$common.parent().removeClass('hidden');
-    commonField.instance.appendTo(ancestor.$common);
+    if (skipAppendTo) {
+      commonField.instance.appendTo(ancestor.$common);
+    }
     commonField.params = params[field.name];
   }
   else {
@@ -293,6 +554,7 @@ ns.addCommonField = function (field, parent, params, ancestor) {
   }
 
   parent.children.push(commonField.instance);
+  return commonField;
 };
 
 /**
@@ -395,6 +657,42 @@ ns.findField = function (path, parent) {
   }
 
   return false;
+};
+
+/**
+ * Find a semantics field in the semantics structure by name of the field
+ * Will return the first found by depth first search if there are identically named fields
+ *
+ * @param {string} fieldName Name of the field we wish to find
+ * @param {Object|Array} semanticsStructure Semantics we wish to find the field within
+ * @returns {null|Object} Returns the field if found, otherwise null.
+ */
+ns.findSemanticsField = function (fieldName, semanticsStructure) {
+  if (Array.isArray(semanticsStructure)) {
+    for (let i = 0; i < semanticsStructure.length; i++) {
+      var semanticsField = ns.findSemanticsField(fieldName, semanticsStructure[i]);
+      if (semanticsField !== null) {
+        // Return immediately if field is found
+        return semanticsField;
+      }
+    }
+    return null;
+  }
+  else if (semanticsStructure.name === fieldName) {
+    return semanticsStructure;
+  }
+  else if (semanticsStructure.field) {
+    // Process field
+    return ns.findSemanticsField(fieldName, semanticsStructure.field);
+  }
+  else if (semanticsStructure.fields) {
+    // Process fields
+    return ns.findSemanticsField(fieldName, semanticsStructure.fields);
+  }
+  else {
+    // No matching semantics found within known properties and list structures
+    return null;
+  }
 };
 
 /**
@@ -612,7 +910,13 @@ ns.createText = function (value, maxLength, placeholder) {
  * @returns {String}
  */
 ns.createLabel = function (field, content) {
+  // New items can be added next to the label within the flex-wrapper
   var html = '<label class="h5peditor-label-wrapper">';
+
+  // Temporary fix for the old version of CoursePresentation's custom editor
+  if (field.widget === 'coursepresentation' && field.name === 'presentation') {
+    field.label = 0;
+  }
 
   if (field.label !== 0) {
     html += '<span class="h5peditor-label' + (field.optional ? '' : ' h5peditor-required') + '">' + (field.label === undefined ? field.name : field.label) + '</span>';
@@ -694,7 +998,6 @@ ns.createImportantDescription = function (importantDescription) {
  * @param {Object} parent
  */
 ns.bindImportantDescriptionEvents = function (widget, fieldName, parent) {
-  var that = this;
   var context;
 
   if (!widget.field.important) {
@@ -707,8 +1010,6 @@ ns.bindImportantDescriptionEvents = function (widget, fieldName, parent) {
     var lib = librarySelector.currentLibrary.split(' ')[0];
     context = (lib + '-' + fieldName).replace(/\.|_/g,'-') + '-important-description-open';
   }
-
-  var $importantField = widget.$item.find('.h5peditor-field-important-description');
 
   // Set first occurance to visible
   ns.storage.get(context, function (value) {
@@ -725,7 +1026,7 @@ ns.bindImportantDescriptionEvents = function (widget, fieldName, parent) {
       widget.$item.addClass('important-description-visible');
       ns.storage.set(context, true);
     })
-    .keydown(function () {
+    .keydown(function (event) {
       if (event.which == 13 || event.which == 32) {
         ns.$(this).trigger('click');
         event.preventDefault();
@@ -738,12 +1039,48 @@ ns.bindImportantDescriptionEvents = function (widget, fieldName, parent) {
       widget.$item.removeClass('important-description-visible');
       ns.storage.set(context, false);
     })
-    .keydown(function () {
+    .keydown(function (event) {
       if (event.which == 13 || event.which == 32) {
         ns.$(this).trigger('click');
         event.preventDefault();
       }
     });
+};
+
+/**
+ * Generate markup for the copy and paste buttons.
+ *
+ * @returns {string} HTML
+ */
+ns.createCopyPasteButtons = function () {
+  return '<div class="h5peditor-copypaste-wrap">' +
+           '<button class="h5peditor-copy-button disabled" title="' + H5PEditor.t('core', 'copyToClipboard') + '">' + ns.t('core', 'copyButton') + '</button>' +
+           '<button class="h5peditor-paste-button disabled" title="' + H5PEditor.t('core', 'pasteFromClipboard') + '">' + ns.t('core', 'pasteButton') + '</button>' +
+         '</div><div class="h5peditor-clearfix"></div>';
+};
+
+/**
+ * Confirm replace if there is content selected
+ *
+ * @param {string} library Current selected library
+ * @param {number} top Offset
+ * @param {function} next Next callback
+ */
+ns.confirmReplace = function (library, top, next) {
+  if (library) {
+    // Confirm changing library
+    var confirmReplace = new H5P.ConfirmationDialog({
+      headerText: H5PEditor.t('core', 'pasteContent'),
+      dialogText: H5PEditor.t('core', 'confirmPasteContent'),
+      confirmText: H5PEditor.t('core', 'confirmPasteButtonText')
+    }).appendTo(document.body);
+    confirmReplace.on('confirmed', next);
+    confirmReplace.show(top);
+  }
+  else {
+    // No need to confirm
+    next();
+  }
 };
 
 /**
@@ -818,7 +1155,7 @@ ns.getWidgetName = function (field) {
 /**
  * Mimics how php's htmlspecialchars works (the way we uses it)
  */
-ns.htmlspecialchars = function(string) {
+ns.htmlspecialchars = function (string) {
   return string.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#039;').replace(/"/g, '&quot;');
 };
 
@@ -838,7 +1175,7 @@ ns.createButton = function (id, title, handler, displayTitle) {
     tabIndex: 0,
     'aria-disabled': 'false',
     on: {
-      click: function (event) {
+      click: function () {
         handler.call(this);
       },
       keydown: function (event) {
@@ -856,6 +1193,197 @@ ns.createButton = function (id, title, handler, displayTitle) {
   options[displayTitle ? 'html' : 'aria-label'] = title;
 
   return ns.$('<div/>', options);
+};
+
+/**
+ * Check if the current library is entitled for the metadata button. True by default.
+ *
+ * It will probably be okay to remove this check at some point in time when
+ * the majority of content types and plugins have been updated to a version
+ * that supports the metadata system.
+ *
+ * @param {string} library - Current library.
+ * @return {boolean} True, if form should have the metadata button.
+ */
+ns.enableMetadata = function (library) {
+
+  if (!library || typeof library !== 'string') {
+    return false;
+  }
+
+  library = H5P.libraryFromString(library);
+  if (!library) {
+    return false;
+  }
+
+  // This list holds all old libraries (/older versions implicitly) that need an update for metadata
+  const blackList = [
+    // Should never have metadata because it does not make sense
+    'H5P.IVHotspot 1.2',
+    'H5P.Link 1.3',
+    'H5P.TwitterUserFeed 1.0',
+    'H5P.GoToQuestion 1.3',
+    'H5P.Nil 1.0',
+
+    // Copyright information moved to metadata
+    'H5P.Audio 1.2',
+    'H5P.Video 1.4',
+    'H5P.Image 1.0',
+
+    // Title moved to metadata
+    'H5P.DocumentExportPage 1.3',
+    'H5P.ExportableTextArea 1.2',
+    'H5P.GoalsAssessmentPage 1.3',
+    'H5P.GoalsPage 1.4',
+    'H5P.StandardPage 1.3',
+    'H5P.DragQuestion 1.12',
+    'H5P.ImageHotspotQuestion 1.7',
+
+    // Custom editor changed
+    'H5P.CoursePresentation 1.19',
+    'H5P.InteractiveVideo 1.19'
+  ];
+
+  let block = blackList.filter(function (item) {
+    // + ' ' makes sure to avoid partial matches
+    return item.indexOf(library.machineName + ' ') !== -1;
+  });
+  if (block.length === 0) {
+    return true;
+  }
+
+  block = H5P.libraryFromString(block[0]);
+  if (library.majorVersion > block.majorVersion || library.majorVersion === block.majorVersion && library.minorVersion > block.minorVersion) {
+    return true;
+  }
+
+  return false;
+};
+
+// Backwards compatibilty
+ns.attachToastTo = H5P.attachToastTo;
+
+/**
+ * Check if clipboard can be pasted.
+ *
+ * @param {Object} clipboard Clipboard data.
+ * @param {Object} libs Libraries to compare against.
+ * @return {boolean} True, if content can be pasted.
+ */
+ns.canPaste = function (clipboard, libs) {
+  return (this.canPastePlus(clipboard, libs)).canPaste;
+};
+
+/**
+ * Check if clipboard can be pasted and give reason if not.
+ *
+ * @param {Object} clipboard Clipboard data.
+ * @param {Object} libs Libraries to compare against.
+ * @return {Object} Results. {canPaste: boolean, reason: string, description: string}.
+ */
+ns.canPastePlus = function (clipboard, libs) {
+  // Clipboard is empty
+  if (!clipboard || !clipboard.generic) {
+    return {
+      canPaste: false,
+      reason: 'pasteNoContent',
+      description: ns.t('core', 'pasteNoContent')
+    };
+  }
+
+  // No libraries to compare to
+  if (libs === undefined) {
+    return {
+      canPaste: false,
+      reason: 'pasteError',
+      description: ns.t('core', 'pasteError')
+    };
+  }
+
+  // Translate Hub format to common library format
+  if (libs.libraries !== undefined) {
+    libs = libs.libraries;
+    libs.forEach(function (lib) {
+      lib.name = lib.machineName;
+      lib.majorVersion = lib.localMajorVersion;
+      lib.minorVersion = lib.localMinorVersion;
+    });
+  }
+
+  // Check if clipboard library type is available
+  const machineNameClip = clipboard.generic.library.split(' ')[0];
+  let candidates = libs.filter(function (library) {
+    return library.name === machineNameClip;
+  });
+  if (candidates.length === 0) {
+    return {
+      canPaste: false,
+      reason: 'pasteContentNotSupported',
+      description: ns.t('core', 'pasteContentNotSupported')
+    };
+  }
+
+  // Check if clipboard library version is available
+  const versionClip = clipboard.generic.library.split(' ')[1];
+  const match = candidates.some(function (candidate) {
+    return ('' + candidate.majorVersion + '.' + candidate.minorVersion) === versionClip;
+  });
+  if (match) {
+    return {canPaste: true};
+  }
+
+  // Sort remaining candidates by version number
+  candidates = candidates
+    .map(function (candidate) {
+      return '' + candidate.majorVersion + '.' + candidate.minorVersion;
+    })
+    .map(function (candidate) {
+      return candidate.replace(/\d+/g, function (d) {
+        return +d + 1000;
+      });
+    })
+    .sort()
+    .map(function (candidate) {
+      return candidate.replace(/\d+/g, function (d) {
+        return +d - 1000;
+      });
+    });
+
+  // Clipboard library is newer than latest available local library
+  const candidateMax = candidates.slice(-1)[0];
+  if (+candidateMax.split('.')[0] < +versionClip.split('.')[0] ||
+      (+candidateMax.split('.')[0] === +versionClip.split('.')[0] &&
+      +candidateMax.split('.')[1] < +versionClip.split('.')[1])) {
+    return {
+      canPaste: false,
+      reason: 'pasteTooNew',
+      description: ns.t('core', 'pasteTooNew', {
+        ':clip': versionClip,
+        ':local': candidateMax
+      })
+    };
+  }
+
+  // Clipboard library is older than latest available local library
+  const candidateMin = candidates.slice(0, 1)[0];
+  if (+candidateMin.split('.')[0] > +versionClip.split('.')[0] ||
+      (+candidateMin.split('.')[0] === +versionClip.split('.')[0] &&
+       +candidateMin.split('.')[1] > +versionClip.split('.')[1])) {
+    return {
+      canPaste: false,
+      reason: 'pasteTooOld',
+      description: ns.t('core', 'pasteTooOld', {
+        ':clip': versionClip,
+        ':local': candidateMin
+      })
+    };
+  }
+
+  return {
+    canPaste: false,
+    reason: 'pasteError',
+    description: ns.t('core', 'pasteError')
+  };
 };
 
 // Factory for creating storage instance
@@ -893,8 +1421,377 @@ ns.storage = (function () {
       try {
         H5P.setUserData(0, key, value);
       }
-      catch (err) {}
-    },
+      catch (err) { /*Intentionally left empty*/ }
+    }
   };
   return instance;
 })();
+
+/**
+ * Small helper class for library data.
+ *
+ * @class
+ * @param {string} nameVersionString
+ */
+ns.ContentType = function ContentType(nameVersionString) {
+  const libraryNameSplit = nameVersionString.split(' ');
+  const libraryVersionSplit = libraryNameSplit[1].split('.');
+
+  this.machineName = libraryNameSplit[0];
+  this.majorVersion = libraryVersionSplit[0];
+  this.minorVersion = libraryVersionSplit[1];
+};
+
+/**
+ * Look for the best possible upgrade for the given library
+ *
+ * @param {ns.ContentType} library
+ * @param {Array} libraries Where to look
+ */
+ns.ContentType.getPossibleUpgrade = function (library, libraries) {
+  let possibleUpgrade;
+
+  for (let i = 0; i < libraries.length; i++) {
+    const candiate = libraries[i];
+    if (candiate.installed !== false && ns.ContentType.hasSameName(candiate, library) && ns.ContentType.isHigherVersion(candiate, library)) {
+
+      // Check if the upgrade is better than the previous upgrade we found
+      if (!possibleUpgrade || ns.ContentType.isHigherVersion(candiate, possibleUpgrade)) {
+        possibleUpgrade = candiate;
+      }
+    }
+  }
+
+  return possibleUpgrade;
+};
+
+/**
+ * Check if candiate is a higher version than original.
+ *
+ * @param {Object} candiate Library object
+ * @param {Object} original Library object
+ * @returns {boolean}
+ */
+ns.ContentType.isHigherVersion = function (candiate, original) {
+  return (ns.ContentType.getMajorVersion(candiate) > ns.ContentType.getMajorVersion(original) ||
+    (ns.ContentType.getMajorVersion(candiate) == ns.ContentType.getMajorVersion(original) &&
+     ns.ContentType.getMinorVersion(candiate) > ns.ContentType.getMinorVersion(original)));
+};
+
+/**
+ * Check if candiate has same name as original.
+ *
+ * @param {Object} candiate Library object
+ * @param {Object} original Library object
+ * @returns {boolean}
+ */
+ns.ContentType.hasSameName = function (candiate, original) {
+  return (ns.ContentType.getName(candiate) === ns.ContentType.getName(original));
+};
+
+/**
+ * Check if candiate has same name as original.
+ *
+ * @param {Object} candiate Library object
+ * @param {Object} original Library object
+ * @returns {string}
+ */
+ns.ContentType.getNameVersionString = function (library) {
+  return ns.ContentType.getName(library) + ' ' + ns.ContentType.getMajorVersion(library) + '.' + ns.ContentType.getMinorVersion(library);
+};
+
+/**
+ * Get the major version from a library object.
+ *
+ * @param {Object} library
+ * @returns {number}
+ */
+ns.ContentType.getMajorVersion = function (library) {
+  return parseInt((library.localMajorVersion !== undefined ? library.localMajorVersion : library.majorVersion));
+};
+
+/**
+ * Get the minor version from a library object.
+ *
+ * @param {Object} library
+ * @returns {number}
+ */
+ns.ContentType.getMinorVersion = function (library) {
+  return parseInt((library.localMinorVersion !== undefined ? library.localMinorVersion : library.minorVersion));
+};
+
+/**
+ * Get the name from a library object.
+ *
+ * @param {Object} library
+ * @returns {string}
+ */
+ns.ContentType.getName = function (library) {
+  return (library.machineName !== undefined ? library.machineName : library.name);
+};
+
+
+ns.upgradeContent = (function () {
+
+  /**
+   * A wrapper for loading library data for the content upgrade scripts.
+   *
+   * @param {string} name Library name
+   * @param {H5P.Version} version
+   * @param {Function} next Callback
+   */
+  const loadLibrary = function (name, version, next) {
+    const library = name + ' ' + version.major + '.' + version.minor;
+    ns.loadLibrary(library, function () {
+      next(null, ns.libraryCache[library]);
+    });
+  };
+
+  return function contentUpgrade(fromLibrary, toLibrary, parameters, done) {
+    ns.loadJs(H5PIntegration.libraryUrl + '/h5p-version.js' + H5PIntegration.pluginCacheBuster, function (err) {
+      ns.loadJs(H5PIntegration.libraryUrl + '/h5p-content-upgrade-process.js' + H5PIntegration.pluginCacheBuster, function (err) {
+        // TODO: Avoid stringify the parameters
+        new H5P.ContentUpgradeProcess(ns.ContentType.getName(fromLibrary), new H5P.Version(fromLibrary), new H5P.Version(toLibrary), JSON.stringify(parameters), 1, function (name, version, next) {
+          loadLibrary(name, version, function (err, library) {
+            if (library.upgradesScript) {
+              ns.loadJs(library.upgradesScript, function (err) {
+                if (err) {
+                  err = 'Error loading upgrades ' + name + ' ' + version;
+                }
+                next(err, library);
+              });
+            }
+            else {
+              next(null, library);
+            }
+          });
+
+        }, function (err, result) {
+          if (err) {
+            let header = 'Failed';
+            let message = 'Could not upgrade content';
+            switch (err.type) {
+              case 'errorTooHighVersion':
+                message += ': ' + ns.t('core', 'errorTooHighVersion', {'%used': err.used, '%supported': err.supported});
+                break;
+
+              case 'errorNotSupported':
+                message += ': ' + ns.t('core', 'errorNotSupported', {'%used': err.used});
+                break;
+
+              case 'errorParamsBroken':
+                message += ': ' + ns.t('core', 'errorParamsBroken');
+                break;
+
+              case 'libraryMissing':
+                message += ': ' +  ns.t('core', 'libraryMissing', {'%lib': err.library});
+                break;
+
+              case 'scriptMissing':
+                message += ': ' + ns.t('core', 'scriptMissing', {'%lib': err.library});
+                break;
+            }
+
+            var confirmErrorDialog = new H5P.ConfirmationDialog({
+              headerText: header,
+              dialogText: message,
+              confirmText: 'Continue'
+            }).appendTo(document.body);
+            confirmErrorDialog.show();
+          }
+          done(err, result);
+        });
+      });
+    });
+  };
+})();
+
+// List of language code mappings used by the editor
+ns.supportedLanguages = {
+  'aa': 'Afar',
+  'ab': 'Abkhazian (аҧсуа бызшәа)',
+  'ae': 'Avestan',
+  'af': 'Afrikaans',
+  'ak': 'Akan',
+  'am': 'Amharic (አማርኛ)',
+  'ar': 'Arabic (العربية)',
+  'as': 'Assamese',
+  'ast': 'Asturian',
+  'av': 'Avar',
+  'ay': 'Aymara',
+  'az': 'Azerbaijani (azərbaycan)',
+  'ba': 'Bashkir',
+  'be': 'Belarusian (Беларуская)',
+  'bg': 'Bulgarian (Български)',
+  'bh': 'Bihari',
+  'bi': 'Bislama',
+  'bm': 'Bambara (Bamanankan)',
+  'bn': 'Bengali',
+  'bo': 'Tibetan',
+  'br': 'Breton',
+  'bs': 'Bosnian (Bosanski)',
+  'ca': 'Catalan (Català)',
+  'ce': 'Chechen',
+  'ch': 'Chamorro',
+  'co': 'Corsican',
+  'cr': 'Cree',
+  'cs': 'Czech (Čeština)',
+  'cu': 'Old Slavonic',
+  'cv': 'Chuvash',
+  'cy': 'Welsh (Cymraeg)',
+  'da': 'Danish (Dansk)',
+  'de': 'German (Deutsch)',
+  'dv': 'Maldivian',
+  'dz': 'Bhutani',
+  'ee': 'Ewe (Ɛʋɛ)',
+  'el': 'Greek (Ελληνικά)',
+  'en': 'English',
+  'en-gb': 'English, British',
+  'eo': 'Esperanto',
+  'es': 'Spanish (Español)',
+  'et': 'Estonian (Eesti)',
+  'eu': 'Basque (Euskera)',
+  'fa': 'Persian (فارسی)',
+  'ff': 'Fulah (Fulfulde)',
+  'fi': 'Finnish (Suomi)',
+  'fil': 'Filipino',
+  'fj': 'Fiji',
+  'fo': 'Faeroese',
+  'fr': 'French (Français)',
+  'fy': 'Frisian (Frysk)',
+  'ga': 'Irish (Gaeilge)',
+  'gd': 'Scots Gaelic',
+  'gl': 'Galician (Galego)',
+  'gn': 'Guarani',
+  'gsw-berne': 'Swiss German',
+  'gu': 'Gujarati',
+  'gv': 'Manx',
+  'ha': 'Hausa',
+  'he': 'Hebrew (עברית)',
+  'hi': 'Hindi (हिन्दी)',
+  'ho': 'Hiri Motu',
+  'hr': 'Croatian (Hrvatski)',
+  'ht': 'Haitian Creole',
+  'hu': 'Hungarian (Magyar)',
+  'hy': 'Armenian (Հայերեն)',
+  'hz': 'Herero',
+  'ia': 'Interlingua',
+  'id': 'Indonesian (Bahasa Indonesia)',
+  'ie': 'Interlingue',
+  'ig': 'Igbo',
+  'ik': 'Inupiak',
+  'is': 'Icelandic (Íslenska)',
+  'it': 'Italian (Italiano)',
+  'iu': 'Inuktitut',
+  'ja': 'Japanese (日本語)',
+  'jv': 'Javanese',
+  'ka': 'Georgian',
+  'kg': 'Kongo',
+  'ki': 'Kikuyu',
+  'kj': 'Kwanyama',
+  'kk': 'Kazakh (Қазақ)',
+  'kl': 'Greenlandic',
+  'km': 'Cambodian',
+  'kn': 'Kannada (ಕನ್ನಡ)',
+  'ko': 'Korean (한국어)',
+  'kr': 'Kanuri',
+  'ks': 'Kashmiri',
+  'ku': 'Kurdish (Kurdî)',
+  'kv': 'Komi',
+  'kw': 'Cornish',
+  'ky': 'Kyrgyz (Кыргызча)',
+  'la': 'Latin (Latina)',
+  'lb': 'Luxembourgish',
+  'lg': 'Luganda',
+  'ln': 'Lingala',
+  'lo': 'Laothian',
+  'lt': 'Lithuanian (Lietuvių)',
+  'lv': 'Latvian (Latviešu)',
+  'mg': 'Malagasy',
+  'mh': 'Marshallese',
+  'mi': 'Māori',
+  'mk': 'Macedonian (Македонски)',
+  'ml': 'Malayalam (മലയാളം)',
+  'mn': 'Mongolian',
+  'mo': 'Moldavian',
+  'mr': 'Marathi',
+  'ms': 'Malay (Bahasa Melayu)',
+  'mt': 'Maltese (Malti)',
+  'my': 'Burmese',
+  'na': 'Nauru',
+  'nd': 'North Ndebele',
+  'ne': 'Nepali',
+  'ng': 'Ndonga',
+  'nl': 'Dutch (Nederlands)',
+  'nb': 'Norwegian Bokmål (Bokmål)',
+  'nn': 'Norwegian Nynorsk (Nynorsk)',
+  'nr': 'South Ndebele',
+  'nv': 'Navajo',
+  'ny': 'Chichewa',
+  'oc': 'Occitan',
+  'om': 'Oromo',
+  'or': 'Oriya',
+  'os': 'Ossetian',
+  'pa': 'Punjabi',
+  'pi': 'Pali',
+  'pl': 'Polish (Polski)',
+  'ps': 'Pashto (پښتو)',
+  'pt': 'Portuguese, International',
+  'pt-pt': 'Portuguese, Portugal (Português)',
+  'pt-br': 'Portuguese, Brazil (Português)',
+  'qu': 'Quechua',
+  'rm': 'Rhaeto-Romance',
+  'rn': 'Kirundi',
+  'ro': 'Romanian (Română)',
+  'ru': 'Russian (Русский)',
+  'rw': 'Kinyarwanda',
+  'sa': 'Sanskrit',
+  'sc': 'Sardinian',
+  'sco': 'Scots',
+  'sd': 'Sindhi',
+  'se': 'Northern Sami',
+  'sg': 'Sango',
+  'sh': 'Serbo-Croatian',
+  'si': 'Sinhala (සිංහල)',
+  'sk': 'Slovak (Slovenčina)',
+  'sl': 'Slovenian (Slovenščina)',
+  'sm': 'Samoan',
+  'sn': 'Shona',
+  'so': 'Somali',
+  'sq': 'Albanian (Shqip)',
+  'sr': 'Serbian (Српски)',
+  'ss': 'Siswati',
+  'st': 'Sesotho',
+  'su': 'Sudanese',
+  'sv': 'Swedish (Svenska)',
+  'sw': 'Swahili (Kiswahili)',
+  'ta': 'Tamil (தமிழ்)',
+  'te': 'Telugu (తెలుగు)',
+  'tg': 'Tajik',
+  'th': 'Thai (ภาษาไทย)',
+  'ti': 'Tigrinya',
+  'tk': 'Turkmen',
+  'tl': 'Tagalog',
+  'tn': 'Setswana',
+  'to': 'Tonga',
+  'tr': 'Turkish (Türkçe)',
+  'ts': 'Tsonga',
+  'tt': 'Tatar (Tatarça)',
+  'tw': 'Twi',
+  'ty': 'Tahitian',
+  'ug': 'Uyghur',
+  'uk': 'Ukrainian (Українська)',
+  'ur': 'Urdu (اردو)',
+  'uz': "Uzbek (o'zbek)",
+  've': 'Venda',
+  'vi': 'Vietnamese (Tiếng Việt)',
+  'wo': 'Wolof',
+  'xh': 'Xhosa (isiXhosa)',
+  'xx-lolspeak': 'Lolspeak)',
+  'yi': 'Yiddish',
+  'yo': 'Yoruba (Yorùbá)',
+  'za': 'Zhuang',
+  'zh-hans': 'Chinese, Simplified (简体中文)',
+  'zh-hant': 'Chinese, Traditional (繁體中文)',
+  'zu': 'Zulu (isiZulu)'
+};

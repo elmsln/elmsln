@@ -1,4 +1,4 @@
-var H5P = H5P || {};
+var H5P = window.H5P = window.H5P || {};
 
 /**
  * The external event dispatcher. Others, outside of H5P may register and
@@ -92,7 +92,7 @@ H5P.EventDispatcher.prototype.triggerXAPIScored = function (score, maxScore, ver
   this.trigger(event);
 };
 
-H5P.EventDispatcher.prototype.setActivityStarted = function() {
+H5P.EventDispatcher.prototype.setActivityStarted = function () {
   if (this.activityStartTime === undefined) {
     // Don't trigger xAPI events in the editor
     if (this.contentId !== undefined &&

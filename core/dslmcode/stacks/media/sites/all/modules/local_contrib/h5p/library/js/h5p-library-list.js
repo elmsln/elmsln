@@ -1,4 +1,4 @@
-/*jshint multistr: true */
+/* global H5PAdminIntegration H5PUtils */
 var H5PLibraryList = H5PLibraryList || {};
 
 (function ($) {
@@ -25,7 +25,7 @@ var H5PLibraryList = H5PLibraryList || {};
    */
   H5PLibraryList.createLibraryList = function (libraries) {
     var t = H5PAdminIntegration.l10n;
-    if(libraries.listData === undefined || libraries.listData.length === 0) {
+    if (libraries.listData === undefined || libraries.listData.length === 0) {
       return $('<div>' + t.NA + '</div>');
     }
 

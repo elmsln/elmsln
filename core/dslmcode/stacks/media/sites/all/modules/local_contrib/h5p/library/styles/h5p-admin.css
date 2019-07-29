@@ -339,3 +339,6 @@ button.h5p-admin.disabled:hover {
 .h5p-data-view .h5p-facet-tag > span:active {
   color: #d20000;
 }
+.content-upgrade-log {
+  color: red;
+}

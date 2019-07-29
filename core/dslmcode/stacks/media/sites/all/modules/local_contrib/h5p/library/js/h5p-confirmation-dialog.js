@@ -351,7 +351,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      *
      * @param {number|null} minHeight
      */
-    this.setViewPortMinimumHeight = function(minHeight) {
+    this.setViewPortMinimumHeight = function (minHeight) {
       var container = document.querySelector('.h5p-container') || document.body;
       container.style.minHeight = (typeof minHeight === 'number') ? (minHeight + 'px') : minHeight;
     };
