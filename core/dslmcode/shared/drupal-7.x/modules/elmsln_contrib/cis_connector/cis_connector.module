@@ -740,6 +740,8 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
     case 'section':
       // query access string based on section context
       $query = $base_query;
+      // get section associations to offerings
+      $query['deep-load-refs'] = 'field_collection_item';
       // request the section of the user
       $cis_section_item = _cis_connection_query($query, 'field_collection_item');
       // return the whole section array
