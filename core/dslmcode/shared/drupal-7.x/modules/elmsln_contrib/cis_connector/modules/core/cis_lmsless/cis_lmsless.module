@@ -294,6 +294,11 @@ function _cis_lmsless_theme_vars() {
         if ($nid = _cis_section_load_section_by_id($section)) {
           $tmpnode = node_load($nid);
           $vars['section_title'] = filter_xss($tmpnode->title);
+          // additional CIS data mix in for UX
+          $cisSectionData = _cis_connector_transaction('section', 'default', array(), $section);
+          if (isset($cisSectionData['host_entity']['field_semester']['und'][0]['value'])) {
+            $vars['section_title'] = strtoupper($cisSectionData['host_entity']['field_semester']['und'][0]['value']) . $cisSectionData['host_entity']['field_year']['und'][0]['value'] . ' - ' . $vars['section_title'];
+          }
         }
       }
     }
