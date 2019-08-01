@@ -38,59 +38,61 @@ function _elmsln_canvas_form($form = array()) {
 function _elmsln_canvas_form_submit($form, $form_state) {
   foreach ($form_state['input'] as $key => $machine_name) {
     // check for things that start with elmsln--map--
-    if (strpos($key, 'elmsln--map--') === 0) {
+    if (strpos($key, 'elmsln--map--') === 0 && $machine_name != '') {
       $etid = _cis_connector_get_course_by_machine_name($machine_name);
-      $course = entity_load_single('node', $etid);
-      // break out the access string and term
-      $tmp = str_replace('elmsln--map--', '', $key);
-      $ary = explode(":key:", $tmp);
-      $access_string = $ary[1];
-      $term = explode('_-_', $ary[2]);
-      // convert dates to start / end dates for course
-      $start_date = NULL;
-      $end_date = NULL;
-      if (!empty($ary[3])) {
-        $date = new DateTime($ary[3]);
-        $start_date = $date->format('Y-m-d H:i:s');
-        $date = new DateTime($ary[4]);
-        $end_date = $date->format('Y-m-d H:i:s');
-      }
-      // try and break things out into year and semester
-      $tmp = drupal_strtolower($term[1]);
-      if (strpos($tmp, 's1')) {
-        $semester = 'su';
-        $year = str_replace('s1', '', $tmp);
-      }
-      else if (strpos($tmp, 'su')) {
-        $semester = 'su';
-        $year = str_replace('su', '', $tmp);
-      }
-      else if (strpos($tmp, 'fa')) {
-        $semester = 'fa';
-        $year = str_replace('fa', '', $tmp);
-      }
-      else if (strpos($tmp, 'sp')) {
-        $semester = 'sp';
-        $year = str_replace('sp', '', $tmp);
-      }
-      $campus = '';
-      $variables = array(
-        'semester' => &$semester,
-        'year' => &$year,
-        'campus' => &$campus,
-        'start_date' => &$start_date,
-        'end_date' => &$end_date,
-        'course' => &$course
-      );
-      drupal_alter('elmsln_canvas_submit', $variables);
-      $existing = _cis_helper_load_machine_name_by_access_string($access_string);
-      // make sure they don't match before updating / creating a new one
-      if ($existing != $machine_name) {
-        if ($existing == NULL) {
-          // @todo drop existing so we can shift it over
+      if ($etid) {
+        $course = entity_load_single('node', $etid);
+        // break out the access string and term
+        $tmp = str_replace('elmsln--map--', '', $key);
+        $ary = explode(":key:", $tmp);
+        $access_string = $ary[1];
+        $term = explode('_-_', $ary[2]);
+        // convert dates to start / end dates for course
+        $start_date = NULL;
+        $end_date = NULL;
+        if (!empty($ary[3])) {
+          $date = new DateTime($ary[3]);
+          $start_date = $date->format('Y-m-d H:i:s');
+          $date = new DateTime($ary[4]);
+          $end_date = $date->format('Y-m-d H:i:s');
         }
-        // update course model for this course
-        _cis_helper_update_course_model($course, $semester, $year, $campus, $access_string, $start_date, $end_date);
+        // try and break things out into year and semester
+        $tmp = drupal_strtolower($term[1]);
+        if (strpos($tmp, 's1')) {
+          $semester = 'su';
+          $year = str_replace('s1', '', $tmp);
+        }
+        else if (strpos($tmp, 'su')) {
+          $semester = 'su';
+          $year = str_replace('su', '', $tmp);
+        }
+        else if (strpos($tmp, 'fa')) {
+          $semester = 'fa';
+          $year = str_replace('fa', '', $tmp);
+        }
+        else if (strpos($tmp, 'sp')) {
+          $semester = 'sp';
+          $year = str_replace('sp', '', $tmp);
+        }
+        $campus = '';
+        $variables = array(
+          'semester' => &$semester,
+          'year' => &$year,
+          'campus' => &$campus,
+          'start_date' => &$start_date,
+          'end_date' => &$end_date,
+          'course' => &$course
+        );
+        drupal_alter('elmsln_canvas_submit', $variables);
+        $existing = _cis_helper_load_machine_name_by_access_string($access_string);
+        // make sure they don't match before updating / creating a new one
+        if ($existing != $machine_name) {
+          if ($existing == NULL) {
+            // @todo drop existing so we can shift it over
+          }
+          // update course model for this course
+          _cis_helper_update_course_model($course, $semester, $year, $campus, $access_string, $start_date, $end_date);
+        }
       }
     }
   }
