@@ -11,6 +11,12 @@ simple-modal {
   --simple-modal-min-height: 50vh;
 }
 
+paper-button:not(:defined),
+lrnsys-button:not(:defined),
+paper-fab:not(:defined),
+paper-menu-button:not(:defined),
+lrn-aside:not(:defined),
+lrnapp-fab-menu:not(:defined),
 simple-modal:not(:defined),
 simple-drawer:not(:defined),
 lrnsys-dialog:not(:defined),
