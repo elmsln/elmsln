@@ -1,5 +1,6 @@
 name = "HAX"
 description = "A completely Headless Authoring eXperience, #haxtheweb."
 core = "7.x"
+package = Webcomponents
 dependencies[] = webcomponents
 configure = admin/config/content/hax
