@@ -10,9 +10,6 @@ simple-modal {
   --simple-modal-min-width: 50vw;
   --simple-modal-min-height: 50vh;
 }
-*:not(:defined) {
-  display: none;
-}
 
 simple-modal:not(:defined),
 simple-drawer:not(:defined),
