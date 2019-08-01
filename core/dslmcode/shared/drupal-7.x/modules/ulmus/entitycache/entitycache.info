@@ -1,9 +1,10 @@
 name = Entity cache
 description = Provides caching for core entities including nodes and taxonomy terms.
-
-core = 7.x
 package = Performance and scalability
+core = 7.x
+php = 5.3
 
+files[] = includes/entitycache.entitycacheentitycontrollerinterface.inc
 files[] = includes/entitycache.entitycachecontrollerhelper.inc
 files[] = includes/entitycache.comment.inc
 files[] = includes/entitycache.defaultentitycontroller.inc
@@ -16,9 +17,8 @@ files[] = entitycache.test
 
 dependencies[] = system (>=7.36)
 
-; Information added by Drupal.org packaging script on 2015-10-27
-version = "7.x-1.5"
+; Information added by Drupal.org packaging script on 2018-12-21
+version = "7.x-1.5+5-dev"
 core = "7.x"
 project = "entitycache"
-datestamp = "1445943840"
-
+datestamp = "1545401891"

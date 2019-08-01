@@ -8,13 +8,20 @@
 /**
  * User entity controller with persistent cache.
  */
-class EntityCacheUserController extends UserController {
+class EntityCacheUserController extends UserController implements EntityCacheEntityControllerInterface {
 
   /**
    * {@inheritdoc}
    */
   public function resetCache(array $ids = NULL) {
     EntityCacheControllerHelper::resetEntityCache($this, $ids);
+    $this->resetStaticCache($ids);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resetStaticCache(array $ids = NULL) {
     parent::resetCache($ids);
   }
 

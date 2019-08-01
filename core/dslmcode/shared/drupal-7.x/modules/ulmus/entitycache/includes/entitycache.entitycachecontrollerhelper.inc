@@ -14,6 +14,15 @@
 class EntityCacheControllerHelper extends DrupalDefaultEntityController {
 
   public static function resetEntityCache($controller, array $ids = NULL) {
+    drupal_alter('entitycache_pre_reset_cache', $ids, $controller->entityType);
+
+    // Allow other modules to disable this cache clear, which is useful if
+    // hook_entitycache_pre_cache_get() and hook_entitycache_pre_cache_set()
+    // are used to prevent items to enter the cache.
+    if ($ids === FALSE) {
+      return;
+    }
+
     // Reset the persistent cache.
     if (!empty($ids)) {
       cache_clear_all($ids, 'cache_entity_' . $controller->entityType);
@@ -51,6 +60,8 @@ class EntityCacheControllerHelper extends DrupalDefaultEntityController {
    *   An array of loaded entities keyed by ID.
    */
   public static function entityCacheLoad($controller, $ids = array(), $conditions = array()) {
+    // @todo Convert this to static::method() for Drupal 8.
+    $class = get_called_class();
     $entities = array();
     $cached_entities = array();
     $queried_entities = array();
@@ -93,9 +104,9 @@ class EntityCacheControllerHelper extends DrupalDefaultEntityController {
       if (isset($result[$controller->entityType])) {
         $entity_ids = array_keys($result[$controller->entityType]);
         if ($revision_id) {
-          return static::entityCacheLoad($controller, $entity_ids, array($controller->revisionKey => $revision_id));
+          return $class::entityCacheLoad($controller, $entity_ids, array($controller->revisionKey => $revision_id));
         } else {
-          return static::entityCacheLoad($controller, $entity_ids);
+          return $class::entityCacheLoad($controller, $entity_ids);
         }
       }
       else {
@@ -129,7 +140,7 @@ class EntityCacheControllerHelper extends DrupalDefaultEntityController {
 
     // Ensure integer entity IDs are valid.
     if (!empty($ids)) {
-      static::entityCacheCleanIds($controller, $ids);
+      $class::entityCacheCleanIds($controller, $ids);
     }
 
     // Load any remaining entities from the database. This is the case if $ids
@@ -219,6 +230,8 @@ class EntityCacheControllerHelper extends DrupalDefaultEntityController {
   }
 
   public static function entityCacheGet($controller, $ids, $conditions = array()) {
+    drupal_alter('entitycache_pre_cache_get', $ids, $conditions, $controller->entityType);
+
     $cached_entities = array();
     if ($ids && !$conditions) {
       $cached = cache_get_multiple($ids, 'cache_entity_' . $controller->entityType);
@@ -233,9 +246,13 @@ class EntityCacheControllerHelper extends DrupalDefaultEntityController {
   }
 
   public static function entityCacheSet($controller, $entities) {
+    drupal_alter('entitycache_pre_cache_set', $entities, $controller->entityType);
+
     foreach ($entities as $id => $item) {
       cache_set($id, $item, 'cache_entity_' . $controller->entityType);
     }
+
+    drupal_alter('entitycache_post_cache_set', $entities, $controller->entityType);
   }
 
   /**
