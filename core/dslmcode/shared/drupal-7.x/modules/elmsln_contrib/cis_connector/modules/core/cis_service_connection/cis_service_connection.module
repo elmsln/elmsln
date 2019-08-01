@@ -252,6 +252,8 @@ function cis_service_connection_block_section_context_changer_form() {
       if (isset($cisSectionData['host_entity']['field_semester']['und'][0]['value'])) {
         $sections[$key] = strtoupper($cisSectionData['host_entity']['field_semester']['und'][0]['value']) . $cisSectionData['host_entity']['field_year']['und'][0]['value'] . ' - ' . $value;
       }
+      // allow developers to hijack this / make it as they need displayed
+      drupal_alter('cis_lmsless_section_title', $sections[$key], $key, $cisSectionData);
     }
 
     $form['section'] = array(

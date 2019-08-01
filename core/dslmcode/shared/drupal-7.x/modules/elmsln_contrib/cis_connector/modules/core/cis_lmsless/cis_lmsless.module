@@ -299,6 +299,8 @@ function _cis_lmsless_theme_vars() {
           if (isset($cisSectionData['host_entity']['field_semester']['und'][0]['value'])) {
             $vars['section_title'] = strtoupper($cisSectionData['host_entity']['field_semester']['und'][0]['value']) . $cisSectionData['host_entity']['field_year']['und'][0]['value'] . ' - ' . $vars['section_title'];
           }
+          // allow developers to hijack this / make it as they need displayed
+          drupal_alter('cis_lmsless_section_title', $vars['section_title'], $section, $cisSectionData);
         }
       }
     }
