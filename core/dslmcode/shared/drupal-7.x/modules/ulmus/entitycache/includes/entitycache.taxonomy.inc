@@ -8,20 +8,13 @@
 /**
  * Taxonomy term entity controller class with persistent cache.
  */
-class EntityCacheTaxonomyTermController extends TaxonomyTermController implements EntityCacheEntityControllerInterface {
+class EntityCacheTaxonomyTermController extends TaxonomyTermController {
 
   /**
    * {@inheritdoc}
    */
   public function resetCache(array $ids = NULL) {
     EntityCacheControllerHelper::resetEntityCache($this, $ids);
-    $this->resetStaticCache($ids);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function resetStaticCache(array $ids = NULL) {
     parent::resetCache($ids);
   }
 
@@ -37,20 +30,13 @@ class EntityCacheTaxonomyTermController extends TaxonomyTermController implement
 /**
  * Taxonomy vocabulary entity controller class with persistent cache.
  */
-class EntityCacheTaxonomyVocabularyController extends TaxonomyVocabularyController implements EntityCacheEntityControllerInterface {
+class EntityCacheTaxonomyVocabularyController extends TaxonomyVocabularyController {
 
   /**
    * {@inheritdoc}
    */
   public function resetCache(array $ids = NULL) {
     EntityCacheControllerHelper::resetEntityCache($this, $ids);
-    $this->resetStaticCache($ids);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function resetStaticCache(array $ids = NULL) {
     parent::resetCache($ids);
   }
 

@@ -212,26 +212,3 @@ function entitycache_user_logout($account) {
 function entitycache_user_login(&$edit, $account) {
   cache_clear_all($account->uid, 'cache_entity_user');
 }
-
-/**
- * Workaround for update 7.x-1.3 and later breaking existing sites, since the
- * class autoloader cannot find the classes previously defined in this file but
- * now are moved into individual files under 'includes' folder.
- *
- * @see https://www.drupal.org/node/2441965#comment-10558568
- */
-if (!interface_exists('EntityCacheEntityControllerInterface')) {
-  require_once __DIR__ . '/includes/entitycache.entitycacheentitycontrollerinterface.inc';
-}
-if (!class_exists('EntityCacheControllerHelper')) {
-  require_once __DIR__ . '/includes/entitycache.entitycachecontrollerhelper.inc';
-}
-if (!class_exists('EntityCacheDefaultEntityController')) {
-  require_once __DIR__ . '/includes/entitycache.defaultentitycontroller.inc';
-}
-if (!class_exists('EntityCacheNodeController')) {
-  require_once __DIR__ . '/includes/entitycache.node.inc';
-}
-if (!class_exists('EntityCacheUserController')) {
-  require_once __DIR__ . '/includes/entitycache.user.inc';
-}
