@@ -17,7 +17,7 @@ hooks:
   - exec: sudo a2enmod http2
   - exec: echo "Protocols h2 http/1.1" > /etc/apache2/conf-available/http2.conf
   - exec: sudo a2enconf http2
-  - exec: bash scripts/haxtheweb.sh 'admin' 'admin' 'admin@admin.admin' 'admin'
+  - exec: bash scripts/haxtheweb.sh 'admin' 'admin'
   - exec: bash scripts/github-publishing-ssh.sh
   - exec: echo 'go to http://haxcms.ddev.local - click the top right power button
       and enter admin / admin to get started!'

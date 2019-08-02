@@ -98,9 +98,9 @@ class Git
      * @param   string  repository path
      * @return  GitRepo
      */
-    public static function open($repo_path)
+    public static function open($repo_path, $create_new = false)
     {
-        return new GitRepo($repo_path);
+        return new GitRepo($repo_path, $create_new);
     }
 
     /**

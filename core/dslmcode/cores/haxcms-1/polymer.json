@@ -44,43 +44,42 @@
         "minify": false
       },
       "css": {
-        "minify": true
+        "minify": false
       },
       "html": {
-        "minify": true
+        "minify": false
       },
       "bundle": false
     },
     {
       "name": "es6-amd",
       "browserCapabilities": [
-        "es2015",
-        "modules"
+        "es2015"
       ],
       "js": {
-        "minify": true,
+        "minify": false,
         "transformModulesToAmd": true
       },
       "css": {
-        "minify": true
+        "minify": false
       },
       "html": {
-        "minify": true
+        "minify": false
       },
       "bundle": false
     },
     {
       "name": "es5-amd",
       "js": {
-        "minify": true,
         "compile": true,
+        "minify": false,
         "transformModulesToAmd": true
       },
       "css": {
-        "minify": true
+        "minify": false
       },
       "html": {
-        "minify": true
+        "minify": false
       },
       "bundle": false
     }

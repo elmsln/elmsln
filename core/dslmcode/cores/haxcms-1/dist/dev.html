@@ -73,6 +73,281 @@
     body[no-js] haxcms-site-builder{
       display: none !important;
     }
+
+    :root {
+      /* HAXCMS Base Styles*/
+      --haxcms-base-styles-a-color: var(--odl-haxtheme-a-color);
+      --haxcms-base-styles-a-color-active: var(--odl-haxtheme-a-hover-color);
+      --haxcms-base-styles-a-font-weight: var(--odl-haxtheme-font-weight);
+      --haxcms-base-styles-a-font-weight-active: var(--odl-haxtheme-font-weight);
+      --haxcms-base-styles-body-line-height: var(--odl-haxtheme-line-height);
+      /* Theme Colors */
+      --odl-haxtheme-accent-color-1: #363533;
+      --odl-haxtheme-accent-color-2: #e2801e;
+      --odl-haxtheme-accent-color-3: #dcdcdc;
+      --odl-haxtheme-accent-color-4: #ffffff;
+      /* Theme Styles */
+      --odl-haxtheme-site-breadcrumb-margin: 10px 0 0 0;
+      --odl-haxtheme-header-border-left: solid;
+      --odl-haxtheme-header-border-left-width: 4px;
+      --odl-haxtheme-sidebar-wrap-width: 25%;
+      --odl-haxtheme-sidebar-wrap-width-mobile: 100%;
+      --odl-haxtheme-sidebar-wrap-margin: 45px 0 0 0;
+      --odl-haxtheme-sidebar-wrap-margin-mobile: 10px 0 0 0;
+      --odl-haxtheme-sidebar-wrap-border-left: solid;
+      --odl-haxtheme-sidebar-wrap-border-left-mobile: none;
+      --odl-haxtheme-sidebar-wrap-border-left-width: 2px;
+      --odl-haxtheme-sidebar-wrap-height: 600px;
+      --odl-haxtheme-sidebar-wrap-height-mobile: auto;
+      --odl-haxtheme-sidebar-wrap-padding: 0 0 0 20px;
+      --odl-haxtheme-sidebar-wrap-padding-mobile: 0;
+      /* Font Styles */
+      --odl-haxtheme-font-color: #000;
+      --odl-haxtheme-font-size: 18px;
+      --odl-haxtheme-font-weight: 300;
+      --odl-haxtheme-line-height: 1.4;
+      --odl-haxtheme-text-transform: uppercase;
+      /* Link Styles */
+      --odl-haxtheme-a-color: #21b9f3;
+      --odl-haxtheme-a-text-decoration: none;
+      --odl-haxtheme-a-font-weight: normal;
+      --odl-haxtheme-a-font-size: 18px;
+      --odl-haxtheme-a-hover-color: #2196f3;
+      --odl-haxtheme-a-hover-text-decoration: none;
+      /* Header Styles */
+      --odl-haxtheme-h1-font-weight: 400;
+      --odl-haxtheme-h1-font-size: 36px;
+      --odl-haxtheme-h2-font-weight: 100;
+      --odl-haxtheme-h2-font-size: 26px;
+      --odl-haxtheme-h3-font-weight: 100;
+      --odl-haxtheme-h3-font-size: 22px;
+      /* Content: Team */
+      --haxtheme-team-a-text-decoration: var(--odl-haxtheme-a-text-decoration);
+      /* Content: About */
+      
+      /* Content: Blog */
+      --haxtheme-blog-accent-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-blog-taxonomy-a-font-weight: var(--odl-haxtheme-font-weight);
+      --haxtheme-blog-taxonomy-a-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-blog-taxonomy-a-hover: var(--odl-haxtheme-a-font-weight);
+      --haxtheme-blog-h1-font-weight: var(--odl-haxtheme-h1-font-weight);
+      --haxtheme-blog-h1-font-size: var(--odl-haxtheme-h1-font-size);
+      --haxtheme-blog-h2-font-weight: var(--odl-haxtheme-h2-font-weight);
+      --haxtheme-blog-h2-font-size: var(--odl-haxtheme-h2-font-size);
+      --haxtheme-blog-contentcontainer-font-size: var(--odl-haxtheme-font-size);
+      --haxtheme-blog-contentcontainer-font-weight: var(--odl-haxtheme-font-weight);
+      --haxtheme-blog-contentcontainer-line-height: var(--odl-haxtheme-line-height);
+      --haxtheme-blog-sidebar-wrap-border-left-color: var(--odl-haxtheme-accent-color-3);
+      --haxtheme-blog-publish-credentials-border-left: var(--odl-haxtheme-header-border-left);
+      --haxtheme-blog-publish-credentials-border-left-width: var(--odl-haxtheme-header-border-left-width);
+      --haxtheme-blog-author-a-color: var(--odl-haxtheme-font-color);
+      --haxtheme-blog-author-a-text-decoration: var(--odl-haxtheme-a-text-decoration);
+      --haxtheme-blog-author-a-hover: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-blog-taxonomy-a-text-decoration: var(--odl-haxtheme-a-hover-text-decoration);
+      --haxtheme-blog-site-breadcrumb-margin: var(--odl-haxtheme-site-breadcrumb-margin);
+      --haxtheme-blog-sidebar-wrap-width: var(--odl-haxtheme-sidebar-wrap-width);
+      --haxtheme-blog-sidebar-wrap-margin: var(--odl-haxtheme-sidebar-wrap-margin);
+      --haxtheme-blog-sidebar-wrap-border-left: var(--odl-haxtheme-sidebar-wrap-border-left);
+      --haxtheme-blog-sidebar-wrap-border-left-width: var(--odl-haxtheme-sidebar-wrap-border-left-width);
+      --haxtheme-blog-sidebar-wrap-border-left-color: var(--odl-haxtheme-accent-color-3);
+      --haxtheme-blog-sidebar-wrap-height: var(--odl-haxtheme-sidebar-wrap-height);
+      --haxtheme-blog-sidebar-wrap-padding: var(--odl-haxtheme-sidebar-wrap-padding);
+      --haxtheme-blog-side-bar-wrap-width-mobile: var(--odl-haxtheme-sidebar-wrap-width-mobile);
+      --haxtheme-blog-sidebar-wrap-height-mobile: var(--odl-haxtheme-sidebar-wrap-height-mobile);
+      --haxtheme-blog-sidebar-wrap-border-mobile: var(--odl-haxtheme-sidebar-wrap-border-left-mobile)
+      --haxtheme-blog-sidebar-wrap-padding-mobile: var(--odl-haxtheme-sidebar-wrap-padding-mobile);
+      --haxtheme-blog-sidebar-wrap-margin-mobile: var(--odl-haxtheme-sidebar-wrap-margin-mobile);
+      /* Content: News */
+      --haxtheme-news-sidebar-wrap-width: var(--odl-haxtheme-sidebar-wrap-width);
+      --haxtheme-news-sidebar-wrap-height: var(--odl-haxtheme-sidebar-wrap-height);
+      --haxtheme-news-sidebar-wrap-margin: var(--odl-haxtheme-sidebar-wrap-margin);
+      --haxtheme-news-sidebar-wrap-border-left: var(--odl-haxtheme-sidebar-wrap-border-left);
+      --haxtheme-news-sidebar-wrap-border-left-width: var(--odl-haxtheme-sidebar-wrap-border-left-width);
+      --haxtheme-news-sidebar-wrap-border-left-color: var(--odl-haxtheme-accent-color-3);
+      --haxtheme-news-sidebar-wrap-padding: var(--odl-haxtheme-sidebar-wrap-padding);
+      --haxtheme-news-sidebar-wrap-width-mobile: var(--odl-haxtheme-sidebar-wrap-width-mobile);
+      --haxtheme-news-sidebar-wrap-height-mobile: var(--odl-haxtheme-sidebar-wrap-height-mobile);
+      --haxtheme-news-sidebar-wrap-border-left-mobile: var(--odl-haxtheme-sidebar-wrap-border-left-mobile);
+      --haxtheme-news-sidebar-wrap-padding-mobile: var(--odl-haxtheme-sidebar-wrap-padding-mobile);
+      --haxtheme-news-sidebar-wrap-margin-mobile: var(--odl-haxtheme-sidebar-wrap-margin-mobile);
+      /* Content: Course */
+      --haxtheme-course-h1-font-size: var(--odl-haxtheme-h1-font-size);
+      --haxtheme-course-h1-font-weight: var(--odl-haxtheme-h1-font-weight);
+      --haxtheme-course-site-breadcrumb-margin: var(--odl-haxtheme-site-breadcrumb-margin);
+      --haxtheme-course-sidebar-wrap-width: var(--odl-haxtheme-sidebar-wrap-width);
+      --haxtheme-course-sidebar-wrap-margin: var(--odl-haxtheme-sidebar-wrap-margin);
+      --haxtheme-course-sidebar-wrap-border-left: var(--odl-haxtheme-sidebar-wrap-border-left);
+      --haxtheme-course-sidebar-wrap-border-left-width: var(--odl-haxtheme-sidebar-wrap-border-left-width);
+      --haxtheme-course-sidebar-wrap-border-left-color: var(--odl-haxtheme-accent-color-3);
+      --haxtheme-course-sidebar-wrap-height: var(--odl-haxtheme-sidebar-wrap-height);
+      --haxtheme-course-sidebar-wrap-padding: var(--odl-haxtheme-sidebar-wrap-padding);
+      --haxtheme-course-sidebar-wrap-width-mobile: var(--odl-haxtheme-sidebar-wrap-width-mobile);
+      --haxtheme-course-sidebar-wrap-height-mobile: var(--odl-haxtheme-sidebar-wrap-height-mobile);
+      --haxtheme-course-sidebar-wrap-border-mobile: var(--odl-haxtheme-sidebar-wrap-border-left-mobile);
+      --haxtheme-course-sidebar-wrap-padding-mobile: var(--odl-haxtheme-sidebar-wrap-padding-mobile);
+      --haxtheme-course-sidebar-wrap-margin-mobile: var(--odl-haxtheme-sidebar-wrap-margin-mobile);
+      --haxtheme-course-iron-icon-fill: var(--odl-haxtheme-accent-color-1);
+      /* Content: Syllabus */
+      --haxtheme-syllabus-accent-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-syllabus-a-color: var(--odl-haxtheme-a-color);
+      --haxtheme-syllabus-a-hover-color: var(--odl-haxtheme-a-hover-color);
+      --haxtheme-syllabus-a-hover-text-decoration: var(--odl-haxtheme-a-text-decoration);
+      --haxtheme-syllabus-a-hover-text-decoration: var(--odl-haxtheme-a-hover-text-decoration);
+      --haxtheme-syllabus-syllabus-title-h1-font-weight: var(--odl-haxtheme-h1-font-weight);
+      --haxtheme-syllabus-h2-font-weight: var(--odl-haxtheme-h2-font-weight);
+      --haxtheme-syllabus-h2-font-size: var(--odl-haxtheme-h2-font-size);
+      --haxtheme-syllabus-policy-h2-color: var(--odl-haxtheme-accent-color-1);
+      --haxtheme-syllabus-policy-font-weight: var(--odl-haxtheme-font-weight);
+      --haxtheme-syllabus-policy-font-size: var(--odl-haxtheme-font-size);
+      --haxtheme-syllabus-policy-line-height: var(--odl-haxtheme-line-height);
+      --haxtheme-syllabus-h3-font-weight: var(--odl-haxtheme-h3-font-weight);
+      --haxtheme-syllabus-h3-font-size: var(--odl-haxtheme-h3-font-size);
+      --haxtheme-syllabus-header-border-left: var(--odl-haxtheme-header-border-left);
+      --haxtheme-syllabus-header-border-left-width: var(--odl-haxtheme-header-border-left-width);
+      --haxtheme-syllabus-site-breadcrumb-margin: var(--odl-haxtheme-site-breadcrumb-margin);
+      /* Content: Courses */
+      --haxtheme-courses-course-card-border-color: var(--odl-haxtheme-accent-color-3);
+      --haxtheme-course-h1-text-transform: var(--odl-haxtheme-text-transform);
+      --haxtheme-course-h2-font-size: var(--odl-haxtheme-h2-font-size);
+      --haxtheme-course-h2-font-weight: var(--odl-haxtheme-h2-font-weight);
+      --haxtheme-course-course-header-border-left: var(--odl-haxtheme-header-border-left);
+      --haxtheme-course-course-header-border-left-width: var(--odl-haxtheme-header-border-left-width);
+      --haxtheme-course-course-header-border-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-course-description-font-size: var(--odl-haxtheme-font-size);
+      --haxtheme-course-description-font-weight: var(--odl-haxtheme-font-weight);
+      --haxtheme-course-description-line-height: var(--odl-haxtheme-line-height);
+      /* Elements: Course Card */
+      --haxtheme-course-card-course-number-text-transform: var(--odl-haxtheme-text-transform);
+      --haxtheme-course-card-course-name-font-size: var(--odl-haxtheme-font-size);
+      --haxtheme-course-card-a-text-decoration: var(--odl-haxtheme-a-text-decoration);
+      --haxtheme-course-card-a-color: var(--odl-haxtheme-accent-color-1);
+      --haxtheme-course-card-course-icon-background-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-course-card-course-icon-border-color: var(--odl-haxtheme-accent-color-1);
+      --haxtheme-course-card-iron-icon-color: var(--odl-haxtheme-accent-color-1);
+      /* Elements: News Feed */
+      --haxtheme-news-feed-feed-header-h2-background-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-news-feed-feed-header-h2-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-news-feed-card-wrap-border-color: var(--odl-haxtheme-accent-color-3);
+      --haxtheme-news-feed-card-wrap-border-bottom-color-mobile: var(--odl-haxtheme-accent-color-3);
+      --haxtheme-news-feed-card-heading-wrap-border-left: var(--odl-haxtheme-header-border-left);
+      --haxtheme-news-feed-card-heading-wrap-border-left-width: var(--odl-haxtheme-header-border-left-width);
+      --haxtheme-news-feed-card-heading-wrap-border-left-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-news-feed-card-heading-h1-color: var(--odl-haxtheme-accent-color-1);
+      --haxtheme-news-feed-card-heading-h1-font-weight: var(--odl-haxtheme-h1-font-weight);
+      --haxtheme-news-feed-card-heading-h1-hover-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-news-feed-card-heading-a-text-decoration: var(--odl-haxtheme-a-text-decoration);
+      --haxtheme-news-feed-card-description-font-size: var(--odl-haxtheme-font-size);
+      --haxtheme-news-feed-card-description-font-weight: var(--odl-haxtheme-font-weight);
+      --haxtheme-news-feed-card-description-line-height: var(--odl-haxtheme-line-height);
+      --haxtheme-news-feed-action-button-a-text-decoration: var(--odl-haxtheme-a-text-decoration);
+      --haxtheme-news-feed-paper-button-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-news-feed-paper-button-color-active: var(--odl-haxtheme-accent-color-1);
+      /* Elements: Page Feature */
+      --haxtheme-page-feature-a-text-decoration: var(--odl-haxtheme-a-text-decoration);
+      --haxtheme-page-feature-h1-font-size: var(--odl-haxtheme-h1-font-size);
+      --haxtheme-page-feature-h1-font-weight: var(--odl-haxtheme-h1-font-weight);
+      --haxtheme-page-feature-h2-font-weight: var(--odl-haxtheme-h2-font-weight);
+      --haxtheme-page-feature-wrap-background-color: var(--odl-haxtheme-accent-color-1);
+      --haxtheme-page-feature-feature-description-wrap-background-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-page-feature-feature-description-wrap-box-shadow-color: var(--odl-haxtheme-accent-color-1);
+      --haxtheme-page-feature-title-wrap-border-left: var(--odl-haxtheme-header-border-left);
+      --haxtheme-page-feature-title-wrap-border-left-width: var(--odl-haxtheme-header-border-left-width);
+      --haxtheme-page-feature-title-wrap-border-left-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-page-feature-description-font-size: var(--odl-haxtheme-font-size);
+      --haxtheme-page-feature-description-font-weight: var(--odl-haxtheme-font-weight);
+      --haxtheme-page-feature-description-line-height: var(--odl-haxtheme-line-height);
+      --haxtheme-page-feature-sub-info-font-weight: var(--odl-haxtheme-font-weight);
+      --haxtheme-page-feature-paper-button-feature-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-page-feature-paper-button-feature-color-active: var(--odl-haxtheme-accent-color-1);
+      --haxtheme-page-feature-border-border-top-color: var(--odl-haxtheme-accent-color-2);
+      /* Elements: Promo-Tile */
+      --promo-tile-a-text-decoration: var(--odl-haxtheme-a-text-decoration);
+      --promo-tile-back-card-background-color: var(--odl-haxtheme-accent-color-2);
+      --promo-tile-front-title-h1-color: var(--odl-haxtheme-accent-color-4);
+      --promo-tile-front-title-h1-font-size: var(--odl-haxtheme-h1-font-size);
+      --promo-tile-front-title-h1-font-weight: var(--odl-haxtheme-h1-font-weight);
+      --promo-tile-front-title-h1-text-shadow-color: var(--odl-haxtheme-accent-color-1);
+      --promo-tile-back-title-h1-color: var(--odl-haxtheme-accent-color-4);
+      --promo-tile-back-title-h1-font-size: var(--odl-haxtheme-h1-font-size);
+      --promo-tile-back-title-h1-font-weight: var(--odl-haxtheme-h1-font-weight);
+      --promo-tile-back-content-font-color: var(--odl-haxtheme-accent-color-4);
+      --promo-tile-back-content-font-size: var(--odl-haxtheme-font-size);
+      --promo-tile-back-content-font-weight: var(--odl-haxtheme-font-weight);
+      --promo-tile-back-content-line-height: var(--odl-haxtheme-line-height);
+      --promo-tile-paper-button-learn-font-size: var(--odl-haxtheme-font-size);
+      --promo-tile-paper-button-learn-font-color: var(--odl-haxtheme-accent-color-4);
+      --promo-tile-paper-button-learn-border-color: var(--odl-haxtheme-accent-color-4);
+      --promo-tile-paper-button-learn-background-color-active: var(--odl-haxtheme-accent-color-1);
+      /* Elements: Info Box */
+      --haxtheme-info-box-a-text-decoration: var(--odl-haxtheme-a-text-decoration);
+      --haxtheme-info-box-h1-font-size: var(--odl-haxtheme-h1-font-size);
+      --haxtheme-info-box-h1-font-weight: var(--odl-haxtheme-h1-font-weight);
+      --haxtheme-info-box-inner-wrap-border-left: var(--odl-haxtheme-header-border-left);
+      --haxtheme-info-box-inner-wrap-border-left-width: var(--odl-haxtheme-header-border-left-width);
+      --haxtheme-info-box-inner-wrap-border-left-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-info-box-action-text-font-weight: var(--odl-haxtheme-font-weight);
+      --haxtheme-info-box-action-text-line-height: var(--odl-haxtheme-line-height);
+      --haxtheme-info-box-paper-button-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-info-box-paper-button-color-active: var(--odl-haxtheme-accent-color-1);
+      /* Elements: Page Banner */
+      --haxtheme-page-banner-image-text-h1-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-page-banner-image-text-h1-font-weight: var(--odl-haxtheme-h1-font-weight);
+      /* Elements: Homepage Banner */
+      --haxtheme-homepage-banner-image-text-h1-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-homepage-banner-image-text-h1-font-weight: var(--odl-haxtheme-h1-font-weight);
+      --haxtheme-homepage-banner-branding-wrap-background-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-homepage-banner-branding-wrap-border-top-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-homepage-banner-logo-image-border-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-homepage-banner-logo-image-background-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-homepage-banner-company-name-h2-color: var(--odl-haxtheme-accent-color-4);
+      /* Elements: Team Card */
+      --haxtheme-team-card-image-border-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-team-card-info-container-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-team-card-name-border-bottom-color: var(--odl-haxtheme-accent-color-4);
+      /* Elements: Page Footer */
+      --haxtheme-page-footer-social-wrap-background-color: var(--odl-haxtheme-accent-color-1);
+      --haxtheme-page-footer-iron-icon-fill: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-page-footer-info-wrap-background-color: var(--odl-haxtheme-accent-color-2);
+      --haxtheme-page-footer-address-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-page-footer-address-font-weight: var(--odl-haxtheme-font-weight);
+      --haxtheme-page-footer-address-font-size: var(--odl-haxtheme-font-size);
+      --haxtheme-page-footer-basement-font-size: var(--odl-haxtheme-font-size);
+      --haxtheme-page-footer-basement-font-weight: var(--odl-haxtheme-font-weight);
+      --haxtheme-page-footer-legal-item-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-page-footer-legal-item-border-right-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-page-footer-legal-item-a-text-decoration: var(--odl-haxtheme-a-text-decoration);
+      --haxtheme-page-footer-legal-item-a-color: var(--odl-haxtheme-accent-color-4);
+      --haxtheme-page-footer-odl-mark-a-background-color: var(--odl-haxtheme-accent-color-2); 
+    }
+
+    a {
+        color: var(--odl-haxtheme-a-color);
+        font-weight: var(--odl-haxtheme-font-weight);
+        font-size: var(--odl-haxtheme-a-font-size);
+        text-decoration: var(--odl-haxtheme-a-text-decoration);
+    }
+
+    a:active,
+    a:focus,
+    a:hover {
+      color: var(--odl-haxtheme-a-hover-color);
+      text-decoration: var(--odl-haxtheme-a-hover-text-decoration);
+    }
+
+    h1 {
+      font-size: var(--odl-haxtheme-h1-font-size);
+      font-weight: var(--odl-haxtheme-h1-font-weight);
+    }
+
+    h2 {
+      font-size: var(--odl-haxtheme-h2-font-size);
+      font-weight: var(--odl-haxtheme-h2-font-weight);
+    }
+    
+
+
+
+
   </style>
 </head>
 

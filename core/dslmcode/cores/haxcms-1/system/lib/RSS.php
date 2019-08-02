@@ -32,7 +32,7 @@ class FeedMe
             $site->language .
             '</language>
     <lastBuildDate>' .
-            date('r', $site->manifest->metadata->updated) .
+            date(\DateTime::RSS, $site->manifest->metadata->updated) .
             '</lastBuildDate>
     <atom:link href="' .
             $domain .
@@ -45,14 +45,17 @@ class FeedMe
     /**
      * Generate RSS items.
      */
-    public function rssItems($site)
+    public function rssItems($site, $limit = 25)
     {
         $output = '';
         $domain = "";
+        $count = 0;
         if (isset($site->manifest->metadata->domain)) {
             $domain = $site->manifest->metadata->domain;
         }
-        foreach ($site->manifest->items as $key => $item) {
+        $items = $site->sortItems('created');
+        $siteDirectory = $site->directory . '/' . $site->manifest->metadata->siteName;
+        foreach ($items as $key => $item) {
             $tags = '';
             // beyond edge but don't want this to erorr on write
             if (!isset($item->metadata)) {
@@ -65,6 +68,7 @@ class FeedMe
             if (isset($item->metadata->tags)) {
                 $tags = implode(',', $item->metadata->tags);
             }
+            if ($count < $limit) {
             $output .=
                 '
     <item>
@@ -82,7 +86,7 @@ class FeedMe
                 '</link>
       <description>
           <![CDATA[ ' .
-                $item->description .
+                file_get_contents($siteDirectory . '/' . $item->location) .
                 ' ]]>
       </description>
       <category>' .
@@ -98,9 +102,11 @@ class FeedMe
                 ) .
                 '</guid>
       <pubDate>' .
-                date("r", strtotime($item->metadata->created)) .
+                date(\DateTime::RSS, $item->metadata->created) .
                 '</pubDate>
     </item>';
+            }
+            $count++;
         }
         return $output;
     }
@@ -142,14 +148,17 @@ class FeedMe
     /**
      * Generate Atom items.
      */
-    public function atomItems($site)
+    public function atomItems($site, $limit = 25)
     {
         $output = '';
         $domain = "";
+        $count = 0;
         if (isset($site->manifest->metadata->domain)) {
             $domain = $site->manifest->metadata->domain;
         }
-        foreach ($site->manifest->items as $key => $item) {
+        $items = $site->sortItems('created');
+        $siteDirectory = $site->directory . '/' . $site->manifest->metadata->siteName;
+        foreach ($items as $key => $item) {
             $tags = '';
             // beyond edge but don't want this to erorr on write
             if (!isset($item->metadata)) {
@@ -165,6 +174,7 @@ class FeedMe
                         '<category term="' . $tag . '" label="' . $tag . '" />';
                 }
             }
+            if ($count < $limit) {
             $output .=
                 '
   <entry>
@@ -203,10 +213,12 @@ class FeedMe
                 '
     <content type="html">
       <![CDATA[ ' .
-                $item->description .
+                file_get_contents($siteDirectory . '/' . $item->location) .
                 ' ]]>
     </content>
   </entry>';
+            }
+            $count++;
         }
         return $output;
     }

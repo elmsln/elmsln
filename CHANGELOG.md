@@ -1,3 +1,13 @@
+## ELMS:LN 0.11.0 - 2019-08-02 - Headless by default
+Over a year in the making, this moves us onto V1 spec webcomponents and increasingly more headless.
+HAXcms is now actually included under the hood and it's build routine powers the ELMS:LN universe.
+This allows the team to focus on both projects via the same build routine. HAX has seen an incredible
+amount of performance, quality, capability, and accuracy enhancements over the last year and is starting
+to find its way outside of the ELMS:LN ecosystem with improvements submitted to the UX of the project
+worked back in from both front end and other CMS communities.
+
+To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/20?closed=1
+
 ## ELMS:LN 0.10.0 - 2018-06-29 - #haxtheelms
 3 years after the idea was expressed, the team finally has build a truly decoupled, transformative authoring experience. After months of development, testing, and talk, action is materialized. We present you with the HAX authoring system baked into ELMS:LN, out of the box, highly preformance optimized, with tons of great elements and integrations from day 1. For the moment, there are effectively two editing modes while we engage in deeper, production level testing and broader UX testing of HAX. There's traditional edit mode, and HAX editor which unleashes the power of web components for the masses. #haxtheweb is also bringing together people across multiple platforms to unite on front-end based UX patterns and design assets.
 

@@ -35,7 +35,7 @@ fi
 fin exec ln -s /var/www/ /var/www/html
 fin exec bash /var/www/scripts/github-publishing-ssh.sh
 fin exec sudo chmod 755 ~/.config
-fin exec bash /var/www/scripts/haxtheweb.sh admin admin admin@admin.admin admin
+fin exec bash /var/www/scripts/haxtheweb.sh admin admin
 echo -en "${green_bg} DONE! ${NC} "
 echo -e "Open ${yellow}http://${VIRTUAL_HOST}${NC} in your browser to verify the setup."
 

@@ -147,6 +147,19 @@ class HAXCMS
                 foreach ($themeData as $name => $data) {
                     $this->config->themes->{$name} = $data;
                 }
+                // dynamicImporter
+                if (!isset($this->config->dynamicElementLoader)) {
+                    $this->config->dynamicElementLoader = new stdClass();
+                }
+                // load in core dynamicElementLoader data
+                $dynamicElementLoader = json_decode(
+                    file_get_contents(
+                        HAXCMS_ROOT . '/system/coreConfig/dynamicElementLoader.json'
+                    )
+                );
+                foreach ($dynamicElementLoader as $name => $data) {
+                    $this->config->dynamicElementLoader->{$name} = $data;
+                }
                 // publishing endpoints
                 if (!isset($this->config->publishing)) {
                     $this->config->publishing = new stdClass();

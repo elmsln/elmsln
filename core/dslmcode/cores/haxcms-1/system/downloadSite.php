@@ -6,12 +6,7 @@ if ($HAXCMS->validateJWT()) {
     // load site
     $site = $HAXCMS->loadSite($HAXCMS->safePost['siteName']);
     // helpful boilerplate https://stackoverflow.com/questions/29873248/how-to-zip-a-whole-directory-and-download-using-php
-    if (is_dir(HAXCMS_ROOT . '/' . $HAXCMS->publishedDirectory . '/' . $site->name)) {
-      $dir = HAXCMS_ROOT . '/' . $HAXCMS->publishedDirectory . '/' . $site->name;
-    }
-    else {
-      $dir = HAXCMS_ROOT . '/' . $HAXCMS->sitesDirectory . '/' . $site->name;
-    }
+    $dir = HAXCMS_ROOT . '/' . $HAXCMS->sitesDirectory . '/' . $site->name;
     // form a basic name
     $zip_file =
         HAXCMS_ROOT .
@@ -19,8 +14,6 @@ if ($HAXCMS->validateJWT()) {
         $HAXCMS->publishedDirectory .
         '/' .
         $site->name .
-        '-' .
-        time() .
         '.zip';
     // Get real path for our folder
     $rootPath = realpath($dir);
@@ -29,7 +22,7 @@ if ($HAXCMS->validateJWT()) {
     $zip->open($zip_file, ZipArchive::CREATE | ZipArchive::OVERWRITE);
     // Create recursive directory iterator
     $directory = new RecursiveDirectoryIterator($rootPath);
-    $filtered = new DirFilter($directory, array('.git', 'node_modules'));
+    $filtered = new DirFilter($directory, array('node_modules'));
     $files = new RecursiveIteratorIterator($filtered);
     foreach ($files as $name => $file) {
         // Skip directories (they would be added automatically)

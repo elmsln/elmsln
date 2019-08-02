@@ -1,12 +1,23 @@
 <?php
 // basic global debugging
-function hax500Debug()
+function haxGlobalDebug()
 {
     if ($err = error_get_last()) {
+      if ($err['type'] === E_ERROR) {
         die('<pre>' . print_r($err, true) . '</pre>');
+      }
+      else if ($err['type'] === E_WARNING) {
+        //die('<pre>' . print_r($err, true) . '</pre>');
+      }
+      else if ($err['type'] === E_PARSE) {
+        //die('<pre>' . print_r($err, true) . '</pre>');
+      }
+      else if ($err['type'] === E_NOTICE) {
+        //die('<pre>' . print_r($err, true) . '</pre>');
+      }
     }
 }
-register_shutdown_function('hax500Debug');
+register_shutdown_function('haxGlobalDebug');
 // register our global CMS variable for the whole damn thing
 global $HAXCMS;
 global $config;

@@ -21,7 +21,7 @@ if ($HAXCMS->validateJWT()) {
             $git = new Git();
             $siteDirectoryPath =
                 $site->directory . '/' . $site->manifest->metadata->siteName;
-            $repo = $git->open($siteDirectoryPath);
+            $repo = $git->open($siteDirectoryPath, true);
             // ensure we're on master and everything is added
             $repo->checkout('master');
             // Try to build a reasonable "domain" value
@@ -63,6 +63,11 @@ if ($HAXCMS->validateJWT()) {
                     $site->manifest->metadata->siteName .
                     '/';
             }
+            // ensure we have the latest dynamic element loader since it may have improved from
+            // when we first launched this site, HAX would have these definitions as well but
+            // when in production, appstore isn't around so the user may have added custom
+            // things that they care about but now magically in a published state its gone
+            $site->manifest->metadata->dynamicElementLoader = $HAXCMS->config->dynamicElementLoader;
             // set last published time to now
             $site->manifest->metadata->lastPublished = time();
             $site->manifest->metadata->publishedLocation = $domain;
