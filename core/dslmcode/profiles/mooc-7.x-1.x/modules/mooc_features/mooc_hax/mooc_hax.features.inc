@@ -21,7 +21,12 @@ function mooc_hax_filter_default_formats_alter(&$data) {
     $data['textbook_editor']['filters']['webcomponents_cmstags'] = array(
       'settings' => array(),
       'status' => 1,
-      'weight' => -50,
+      'weight' => -49,
+    ); /* WAS: '' */
+    $data['textbook_editor']['filters']['webcomponents_cmstags_jsonfix'] = array(
+      'settings' => array(),
+      'status' => 1,
+      'weight' => -43,
     ); /* WAS: '' */
   }
 }

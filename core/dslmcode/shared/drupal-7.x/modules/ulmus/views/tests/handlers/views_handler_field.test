@@ -6,11 +6,15 @@
  */
 
 /**
- * Tests the generic field handler
+ * Tests the generic field handler.
  *
  * @see views_handler_field
  */
 class ViewsHandlerFieldTest extends ViewsSqlTest {
+
+  /**
+   *
+   */
   public static function getInfo() {
     return array(
       'name' => 'Field',
@@ -19,6 +23,9 @@ class ViewsHandlerFieldTest extends ViewsSqlTest {
     );
   }
 
+  /**
+   *
+   */
   protected function setUp() {
     parent::setUp();
     $this->column_map = array(
@@ -26,17 +33,12 @@ class ViewsHandlerFieldTest extends ViewsSqlTest {
     );
   }
 
-  function testEmpty() {
-    $this->_testHideIfEmpty();
-    $this->_testEmptyText();
-  }
-
   /**
    * Tests the hide if empty functionality.
    *
    * This tests alters the result to get easier and less coupled results.
    */
-  function _testHideIfEmpty() {
+  public function testHideIfEmpty() {
     $view = $this->getBasicView();
     $view->init_display();
     $this->executeView($view);
@@ -139,7 +141,8 @@ class ViewsHandlerFieldTest extends ViewsSqlTest {
     $render = $view->field['name']->advanced_render($view->result[0]);
     $this->assertIdentical($render, $random_name, 'If the rewritten string is not empty, "0" should not be treated as empty.');
 
-    // Test when results are rewritten to an empty string and non-zero empty results are hidden.
+    // Test when results are rewritten to an empty string and non-zero empty
+    // results are hidden.
     $view->field['name']->options['hide_alter_empty'] = TRUE;
     $view->field['name']->options['hide_empty'] = TRUE;
     $view->field['name']->options['empty_zero'] = FALSE;
@@ -254,7 +257,7 @@ class ViewsHandlerFieldTest extends ViewsSqlTest {
   /**
    * Tests the usage of the empty text.
    */
-  function _testEmptyText() {
+  public function testEmptyText() {
     $view = $this->getBasicView();
     $view->init_display();
     $this->executeView($view);
@@ -291,7 +294,7 @@ class ViewsHandlerFieldTest extends ViewsSqlTest {
   /**
    * Tests views_handler_field::is_value_empty().
    */
-  function testIsValueEmpty() {
+  public function testIsValueEmpty() {
     $view = $this->getBasicView();
     $view->init_display();
     $view->init_handlers();

@@ -1,0 +1,12 @@
+name: haxcms
+recipe: lemp
+config:
+  php: "7.2"
+  webroot: .
+tooling:
+  magic:
+    service: appserver
+    cmd: bash scripts/haxtheweb.sh admin admin && bash scripts/github-publishing-ssh.sh && sudo chmod 755 /home/.config
+events:
+  post-start:
+    - cd $LANDO_WEBROOT && bash scripts/haxtheweb.sh admin admin

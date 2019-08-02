@@ -117,7 +117,7 @@ function image_styles_admin_export_form($form, $form_state, $style) {
     '#type' => 'textarea',
   	'#rows' => 5,
   	'#title' => t('Image style export data'),
-  	'#default_value' => image_styles_admin_export_serialize($style),
+  	'#default_value' => image_styles_admin_style_to_string($style),
   	'#attributes' => array('readonly' =>'readonly'),
   	'#description' => t('Copy the contents of this field to the clipboard and, on another site, paste it in the textarea of an %page_title page.',
       array('%page_title' => t('Import image style'))),
@@ -178,16 +178,16 @@ function image_styles_admin_import_form_submit($form, &$form_state) {
 }
 
 /**
- * Serializes image style data so it can be exported.
+ * Converts image style data into a json string so it can be exported.
  *
  * @param array $style
  *   An image style array.
  *
  * @return string
- *   The serialized image style. Keys that are not needed for import are not
- *   serialized.
+ *   The image style converted to a string. Keys that are not needed for import
+ *   are not serialized.
  */
-function image_styles_admin_export_serialize($style) {
+function image_styles_admin_style_to_string($style) {
   $style = array_intersect_key($style, array('name' => 0, 'label' => 0, 'effects' => 0));
   foreach ($style['effects'] as &$effect) {
     $effect = array_intersect_key($effect, array('weight' => 0, 'name' => 0, 'data' => 0));
@@ -198,16 +198,14 @@ function image_styles_admin_export_serialize($style) {
       $value = image_styles_admin_unify_newlines($value);
     }
   });
-  return serialize($style);
+  return json_encode($style);
 }
 
 /**
  * Unifies newlines in the string to the Unix newline standard.
  *
  * #2636314: textareas may convert newlines to the underlying OS style: convert
- * all new lines to Unix style before unserializing. As string length is in the
- * serialized data, we must ensure that we also do this on each array value
- * before serializing.
+ * all new lines to Unix style before stringifying an image style.
  *
  * @param string $str
  *
@@ -220,17 +218,41 @@ function image_styles_admin_unify_newlines($str) {
 }
 
 /**
- * Unserializes and validates a string into image style data.
+ * Decodes and validates a json string into image style data.
+ *
+ * Some notes on any security implications for creating styles like this:
+ * - json_decode() is considered safe regardless of the contents give to it.
+ * - Not expected array entries are subsequently removed (array_intersect_key)
+ *   thus the return will not contain unexpected array entries
+ * - Values with known types are checked.
+ * - Effect data array is not checked as it cannot be checked. Possibly unsafe
+ *   but:
+ *   - Proper checking and/or converting to int/float/bool while processing an
+ *     image derivative is the responsibility of the image effect.
+ *   - Effect data is only shown to a user on the edit form and in the image
+ *     effect summary theme. Proper escaping and/or converting to int/float/bool
+ *     in the theme before rendering it is again the responsibility of the image
+ *     effect. On the form it is the form api that will do so.
+ * - Effect data may contain PHP code and if the image effect is allowing this
+ *   it may get [php_]eval()'ed. The image effects themselves should check for
+ *   the 'use PHP for settings' permission on the create/edit form and check
+ *   that the PHP module is enabled on execution (that is: during image
+ *   derivative creation).
+ *   However, we cannot do so on importing as we cannot know if the imported
+ *   image style contains image effects that allow PHP code. Therefore, we use a
+ *   separate access right for importing styles that is to be considered having
+ *   the same security implications as the 'use PHP for settings' right (from
+ *   the PHP module) and thus should only be given to highly trusted users.
  *
  * @param string $import
- *   The string representation of a @see serialize()'d image style array.
+ *   The json representation of an image style array.
  *
  * @return array|false
- *   An image style array or false if the string could not be unserialized into
+ *   An image style array or false if the string could not be decoded into
  *   image style data.
  */
 function image_styles_admin_import_extract_style($import) {
-  $style = unserialize($import);
+  $style = json_decode($import, TRUE);
 
   // Check if the contents of the textarea could be unserialized into an array.
   if (!is_array($style)) {
@@ -280,30 +302,5 @@ function image_styles_admin_import_extract_style($import) {
     }
   }
 
-  // @todo: are there any security implications for creating styles like this?
-  // - Unserialize() is save in itself: it only creates data (except possibly
-  //   for__wakeup(), but that can only be in already existing code: safe
-  // - Not expected array entries are removed (array_intersect_key): safe
-  // - Basic types are checked: safe
-  // - Effect data array is not checked. Possibly unsafe?! The effect data array
-  //   contains the effect parameters. Normally these are entered and validated
-  //   via a form and subsequently saved in the database (serialized as here).
-  //   The form validation is not executed on import and thus the data may
-  //   contain invalid values. This is acceptable as it can also be done by
-  //   operating directly on the database. In Drupal this is not normally
-  //   checked for during processing: error messages will make clear that the
-  //   data has been played with. Can incorrect data be abused? It may contain:
-  //   - incorrect types: we do not know the data structure of the various
-  //     effects, so we cannot check that and have to accept it as it comes.
-  //     Effects should check_plain in summary theme and convert to int/float
-  //     whenever possible before using it in commands.
-  //   - PHP code, but that may be valid content for the text or custom effects:
-  //     Effects should check_plain in summary theme and convert to int/float
-  //     whenever possible before using it in commands.
-  //     @todo: if the style contains an effect that contains PHP code, the user
-  //     should need the 'use PHP for settings' permission.
-  //   - HTML and or JS code: when used as parameter, this normally won't hurt.
-  //     When showing on the screen (summary theme), proper escaping should
-  //     suffice and is needed anyway: responsibility of effect.
   return $style;
 }

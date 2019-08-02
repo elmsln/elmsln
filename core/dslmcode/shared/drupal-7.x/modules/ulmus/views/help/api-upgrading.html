@@ -113,9 +113,9 @@ The views_handler class got two new functions:
 /**
  * Get the value that's supposed to be rendered.
  *
- * @param $values
+ * @param object $values
  *   An object containing all retrieved values.
- * @param $field
+ * @param string $field
  *   Optional name of the field where the value is stored.
  */
 function get_value($values, $field = NULL) {
@@ -128,9 +128,9 @@ function get_value($values, $field = NULL) {
 /**
  * Sanitize the value for output.
  *
- * @param $value
+ * @param string $value
  *   The value being rendered.
- * @param $type
+ * @param string $type
  *   The type of sanitization needed. If not provided, check_plain() is used.
  */
 function sanitize_value($value, $type = NULL) {
@@ -138,9 +138,11 @@ function sanitize_value($value, $type = NULL) {
     case 'xss':
       $value = filter_xss($value);
       break;
+
     case 'url':
       $value = check_url($value);
       break;
+
     default:
       $value = check_plain($value);
       break;

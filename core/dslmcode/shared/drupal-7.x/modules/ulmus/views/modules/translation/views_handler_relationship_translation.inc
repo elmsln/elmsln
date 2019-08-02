@@ -12,7 +12,11 @@
  * @ingroup views_relationship_handlers
  */
 class views_handler_relationship_translation extends views_handler_relationship {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['language'] = array('default' => 'current');
 
@@ -22,7 +26,7 @@ class views_handler_relationship_translation extends views_handler_relationship 
   /**
    * Add a translation selector.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     $options = array(
@@ -43,7 +47,7 @@ class views_handler_relationship_translation extends views_handler_relationship 
   /**
    * Called to implement a relationship in a query.
    */
-  function query() {
+  public function query() {
     // Figure out what base table this relationship brings to the party.
     $table_data = views_fetch_data($this->definition['base']);
     $base_field = empty($this->definition['base field']) ? $table_data['table']['base']['field'] : $this->definition['base field'];
@@ -68,12 +72,14 @@ class views_handler_relationship_translation extends views_handler_relationship 
             'value' => '***CURRENT_LANGUAGE***',
           );
           break;
+
         case 'default':
           $def['extra'][] = array(
             'field' => 'language',
             'value' => '***DEFAULT_LANGUAGE***',
           );
           break;
+
         // Other values will be the language codes.
         default:
           $def['extra'][] = array(
@@ -92,12 +98,14 @@ class views_handler_relationship_translation extends views_handler_relationship 
     }
 
     $join->definition = $def;
+    $join->extra = "(%alias.tnid != 0  OR ({$def['left_table']}.tnid = 0 AND %alias.nid = {$def['left_table']}.nid))";
     $join->construct();
     $join->adjusted = TRUE;
 
-    // use a short alias for this:
+    // Use a short alias for this.
     $alias = $def['table'] . '_' . $this->table;
 
     $this->alias = $this->query->add_relationship($alias, $join, $this->definition['base'], $this->relationship);
   }
+
 }

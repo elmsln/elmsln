@@ -9,6 +9,8 @@
  * Implements hook_install().
  */
 function quiz_page_install() {
-  // Add body field to quiz pages node
+  // Add body field to quiz pages node.
   quiz_question_add_body_field('quiz_page');
+
+  variable_set('node_options_quiz_page', array('status'));
 }

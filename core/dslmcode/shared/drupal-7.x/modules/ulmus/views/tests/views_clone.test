@@ -1,0 +1,277 @@
+<?php
+
+/**
+ * Tests cloning a view.
+ */
+class ViewsCloneTest extends ViewsSqlTest {
+
+  /**
+   * Provide the test's meta information.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Test cloning a view',
+      'description' => 'Tests clone_view method of views class',
+      'group' => 'Views',
+    );
+  }
+
+  /**
+   * Returns a new term with random properties in vocabulary $vocabulary.
+   */
+  protected function createTerm($vocabulary) {
+    $term = new stdClass();
+    $term->name = $this->randomName();
+    $term->description = $this->randomName();
+    // Use the first available text format.
+    $term->format = db_query_range('SELECT format FROM {filter_format}', 0, 1)->fetchField();
+    $term->vid = $vocabulary->vid;
+    taxonomy_term_save($term);
+    return $term;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    $vocabulary = taxonomy_vocabulary_machine_name_load('tags');
+    $this->term = $this->createTerm($vocabulary);
+
+    $node = array();
+    $node['type'] = 'article';
+    $node['field_tags'][LANGUAGE_NONE][]['tid'] = $this->term->tid;
+    $this->node = $this->drupalCreateNode($node);
+  }
+
+  /**
+   * Test cloning a view.
+   */
+  public function testClone() {
+    // Prepare view to be cloned.
+    $view = $this->getTestCloneView();
+    $view->set_arguments(array(
+      0 => $this->node->nid,
+    ));
+    $view->set_exposed_input(array(
+      'field_tags_tid' => $this->term->tid,
+    ));
+
+    // Execute view to be cloned.
+    $result = $view->execute();
+
+    // To make sure that we are properly testing removal of all properties, we
+    // first need to assert that they are actually present in the original view.
+    $keys = array(
+      'current_display',
+      'display_handler',
+      'field',
+      'argument',
+      'filter',
+      'sort',
+      'relationship',
+      'header',
+      'footer',
+      'empty',
+      'query',
+      'inited',
+      'style_plugin',
+      'plugin_name',
+      'exposed_data',
+      'exposed_input',
+      'exposed_widgets',
+      'many_to_one_aliases',
+      'many_to_one_tables',
+      'feed_icon',
+    );
+    foreach ($keys as $key) {
+      $this->assertTrue(isset($view->{$key}), $key . 'is set in original view.');
+    }
+    $this->assertTrue($view->built, 'Assert original view built.');
+    $this->assertTrue($view->executed, 'Assert original view executed.');
+    $this->assertNotEqual($view->build_info, array(), 'Assert original view has build_info.');
+    $this->assertNotEqual($view->attachment_before, '', 'Assert original view has attachment_before.');
+    $this->assertNotEqual($view->attachment_after, '', 'Assert original view has attachment_after.');
+    $this->assertNotEqual($view->result, array(), 'Assert original view has result.');
+
+    // Clone view.
+    $clone = $view->clone_view();
+
+    // Assert that all relevant properties have been removed or reset.
+    $keys = array(
+      'current_display',
+      'display_handler',
+      'field',
+      'argument',
+      'filter',
+      'sort',
+      'relationship',
+      'header',
+      'footer',
+      'empty',
+      'query',
+      'inited',
+      'style_plugin',
+      'plugin_name',
+      'exposed_data',
+      'exposed_input',
+      'exposed_widgets',
+      'many_to_one_aliases',
+      'many_to_one_tables',
+      'feed_icon',
+    );
+    foreach ($keys as $key) {
+      $this->assertFalse(isset($clone->{$key}), $key . ' has been removed in cloned view.');
+    }
+    foreach ($clone->display as $id => $display) {
+      $this->assertFalse(isset($clone->display[$id]->handler), 'Make sure all display handlers have been destroyed.');
+    }
+    $this->assertFalse($clone->built, 'Assert cloned view not built.');
+    $this->assertFalse($clone->executed, 'Assert cloned view not executed.');
+    $this->assertEqual($clone->build_info, array(), 'Assert cloned view has empty build_info.');
+    $this->assertEqual($clone->attachment_before, '', 'Assert cloned view has empty attachment_before.');
+    $this->assertEqual($clone->attachment_after, '', 'Assert cloned view has empty attachment_after.');
+    $this->assertEqual($clone->result, array(), 'Assert cloned view has empty result.');
+
+    // Execute cloned view.
+    $clone->execute();
+
+    // Assert result sets are equal.
+    $this->assertEqual($view->result, $clone->result, 'Result sets of cloned view and original view match.');
+  }
+
+  /**
+   * Generate test_clone view.
+   */
+  protected function getTestCloneView() {
+    $view = new view();
+    $view->name = 'test_clone';
+    $view->description = '';
+    $view->tag = 'default';
+    $view->base_table = 'node';
+    $view->human_name = 'test_clone';
+    $view->core = 7;
+    $view->api_version = '3.0';
+    $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+    /* Display: Master */
+    $handler = $view->new_display('default', 'Master', 'default');
+    $handler->display->display_options['title'] = 'test_clone';
+    $handler->display->display_options['use_more_always'] = FALSE;
+    $handler->display->display_options['access']['type'] = 'perm';
+    $handler->display->display_options['cache']['type'] = 'none';
+    $handler->display->display_options['query']['type'] = 'views_query';
+    $handler->display->display_options['exposed_form']['type'] = 'basic';
+    $handler->display->display_options['pager']['type'] = 'full';
+    $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+    $handler->display->display_options['style_plugin'] = 'default';
+    $handler->display->display_options['row_plugin'] = 'node';
+    /* Header: Global: Text area */
+    $handler->display->display_options['header']['area']['id'] = 'area';
+    $handler->display->display_options['header']['area']['table'] = 'views';
+    $handler->display->display_options['header']['area']['field'] = 'area';
+    $handler->display->display_options['header']['area']['label'] = 'Header';
+    $handler->display->display_options['header']['area']['content'] = 'Header';
+    $handler->display->display_options['header']['area']['format'] = 'filtered_html';
+    /* Footer: Global: Text area */
+    $handler->display->display_options['footer']['area']['id'] = 'area';
+    $handler->display->display_options['footer']['area']['table'] = 'views';
+    $handler->display->display_options['footer']['area']['field'] = 'area';
+    $handler->display->display_options['footer']['area']['label'] = 'Footer';
+    $handler->display->display_options['footer']['area']['content'] = 'Footer';
+    $handler->display->display_options['footer']['area']['format'] = 'filtered_html';
+    /* No results behavior: Global: Text area */
+    $handler->display->display_options['empty']['area']['id'] = 'area';
+    $handler->display->display_options['empty']['area']['table'] = 'views';
+    $handler->display->display_options['empty']['area']['field'] = 'area';
+    $handler->display->display_options['empty']['area']['label'] = 'Empty';
+    $handler->display->display_options['empty']['area']['empty'] = TRUE;
+    $handler->display->display_options['empty']['area']['content'] = 'Empty';
+    $handler->display->display_options['empty']['area']['format'] = 'filtered_html';
+    /* Relationship: Comment: Last Comment */
+    $handler->display->display_options['relationships']['cid']['id'] = 'cid';
+    $handler->display->display_options['relationships']['cid']['table'] = 'node_comment_statistics';
+    $handler->display->display_options['relationships']['cid']['field'] = 'cid';
+    /* Field: Content: Title */
+    $handler->display->display_options['fields']['title']['id'] = 'title';
+    $handler->display->display_options['fields']['title']['table'] = 'node';
+    $handler->display->display_options['fields']['title']['field'] = 'title';
+    $handler->display->display_options['fields']['title']['label'] = '';
+    $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+    $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+    /* Sort criterion: Content: Post date */
+    $handler->display->display_options['sorts']['created']['id'] = 'created';
+    $handler->display->display_options['sorts']['created']['table'] = 'node';
+    $handler->display->display_options['sorts']['created']['field'] = 'created';
+    $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+    /* Contextual filter: Content: Nid */
+    $handler->display->display_options['arguments']['nid']['id'] = 'nid';
+    $handler->display->display_options['arguments']['nid']['table'] = 'node';
+    $handler->display->display_options['arguments']['nid']['field'] = 'nid';
+    $handler->display->display_options['arguments']['nid']['default_argument_type'] = 'fixed';
+    $handler->display->display_options['arguments']['nid']['summary']['number_of_records'] = '0';
+    $handler->display->display_options['arguments']['nid']['summary']['format'] = 'default_summary';
+    $handler->display->display_options['arguments']['nid']['summary_options']['items_per_page'] = '25';
+    /* Filter criterion: Content: Published */
+    $handler->display->display_options['filters']['status']['id'] = 'status';
+    $handler->display->display_options['filters']['status']['table'] = 'node';
+    $handler->display->display_options['filters']['status']['field'] = 'status';
+    $handler->display->display_options['filters']['status']['value'] = 'All';
+    $handler->display->display_options['filters']['status']['group'] = 1;
+    $handler->display->display_options['filters']['status']['exposed'] = TRUE;
+    $handler->display->display_options['filters']['status']['expose']['operator_id'] = '';
+    $handler->display->display_options['filters']['status']['expose']['label'] = 'Published';
+    $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
+    $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
+    $handler->display->display_options['filters']['status']['expose']['remember_roles'] = array(
+      2 => '2',
+    );
+    /* Filter criterion: Content: Tags (field_tags) */
+    $handler->display->display_options['filters']['field_tags_tid']['id'] = 'field_tags_tid';
+    $handler->display->display_options['filters']['field_tags_tid']['table'] = 'field_data_field_tags';
+    $handler->display->display_options['filters']['field_tags_tid']['field'] = 'field_tags_tid';
+    $handler->display->display_options['filters']['field_tags_tid']['exposed'] = TRUE;
+    $handler->display->display_options['filters']['field_tags_tid']['expose']['operator_id'] = 'field_tags_tid_op';
+    $handler->display->display_options['filters']['field_tags_tid']['expose']['label'] = 'Tags (field_tags)';
+    $handler->display->display_options['filters']['field_tags_tid']['expose']['operator'] = 'field_tags_tid_op';
+    $handler->display->display_options['filters']['field_tags_tid']['expose']['identifier'] = 'field_tags_tid';
+    $handler->display->display_options['filters']['field_tags_tid']['expose']['remember_roles'] = array(
+      2 => '2',
+    );
+    $handler->display->display_options['filters']['field_tags_tid']['reduce_duplicates'] = TRUE;
+    $handler->display->display_options['filters']['field_tags_tid']['type'] = 'select';
+    $handler->display->display_options['filters']['field_tags_tid']['vocabulary'] = 'tags';
+    /* Display: Page */
+    $handler = $view->new_display('page', 'Page', 'page');
+    $handler->display->display_options['path'] = 'test-clone';
+    /* Display: attachment_before */
+    $handler = $view->new_display('attachment', 'attachment_before', 'attachment_1');
+    $handler->display->display_options['pager']['type'] = 'some';
+    $handler->display->display_options['displays'] = array(
+      'default' => 'default',
+      'page' => 'page',
+    );
+    $handler->display->display_options['inherit_exposed_filters'] = TRUE;
+    /* Display: attachment_after */
+    $handler = $view->new_display('attachment', 'attachment_after', 'attachment_2');
+    $handler->display->display_options['pager']['type'] = 'some';
+    $handler->display->display_options['displays'] = array(
+      'default' => 'default',
+      'page' => 'page',
+    );
+    $handler->display->display_options['attachment_position'] = 'after';
+    $handler->display->display_options['inherit_exposed_filters'] = TRUE;
+    /* Display: Feed */
+    $handler = $view->new_display('feed', 'Feed', 'feed_1');
+    $handler->display->display_options['pager']['type'] = 'some';
+    $handler->display->display_options['style_plugin'] = 'rss';
+    $handler->display->display_options['row_plugin'] = 'node_rss';
+    $handler->display->display_options['path'] = 'test_clone/rss';
+    $handler->display->display_options['displays'] = array(
+      'default' => 'default',
+      'page' => 'page',
+    );
+    return $view;
+  }
+
+}

@@ -14,8 +14,7 @@ $plugin = array(
     'class' => 'ViewsUiFileManagedViewsWizard',
   ),
   'title' => t('Files'),
-  'filters' => array(
-  ),
+  'filters' => array(),
   'path_field' => array(
     'id' => 'uri',
     'table' => 'file_managed',

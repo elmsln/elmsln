@@ -24,15 +24,29 @@ class QuizQuestionNumbering extends QuizTestCase {
     $quiz_node = $this->drupalCreateQuiz();
 
     // Create the questions.
-    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text')))));
-    $this->linkQuestionToQuiz($question_node1, $quiz_node); // QNR ID 1
-    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 2 body text')))));
-    $this->linkQuestionToQuiz($question_node2, $quiz_node); // QNR ID 2
-    $question_node3 = $this->drupalCreateNode(array('type' => 'quiz_directions', 'body' => array(LANGUAGE_NONE => array(array('value' => 'QD 3 body text')))));
-    $this->linkQuestionToQuiz($question_node3, $quiz_node);  // QNR ID 3
+    $question_node1 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text')))
+    ));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 2 body text'))),
+    ));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+    $question_node3 = $this->drupalCreateNode(array(
+      'type' => 'quiz_directions',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'QD 3 body text'))),
+    ));
+    $this->linkQuestionToQuiz($question_node3, $quiz_node);
     // Create the page.
-    $page_node1 = $this->drupalCreateNode(array('type' => 'quiz_page', 'body' => array(LANGUAGE_NONE => array(array('value' => 'PG 1 body text')))));
-    $this->linkQuestionToQuiz($page_node1, $quiz_node); // QNR ID 4
+    $page_node1 = $this->drupalCreateNode(array(
+      'type' => 'quiz_page',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'PG 1 body text'))),
+    ));
+    $this->linkQuestionToQuiz($page_node1, $quiz_node);
     // Go to the manage questions form.
     $this->drupalGet("node/$quiz_node->nid/quiz/questions");
     $post = array(

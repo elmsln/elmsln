@@ -1,6 +1,4 @@
-var H5PEditor = H5PEditor || {};
-var ns = H5PEditor;
-
+/* global ns */
 /**
  * @class
  * @alias H5PEditor.SelectorLegacy
@@ -22,7 +20,7 @@ ns.SelectorLegacy = function (libraries, selectedLibrary, changeLibraryDialog) {
     // For new content deny old or restricted libs.
     if (selectedLibrary === libraryName ||
       ((library.restricted === undefined || !library.restricted) &&
-        library.isOld !== true
+      library.isOld !== true
       )
     ) {
       options += '<option value="' + libraryName + '"';
@@ -63,10 +61,15 @@ ns.SelectorLegacy = function (libraries, selectedLibrary, changeLibraryDialog) {
  * Reset selector to provided library
  *
  * @param {string} library
+ * @param {Object} params
+ * @param {Object} metadata
  */
-ns.SelectorLegacy.prototype.resetSelection = function (library) {
+ns.SelectorLegacy.prototype.resetSelection = function (library, params, metadata) {
   this.$selector.val(library);
-}
+  this.currentParams = params;
+  this.currentMetadata = metadata;
+  this.currentLibrary = library;
+};
 
 /**
  * Get currently selected library.
@@ -81,22 +84,31 @@ ns.SelectorLegacy.prototype.getSelectedLibrary = function (next) {
     tutorialUrl: $option.data('tutorial-url'),
     exampleUrl: $option.data('example-url')
   });
-}
+};
 
 /**
- * Not possible to load new params into legacy selector, always returns undefined.
+ * Load new params into legacy selector
  *
  * @returns {undefined}
  */
 ns.SelectorLegacy.prototype.getParams = function () {
-  return undefined;
-}
+  return this.currentParams;
+};
+
+/**
+ * Load new metadata into legacy selector
+ *
+ * @returns {undefined}
+ */
+ns.SelectorLegacy.prototype.getMetadata = function () {
+  return this.currentMetadata;
+};
 
 /**
  * Returns the html element for the hub
  *
  * @return {HTMLElement}
  */
-ns.SelectorLegacy.prototype.getElement = function(){
+ns.SelectorLegacy.prototype.getElement = function () {
   return this.$selector.get(0);
 };

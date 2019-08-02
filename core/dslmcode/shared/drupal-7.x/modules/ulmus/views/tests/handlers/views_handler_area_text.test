@@ -22,7 +22,7 @@ class ViewsHandlerAreaTextTest extends ViewsSqlTest {
   public function testAreaText() {
     $view = $this->getBasicView();
 
-    // add a text header
+    // add a text header.
     $string = $this->randomName();
     $view->display['default']->handler->override_option('header', array(
       'area' => array(

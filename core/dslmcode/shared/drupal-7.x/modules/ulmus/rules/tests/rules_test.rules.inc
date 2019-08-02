@@ -1,17 +1,20 @@
 <?php
 
 /**
- * @file Includes any rules integration provided by the module.
+ * @file
+ * Includes any rules integration provided by the module.
  */
 
 /**
  * Implements hook_rules_event_info().
  */
 function rules_test_rules_event_info() {
-  return array('rules_test_event' => array(
-    'label' => t('Test event'),
-    'class' => 'RulesTestEventHandler',
-  ));
+  return array(
+    'rules_test_event' => array(
+      'label' => t('Test event'),
+      'class' => 'RulesTestEventHandler',
+    ),
+  );
 }
 
 /**
@@ -51,6 +54,10 @@ function rules_test_rules_condition_info() {
     'label' => t('Test condition returning false'),
     'group' => t('Rules test'),
   );
+  $items['rules_test_condition_apostrophe'] = array(
+    'label' => t("Test use of an apostrophe (') in a condition label"),
+    'group' => t('Rules test'),
+  );
   // A condition for testing passing entities wrapped.
   $items['rules_test_condition_node_wrapped'] = array(
     'label' => t('Content is published'),
@@ -83,6 +90,20 @@ function rules_test_condition_true($settings, $state, $element) {
 function rules_test_condition_false() {
   rules_log('condition false called');
   return FALSE;
+}
+
+/**
+ * Condition testing use of an apostrophe in a condition label.
+ *
+ * Specifically, we want to ensure that special characters do not show up as
+ * HTML-encoded in the user interface.
+ */
+function rules_test_condition_apostrophe($settings, $state, $element) {
+  if (!$element instanceof RulesCondition) {
+    throw new Exception('Rules element has not been passed to condition.');
+  }
+  rules_log('condition apostrophe called');
+  return TRUE;
 }
 
 /**
@@ -198,7 +219,11 @@ function rules_test_rules_action_info() {
       'base' => 'rules_test_type_save',
       'label' => t('Save test type'),
       'parameter' => array(
-        'node' => array('type' => 'rules_test_type', 'label' => t('Test content'), 'save' => TRUE),
+        'node' => array(
+          'type' => 'rules_test_type',
+          'label' => t('Test content'),
+          'save' => TRUE,
+        ),
       ),
       'group' => t('Node'),
     ),
@@ -240,6 +265,7 @@ class RulesTestClassAction extends RulesActionHandlerBase {
   public function execute($node) {
     rules_log('Action called with node ' . $node->nid);
   }
+
 }
 
 /**
@@ -269,17 +295,27 @@ function rules_test_rules_data_info_alter(&$data_info) {
  */
 class RulesTestTypeWrapper extends RulesIdentifiableDataWrapper implements RulesDataWrapperSavableInterface {
 
+  /**
+   * Overrides RulesIdentifiableDataWrapper::extractIdentifier().
+   */
   protected function extractIdentifier($data) {
     return $data->nid;
   }
 
+  /**
+   * Overrides RulesIdentifiableDataWrapper::load().
+   */
   protected function load($id) {
     return node_load($id);
   }
 
+  /**
+   * Implements RulesDataWrapperSavableInterface::save().
+   */
   public function save() {
     node_save($this->value());
   }
+
 }
 
 /**
@@ -307,6 +343,7 @@ class RulesTestContainer extends RulesContainerPlugin {
   public function evaluate(RulesState $state) {
     // Do nothing.
   }
+
 }
 
 /**

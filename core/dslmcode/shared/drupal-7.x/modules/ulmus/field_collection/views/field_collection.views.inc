@@ -44,7 +44,11 @@ function field_collection_field_views_data($field) {
     }
 
     $data['field_collection_item'][$pseudo_field_name]['relationship'] = array(
-      'title' => t('Entity with the @field (@field_name)', array('@entity' => $entity, '@field' => $label, '@field_name' => $field['field_name'])),
+      'title' => t('Entity with the @field (@field_name)', array(
+        '@entity' => $entity,
+        '@field' => $label,
+        '@field_name' => $field['field_name'],
+      )),
       'help' => t('Relate each @entity using @field.', array('@entity' => $entity, '@field' => $label)),
       'handler' => 'views_handler_relationship_entity_reverse',
       'field_name' => $field['field_name'],

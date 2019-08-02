@@ -44,4 +44,5 @@ class ViewsHandlerFieldCustomTest extends ViewsSqlTest {
 
     $this->assertEqual($random, $view->style_plugin->get_field(0, 'name'));
   }
+
 }

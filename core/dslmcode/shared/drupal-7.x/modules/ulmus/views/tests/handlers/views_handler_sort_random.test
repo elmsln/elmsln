@@ -9,6 +9,10 @@
  * Tests for core views_handler_sort_random handler.
  */
 class ViewsHandlerSortRandomTest extends ViewsSqlTest {
+
+  /**
+   *
+   */
   public static function getInfo() {
     return array(
       'name' => 'Sort: random',
@@ -77,7 +81,8 @@ class ViewsHandlerSortRandomTest extends ViewsSqlTest {
       'views_test_age' => 'views_test_name',
     ));
 
-    // Execute a second random view, we expect the result set to be different again.
+    // Execute a second random view, we expect the result set to be different
+    // again.
     $view_random_2 = $this->getBasicRandomView();
     $this->executeView($view_random_2);
     $this->assertEqual(count($this->dataSet()), count($view_random_2->result), t('The number of returned rows match.'));
@@ -86,4 +91,5 @@ class ViewsHandlerSortRandomTest extends ViewsSqlTest {
       'views_test_age' => 'views_test_name',
     ));
   }
+
 }

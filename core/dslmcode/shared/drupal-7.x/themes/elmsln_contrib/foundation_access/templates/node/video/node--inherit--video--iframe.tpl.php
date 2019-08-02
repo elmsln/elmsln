@@ -9,11 +9,7 @@
   }
   $track = '';
   if (isset($node->field_caption['und'][0]['uri'])) {
-    $track = '<track
-  src="' . file_create_url($node->field_caption['und'][0]['uri']) . '"
-  kind="subtitles"
-  label="English"
-  slot="track">';
+    $track = file_create_url($node->field_caption['und'][0]['uri']);
   }
 ?>
 <video-player
@@ -23,7 +19,7 @@
  class="entity_iframe entity_iframe_node entity_iframe_tool_elmsmedia elmsmedia_video <?php print $classes; ?>"
  accent-color="red"
  sticky-corner="none"
- crossorigin
+ track="<?php print $track;?>"
+ crossorigin="anonymous"
  <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>>
-<?php print $track;?>
 </video-player>

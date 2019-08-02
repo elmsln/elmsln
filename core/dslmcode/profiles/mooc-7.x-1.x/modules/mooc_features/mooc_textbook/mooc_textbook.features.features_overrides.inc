@@ -15,19 +15,19 @@ function mooc_textbook_features_override_default_overrides() {
   $overrides["filter.textbook_editor.filters|cis_filter"] = array(
     'settings' => array(),
     'status' => 1,
-    'weight' => -49,
+    'weight' => -46,
   );
   $overrides["filter.textbook_editor.filters|filter_footnotes"] = array(
     'settings' => array(
       'footnotes_collapse' => 0,
     ),
     'status' => 1,
-    'weight' => -40,
+    'weight' => -45,
   );
   $overrides["filter.textbook_editor.filters|filter_tokens"] = array(
     'settings' => array(),
     'status' => 1,
-    'weight' => -42,
+    'weight' => -44,
   );
   $overrides["filter.textbook_editor.filters|video_filter|settings|video_filter_codecs"] = array(
     'archive' => 0,

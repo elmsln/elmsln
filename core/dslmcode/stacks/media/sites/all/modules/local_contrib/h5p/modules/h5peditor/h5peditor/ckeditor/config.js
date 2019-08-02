@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 CKEDITOR.editorConfig = function( config ) {
@@ -27,19 +27,19 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// The default plugins included in the basic setup define some buttons that
 	// are not needed in a basic editor. They are removed here.
-//      config.removeButtons = 'Cut,Copy,Paste,Undo,Redo,Anchor,Underline,Strike,Subscript,Superscript';
+	//	config.removeButtons = 'Cut,Copy,Paste,Undo,Redo,Anchor,Underline,Strike,Subscript,Superscript';
 
-	// Dialog windows are also simplified.
-//      config.removeDialogTabs = 'link:advanced';
-	config.removeDialogTabs = 'image:advanced;link:advanced';
 
-	// Se the most common block elements.
-	config.format_tags = 'p;h1;h2;h3;pre';
+		// Dialog windows are also simplified.
+		config.removeDialogTabs = 'image:advanced;link:advanced';
 
-	config.autoGrow_minHeight = 80;
-	config.height = 80;
-	config.autoGrow_onStartup = true;
-	config.autoGrow_maxHeight = 500;
-	config.colorButton_enableMore = true;
-	config.plugins += ',removeRedundantNBSP';
+		// Se the most common block elements.
+		config.format_tags = 'p;h1;h2;h3;pre';
+
+		config.autoGrow_minHeight = 80;
+		config.height = 80;
+		config.autoGrow_onStartup = true;
+		config.autoGrow_maxHeight = 500;
+		config.colorButton_enableMore = true;
+		config.plugins += ',removeRedundantNBSP';
 };

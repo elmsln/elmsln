@@ -2,17 +2,18 @@
 
 /**
  * @file
- * Provide node nid argument handler.
+ * Definition of views_handler_argument_node_nid.
  */
 
 /**
  * Argument handler to accept a node id.
  */
 class views_handler_argument_node_nid extends views_handler_argument_numeric {
+
   /**
    * Override the behavior of title(). Get the title of the node.
    */
-  function title_query() {
+  public function title_query() {
     $titles = array();
 
     $result = db_query("SELECT n.title FROM {node} n WHERE n.nid IN (:nids)", array(':nids' => $this->value));
@@ -21,4 +22,5 @@ class views_handler_argument_node_nid extends views_handler_argument_numeric {
     }
     return $titles;
   }
+
 }

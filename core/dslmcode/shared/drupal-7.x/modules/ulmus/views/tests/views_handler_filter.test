@@ -1,0 +1,161 @@
+<?php
+
+/**
+ * @file
+ * Definition of ViewsHandlerFilterTest.
+ */
+
+/**
+ * Tests filter handler.
+ */
+class ViewsHandlerFilterTest extends ViewsSqlTest {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Handler filter test',
+      'description' => 'test filter handler definitions',
+      'group' => 'Views',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    // The Views and Views UI modules will be enabled with this.
+    parent::setUp();
+
+    // Assign vocabulary 'tag' to user entity.
+    $field_definition = field_read_field('field_tags');
+    $instance_definition = array(
+      'field_name' => $field_definition['field_name'],
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'widget' => array(
+        'type' => 'taxonomy_autocomplete',
+      ),
+      'display' => array(
+        'default' => array(
+          'type' => 'taxonomy_term_reference_link',
+          'weight' => 10,
+        ),
+        'teaser' => array(
+          'type' => 'taxonomy_term_reference_link',
+          'weight' => 10,
+        ),
+      ),
+    );
+    field_create_instance($instance_definition);
+  }
+
+  /**
+   * Tests "is all of" of filter operation.
+   */
+  function testFilterInOperatorUi() {
+    $term = $this->drupalCreateTerm(1);
+
+    $node1 = $this->drupalCreateNode(array('type' => 'article','field_tags_tid' => $term->tid, 'created' => REQUEST_TIME));
+    $node2 = $this->drupalCreateNode(array('type' => 'article', 'created' => REQUEST_TIME + 1));
+    $user2 = $this->drupalCreateUser(array('access content'));
+    // $this->drupalLogin($this->drupalCreateUser(array('administer users'));
+    $this->drupalLogin($this->drupalCreateUser(array('administer users', 'access administration pages', 'administer site configuration', 'administer nodes', 'bypass node access')));
+
+    $this->drupalGet('node/1/edit');
+    $edit['field_tags' . '[' . LANGUAGE_NONE . ']'] = $term->name;
+    $this->drupalPost('node/' . $node1->nid . '/edit', $edit, t('Save'));
+
+    $edit['field_tags' . '[' . LANGUAGE_NONE . ']'] = $term->name;
+    $this->drupalPost('user/' . $user2->uid . '/edit', $edit, t('Save'));
+
+    $result[] = array('nid' => $node1->nid);
+    $view = $this->get_sample_view();
+    $this->executeView($view);
+    $this->assertIdenticalResultset($view, $result);
+  }
+
+  /**
+   * Sample view.
+   *
+   * @return \view
+   */
+  protected function get_sample_view() {
+    $view = new view();
+    $view->name = 'article';
+    $view->description = '';
+    $view->tag = 'default';
+    $view->base_table = 'node';
+    $view->human_name = 'Article';
+    $view->core = 7;
+    $view->api_version = '3.0';
+    $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+    /* Display: Master */
+    $handler = $view->new_display('default', 'Master', 'default');
+    $handler->display->display_options['title'] = 'Article';
+    $handler->display->display_options['use_more_always'] = FALSE;
+    $handler->display->display_options['access']['type'] = 'perm';
+    $handler->display->display_options['cache']['type'] = 'none';
+    $handler->display->display_options['query']['type'] = 'views_query';
+    $handler->display->display_options['exposed_form']['type'] = 'basic';
+    $handler->display->display_options['pager']['type'] = 'full';
+    $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+    $handler->display->display_options['style_plugin'] = 'table';
+    $handler->display->display_options['style_options']['columns'] = array(
+      'title' => 'title',
+    );
+    $handler->display->display_options['style_options']['default'] = '-1';
+    $handler->display->display_options['style_options']['info'] = array(
+      'title' => array(
+        'sortable' => 0,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+      ),
+    );
+    /* Field: Content: Nid */
+    $handler->display->display_options['fields']['nid']['id'] = 'nid';
+    $handler->display->display_options['fields']['nid']['table'] = 'node';
+    $handler->display->display_options['fields']['nid']['field'] = 'nid';
+    $handler->display->display_options['fields']['nid']['label'] = '';
+    $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
+    /* Sort criterion: Content: Post date */
+    $handler->display->display_options['sorts']['created']['id'] = 'created';
+    $handler->display->display_options['sorts']['created']['table'] = 'node';
+    $handler->display->display_options['sorts']['created']['field'] = 'created';
+    $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+    /* Filter criterion: Content: Published */
+    $handler->display->display_options['filters']['status']['id'] = 'status';
+    $handler->display->display_options['filters']['status']['table'] = 'node';
+    $handler->display->display_options['filters']['status']['field'] = 'status';
+    $handler->display->display_options['filters']['status']['value'] = 1;
+    $handler->display->display_options['filters']['status']['group'] = 1;
+    $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+    /* Filter criterion: Field: Tags (field_tags) */
+    $handler->display->display_options['filters']['field_tags_tid']['id'] = 'field_tags_tid';
+    $handler->display->display_options['filters']['field_tags_tid']['table'] = 'field_data_field_tags';
+    $handler->display->display_options['filters']['field_tags_tid']['field'] = 'field_tags_tid';
+    $handler->display->display_options['filters']['field_tags_tid']['operator'] = 'and';
+    $handler->display->display_options['filters']['field_tags_tid']['value'] = array(
+      0 => '1',
+    );
+    $handler->display->display_options['filters']['field_tags_tid']['expose']['operator_id'] = 'field_tags_tid_op';
+    $handler->display->display_options['filters']['field_tags_tid']['expose']['label'] = 'Tags (field_tags)';
+    $handler->display->display_options['filters']['field_tags_tid']['expose']['operator'] = 'field_tags_tid_op';
+    $handler->display->display_options['filters']['field_tags_tid']['expose']['identifier'] = 'field_tags_tid';
+    $handler->display->display_options['filters']['field_tags_tid']['expose']['remember_roles'] = array(
+      2 => '2',
+    );
+    $handler->display->display_options['filters']['field_tags_tid']['vocabulary'] = 'tags';
+
+    /* Display: Page */
+    $handler = $view->new_display('page', 'Page', 'page');
+    $handler->display->display_options['path'] = 'article';
+
+    return $view;
+  }
+
+}

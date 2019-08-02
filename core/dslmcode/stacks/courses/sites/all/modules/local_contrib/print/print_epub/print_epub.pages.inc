@@ -74,7 +74,7 @@ function print_epub_controller() {
 
   $nodepath = (isset($node->nid)) ? 'node/' . $node->nid : drupal_get_normal_path($path);
   db_merge('print_epub_page_counter')
-    ->key(array('path' => $nodepath))
+    ->key(array('path' => substr($nodepath, 0, 255)))
     ->fields(array(
       'totalcount' => 1,
       'timestamp' => REQUEST_TIME,

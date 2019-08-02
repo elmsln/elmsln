@@ -77,6 +77,13 @@ function print_main_settings() {
     '#description' => t('When this option is active, user comments are also included in the printer-friendly version. Requires the comment module.'),
   );
 
+  $form['settings']['print_node_router'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Consult menu router for node display handler'),
+    '#default_value' => variable_get('print_node_router', PRINT_NODE_ROUTER_DEFAULT),
+    '#description' => t('When this option is active, print module will check the menu router for the handler to consult for page contents at node/%node.'),
+  );
+
   $form['settings']['print_newwindow'] = array(
     '#type' => 'radios',
     '#title' => t('New window method'),

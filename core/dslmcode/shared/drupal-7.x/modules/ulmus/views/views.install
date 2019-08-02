@@ -19,20 +19,18 @@ function views_install() {
 
 /**
  * Implements hook_schema().
- *
- * Generate the current version of the database schema from
- * the sequence of schema update functions. Uses a similar
- * method to install.inc's drupal_get_schema_versions() to
- * establish the update sequence.
- *
- * To change the schema, add a new views_schema_N()
- * function to match the associated views_update_N()
- *
- * @param $caller_function
- *   The name of the function that called us.
- *   Used internally, if requesting a specific schema version.
  */
-function views_schema($caller_function = FALSE) {
+function views_schema($caller_function = NULL) {
+  // Generate the current version of the database schema from the sequence of
+  // schema update functions. Uses a similar method to install.inc's
+  // drupal_get_schema_versions() to establish the update sequence.
+  //
+  // To change the schema, add a new views_schema_N() function to match the
+  // associated views_update_N().
+  //
+  // @param string $caller_function
+  //   The name of the function that called us. Used internally, if requesting a
+  //   specific schema version.
   static $get_current;
   static $schemas = array();
 
@@ -55,19 +53,19 @@ function views_schema($caller_function = FALSE) {
     if ($schemas) {
       sort($schemas, SORT_NUMERIC);
 
-      // If a specific version was requested, drop any later
-      // updates from the sequence.
+      // If a specific version was requested, drop any later updates from the
+      // sequence.
       if ($caller_function) {
         do {
           $schema = array_pop($schemas);
-        } while ($schemas && $caller_function != 'views_schema_'. $schema);
+        } while ($schemas && $caller_function != 'views_schema_' . $schema);
       }
     }
   }
 
   // Call views_schema_<n>, for the highest available <n>.
   if ($schema = array_pop($schemas)) {
-    $function = 'views_schema_'. $schema;
+    $function = 'views_schema_' . $schema;
     return $function();
   }
 
@@ -76,12 +74,14 @@ function views_schema($caller_function = FALSE) {
 
 /**
  * Views 2's initial schema.
+ *
  * Called directly by views_update_6000() for updates from Drupal 5.
  *
  * Important: Do not edit this schema!
  *
- * Updates to the views schema must be provided as views_schema_6xxx() functions,
- * which views_schema() automatically sees and applies. See below for examples.
+ * Updates to the views schema must be provided as views_schema_6xxx()
+ * functions, which views_schema() automatically sees and applies. See below for
+ * examples.
  *
  * Please do document updates with comments in this function, however.
  */
@@ -102,11 +102,11 @@ function views_schema_6000() {
         'current_version' => '3.0',
       ),
       'object' => 'view',
-      // the callback to load the displays
+      // the callback to load the displays.
       'subrecords callback' => 'views_load_display_records',
-      // the variable that holds enabled/disabled status
+      // the variable that holds enabled/disabled status.
       'status' => 'views_defaults',
-      // CRUD callbacks
+      // CRUD callbacks.
       'create callback' => 'views_new_view',
       'save callback' => 'views_save_view',
       'delete callback' => 'views_delete_view',
@@ -148,7 +148,8 @@ function views_schema_6000() {
       ),
       'base_table' => array(
         'type' => 'varchar',
-        'length' => '32', // Updated to '64' in views_schema_6005()
+        'length' => '32',
+  // Updated to '64' in views_schema_6005()
         'default' => '',
         'not null' => TRUE,
         'description' => 'What table this view is based on, such as node, user, comment, or term.',
@@ -161,7 +162,8 @@ function views_schema_6000() {
       ),
     ),
     'primary key' => array('vid'),
-    'unique key' => array('name' => array('name')), // Updated to 'unique keys' in views_schema_6003()
+    'unique key' => array('name' => array('name')),
+  // Updated to 'unique keys' in views_schema_6003()
   );
 
   $schema['views_display'] = array(
@@ -241,7 +243,8 @@ function views_schema_6000() {
         'description' => 'The time this cache was created or updated.',
       ),
       'data' => array(
-        'type' => 'blob', // Updated to 'text' (with size => 'big') in views_schema_6004()
+        'type' => 'blob',
+  // Updated to 'text' (with size => 'big') in views_schema_6004()
         'description' => 'Serialized data being stored.',
         'serialize' => TRUE,
       ),
@@ -294,7 +297,7 @@ function views_update_6001() {
   update_sql("UPDATE {blocks} SET delta = CONCAT(delta, '-block_1') WHERE module = 'views'");
 }
 
-/*
+/**
  * NOTE: Update 6002 removed because it did not always work.
  * Update 6004 implements the change correctly.
  */
@@ -337,7 +340,7 @@ function views_update_6004() {
 }
 
 /**
- * Enlarge the base_table column
+ * Enlarge the base_table column.
  */
 function views_schema_6005() {
   $schema = views_schema(__FUNCTION__);
@@ -444,7 +447,7 @@ function views_update_6009() {
 }
 
 /**
- * Remove the view_php field
+ * Remove the view_php field.
  */
 function views_schema_6010() {
   $schema = views_schema(__FUNCTION__);
@@ -454,7 +457,7 @@ function views_schema_6010() {
 }
 
 /**
- * Remove the view_php and is_cacheable field
+ * Remove the view_php and is_cacheable field.
  */
 function views_update_6010() {
   db_drop_field('views_view', 'view_php');
@@ -578,7 +581,7 @@ function views_update_7000() {
 }
 
 /**
- * Fix missing items from Views administrative breadcrumb
+ * Fix missing items from Views administrative breadcrumb.
  */
 function views_update_7001() {
   $depth = db_select('menu_links')
@@ -619,7 +622,7 @@ function views_schema_7301() {
 }
 
 /**
- * Enlarge the name column
+ * Enlarge the name column.
  */
 function views_update_7301() {
   $new_field = array(
@@ -633,9 +636,9 @@ function views_update_7301() {
 }
 
 /**
- * Remove headers field from cache tables
+ * Remove headers field from cache tables.
  *
- * @see system_update_7054().
+ * @see system_update_7054()
  */
 function views_update_7302() {
   if (db_field_exists('cache_views', 'headers')) {

@@ -5,6 +5,7 @@
  * Rules integration for the rules scheduler module.
  *
  * @addtogroup rules
+ *
  * @{
  */
 
@@ -115,7 +116,9 @@ function rules_scheduler_action_schedule_info_alter(&$element_info, RulesPlugin 
 }
 
 /**
- * Validate callback for the schedule action to make sure the component exists and is not dirty.
+ * Validate callback for the schedule action.
+ *
+ * Makes sure the component exists and is not dirty.
  *
  * @see rules_element_invoke_component_validate()
  */
@@ -137,7 +140,7 @@ function rules_scheduler_action_schedule_validate(RulesPlugin $element) {
  */
 function rules_scheduler_action_schedule_help() {
   return t("Note that component evaluation is triggered by <em>cron</em> – make sure cron is configured correctly by checking your site's !status. The scheduling time accuracy depends on your configured cron interval. See <a href='@url'>the online documentation</a> for more information on how to schedule evaluation of components.",
-    array('!status' => l('Status report', 'admin/reports/status'),
+    array('!status' => l(t('Status report'), 'admin/reports/status'),
           '@url' => rules_external_help('scheduler')));
 }
 
@@ -192,7 +195,7 @@ function rules_scheduler_action_delete($component_name = NULL, $task_identifier 
 }
 
 /**
- * Cancel scheduled task action validation callback.
+ * Cancels scheduled task action validation callback.
  */
 function rules_scheduler_action_delete_validate($element) {
   if (empty($element->settings['task']) && empty($element->settings['task:select']) &&
@@ -206,7 +209,7 @@ function rules_scheduler_action_delete_validate($element) {
  * Help for the cancel action.
  */
 function rules_scheduler_action_delete_help() {
-  return t('This action allows you to delete scheduled tasks that are waiting for future execution.') .' '. t('They can be addressed by an identifier or by the component name, whereas if both are specified only tasks fulfilling both requirements will be deleted.');
+  return t('This action allows you to delete scheduled tasks that are waiting for future execution.') . ' ' . t('They can be addressed by an identifier or by the component name, whereas if both are specified only tasks fulfilling both requirements will be deleted.');
 }
 
 /**

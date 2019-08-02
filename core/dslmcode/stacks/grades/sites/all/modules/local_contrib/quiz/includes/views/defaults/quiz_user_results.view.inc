@@ -98,6 +98,11 @@ $handler->display->display_options['filters']['is_evaluated']['id'] = 'is_evalua
 $handler->display->display_options['filters']['is_evaluated']['table'] = 'quiz_node_results';
 $handler->display->display_options['filters']['is_evaluated']['field'] = 'is_evaluated';
 $handler->display->display_options['filters']['is_evaluated']['value'] = '1';
+/* Filter criterion: Quiz result: Invalid */
+$handler->display->display_options['filters']['is_invalid']['id'] = 'is_invalid';
+$handler->display->display_options['filters']['is_invalid']['table'] = 'quiz_node_results';
+$handler->display->display_options['filters']['is_invalid']['field'] = 'is_invalid';
+$handler->display->display_options['filters']['is_invalid']['value'] = '0';
 
 /* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page');

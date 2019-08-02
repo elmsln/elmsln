@@ -11,19 +11,23 @@
  * @ingroup views_filter_handlers
  */
 class views_handler_filter_date extends views_handler_filter_numeric {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
-    // value is already set up properly, we're just adding our new field to it.
+    // Value is already set up properly, we're just adding our new field to it.
     $options['value']['contains']['type']['default'] = 'date';
 
     return $options;
   }
 
   /**
-   * Add a type selector to the value form
+   * Add a type selector to the value form.
    */
-  function value_form(&$form, &$form_state) {
+  public function value_form(&$form, &$form_state) {
     if (empty($form_state['exposed'])) {
       $form['value']['type'] = array(
         '#type' => 'radios',
@@ -38,7 +42,10 @@ class views_handler_filter_date extends views_handler_filter_numeric {
     parent::value_form($form, $form_state);
   }
 
-  function options_validate(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_validate(&$form, &$form_state) {
     parent::options_validate($form, $form_state);
 
     if (!empty($this->options['exposed']) && empty($form_state['values']['options']['expose']['required'])) {
@@ -49,7 +56,10 @@ class views_handler_filter_date extends views_handler_filter_numeric {
     $this->validate_valid_time($form['value'], $form_state['values']['options']['operator'], $form_state['values']['options']['value']);
   }
 
-  function exposed_validate(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function exposed_validate(&$form, &$form_state) {
     if (empty($this->options['exposed'])) {
       return;
     }
@@ -74,7 +84,7 @@ class views_handler_filter_date extends views_handler_filter_numeric {
   /**
    * Validate that the time values convert to something usable.
    */
-  function validate_valid_time(&$form, $operator, $value) {
+  public function validate_valid_time(&$form, $operator, $value) {
     $operators = $this->operators();
 
     if ($operators[$operator]['values'] == 1) {
@@ -98,7 +108,7 @@ class views_handler_filter_date extends views_handler_filter_numeric {
   /**
    * Validate the build group options form.
    */
-  function build_group_validate($form, &$form_state) {
+  public function build_group_validate($form, &$form_state) {
     // Special case to validate grouped date filters, this is because the
     // $group['value'] array contains the type of filter (date or offset)
     // and therefore the number of items the comparission has to be done
@@ -122,8 +132,10 @@ class views_handler_filter_date extends views_handler_filter_numeric {
     }
   }
 
-
-  function accept_exposed_input($input) {
+  /**
+   * {@inheritdoc}
+   */
+  public function accept_exposed_input($input) {
     if (empty($this->options['exposed'])) {
       return TRUE;
     }
@@ -146,36 +158,45 @@ class views_handler_filter_date extends views_handler_filter_numeric {
         return FALSE;
       }
     }
-    else {
+    elseif ($operators[$operator]['values'] == 2) {
       if ($this->value['min'] == '' || $this->value['max'] == '') {
         return FALSE;
       }
     }
 
-    // restore what got overwritten by the parent.
+    // Restore what got overwritten by the parent.
     $this->value['type'] = $type;
     return $rc;
   }
 
-  function op_between($field) {
+  /**
+   *
+   */
+  public function op_between($field) {
     // Use the substitutions to ensure a consistent timestamp.
     $query_substitutions = views_views_query_substitutions($this->view);
     $a = intval(strtotime($this->value['min'], $query_substitutions['***CURRENT_TIME***']));
     $b = intval(strtotime($this->value['max'], $query_substitutions['***CURRENT_TIME***']));
 
-    // This is safe because we are manually scrubbing the values.
-    // It is necessary to do it this way because $a and $b are formulas when using an offset.
+    // This is safe because we are manually scrubbing the values. It is
+    // necessary to do it this way because $a and $b are formulas when using an
+    // offset.
     $operator = strtoupper($this->operator);
     $this->query->add_where_expression($this->options['group'], "$field $operator $a AND $b");
   }
 
-  function op_simple($field) {
+  /**
+   *
+   */
+  public function op_simple($field) {
     // Use the substitutions to ensure a consistent timestamp.
     $query_substitutions = views_views_query_substitutions($this->view);
     $value = intval(strtotime($this->value['value'], $query_substitutions['***CURRENT_TIME***']));
 
-    // This is safe because we are manually scrubbing the value.
-    // It is necessary to do it this way because $value is a formula when using an offset.
+    // This is safe because we are manually scrubbing the value. It is
+    // necessary to do it this way because $value is a formula when using an
+    // offset.
     $this->query->add_where_expression($this->options['group'], "$field $this->operator $value");
   }
+
 }

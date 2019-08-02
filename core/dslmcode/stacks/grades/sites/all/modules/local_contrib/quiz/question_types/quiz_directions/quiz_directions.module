@@ -1,10 +1,11 @@
 <?php
 
 /**
- * The main file for quiz_directions.
- *
- * Directions are implemented as a question type. However, they do not affect the score.
  * @file
+ * Quiz_directions question type for the Quiz module.
+ *
+ * Directions are implemented as a question type. However, they do not affect
+ * the score.
  */
 
 /**
@@ -26,7 +27,8 @@ function quiz_directions_quiz_question_info() {
       'description' => t('@quiz directions allow you to drop in directions anywhere in a quiz. You can also use them to insert a confirmation step at the end of the quiz.', array('@quiz' => QUIZ_NAME)),
       'question provider' => 'QuizDirectionsQuestion',
       'response provider' => 'QuizDirectionsResponse',
-      'module' => 'quiz_question', // All wrapper functions are in that module.
+      // All wrapper functions are in the quiz_question module.
+      'module' => 'quiz_question',
     ),
   );
 }

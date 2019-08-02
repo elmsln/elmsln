@@ -1,0 +1,26 @@
+language: php
+
+php:
+  - 7.2
+dist: bionic
+os:
+  - linux
+matrix:
+  env:
+    global:
+      - ES_VER=1.0.1
+      - ES_MAPPER_ATTACHMENTS_VER=2.0.0.RC1
+      - ES_TRANSPORT_THRIFT_VER=2.0.0.RC1
+      - ES_GEOCLUSTER_FACET_VER=0.0.10
+      - ES_WAIT_ON_MAPPING_CHANGE=true
+
+before_install:
+  - export UPDATE TRAVIS_BUILD_DIR
+  - BUILD_TOP=`dirname $TRAVIS_BUILD_DIR`
+  - EXIT_VALUE=0
+
+  - sudo apt-get update > /dev/null
+  # install base requirements
+  - sudo bash scripts/ubuntu18.04.sh
+script:
+  - bash scripts/haxtheweb.sh admin admin

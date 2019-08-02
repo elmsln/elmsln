@@ -1,13 +1,14 @@
 <?php
 
 /**
- * Specialized implementation of hook_page_manager_task_tasks(). See api-task.html for
- * more information.
+ * Specialized implementation of hook_page_manager_task_tasks().
+ *
+ * See api-task.html for more information.
  */
 function quiz_quiztake_page_manager_tasks() {
 
   return array(
-    // This is a 'page' task and will fall under the page admin UI
+    // This is a 'page' task and will fall under the page admin UI.
     'task type' => 'page',
 
     'title' => t('Take @quiz', array('@quiz' => QUIZ_NAME)),
@@ -60,11 +61,11 @@ function quiz_quiztake_menu_alter(&$items, $task) {
 /**
  * Entry point for our overridden quiz.
  *
- * This function asks its assigned handlers who, if anyone, would like
- * to run with it. If no one does, it passes through to the main node draft page.
+ * This function asks its assigned handlers who, if anyone, would like to run
+ * with it. If no one does, it passes through to the main node draft page.
  */
 function quiz_quiztake($node) {
-  // Load my task plugin
+  // Load my task plugin.
   $task = page_manager_get_task('quiztake');
 
   // Load the node into a context.

@@ -57,4 +57,5 @@ class ViewsHandlerFieldUrlTest extends ViewsSqlTest {
 
     $this->assertEqual(l('John', 'John'), $view->field['name']->advanced_render($view->result[0]));
   }
+
 }

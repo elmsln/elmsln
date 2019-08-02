@@ -166,17 +166,17 @@ function _mooc_content_render_options() {
   $content = '';
   if (isset($node_path)) {
     $content .= '
-      <lrnsys-button id="edit-tip" href="' . $node_path . '/edit" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="editor:mode-edit" icon-class="blue-text" alt="' . t('Edit page') . '"><span class="element-invisible">' . t('Edit page') . '</span>
+      <lrnsys-button id="edit-tip" href="' . $node_path . '/edit" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless[$distro]['color'] . ' ' . $cis_lmsless[$distro]['dark'] . ' white-text" inner-class="no-padding" icon="editor:mode-edit" alt="' . t('Edit page') . '"><span class="element-invisible">' . t('Edit page') . '</span>
       </lrnsys-button>';
     // show hax link if you have access to it
     if (user_access('use hax')) {
       $content .= '
-      <lrnsys-button id="hax-edit-tip" href="' . $node_path . '/hax" class="r-header__icon elmsln-edit-button" data-jwerty-key="h" data-voicecommand="hax" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="maps:layers" icon-class="blue-text" alt="' . t('HAX editor') . '"><span class="element-invisible">' . t('HAX editor') . '</span>
+      <lrnsys-button id="hax-edit-tip" href="' . $node_path . '/hax" class="r-header__icon elmsln-edit-button" data-jwerty-key="h" data-voicecommand="hax" hover-class="' . $cis_lmsless[$distro]['color'] . ' ' . $cis_lmsless[$distro]['dark'] . ' white-text " inner-class="no-padding" icon="maps:layers" alt="' . t('HAX editor') . '"><span class="element-invisible">' . t('HAX editor') . '</span>
       </lrnsys-button>';
     }
     $content .= '
       <paper-menu-button dynamic-align>
-        <paper-icon-button id="outlineoptions" class="blue-text" icon="editor:linear-scale" slot="dropdown-trigger" alt="' . t('Edit outline') . '" title="' . t('Edit outline') . '"></paper-icon-button>
+        <paper-icon-button id="outlineoptions" icon="editor:linear-scale" slot="dropdown-trigger" alt="' . t('Edit outline') . '" title="' . t('Edit outline') . '"></paper-icon-button>
         <paper-tooltip for="outlineoptions" animation-delay="200" offset="0">' . t('Outline options') . '</paper-tooltip>
         <paper-listbox slot="dropdown-content">
           <a tabindex="-1" href="' . $node_path . '/outline/children" class="accessible-grey-text"><paper-item>' . t('Child outline') . '</paper-item></a>
@@ -229,7 +229,7 @@ function _mooc_content_render_content() {
         $node->body = array(
           'und' => array(
             0 => array(
-              'value' => '<div class="blue-text"><em>' . t('This page is empty, so students will automatically be taken to the next page. You have not been redirected so you can edit this content if desired.') . '</em></div>',
+              'value' => '<div class="black-text"><em>' . t('This page is empty, so students will automatically be taken to the next page. You have not been redirected so you can edit this content if desired.') . '</em></div>',
               'format' => 'textbook_editor',
             ),
           ),

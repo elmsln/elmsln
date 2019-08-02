@@ -11,7 +11,7 @@
  * Implements hook_pdf_tool_info().
  */
 function print_pdf_mpdf_pdf_tool_info() {
-  return array(
+  $info = array(
     'name' => 'mPDF',
     'url' => 'https://github.com/mpdf/mpdf/releases/latest',
     'expand_css' => FALSE,
@@ -19,23 +19,39 @@ function print_pdf_mpdf_pdf_tool_info() {
       'ttfontdata',
       'tmp',
     ),
-    'tool_dirs' => array(
-      'graph_cache',
-    ),
   );
+
+  $pdf_tool = explode('|', variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT));
+  if (!isset($pdf_tool[1]) || print_pdf_mpdf_pdf_tool_version($pdf_tool[1]) !== '>= 7.x') {
+    $info['tool_dirs'] = array(
+      'graph_cache',
+    );
+  }
+  return $info;
 }
 
 /**
  * Implements hook_pdf_tool_version().
  */
 function print_pdf_mpdf_pdf_tool_version($pdf_tool) {
-  require_once DRUPAL_ROOT . '/' . $pdf_tool;
+  if (file_exists(DRUPAL_ROOT . '/' . $pdf_tool)) {
+    include_once DRUPAL_ROOT . '/' . $pdf_tool;
+  }
 
   if (defined('mPDF_VERSION')) {
     return mPDF_VERSION;
   }
   else {
-    return 'unknown';
+    // Version 7 of the mpdf library uses a composer autoloader.
+    // Also there no longer is a way to truly detect the library version, so
+    // this seems like the best alternative.
+    $mpdf_version_7_plus = strpos($pdf_tool, 'autoload.php') !== FALSE;
+    if ($mpdf_version_7_plus) {
+      return '>= 7.x';
+    }
+    else {
+      return 'unknown';
+    }
   }
 }
 
@@ -48,5 +64,13 @@ function print_pdf_mpdf_print_pdf_available_libs_alter(&$pdf_tools) {
 
   foreach ($tools as $tool) {
     $pdf_tools['print_pdf_mpdf|' . $tool] = 'mPDF (' . dirname($tool) . ')';
+  }
+
+  // mPDF >= 7.0 uses a composer autoloader.
+  $tools = _print_scan_libs('mpdf', '!^autoload.php$!');
+  foreach ($tools as $tool) {
+    if (preg_match('!mpdf.*?/vendor/autoload.php$!', $tool)) {
+      $pdf_tools['print_pdf_mpdf|' . $tool] = 'mPDF (' . dirname(dirname($tool)) . ')';
+    }
   }
 }

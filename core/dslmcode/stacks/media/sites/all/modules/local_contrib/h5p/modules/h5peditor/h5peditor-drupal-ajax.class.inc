@@ -83,7 +83,7 @@ class H5PEditorDrupalAjax implements H5PEditorAjaxInterface {
     $result = db_query("
       SELECT library_name, max(created_at) AS max_created_at
       FROM {h5p_events}
-      WHERE type='content' AND sub_type = 'create' AND user_id = :uid
+      WHERE type = 'content' AND sub_type = 'create' AND user_id = :uid
       GROUP BY library_name
       ORDER BY max_created_at DESC
     ", array(':uid' => $user->uid));
@@ -104,5 +104,41 @@ class H5PEditorDrupalAjax implements H5PEditorAjaxInterface {
    */
   public function validateEditorToken($token) {
     return H5PCore::validToken('editorajax', $token);
+  }
+
+  /**
+   * Get translations for a language for a list of libraries
+   *
+   * @param array $libraries An array of libraries, in the form "<machineName> <majorVersion>.<minorVersion>
+   * @param string $language_code
+   * @return array
+   */
+  public function getTranslations($libraries, $language_code) {
+    $translations = array();
+
+    foreach ($libraries as $library) {
+      $parsedLib = H5PCore::libraryFromString($library);
+
+      $translation = db_query("
+        SELECT language_json
+        FROM {h5p_libraries} lib
+        LEFT JOIN {h5p_libraries_languages} lang ON lib.library_id = lang.library_id
+        WHERE lib.machine_name = :machine_name AND
+              lib.major_version = :major_version AND
+              lib.minor_version = :minor_version AND
+              lang.language_code = :language_code
+      ", array(
+        ':machine_name' => $parsedLib['machineName'],
+        ':major_version' => $parsedLib['majorVersion'],
+        ':minor_version' => $parsedLib['minorVersion'],
+        ':language_code' => $language_code)
+      )->fetchField();
+
+      if ($translation !== FALSE) {
+        $translations[$library] = $translation;
+      }
+    }
+
+    return $translations;
   }
 }

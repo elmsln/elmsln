@@ -11,17 +11,27 @@
  * @ingroup views_field_handlers
  */
 class views_handler_field_user_permissions extends views_handler_field_prerender_list {
-  function construct() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function construct() {
     parent::construct();
     $this->additional_fields['uid'] = array('table' => 'users', 'field' => 'uid');
   }
 
-  function query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     $this->add_additional_fields();
     $this->field_alias = $this->aliases['uid'];
   }
 
-  function pre_render(&$values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function pre_render(&$values) {
     $uids = array();
     $this->items = array();
 
@@ -30,8 +40,8 @@ class views_handler_field_user_permissions extends views_handler_field_prerender
     }
 
     if ($uids) {
-      // Get a list of all the modules implementing a hook_permission() and sort by
-      // display name.
+      // Get a list of all the modules implementing a hook_permission() and
+      // sort by display name.
       $module_info = system_get_info('module');
       $modules = array();
       foreach (module_implements('permission') as $module) {
@@ -50,19 +60,27 @@ class views_handler_field_user_permissions extends views_handler_field_prerender
     }
   }
 
-  function render_item($count, $item) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render_item($count, $item) {
     return $item['permission'];
   }
 
-  /*
-  function document_self_tokens(&$tokens) {
-    $tokens['[' . $this->options['id'] . '-role' . ']'] = t('The name of the role.');
-    $tokens['[' . $this->options['id'] . '-rid' . ']'] = t('The role ID of the role.');
-  }
+  /**
+   *
+   */
+  // function document_self_tokens(&$tokens) {
+  //   $tokens['[' . $this->options['id'] . '-role' . ']'] = t('The name of the role.');
+  //   $tokens['[' . $this->options['id'] . '-rid' . ']'] = t('The role ID of the role.');
+  // }
 
-  function add_self_tokens(&$tokens, $item) {
-    $tokens['[' . $this->options['id'] . '-role' . ']'] = $item['role'];
-    $tokens['[' . $this->options['id'] . '-rid' . ']'] = $item['rid'];
-  }
-  */
+  /**
+   *
+   */
+  // function add_self_tokens(&$tokens, $item) {
+  //   $tokens['[' . $this->options['id'] . '-role' . ']'] = $item['role'];
+  //   $tokens['[' . $this->options['id'] . '-rid' . ']'] = $item['rid'];
+  // }
+
 }

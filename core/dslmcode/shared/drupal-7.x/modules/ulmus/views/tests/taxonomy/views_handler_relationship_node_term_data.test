@@ -34,9 +34,8 @@ class ViewsHandlerRelationshipNodeTermDataTest extends ViewsSqlTest {
   function setUp() {
     parent::setUp();
 
-    //$web_user = $this->drupalCreateUser(array('create article content'));
-    //$this->drupalLogin($web_user);
-
+    // $web_user = $this->drupalCreateUser(array('create article content'));
+    // $this->drupalLogin($web_user);
     $vocabulary = taxonomy_vocabulary_machine_name_load('tags');
     $this->term_1 = $this->createTerm($vocabulary);
     $this->term_2 = $this->createTerm($vocabulary);
@@ -119,4 +118,5 @@ class ViewsHandlerRelationshipNodeTermDataTest extends ViewsSqlTest {
 
     return $view;
   }
+
 }

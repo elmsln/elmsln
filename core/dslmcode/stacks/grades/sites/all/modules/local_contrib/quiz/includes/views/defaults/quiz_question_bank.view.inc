@@ -3,7 +3,7 @@
 $view = new view();
 $view->name = 'quiz_question_bank';
 $view->description = '';
-$view->tag = 'default';
+$view->tag = 'quiz';
 $view->base_table = 'node';
 $view->human_name = 'quiz_question_bank';
 $view->core = 7;

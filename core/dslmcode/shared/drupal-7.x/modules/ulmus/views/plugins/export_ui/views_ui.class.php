@@ -12,10 +12,12 @@
  */
 class views_ui extends ctools_export_ui {
 
+  /**
+   *
+   */
   function init($plugin) {
-    // We modify the plugin info here so that we take the defaults and
-    // twiddle, rather than completely override them.
-
+    // We modify the plugin info here so that we take the defaults and twiddle,
+    // rather than completely override them.
     // Reset the edit path to match what we're really using.
     $plugin['menu']['items']['edit']['path'] = 'view/%ctools_export_ui/edit';
     $plugin['menu']['items']['clone']['path'] = 'view/%ctools_export_ui/clone';
@@ -44,12 +46,13 @@ class views_ui extends ctools_export_ui {
     return parent::init($plugin);
   }
 
+  /**
+   *
+   */
   function hook_menu(&$items) {
     // We are using our own 'edit' still, rather than having edit on this
-    // object (maybe in the future) so unset the edit callbacks:
-
-    // Store this so we can put them back as sometimes they're needed
-    // again laster:
+    // object (maybe in the future) so unset the edit callbacks. Store this so
+    // we can put them back as sometimes they're needed again laster.
     $stored_items = $this->plugin['menu']['items'];
     // We leave these to make sure the operations still exist in the plugin so
     // that the path finder.
@@ -63,10 +66,16 @@ class views_ui extends ctools_export_ui {
     $this->plugin['menu']['items'] = $stored_items;
   }
 
+  /**
+   *
+   */
   function load_item($item_name) {
     return views_ui_cache_load($item_name);
   }
 
+  /**
+   *
+   */
   function list_form(&$form, &$form_state) {
     $row_class = 'container-inline';
     if (!variable_get('views_ui_show_listing_filters', FALSE)) {
@@ -77,8 +86,8 @@ class views_ui extends ctools_export_ui {
 
     parent::list_form($form, $form_state);
 
-    // ctools only has two rows. We want four.
-    // That's why we create our own structure.
+    // CTools only has two rows. We want four. That's why we create our own
+    // structure.
     $form['bottom row']['submit']['#attributes']['class'][] = 'js-hide';
     $form['first row'] = array(
       '#prefix' => '<div class="' . $row_class . ' ctools-export-ui-row ctools-export-ui-first-row clearfix">',
@@ -164,6 +173,9 @@ class views_ui extends ctools_export_ui {
     );
   }
 
+  /**
+   *
+   */
   function list_filter($form_state, $view) {
     // Don't filter by tags if all is set up.
     if ($form_state['values']['tag'] != 'all') {
@@ -183,6 +195,9 @@ class views_ui extends ctools_export_ui {
     return parent::list_filter($form_state, $view);
   }
 
+  /**
+   *
+   */
   function list_sort_options() {
     return array(
       'disabled' => t('Enabled, name'),
@@ -193,7 +208,9 @@ class views_ui extends ctools_export_ui {
     );
   }
 
-
+  /**
+   *
+   */
   function list_build_row($view, &$form_state, $operations) {
     if (!empty($view->human_name)) {
       $title = $view->human_name;
@@ -212,45 +229,79 @@ class views_ui extends ctools_export_ui {
 
     $info = theme('views_ui_view_info', array('view' => $view, 'base' => $base));
 
-    // Reorder the operations so that enable is the default action for a templatic views
+    // Reorder the operations so that enable is the default action for a
+    // templatic views.
     if (!empty($operations['enable'])) {
       $operations = array('enable' => $operations['enable']) + $operations;
     }
 
-    // Set up sorting
+    // Set up sorting.
     switch ($form_state['values']['order']) {
       case 'disabled':
         $this->sorts[$view->name] = strtolower(empty($view->disabled) . $title);
         break;
+
       case 'name':
         $this->sorts[$view->name] = strtolower($title);
         break;
+
       case 'path':
         $this->sorts[$view->name] = strtolower($paths);
         break;
+
       case 'tag':
         $this->sorts[$view->name] = strtolower($view->tag);
         break;
+
       case 'storage':
         $this->sorts[$view->name] = strtolower($view->type . $title);
         break;
     }
 
-    $ops = theme('links__ctools_dropbutton', array('links' => $operations, 'attributes' => array('class' => array('links', 'inline'))));
+    $theme_args = array(
+      'links' => $operations,
+      'attributes' => array(
+        'class' => array(
+          'links',
+          'inline',
+        ),
+      ),
+    );
+    $ops = theme('links__ctools_dropbutton', $theme_args);
 
     $this->rows[$view->name] = array(
       'data' => array(
-        array('data' => $info, 'class' => array('views-ui-name')),
-        array('data' => check_plain($view->description), 'class' => array('views-ui-description')),
-        array('data' => check_plain($view->tag), 'class' => array('views-ui-tag')),
-        array('data' => $paths, 'class' => array('views-ui-path')),
-        array('data' => $ops, 'class' => array('views-ui-operations')),
+        array(
+          'data' => $info,
+          'class' => array('views-ui-name'),
+        ),
+        array(
+          'data' => check_plain($view->description),
+          'class' => array('views-ui-description'),
+        ),
+        array(
+          'data' => check_plain($view->tag),
+          'class' => array('views-ui-tag'),
+        ),
+        array(
+          'data' => $paths,
+          'class' => array('views-ui-path'),
+        ),
+        array(
+          'data' => $ops,
+          'class' => array('views-ui-operations'),
+        ),
       ),
       'title' => t('Machine name: ') . check_plain($view->name),
-      'class' => array(!empty($view->disabled) ? 'ctools-export-ui-disabled' : 'ctools-export-ui-enabled'),
+      'class' => array(
+        !empty($view->disabled) ? 'ctools-export-ui-disabled' : 'ctools-export-ui-enabled',
+      ),
     );
   }
 
+  /**
+   *
+   */
   function list_render(&$form_state) {
     views_include('admin');
     views_ui_add_admin_css();
@@ -263,7 +314,7 @@ class views_ui extends ctools_export_ui {
     $this->active = $form_state['values']['order'];
     $this->order = $form_state['values']['sort'];
 
-    $query    = tablesort_get_query_parameters();
+    $query = tablesort_get_query_parameters();
 
     $header = array(
       $this->tablesort_link(t('View name'), 'name', 'views-ui-name'),
@@ -282,6 +333,9 @@ class views_ui extends ctools_export_ui {
     return theme('table', $table);
   }
 
+  /**
+   *
+   */
   function tablesort_link($label, $field, $class) {
     $title = t('sort by @s', array('@s' => $label));
     $initial = 'asc';
@@ -306,7 +360,12 @@ class views_ui extends ctools_export_ui {
     return array('data' => $link, 'class' => $class);
   }
 
+  /**
+   *
+   */
   function clone_page($js, $input, $item, $step = NULL) {
+    $args = func_get_args();
+
     drupal_set_title($this->get_page_title('clone', $item));
 
     $name = $item->{$this->plugin['export']['key']};
@@ -323,7 +382,7 @@ class views_ui extends ctools_export_ui {
       'no_redirect' => TRUE,
       'step' => $step,
       // Store these in case additional args are needed.
-      'function args' => func_get_args(),
+      'function args' => $args,
     );
 
     $output = drupal_build_form('views_ui_clone_form', $form_state);
@@ -339,6 +398,9 @@ class views_ui extends ctools_export_ui {
     return $output;
   }
 
+  /**
+   *
+   */
   function add_template_page($js, $input, $name, $step = NULL) {
     $templates = views_get_all_templates();
 
@@ -348,9 +410,8 @@ class views_ui extends ctools_export_ui {
 
     $template = $templates[$name];
 
-    // The template description probably describes the template, not the
-    // view that will be created from it, but users aren't that likely to
-    // touch it.
+    // The template description probably describes the template, not the view
+    // that will be created from it, but users aren't that likely to touch it.
     if (!empty($template->description)) {
       unset($template->description);
     }
@@ -363,6 +424,9 @@ class views_ui extends ctools_export_ui {
     return $output;
   }
 
+  /**
+   *
+   */
   function set_item_state($state, $js, $input, $item) {
     ctools_export_set_object_status($item, $state);
     menu_rebuild();
@@ -375,23 +439,27 @@ class views_ui extends ctools_export_ui {
     }
   }
 
+  /**
+   *
+   */
   function list_page($js, $input) {
     // Remove filters values from session if filters are hidden.
     if (!variable_get('views_ui_show_listing_filters', FALSE) && isset($_SESSION['ctools_export_ui'][$this->plugin['name']])) {
       unset($_SESSION['ctools_export_ui'][$this->plugin['name']]);
     }
 
-    // wrap output in a div for CSS
+    // Wrap output in a div for CSS.
     $output = parent::list_page($js, $input);
     if (is_string($output)) {
       $output = '<div id="views-ui-list-page">' . $output . '</div>';
     }
     return $output;
   }
+
 }
 
 /**
- * Form callback to edit an exportable item using the wizard
+ * Form callback to edit an exportable item using the wizard.
  *
  * This simply loads the object defined in the plugin and hands it off.
  */

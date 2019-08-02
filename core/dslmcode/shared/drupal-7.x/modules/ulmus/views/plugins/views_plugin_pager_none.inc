@@ -12,21 +12,30 @@
  */
 class views_plugin_pager_none extends views_plugin_pager {
 
-  function init(&$view, &$display, $options = array()) {
+  /**
+   * {@inheritdoc}
+   */
+  public function init(&$view, &$display, $options = array()) {
     parent::init($view, $display, $options);
 
     // If the pager is set to none, then it should show all items.
     $this->set_items_per_page(0);
   }
 
-  function summary_title() {
+  /**
+   * {@inheritdoc}
+   */
+  public function summary_title() {
     if (!empty($this->options['offset'])) {
       return t('All items, skip @skip', array('@skip' => $this->options['offset']));
     }
     return t('All items');
   }
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['offset'] = array('default' => 0);
 
@@ -36,7 +45,7 @@ class views_plugin_pager_none extends views_plugin_pager {
   /**
    * Provide the default form for setting options.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['offset'] = array(
       '#type' => 'textfield',
@@ -46,30 +55,50 @@ class views_plugin_pager_none extends views_plugin_pager {
     );
   }
 
-  function use_pager() {
+  /**
+   * {@inheritdoc}
+   */
+  public function use_pager() {
     return FALSE;
   }
 
-  function use_count_query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function use_count_query() {
     return FALSE;
   }
 
-  function get_items_per_page() {
+  /**
+   * {@inheritdoc}
+   */
+  public function get_items_per_page() {
     return 0;
   }
 
-  function execute_count_query(&$count_query) {
-    // If we are displaying all items, never count. But we can update the count in post_execute.
+  /**
+   * {@inheritdoc}
+   */
+  public function execute_count_query(&$count_query) {
+    // If we are displaying all items, never count. But we can update the count
+    // in post_execute.
   }
 
-  function post_execute(&$result) {
+  /**
+   * {@inheritdoc}
+   */
+  public function post_execute(&$result) {
     $this->total_items = count($result);
   }
 
-  function query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     // The only query modifications we might do are offsets.
     if (!empty($this->options['offset'])) {
       $this->view->query->set_offset($this->options['offset']);
     }
   }
+
 }

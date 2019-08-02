@@ -1,0 +1,321 @@
+{
+  "haxSchema": {
+    "configure": [
+      {
+        "property": "title",
+        "title": "Title",
+        "description": "Title of the site",
+        "inputMethod": "textfield",
+        "required": true,
+        "icon": "editor:title"
+      },
+      {
+        "property": "domain",
+        "title": "Domain",
+        "description": "Domain of this website",
+        "inputMethod": "textfield",
+        "required": false,
+        "icon": "icons:open-in-browser"
+      },
+      {
+        "property": "description",
+        "title": "Description",
+        "description": "Simple description of the site",
+        "inputMethod": "textfield",
+        "required": false,
+        "icon": "editor:short-text"
+      },
+      {
+        "property": "image",
+        "title": "Banner",
+        "description": "Image for the site",
+        "inputMethod": "haxupload",
+        "required": false,
+        "icon": "image:image"
+      },
+      {
+        "property": "cssVariable",
+        "title": "Color",
+        "description": "A base accent color for the site",
+        "inputMethod": "colorpicker",
+        "required": true,
+        "icon": "editor:format-color-fill"
+      },
+      {
+        "property": "theme",
+        "title": "Theme",
+        "description": "Page theme",
+        "inputMethod": "select",
+        "required": false,
+        "icon": "editor:format-paint",
+        "options": {
+          "learn-two-theme": "Learn",
+          "key": "haxcms-theme-developer",
+          "haxor-slevin": "Coder blog",
+          "outline-player": "Documentation",
+          "simple-blog": "Simple blog",
+          "haxcms-basic-theme": "Basic site",
+          "haxcms-custom-theme": "Custom theme",
+          "haxcms-user-theme": "User theme",
+          "haxcms-minimalist-theme": "Minimalist site",
+          "haxcms-slide-theme": "Slide deck",
+          "haxcms-dev-theme": "DEVELOPER: Test theme",
+          "haxcms-theme-developer": "EXPERIMENTAL: HAX Theme Maker"
+        }
+      },
+      {
+        "property": "icon",
+        "title": "Icon",
+        "description": "Icon to represent the site",
+        "inputMethod": "iconpicker",
+        "required": false,
+        "icon": "icons:send"
+      },
+      {
+        "property": "custom-theme-tag",
+        "title": "Custom theme tag",
+        "description": "The name of the primary element for your HAXcms custom theme",
+        "inputMethod": "textfield",
+        "required": false
+      }
+    ],
+    "advanced": [
+      {
+        "property": "fields",
+        "title": "Custom Fields",
+        "description": "Store relational data about fields",
+        "required": false,
+        "icon": "icons:group-work",
+        "inputMethod": "array",
+        "properties": [
+          {
+            "property": "formgroup",
+            "title": "Form group",
+            "description": "Which tab will users input values",
+            "inputMethod": "select",
+            "required": true,
+            "options": {
+              "configure": "Configure",
+              "advanced": "Advanced"
+            },
+            "icon": "link"
+          },
+          {
+            "property": "inputMethod",
+            "title": "Input method",
+            "description": "How users can enter data for this field",
+            "inputMethod": "select",
+            "options": {
+              "textfield": "Textfield",
+              "number": "Number",
+              "boolean": "Checkbox",
+              "haxupload": "File upload",
+              "colorpicker": "Color picker",
+              "iconpicker": "Icon picker",
+              "code-editor": "Code editor",
+              "alt": "Alt text",
+              "datepicker": "Date picker",
+              "textarea": "Text area",
+              "flipboolean": "Checkbox (inverted)",
+              "select": "Select list",
+              "array": "Array"
+            },
+            "icon": "link"
+          },
+          {
+            "property": "property",
+            "title": "Machine name",
+            "description": "Field machine name for storage",
+            "inputMethod": "textfield",
+            "required": true
+          },
+          {
+            "property": "title",
+            "title": "Name",
+            "description": "Readable name of the field",
+            "inputMethod": "textfield",
+            "required": true
+          },
+          {
+            "property": "description",
+            "title": "Description",
+            "description": "additional details about the field data",
+            "inputMethod": "textfield",
+            "required": false
+          },
+          {
+            "property": "required",
+            "title": "Required",
+            "description": "Is this field required",
+            "inputMethod": "boolean",
+            "required": false
+          },
+          {
+            "property": "icon",
+            "title": "Icon",
+            "description": "Optional icon to represent this field",
+            "inputMethod": "iconpicker",
+            "required": false
+          }
+        ]
+      },
+      {
+        "property": "license",
+        "title": "License",
+        "description": "The source url for the element this is citing.",
+        "inputMethod": "select",
+        "options": {
+          "by": "Creative Commons: Attribution",
+          "by-sa": "Creative Commons: Attribution Share a like",
+          "by-nd": "Creative Commons: Attribution No derivatives",
+          "by-nc": "Creative Commons: Attribution non-commercial",
+          "by-nc-sa": "Creative Commons: Attribution non-commercial share a like",
+          "by-nc-nd": "Creative Commons: Attribution Non-commercial No derivatives"
+        },
+        "icon": "link"
+      },
+      {
+        "property": "author",
+        "title": "Author",
+        "description": "who made this",
+        "inputMethod": "textfield",
+        "icon": "social:person"
+      }
+    ]
+  },
+  "values": {
+    "title": "Py4E",
+    "author": "Bryan Ollendyke",
+    "license": "by-sa",
+    "description": "Python for everyone!",
+    "icon": "icons:save",
+    "theme": {
+      "element": "learn-two-theme",
+      "path": "@lrnwebcomponents\/learn-two-theme\/learn-two-theme.js",
+      "name": "Learn"
+    },
+    "domain": "https:\/\/btopro.github.io\/testtesttest",
+    "image": "assets\/banner.jpg",
+    "cssVariable": "yellow",
+    "fields": [
+      {
+        "property": "images",
+        "description": "List of images",
+        "required": false,
+        "icon": "image:collections",
+        "title": "Other sources",
+        "inputMethod": "array",
+        "properties": [
+          {
+            "property": "src",
+            "title": "Source",
+            "description": "The URL for the image",
+            "inputMethod": "haxupload"
+          },
+          {
+            "property": "alt",
+            "title": "Alt",
+            "description": "Alt text",
+            "inputMethod": "textfield"
+          }
+        ],
+        "formgroup": "configure"
+      },
+      {
+        "property": "subtitle",
+        "title": "Subtitle",
+        "description": "An additional subtitle",
+        "inputMethod": "textfield",
+        "icon": "editor:text-fields",
+        "formgroup": "configure"
+      },
+      {
+        "property": "tags",
+        "description": "Tags for the page",
+        "required": false,
+        "icon": "image:collections",
+        "title": "Tags",
+        "inputMethod": "array",
+        "properties": [
+          {
+            "property": "tag",
+            "title": "Tag",
+            "description": "Individual tag",
+            "inputMethod": "textfield"
+          }
+        ],
+        "formgroup": "configure"
+      },
+      {
+        "inputMethod": "number",
+        "property": "sads",
+        "title": "dsdasads",
+        "description": "asdadsasd",
+        "required": true,
+        "icon": "editor:format-color-fill",
+        "formgroup": "advanced"
+      }
+    ],
+    "configure": [
+      {
+        "property": "images",
+        "description": "List of images",
+        "required": false,
+        "icon": "image:collections",
+        "title": "Other sources",
+        "inputMethod": "array",
+        "properties": [
+          {
+            "property": "src",
+            "title": "Source",
+            "description": "The URL for the image",
+            "inputMethod": "haxupload"
+          },
+          {
+            "property": "alt",
+            "title": "Alt",
+            "description": "Alt text",
+            "inputMethod": "textfield"
+          }
+        ],
+        "formgroup": "configure"
+      },
+      {
+        "property": "subtitle",
+        "title": "Subtitle",
+        "description": "An additional subtitle",
+        "inputMethod": "textfield",
+        "icon": "editor:text-fields",
+        "formgroup": "configure"
+      },
+      {
+        "property": "tags",
+        "description": "Tags for the page",
+        "required": false,
+        "icon": "image:collections",
+        "title": "Tags",
+        "inputMethod": "array",
+        "properties": [
+          {
+            "property": "tag",
+            "title": "Tag",
+            "description": "Individual tag",
+            "inputMethod": "textfield"
+          }
+        ],
+        "formgroup": "configure"
+      }
+    ],
+    "advanced": [
+      {
+        "inputMethod": "number",
+        "property": "sads",
+        "title": "dsdasads",
+        "description": "asdadsasd",
+        "required": true,
+        "icon": "editor:format-color-fill",
+        "formgroup": "advanced"
+      }
+    ]
+  }
+}

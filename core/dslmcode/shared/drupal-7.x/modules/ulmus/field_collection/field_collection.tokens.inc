@@ -131,7 +131,11 @@ function field_collection_host_entity_types() {
 
   if ($host_entity_types === FALSE) {
     $host_entity_types = array();
-    $entity_types = entity_get_info();
+
+    if (function_exists('entity_get_info')) {
+      $entity_types = entity_get_info();
+    }
+
     // Look for all field instances, filter them by type == 'field_collection'
     // and map the entity type it's connected to to the returned list.
     foreach (field_info_field_map() as $field_instance) {

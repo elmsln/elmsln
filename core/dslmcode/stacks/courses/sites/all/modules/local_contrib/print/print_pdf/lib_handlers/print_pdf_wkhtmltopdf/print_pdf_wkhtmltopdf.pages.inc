@@ -29,6 +29,21 @@ function print_pdf_wkhtmltopdf_print_pdf_generate($html, $meta, $paper_size = NU
     $wkhtmltopdf_options = token_replace($wkhtmltopdf_options, array('node' => $meta['node']), array('clear' => TRUE));
   }
 
+  // Build array of single quoted parts, and the same escaped.
+  preg_match_all("!'.+?'!", $wkhtmltopdf_options, $matches);
+  $quoted = array();
+  foreach ($matches[0] as $match) {
+    $quoted[escapeshellcmd($match)] = $match;
+  }
+
+  // Prevent options that could result in execution of arbitrary commands.
+  $wkhtmltopdf_options = escapeshellcmd($wkhtmltopdf_options);
+
+  // Replace sections that were single quoted with original content.
+  foreach ($quoted as $search => $replace) {
+    $wkhtmltopdf_options = str_replace($search, $replace, $wkhtmltopdf_options);
+  }
+
   $version = print_pdf_wkhtmltopdf_pdf_tool_version($pdf_tool[1], FALSE);
 
   // 0.10.0 beta2 identifies itself as 0.9.9.
@@ -45,7 +60,22 @@ function print_pdf_wkhtmltopdf_print_pdf_generate($html, $meta, $paper_size = NU
 
   // Use basic http authentication to fetch included CSS, etc.
   if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
-    $wkhtmltopdf_options .= ' --username ' . check_plain($_SERVER['PHP_AUTH_USER']) . ' --password ' . check_plain($_SERVER['PHP_AUTH_PW']);
+    $wkhtmltopdf_options .= ' --username ' . escapeshellarg($_SERVER['PHP_AUTH_USER']) . ' --password ' . escapeshellarg($_SERVER['PHP_AUTH_PW']);
+  }
+
+  $use_input_file = variable_get('print_pdf_wkhtmltopdf_use_input_file', PRINT_PDF_WKHTMLTOPDF_USE_INPUT_FILE_DEFAULT);
+  if ($use_input_file) {
+    $temp_html = file_unmanaged_save_data($html, drupal_tempnam('temporary://', 'c_html_') . '.html', FILE_EXISTS_RENAME);
+    if ($temp_html === FALSE) {
+      watchdog('print_pdf', 'wkhtmltopdf: could not create temporary html file: %file', array('%file' => $temp_html));
+      drupal_goto($meta['url']);
+      return NULL;
+    }
+    $html_input_parameter = drupal_realpath($temp_html);
+  }
+  else {
+    $temp_html = '';
+    $html_input_parameter = '-';
   }
 
   $descriptor = array(
@@ -53,13 +83,15 @@ function print_pdf_wkhtmltopdf_print_pdf_generate($html, $meta, $paper_size = NU
     1 => array('pipe', 'w'),
     2 => array('pipe', 'a'),
   );
-  $cmd = '"' . realpath($pdf_tool[1]) . "\" --page-size $paper_size --orientation $page_orientation --dpi $dpi $wkhtmltopdf_options - -";
+  $cmd = '"' . realpath($pdf_tool[1]) . "\" -q --page-size $paper_size --orientation $page_orientation --dpi $dpi $wkhtmltopdf_options $html_input_parameter -";
 
   $process = proc_open($cmd, $descriptor, $pipes, NULL, NULL);
 
   if (is_resource($process)) {
-    fwrite($pipes[0], $html);
-    fclose($pipes[0]);
+    if (!$use_input_file) {
+      fwrite($pipes[0], $html);
+      fclose($pipes[0]);
+    }
 
     $pdf = stream_get_contents($pipes[1]);
     fclose($pipes[1]);
@@ -77,8 +109,14 @@ function print_pdf_wkhtmltopdf_print_pdf_generate($html, $meta, $paper_size = NU
         array('%cmd' => $cmd, '%ret' => $retval, '%error' => $error));
     }
   }
+  if ($use_input_file) {
+    file_unmanaged_delete($temp_html);
+  }
 
   if (!empty($pdf)) {
+    // Remove anything before actual PDF content.
+    $pdf = substr($pdf, strpos($pdf, '%PDF-'));
+
     return $pdf;
   }
   else {

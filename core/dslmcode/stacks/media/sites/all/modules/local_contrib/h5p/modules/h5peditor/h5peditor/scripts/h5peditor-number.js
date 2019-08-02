@@ -1,6 +1,4 @@
-var H5PEditor = H5PEditor || {};
-var ns = H5PEditor;
-
+/* global ns */
 /**
  * Create a number picker field for the form.
  *
@@ -74,7 +72,7 @@ ns.Number.prototype.appendTo = function ($wrapper) {
 /**
  * Create HTML for the field.
  */
-ns.Number.prototype.createHtml = function () {  
+ns.Number.prototype.createHtml = function () {
   var input = ns.createText((this.field.unit && this.value !== undefined ? (this.value + ' ' + this.field.unit) : this.value), 15);
   /* TODO: Add back in when FF gets support for input:range....
    *if (this.field.min !== undefined && this.field.max !== undefined && this.field.step !== undefined) {

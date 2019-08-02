@@ -1,4 +1,4 @@
-<ul>
+<ul style="margin:-24px">
   <li class="ferpa-protect">
     <div class="user-drawer-block">
       <?php print $userbackground; ?>
@@ -18,26 +18,15 @@
   </li>
   <?php if (!empty($username) && $username !== t("Anonymous")) : ?>
   <li>
-    <lrnsys-button label="<?php print $userprofile['label']; ?>" href="<?php print $userprofile['href']; ?>" class="<?php print implode(' ', $userprofile['class']); ?>" icon="<?php print $userprofile['icon']; ?>" hover-class="<?php print implode(' ', $userprofile['hover-class']); ?>"></lrnsys-button>
+    <lrnsys-button label="<?php print $userprofile['label']; ?>" href="<?php print $userprofile['href']; ?>" class="<?php if (is_array($userprofile['class'])) { print implode(' ', $userprofile['class']); } ?>" icon="<?php print $userprofile['icon']; ?>" hover-class="<?php if(is_array($userprofile['hover-class'])) {print implode(' ', $userprofile['hover-class']);} ?>"></lrnsys-button>
   </li>
   <?php endif; ?>
   <?php if (isset($user_section) || !empty($masquerade)) : ?>
   <li><div class="divider"></div></li>
   <?php endif; ?>
-  <li>
-    <lrnsys-dialog header="<?php print t('Preferences'); ?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
-      <span slot="button">
-        <iron-icon icon="accessibility"></iron-icon>
-        <span><?php print t('Preferences');?></span>
-      </span>
-      <span slot="content">
-        <?php print $a11y; ?>
-      </span>
-    </lrnsys-dialog>
-  </li>
   <?php if (isset($user_section)) : ?>
   <li>
-    <lrnsys-dialog header="<?php print t('Change section');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
+    <lrnsys-dialog header="<?php print t('Change section');?>">
       <span slot="button">
         <iron-icon icon="perm-identity"></iron-icon>
         <span><?php print t('Change section');?></span>
@@ -50,7 +39,7 @@
   <?php endif; ?>
   <?php if (!empty($masquerade)) : ?>
   <li>
-    <lrnsys-dialog header="<?php print t('Impersonate account');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
+    <lrnsys-dialog header="<?php print t('Impersonate account');?>">
       <span slot="button">
         <iron-icon icon="supervisor-account"></iron-icon>
         <span><?php print t('Impersonate account');?></span>

@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * @file
  * Handles default views.
  * Reads views from all the .view.inc files in the views/defaults directory.

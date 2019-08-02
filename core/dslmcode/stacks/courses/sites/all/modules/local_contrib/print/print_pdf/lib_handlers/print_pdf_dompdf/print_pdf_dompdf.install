@@ -25,8 +25,8 @@ function print_pdf_dompdf_requirements($phase) {
     // On status report page, make sure that a PDF generation tool is selected.
     case 'runtime':
       $print_pdf_pdf_tool = variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT);
-      if (!empty($print_pdf_pdf_tool)) {
-        $tool = explode('|', $print_pdf_pdf_tool);
+      $tool = explode('|', $print_pdf_pdf_tool);
+      if (is_array($tool) && ($tool[0] === 'print_pdf_dompdf')) {
         $version = print_pdf_dompdf_pdf_tool_version($tool[1]);
 
         // If version is older than 0.6.2, raise warning, except if if is

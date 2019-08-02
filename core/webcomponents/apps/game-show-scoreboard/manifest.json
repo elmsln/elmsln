@@ -1,0 +1,30 @@
+{
+  "name": "game-show-scoreboard",
+  "short_name": "game-show-scoreboard",
+  "title": "Jeopardy Scoreboard",
+  "description": "Game show / Jeopardy style quiz results for the instructor",
+  "start_url": "/",
+  "display": "standalone",
+  "app_integration": {
+    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/game-show-scoreboard/game-show-scoreboard.js",
+    "title": "",
+    "endpoints": {
+      "options": {
+        "callback": "_game_show_scoreboard_options",
+        "property": "options-path"
+      },
+      "data": {
+        "callback": "_game_show_scoreboard_data",
+        "property": "data-path"
+      }
+    },
+    "menu": {
+      "title": "Jeopardy scoreboard",
+      "menu_name": "menu-elmsln-settings",
+      "weight": -100
+    },
+    "context": {
+      "distro": "mooc"
+    }
+  }
+}

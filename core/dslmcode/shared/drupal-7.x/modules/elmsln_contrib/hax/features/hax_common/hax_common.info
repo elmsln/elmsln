@@ -1,0 +1,13 @@
+name = HAX common
+description = Common configuration for HAX to provide file upload and input format settings out of the box.
+core = 7.x
+package = Webcomponents
+dependencies[] = features
+dependencies[] = file_entity
+dependencies[] = filter
+dependencies[] = hax
+dependencies[] = restws
+dependencies[] = token_filter
+dependencies[] = webcomponents_cmstags
+features[features_api][] = api:2
+features[filter][] = hax

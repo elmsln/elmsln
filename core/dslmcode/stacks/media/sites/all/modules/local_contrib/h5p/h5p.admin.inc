@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Menu callback - Form builder function for settings.
  */
@@ -39,7 +40,15 @@ function h5p_admin_settings($form, &$form_state) {
     )
   );
 
-  $button_behaviours = array(
+  $button_behaviours_download = array(
+    H5PDisplayOptionBehaviour::NEVER_SHOW => t('Never'),
+    H5PDisplayOptionBehaviour::ALWAYS_SHOW => t('Always '),
+    H5PDisplayOptionBehaviour::CONTROLLED_BY_PERMISSIONS => t('Only if permitted through permissions'),
+    H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON => t('Controlled by author, default is on'),
+    H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF => t('Controlled by author, default is off'),
+  );
+
+  $button_behaviours_embed = array(
     H5PDisplayOptionBehaviour::NEVER_SHOW => t('Never show'),
     H5PDisplayOptionBehaviour::ALWAYS_SHOW => t('Always show'),
     H5PDisplayOptionBehaviour::CONTROLLED_BY_PERMISSIONS => t('Show only if permitted through permissions'),
@@ -49,27 +58,20 @@ function h5p_admin_settings($form, &$form_state) {
 
   _h5p_add_display_option($form['h5p_display_options'], 'h5p_frame', t('Display buttons (download, embed and copyright)'), variable_get('h5p_frame', TRUE), '.form-item-h5p-export, .form-item-h5p-embed, .form-item-h5p-copyright, .form-item-h5p-icon');
   $form['h5p_display_options']['h5p_export'] = array(
-    '#title' => t('Download button'),
-    '#options' => $button_behaviours,
+    '#title' => t('Allow download'),
+    '#options' => $button_behaviours_download,
     '#default_value' => variable_get('h5p_export', H5PDisplayOptionBehaviour::ALWAYS_SHOW),
     '#type' => 'select',
   );
   $form['h5p_display_options']['h5p_embed'] = array(
     '#title' => t('Embed button'),
-    '#options' => $button_behaviours,
+    '#options' => $button_behaviours_embed,
     '#default_value' => variable_get('h5p_embed', H5PDisplayOptionBehaviour::ALWAYS_SHOW),
     '#type' => 'select',
   );
   _h5p_add_display_option($form['h5p_display_options'], 'h5p_copyright', t('Copyright button'), variable_get('h5p_copyright', TRUE));
   _h5p_add_display_option($form['h5p_display_options'], 'h5p_icon', t('About H5P button'), variable_get('h5p_icon', TRUE));
   // TODO: Should we remove existing H5P files when export gets disabled?
-
-  $form['h5p_default_path'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Default h5p package path'),
-    '#default_value' => variable_get('h5p_default_path', 'h5p'),
-    '#description' => t('Subdirectory in the directory %dir where files will be stored. Do not include trailing slash.', array('%dir' => file_stream_wrapper_get_instance_by_uri('public://')->realpath())),
-  );
 
   $h5p_nodes_exists = db_query("SELECT 1 FROM {node} WHERE type = :type", array(':type' => 'h5p_content'))->fetchField();
 
@@ -190,18 +192,7 @@ function h5p_admin_settings($form, &$form_state) {
  * Form validation handler for admin settings form.
  */
 function h5p_admin_settings_validate($form, &$form_state) {
-  // Try to create directories and warn the user of errors.
-  $h5p_default_path = $form_state['values']['h5p_default_path'];
-  $path = file_stream_wrapper_get_instance_by_uri('public://')->realpath() . '/' . $h5p_default_path;
-  $temp_path = $path . '/' . 'temp';
-
-  if (!file_prepare_directory($path, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-    form_set_error('h5p_default_path', t('You have specified an invalid directory.'));
-  }
-  if (!file_prepare_directory($temp_path, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-    form_set_error('h5p_default_path', t('You have specified an invalid directory.'));
-  }
-
+  // Check if save content frequency is a positive number
   if (!is_numeric($form_state['values']['h5p_save_content_frequency']) || $form_state['values']['h5p_save_content_frequency'] < 0) {
     form_set_error('h5p_save_content_frequency', t('You must specify a positive number.'));
   }
@@ -211,8 +202,6 @@ function h5p_admin_settings_validate($form, &$form_state) {
  * Form submit handler for h5p admin settings form.
  */
 function h5p_admin_settings_submit($form, &$form_state) {
-  // Ensure that 'h5p_default_path' variable contains no trailing slash.
-  $form_state['values']['h5p_default_path'] = rtrim($form_state['values']['h5p_default_path'], '/\\');
   // Ensure that the h5p white list is always stored in lower case.
   $form_state['values']['h5p_whitelist'] = mb_strtolower($form_state['values']['h5p_whitelist']);
 
@@ -653,6 +642,9 @@ function h5p_content_upgrade($library_id) {
       'errorScript' => t('Could not load upgrades script for %lib.'),
       'errorContent' => t('Could not upgrade content %id:'),
       'errorParamsBroken' => t('Parameters are broken.'),
+      'errorLibrary' => t('Missing required library %lib.'),
+      'errorTooHighVersion' => t('Parameters contain %used while only %supported or earlier are supported.'),
+      'errorNotSupported' => t('Parameters contain %used which is not supported.'),
       'done' => t('You have successfully upgraded %num.', array('%num' => $contents_plural)) . ($return ? ' ' . l(t('Return'), $return) : ''),
       'library' => array(
         'name' => $library->name,
@@ -709,16 +701,22 @@ function h5p_content_upgrade_progress($library_id) {
 
   // Get updated params
   $params = filter_input(INPUT_POST, 'params');
+
   if ($params !== NULL) {
     // Update params.
     $params = json_decode($params);
     foreach ($params as $id => $param) {
+      $upgraded = json_decode($param);
+      $metadata = isset($upgraded->metadata) ? $upgraded->metadata : array();
+
+      $fields = array_merge(H5PMetadata::toDBArray($metadata, false, false), array(
+        'main_library_id' => $to_library->id,
+        'json_content' => json_encode($upgraded->params),
+        'filtered' => '',
+      ));
+
       db_update('h5p_nodes')
-        ->fields(array(
-          'main_library_id' => $to_library->id,
-          'json_content' => $param,
-          'filtered' => ''
-        ))
+        ->fields($fields)
         ->condition('content_id', $id)
         ->execute();
 
@@ -737,14 +735,44 @@ function h5p_content_upgrade_progress($library_id) {
     }
   }
 
+  // Determine if any content has been skipped during the process
+  $skipped = filter_input(INPUT_POST, 'skipped');
+  if ($skipped !== NULL) {
+    $out->skipped = json_decode($skipped);
+    // Clean up input, only numbers
+    foreach ($out->skipped as $i => $id) {
+      $out->skipped[$i] = intval($id);
+    }
+    $skipped = implode(',', $out->skipped);
+  }
+  else {
+    $out->skipped = array();
+  }
+
   // Get number of contents for this library
-  $out->left = $interface->getNumContent($library_id);
+  $out->left = $interface->getNumContent($library_id, $skipped);
 
   if ($out->left) {
+    $skip_query = empty($skipped) ? '' : " AND h.content_id NOT IN ($skipped)";
+
     // Find the 10 first contents using library and add to params
-    $contents = db_query('SELECT content_id AS id, json_content AS params FROM {h5p_nodes} WHERE main_library_id = :id LIMIT 40', array(':id' => $library_id));
+    $contents = db_query(
+        "SELECT h.content_id AS id,
+                h.json_content AS params,
+                n.title,
+                h.authors, h.source, h.license, h.license_version, h.license_extras,
+                h.year_from, h.year_to, h.changes, h.author_comments, h.default_language
+           FROM {h5p_nodes} h
+           JOIN {node} n ON n.nid = h.nid
+          WHERE h.main_library_id = :id
+                {$skip_query}
+          LIMIT 40",
+        array(':id' => $library_id));
+
     foreach ($contents as $content) {
-      $out->params[$content->id] = $content->params;
+      $out->params[$content->id] =
+        '{"params":' . $content->params .
+        ',"metadata":' . H5PMetadata::toJSON($content) . '}';
     }
   }
 
@@ -771,10 +799,6 @@ function h5p_content_upgrade_library($name, $major, $minor) {
 
   $core = _h5p_get_instance('core');
   $library->semantics = $core->loadLibrarySemantics($library->name, $library->version->major, $library->version->minor);
-  if ($library->semantics === NULL) {
-    drupal_not_found();
-    exit;
-  }
 
   if ($core->development_mode & H5PDevelopment::MODE_LIBRARY) {
     $dev_lib = $core->h5pD->getLibrary($library->name, $library->version->major, $library->version->minor);

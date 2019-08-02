@@ -39,35 +39,34 @@
 .views-admin .icon,
 .views-admin .icon-text {
   background-attachment: scroll;
-  background-image: url("../images/sprites.png");
+  background-image: url('../images/sprites.png');
   background-position: left top; /* LTR */
   background-repeat: no-repeat;
 }
 
 .views-admin a.icon {
-  background-image:
-    url("../images/sprites.png"),
-    -moz-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #e8e8e8 100%);
-  background-image:
-    url("../images/sprites.png"),
-    -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      color-stop(0.0, rgba(255, 255, 255, 1.0)),
-      color-stop(1.0, rgba(232, 232, 232, 1.0))
-    );
-  background-image:
-    url("../images/sprites.png"),
-    -webkit-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #e8e8e8 100%);
+  background-image: url('../images/sprites.png'),
+  -moz-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #e8e8e8 100%
+  );
+  background-image: url('../images/sprites.png'),
+  -webkit-gradient(
+  linear,
+  left top,
+  left bottom,
+  color-stop(0.0, rgba(255, 255, 255, 1.0)),
+  color-stop(1.0, rgba(232, 232, 232, 1.0))
+  );
+  background-image: url('../images/sprites.png'),
+  -webkit-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #e8e8e8 100%
+  );
   background-repeat: no-repeat, repeat-y;
-  border: 1px solid #dddddd;
+  border: 1px solid #ddd;
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
   border-radius: 4px;
@@ -206,7 +205,7 @@ input.form-radio {
 
 /* Hide 'remove' checkboxes. */
 .views-remove-checkbox {
-    display: none;
+  display: none;
 }
 
 /* sizes the labels of checkboxes and radio button to the height of the text */
@@ -406,13 +405,13 @@ td.group-title {
 /* @group Attachments */
 
 .views-displays {
-  border: 1px solid #CCC;
+  border: 1px solid #ccc;
   padding-bottom: 36px;
 }
 
 .views-display-top {
-  background-color: #F9F9F9;
-  border-bottom: 1px solid #CCCCCC;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #ccc;
   padding: 8px 8px 8px; /* LTR */
   position: relative;
 }
@@ -453,7 +452,7 @@ ul#views-display-menu-tabs li {
   margin-bottom: 5px;
 }
 
-ul#views-display-menu-tabs li.add ul.action-list li{
+ul#views-display-menu-tabs li.add ul.action-list li {
   margin: 0;
 }
 
@@ -470,7 +469,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
  */
 .views-displays ul.secondary li.active a.active.error,
 .views-displays .secondary a.error {
-  border: 2px solid #ED541D;
+  border: 2px solid #ed541d;
   padding: 1px 6px;
 }
 
@@ -480,8 +479,8 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 
 .views-displays .secondary a:hover,
 .views-displays .secondary .active a {
-  background-color: #666666;
-  color: #ffffff;
+  background-color: #666;
+  color: #fff;
   border-bottom-width: 1px;
 }
 
@@ -523,7 +522,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 }
 
 .views-displays .secondary .action-list li:hover {
-  background-color: #dddddd;
+  background-color: #ddd;
 }
 
 /* @end */
@@ -556,10 +555,10 @@ ul#views-display-menu-tabs li.add ul.action-list li{
  */
 
 .views-display-column + .views-display-column {
-   margin-top: 0;
- }
+  margin-top: 0;
+}
 
- /* @end */
+/* @end */
 
 /* @group Auto preview
  *
@@ -683,7 +682,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
  */
 
 .views-ui-display-tab-bucket .views-display-setting {
-  color: #666666;
+  color: #666;
   font-size: 12px;
   padding-bottom: 2px;
 }
@@ -753,8 +752,8 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 }
 
 .views-ui-dialog .ui-dialog-titlebar-close {
-  background: url("../images/close.png") no-repeat scroll 6px 3px #F3F4EE;
-  border-color: #aaaaaa;
+  background: url('../images/close.png') no-repeat scroll 6px 3px #f3f4ee;
+  border-color: #aaa;
   -moz-border-radius: 0 10px 12px 0;
   -webkit-border-radius: 0 10px 12px 0;
   border-radius: 0 10px 12px 0;
@@ -774,17 +773,17 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 }
 
 .views-filterable-options .form-type-checkbox {
-  border: 1px solid #CCC;
+  border: 1px solid #ccc;
   padding: 5px 8px;
   border-top: none;
 }
 
 .views-filterable-options {
-  border-top:  1px solid #CCC;
+  border-top: 1px solid #ccc;
 }
 
 .views-filterable-options .even .form-type-checkbox {
-  background-color: #F3F4EE;
+  background-color: #f3f4ee;
 }
 
 .filterable-option .form-item {
@@ -830,7 +829,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 
 .views-ui-dialog #views-ajax-title,
 .views-ui-dialog .views-override {
-  background-color: #F3F4EE;
+  background-color: #f3f4ee;
 }
 
 .views-ui-dialog .views-override {
@@ -862,7 +861,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 }
 
 .views-ui-dialog .scroll {
-  border: 1px solid #CCC;
+  border: 1px solid #ccc;
   border-width: 1px 0;
   padding: 8px 13px;
 }
@@ -872,7 +871,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 }
 
 .views-ui-dialog .form-buttons {
-  background-color: #F3F4EE;
+  background-color: #f3f4ee;
   padding: 8px 13px;
 }
 .views-ui-dialog .form-buttons input {
@@ -888,7 +887,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 /* @todo Make this a class to be used anywhere there's node types? */
 .form-type-checkboxes #edit-options-value,
 .form-type-checkboxes #edit-options-validate-options-node-types {
-  border-color: #CCCCCC;
+  border-color: #ccc;
   border-style: solid;
   border-width: 1px;
   max-height: 210px;
@@ -907,25 +906,25 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 }
 
 #views-ui-rearrange-filter-form tr td[rowspan] {
-  border-color: #CDCDCD;
+  border-color: #cdcdcd;
   border-style: solid;
   border-width: 0 1px 1px 1px;
 }
 
 #views-ui-rearrange-filter-form tr[id^="views-row"] {
-  border-right: 1px solid #CDCDCD;
+  border-right: 1px solid #cdcdcd;
 }
 
 #views-ui-rearrange-filter-form tr[id^="views-row"].even td {
-  background-color: #F3F4ED;
+  background-color: #f3f4ed;
 }
 
 #views-ui-rearrange-filter-form .views-group-title {
-  border-top: 1px solid #CDCDCD;
+  border-top: 1px solid #cdcdcd;
 }
 
 #views-ui-rearrange-filter-form .group-empty {
-  border-bottom: 1px solid #CDCDCD;
+  border-bottom: 1px solid #cdcdcd;
 }
 
 /* @end */
@@ -945,8 +944,8 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 /* @group Live preview elements */
 
 #views-preview-wrapper {
-  border: 1px solid #CCC;
-  border-top: 2px solid #CCC;
+  border: 1px solid #ccc;
+  border-top: 2px solid #ccc;
   padding-bottom: 12px;
   padding-top: 12px;
 }
@@ -979,7 +978,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 }
 
 #views-live-preview .preview-section {
-  border: 1px dashed #DEDEDE;
+  border: 1px dashed #dedede;
   margin: 0 -5px;
   padding: 3px 5px;
 }
@@ -997,7 +996,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 
 .views-query-info table {
   border-collapse: separate;
-  border-color: #dddddd;
+  border-color: #ddd;
   border-spacing: 0;
   margin: 10px 0;
 }
@@ -1008,7 +1007,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 
 .views-query-info table th,
 .views-query-info table td {
-  color: #666666;
+  color: #666;
   padding: 4px 10px;
 }
 
@@ -1058,7 +1057,7 @@ ul#views-display-menu-tabs li.add ul.action-list li{
 
 .ajax-progress-throbber {
   background-color: #232323;
-  background-image: url("../images/loading-small.gif");
+  background-image: url('../images/loading-small.gif');
   background-position: center center;
   background-repeat: no-repeat;
   -moz-border-radius: 7px;

@@ -247,6 +247,15 @@ function cis_service_connection_block_section_context_changer_form() {
     // mechanism for people to allow fellow instructors to access their stuff
     // as an alternate role.
     $sections = cis_section_all_sections();
+    foreach ($sections as $key => $value) {
+      $cisSectionData = _cis_connector_transaction('section', 'default', array(), $key);
+      if (isset($cisSectionData['host_entity']['field_semester']['und'][0]['value'])) {
+        $sections[$key] = strtoupper($cisSectionData['host_entity']['field_semester']['und'][0]['value']) . $cisSectionData['host_entity']['field_year']['und'][0]['value'] . ' - ' . $value;
+      }
+      // allow developers to hijack this / make it as they need displayed
+      drupal_alter('cis_lmsless_section_title', $sections[$key], $key, $cisSectionData);
+    }
+
     $form['section'] = array(
       '#type' => 'select',
       '#options' => $sections,

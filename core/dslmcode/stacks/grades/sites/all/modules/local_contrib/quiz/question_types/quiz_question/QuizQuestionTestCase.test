@@ -21,8 +21,10 @@ abstract class QuizQuestionTestCase extends QuizTestCase {
    *   Array of admin permissions to add.
    * @param array $user_permissions
    *   Array of user permissions to add.
+   *
+   * @return void|false
    */
-  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
     $modules[] = 'quiz_question';
     $admin_permissions[] = "create {$this->question_node_type} content";
     $admin_permissions[] = "edit any {$this->question_node_type} content";
@@ -45,4 +47,5 @@ abstract class QuizQuestionTestCase extends QuizTestCase {
    * question.
    */
   abstract public function testCreateQuizQuestion();
+
 }

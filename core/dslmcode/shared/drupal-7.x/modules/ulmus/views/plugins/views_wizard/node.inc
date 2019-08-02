@@ -10,7 +10,7 @@ $plugin = array(
   'base_table' => 'node',
   'created_column' => 'created',
   'available_sorts' => array(
-    'title:DESC' => t('Title')
+    'title:DESC' => t('Title'),
   ),
   'form_wizard_class' => array(
     'file' => 'views_ui_node_views_wizard.class.php',

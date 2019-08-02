@@ -42,7 +42,7 @@
 }
 
 .views-displays .secondary .open > a:hover {
-  color: #0071B3;
+  color: #0071b3;
 }
 
 .views-displays .secondary input.form-submit {
@@ -57,7 +57,7 @@
  */
 
 .views-filterable-options .even .form-type-checkbox {
-  background-color: #F9F9F9;
+  background-color: #f9f9f9;
 }
 
 .views-ui-dialog .ui-dialog-titlebar-close,
@@ -83,29 +83,28 @@
 /* @group Buttons */
 
 .ctools-button-processed {
-  background-image:
-    -moz-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
-  background-image:
-    -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      color-stop(0.0, rgba(255, 255, 255, 1.0)),
-      color-stop(1.0, rgba(249, 249, 249, 1.0))
-    );
-  background-image:
-    -webkit-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
-  background-image:
-    linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
+  background-image: -moz-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
+  background-image: -webkit-gradient(
+  linear,
+  left top,
+  left bottom,
+  color-stop(0.0, rgba(255, 255, 255, 1.0)),
+  color-stop(1.0, rgba(249, 249, 249, 1.0))
+  );
+  background-image: -webkit-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
+  background-image: linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -114,29 +113,28 @@
 }
 
 .ctools-button-processed:hover {
-  background-image:
-    -moz-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f1f1f1 100%);
-  background-image:
-    -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      color-stop(0.0, rgba(255, 255, 255, 1.0)),
-      color-stop(1.0, rgba(241, 241, 241, 1.0))
-    );
-  background-image:
-    -webkit-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f1f1f1 100%);
-  background-image:
-    linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f1f1f1 100%);
+  background-image: -moz-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f1f1f1 100%
+  );
+  background-image: -webkit-gradient(
+  linear,
+  left top,
+  left bottom,
+  color-stop(0.0, rgba(255, 255, 255, 1.0)),
+  color-stop(1.0, rgba(241, 241, 241, 1.0))
+  );
+  background-image: -webkit-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f1f1f1 100%
+  );
+  background-image: linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f1f1f1 100%
+  );
 }
 
 .ctools-button-processed li a,
@@ -150,29 +148,28 @@
 }
 
 .ctools-dropbutton-processed.open:hover {
-  background-image:
-    -moz-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
-  background-image:
-    -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      color-stop(0.0, rgba(255, 255, 255, 1.0)),
-      color-stop(1.0, rgba(249, 249, 249, 1.0))
-    );
-  background-image:
-    -webkit-linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
-  background-image:
-    linear-gradient(
-      -90deg,
-      #ffffff 0px,
-      #f9f9f9 100%);
+  background-image: -moz-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
+  background-image: -webkit-gradient(
+  linear,
+  left top,
+  left bottom,
+  color-stop(0.0, rgba(255, 255, 255, 1.0)),
+  color-stop(1.0, rgba(249, 249, 249, 1.0))
+  );
+  background-image: -webkit-linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
+  background-image: linear-gradient(
+  -90deg,
+  #fff 0px,
+  #f9f9f9 100%
+  );
 }
 
 .ctools-dropbutton-processed.open {
@@ -220,12 +217,12 @@
 }
 
 .views-ui-display-tab-actions .ctools-button input {
-  color: #0071B3;
+  color: #0071b3;
 }
 
 .views-ui-display-tab-actions .ctools-button input:hover,
 .views-ui-display-tab-actions .ctools-button input:focus {
-  color: #018FE2;
+  color: #018fe2;
 }
 
 /* @end */

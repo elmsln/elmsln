@@ -1,9 +1,11 @@
 <?php
 
 /**
- * @file rules integration for the system module
+ * @file
+ * Rules integration for the system module.
  *
  * @addtogroup rules
+ *
  * @{
  */
 
@@ -46,6 +48,7 @@ function rules_system_event_info() {
 
 /**
  * Implements hook_rules_data_info() on behalf of the system module.
+ *
  * @see rules_core_modules()
  */
 function rules_system_data_info() {
@@ -59,8 +62,9 @@ function rules_system_data_info() {
 }
 
 /**
- * Defines property info for watchdog log entries, used by the log entry data
- * type to provide an useful metadata wrapper.
+ * Defines property info for watchdog log entries.
+ *
+ * Used by the log entry data type to provide a useful metadata wrapper.
  */
 function _rules_system_watchdog_log_entry_info() {
   return array(
@@ -294,7 +298,7 @@ function rules_system_evaluator_info() {
       'class' => 'RulesTokenEvaluator',
       'type' => array('text', 'uri', 'list<text>', 'list<uri>'),
       'weight' => 0,
-     ),
+    ),
   );
 }
 

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains a search filter handler.
+ * Definition of views_handler_filter_search.
  */
 
 /**
@@ -11,21 +11,28 @@
  * @ingroup views_filter_handlers
  */
 class views_handler_filter_search extends views_handler_filter {
-  var $always_multiple = TRUE;
+
+  /**
+   *
+   */
+  public $always_multiple = TRUE;
 
   /**
    * Stores a viewsSearchQuery object to be able to use the search.module "api".
    *
    * @var viewsSearchQuery
    */
-  var $search_query = NULL;
+  public $search_query = NULL;
 
   /**
    * Checks if the search query has been parsed.
    */
-  var $parsed = FALSE;
+  public $parsed = FALSE;
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['operator']['default'] = 'optional';
@@ -35,13 +42,12 @@ class views_handler_filter_search extends views_handler_filter {
   }
 
   /**
-   * Overrides views_handler_filter::options_form().
-   *
-   * Add an option to remove search scores from the query.
+   * {@inheritdoc}
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
+    // Add an option to remove search scores from the query.
     $form['remove_score'] = array(
       '#type' => 'checkbox',
       '#title' => t('Remove search score'),
@@ -50,11 +56,10 @@ class views_handler_filter_search extends views_handler_filter {
     );
   }
 
-
   /**
-   * Provide simple equality operator
+   * Provide simple equality operator.
    */
-  function operator_form(&$form, &$form_state) {
+  public function operator_form(&$form, &$form_state) {
     $form['operator'] = array(
       '#type' => 'radios',
       '#title' => t('On empty input'),
@@ -67,9 +72,9 @@ class views_handler_filter_search extends views_handler_filter {
   }
 
   /**
-   * Provide a simple textfield for equality
+   * Provide a simple textfield for equality.
    */
-  function value_form(&$form, &$form_state) {
+  public function value_form(&$form, &$form_state) {
     $form['value'] = array(
       '#type' => 'textfield',
       '#size' => 15,
@@ -82,7 +87,7 @@ class views_handler_filter_search extends views_handler_filter {
   /**
    * Validate the options form.
    */
-  function exposed_validate(&$form, &$form_state) {
+  public function exposed_validate(&$form, &$form_state) {
     if (!isset($this->options['expose']['identifier'])) {
       return;
     }
@@ -97,12 +102,12 @@ class views_handler_filter_search extends views_handler_filter {
   }
 
   /**
-   * Take sure that parseSearchExpression is runned and everything is set up for it.
+   * Make sure that parseSearchExpression is run and everything is set up.
    *
-   * @param $input
+   * @param string $input
    *    The search phrase which was input by the user.
    */
-  function query_parse_search_expression($input) {
+  public function query_parse_search_expression($input) {
     if (!isset($this->search_query)) {
       $this->parsed = TRUE;
       $this->search_query = db_select('search_index', 'i', array('target' => 'slave'))->extend('viewsSearchQuery');
@@ -118,7 +123,7 @@ class views_handler_filter_search extends views_handler_filter {
    * level of indirection. You will find them in $this->operator
    * and $this->value respectively.
    */
-  function query() {
+  public function query() {
     // Since attachment views don't validate the exposed input, parse the search
     // expression if required.
     if (!$this->parsed) {
@@ -145,8 +150,9 @@ class views_handler_filter_search extends views_handler_filter {
       $search_condition = db_and();
 
       if (!$this->options['remove_score']) {
-        // Create a new join to relate the 'serach_total' table to our current 'search_index' table.
-        $join = new views_join;
+        // Create a new join to relate the 'serach_total' table to our current
+        // 'search_index' table.
+        $join = new views_join();
         $join->construct('search_total', $search_index, 'word', 'word');
         $search_total = $this->query->add_relationship('search_total', $join, $search_index);
 
@@ -164,7 +170,7 @@ class views_handler_filter_search extends views_handler_filter {
         $search_dataset = $this->query->add_table('search_dataset');
         $conditions = $this->search_query->conditions();
         $condition_conditions =& $conditions->conditions();
-        foreach ($condition_conditions  as $key => &$condition) {
+        foreach ($condition_conditions as $key => &$condition) {
           // Take sure we just look at real conditions.
           if (is_numeric($key)) {
             // Replace the conditions with the table alias of views.
@@ -193,32 +199,53 @@ class views_handler_filter_search extends views_handler_filter {
     // Set to NULL to prevent PDO exception when views object is cached.
     $this->search_query = NULL;
   }
+
 }
 
 /**
  * Extends the core SearchQuery.
  */
 class viewsSearchQuery extends SearchQuery {
+
+  /**
+   * {@inheritdoc}
+   */
   public function &conditions() {
     return $this->conditions;
   }
+
+  /**
+   * {@inheritdoc}
+   */
   public function words() {
     return $this->words;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function simple() {
     return $this->simple;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function matches() {
     return $this->matches;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function publicParseSearchExpression() {
     return $this->parseSearchExpression();
   }
 
-  function condition_replace_string($search, $replace, &$condition) {
+  /**
+   * {@inheritdoc}
+   */
+  public function condition_replace_string($search, $replace, &$condition) {
     if ($condition['field'] instanceof DatabaseCondition) {
       $conditions =& $condition['field']->conditions();
       foreach ($conditions as $key => &$subcondition) {
@@ -231,4 +258,5 @@ class viewsSearchQuery extends SearchQuery {
       $condition['field'] = str_replace($search, $replace, $condition['field']);
     }
   }
+
 }

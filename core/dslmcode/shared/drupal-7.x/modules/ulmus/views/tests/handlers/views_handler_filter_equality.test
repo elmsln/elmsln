@@ -34,7 +34,7 @@ class ViewsHandlerFilterEqualityTest extends ViewsSqlTest {
   function testEqual() {
     $view = $this->getBasicView();
 
-    // Change the filtering
+    // Change the filtering.
     $view->display['default']->handler->override_option('filters', array(
       'name' => array(
         'id' => 'name',
@@ -59,7 +59,7 @@ class ViewsHandlerFilterEqualityTest extends ViewsSqlTest {
     $filters = $this->getGroupedExposedFilters();
     $view = $this->getBasicPageView();
 
-    // Filter: Name, Operator: =, Value: Ringo
+    // Filter: Name, Operator: =, Value: Ringo.
     $filters['name']['group_info']['default_group'] = 1;
     $view->set_display('page_1');
     $view->display['page_1']->handler->override_option('filters', $filters);
@@ -76,7 +76,7 @@ class ViewsHandlerFilterEqualityTest extends ViewsSqlTest {
   function testNotEqual() {
     $view = $this->getBasicView();
 
-    // Change the filtering
+    // Change the filtering.
     $view->display['default']->handler->override_option('filters', array(
       'name' => array(
         'id' => 'name',
@@ -110,7 +110,7 @@ class ViewsHandlerFilterEqualityTest extends ViewsSqlTest {
     $filters = $this->getGroupedExposedFilters();
     $view = $this->getBasicPageView();
 
-    // Filter: Name, Operator: !=, Value: Ringo
+    // Filter: Name, Operator: !=, Value: Ringo.
     $filters['name']['group_info']['default_group'] = 2;
     $view->set_display('page_1');
     $view->display['page_1']->handler->override_option('filters', $filters);

@@ -1,8 +1,8 @@
 <?php
+
 /**
  * @file
  * Install, update and uninstall functions for the video_embed_field module.
- *
  */
 
 /**
@@ -61,11 +61,11 @@ function video_embed_field_schema() {
     'description' => 'Stores video embed styles.',
     'export' => array(
       'key' => 'name',
-      'identifier' => 'video_embed_style', // Exports will be as $video_style
-      'default hook' => 'default_video_embed_styles', // Function hook name.
+      'identifier' => 'video_embed_style',
+      'default hook' => 'default_video_embed_styles',
       'api' => array(
         'owner' => 'video_embed_field',
-        'api' => 'default_video_embed_styles', // Base name for api include files.
+        'api' => 'default_video_embed_styles',
         'minimum_version' => 1,
         'current_version' => 1,
       ),
@@ -100,12 +100,11 @@ function video_embed_field_schema() {
  * Implements hook_uninstall().
  */
 function video_embed_field_uninstall() {
-  //do nothing right now - should eventually remove all the variables
+  variable_del('video_embed_field_youtube_api_key');
 }
 
 /**
- * Update 7000
- * Add an optional description form
+ * Adds an optional description form.
  */
 function video_embed_field_update_7000() {
   // Get the list of fields of type 'video_embed_field'.
@@ -125,7 +124,7 @@ function video_embed_field_update_7000() {
       $table = "field_data_{$field['field_name']}";
       $revision_table = "field_revision_{$field['field_name']}";
     }
-    $column = $field['field_name'] . '_' . 'description';
+    $column = $field['field_name'] . '_description';
     db_add_field($table, $column, array('type' => 'text', 'not null' => FALSE));
     db_add_field($revision_table, $column, array('type' => 'text', 'not null' => FALSE));
   }
@@ -134,8 +133,7 @@ function video_embed_field_update_7000() {
 }
 
 /**
- * Update 7001
- * Add video style storage table
+ * Adds video style storage table.
  */
 function video_embed_field_update_7001() {
   if (!db_table_exists('vef_video_styles')) {
@@ -146,8 +144,7 @@ function video_embed_field_update_7001() {
   return t('Video styles storage table created.');
 }
 /**
- * Update 7002
- * Add field for storing the path to the video thumbnail
+ * Adds field for storing the path to the video thumbnail.
  */
 function video_embed_field_update_7002() {
   // Get the list of fields of type 'video_embed_field'.
@@ -167,7 +164,7 @@ function video_embed_field_update_7002() {
       $table = "field_data_{$field['field_name']}";
       $revision_table = "field_revision_{$field['field_name']}";
     }
-    $column = $field['field_name'] . '_' . 'thumbnail_path';
+    $column = $field['field_name'] . '_thumbnail_path';
     db_add_field($table, $column, array(
       'type' => 'varchar',
       'length' => 512,
@@ -184,22 +181,22 @@ function video_embed_field_update_7002() {
 }
 
 /**
- * Enable inline colorbox support if colorbox is installed [NO LONGER NEEDED - This update hook does nothing]
+ * Enables inline colorbox support if colorbox is installed.
+ *
+ * [NO LONGER NEEDED - This update hook does nothing]
  */
 function video_embed_field_update_7003() {
-  //this is no longer needed
-  //variable_set('colorbox_inline', 1);
 }
 
 /**
- * Enable colorbox load support if colorbox is installed, we no longer need inline support
+ * Enables colorbox load support if colorbox is installed.
  */
 function video_embed_field_update_7004() {
   variable_set('colorbox_load', 1);
 }
 
 /**
- * Add data column to field database.
+ * Adds data column to field database.
  */
 function video_embed_field_update_7005() {
   // Get the list of fields of type 'video_embed_field'.
@@ -219,7 +216,7 @@ function video_embed_field_update_7005() {
       $table = "field_data_{$field['field_name']}";
       $revision_table = "field_revision_{$field['field_name']}";
     }
-    $column = $field['field_name'] . '_' . 'video_data';
+    $column = $field['field_name'] . '_video_data';
     db_add_field($table, $column, array(
       'type' => 'blob',
       'not null' => FALSE,
@@ -241,17 +238,17 @@ function video_embed_field_update_7005() {
  * Updates vef_video_styles table structure.
  */
 function video_embed_field_update_7006() {
-  // Convert the table structure
-  db_add_field('vef_video_styles', 'title', array(
-    'type' => 'varchar',
-    'length' => 255,
-    'not null' => TRUE,
-    'default' => ''
-  ));
+  // Convert the table structure.
   db_drop_field('vef_video_styles', 'vsid');
   db_add_primary_key('vef_video_styles', array('name'));
   db_drop_unique_key('vef_video_styles', 'name');
 
+  db_add_field('vef_video_styles', 'title', array(
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => '',
+  ));
   // Update title and name values.
   $result = db_select('vef_video_styles', 'vef')
     ->fields('vef', array('name'))
@@ -324,7 +321,7 @@ function video_embed_field_update_7007() {
 function video_embed_field_update_7008() {
   $instances = field_info_instances();
   foreach ($instances as $entity_type) {
-    foreach($entity_type as $bundle) {
+    foreach ($entity_type as $bundle) {
       foreach ($bundle as $instance) {
         $field_info = field_info_field($instance['field_name']);
         if ($field_info['type'] == 'video_embed_field') {
@@ -349,5 +346,46 @@ function video_embed_field_update_7008() {
     }
   }
 
-  return t('Updated \'node\' setting to \'content\'');
+  return t("Updated 'node' setting to 'content'");
+}
+
+/**
+ * Adds new Allowed Providers setting to existing instances.
+ */
+function video_embed_field_update_7009() {
+  $allowed_providers = array_keys(video_embed_get_handlers());
+
+  $instances = field_info_instances();
+  foreach ($instances as $entity_type) {
+    foreach ($entity_type as $bundle) {
+      foreach ($bundle as $instance) {
+        $field_info = field_info_field($instance['field_name']);
+        if ($field_info['type'] == 'video_embed_field') {
+          $instance['settings']['allowed_providers'] = $allowed_providers;
+          field_update_instance($instance);
+        }
+      }
+    }
+  }
+
+  return t('Updated default instance settings');
+}
+
+/**
+ * Update styles with empty class parameter.
+ */
+function video_embed_field_update_7010() {
+  drupal_get_schema('vef_video_styles', TRUE);
+  ctools_include('export');
+  $styles = ctools_export_load_object('vef_video_styles');
+  foreach ($styles as $style) {
+    foreach ($style->data as &$provider) {
+      if (!isset($provider['class'])) {
+        $provider['class'] = '';
+      }
+    }
+    ctools_export_crud_save('vef_video_styles', $style);
+  }
+
+  return 'Parameter class added to existing styles';
 }

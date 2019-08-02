@@ -17,6 +17,9 @@ class viewsPluginStyleJumpMenuTest extends ViewsSqlTest {
    */
   var $nodes;
 
+  /**
+   *
+   */
   public static function getInfo() {
     return array(
       'name' => 'Jump menu',
@@ -25,7 +28,9 @@ class viewsPluginStyleJumpMenuTest extends ViewsSqlTest {
     );
   }
 
-
+  /**
+   *
+   */
   public function setUp() {
     parent::setUp();
     $this->nodes = array();
@@ -37,7 +42,6 @@ class viewsPluginStyleJumpMenuTest extends ViewsSqlTest {
     $this->nodeTitles = array($this->nodes['page'][0]->title, $this->nodes['page'][1]->title, $this->nodes['story'][0]->title, $this->nodes['story'][1]->title);
   }
 
-
   /**
    * Tests jump menues with more then one same path but maybe differnet titles.
    */
@@ -46,7 +50,8 @@ class viewsPluginStyleJumpMenuTest extends ViewsSqlTest {
     $view->set_display();
     $view->init_handlers();
 
-    // Setup a [path] which would leed to "duplicate" paths, but still the shouldn't be used for grouping.
+    // Setup a [path] which would leed to "duplicate" paths, but still the
+    // shouldn't be used for grouping.
     $view->field['nothing']->options['alter']['text'] = '[path]';
     $view->preview();
     $form = $view->style_plugin->render($view->result);
@@ -65,8 +70,11 @@ class viewsPluginStyleJumpMenuTest extends ViewsSqlTest {
     }
   }
 
+  /**
+   *
+   */
   function getJumpMenuView() {
-    $view = new view;
+    $view = new view();
     $view->name = 'test_jump_menu';
     $view->description = '';
     $view->tag = 'default';
@@ -148,4 +156,5 @@ class viewsPluginStyleJumpMenuTest extends ViewsSqlTest {
 
     return $view;
   }
+
 }

@@ -12,8 +12,8 @@
  */
 function profile_views_data() {
   $data['profile_values']['moved to'] = 'profile_value';
-  // Define the base group of this table. Fields that don't
-  // have a group defined will go into this field by default.
+  // Define the base group of this table. Fields that don't have a group
+  // defined will go into this field by default.
   $data['profile_value']['table']['group']  = t('Profile');
 
   $data['profile_value']['table']['join'] = array(
@@ -60,7 +60,7 @@ function profile_views_data() {
 }
 
 /**
- * Get all profile fields
+ * Get all profile fields.
  */
 function profile_views_get_fields() {
   static $fields = NULL;
@@ -71,14 +71,14 @@ function profile_views_get_fields() {
 
     foreach ($results as $row) {
       if (!empty($row->options)) {
-        if (!in_array(substr($row->options, 0, 2), array('a:', 'b:', 'i:', 'f:', 'o:', 's:', ))) {
-          // unserialized fields default version
+        if (!in_array(substr($row->options, 0, 2), array('a:', 'b:', 'i:', 'f:', 'o:', 's:'))) {
+          // unserialized fields default version.
           $options = $row->options;
           unset($row->options);
           $row->options = $options;
         }
         else {
-          // serialized fields or modified version
+          // serialized fields or modified version.
           $row->options = unserialize($row->options);
         }
       }
@@ -90,7 +90,7 @@ function profile_views_get_fields() {
 
 
 /**
- * Add profile fields to view table
+ * Add profile fields to view table.
  */
 function profile_views_fetch_field($field) {
   $data = array(
@@ -116,8 +116,8 @@ function profile_views_fetch_field($field) {
           'handler' => 'views_handler_argument_string',
         ),
       );
-
       break;
+
     case 'textarea':
       $data += array(
         'help' => t('Profile textarea'),
@@ -132,8 +132,8 @@ function profile_views_fetch_field($field) {
           'handler' => 'views_handler_filter_string',
         ),
       );
-
       break;
+
     case 'checkbox':
       $data += array(
         'help' => t('Profile checkbox'),
@@ -148,10 +148,10 @@ function profile_views_fetch_field($field) {
           'handler' => 'views_handler_filter_boolean_operator',
           'accept null' => TRUE,
         ),
-        // @todo there ought to be a boolean argument handler
+        // @todo There ought to be a boolean argument handler.
       );
-
       break;
+
     case 'url':
       $data += array(
         'help' => t('Profile URL'),
@@ -166,8 +166,8 @@ function profile_views_fetch_field($field) {
           'handler' => 'views_handler_filter_string',
         ),
       );
-
       break;
+
     case 'selection':
       $data += array(
         'help' => t('Profile selection'),
@@ -186,8 +186,8 @@ function profile_views_fetch_field($field) {
           'handler' => 'views_handler_argument_string',
         ),
       );
-
       break;
+
     case 'list':
       $data += array(
         'help' => t('Profile freeform list %field-name.', array('%field-name' => $field->title)),
@@ -199,8 +199,8 @@ function profile_views_fetch_field($field) {
           'handler' => 'views_handler_filter_string',
         ),
       );
-
       break;
+
     case 'date':
       $data += array(
         'help' => t('Profile date %field-name.', array('%field-name' => $field->title)),
@@ -208,10 +208,9 @@ function profile_views_fetch_field($field) {
           'handler' => 'views_handler_field_profile_date',
         ),
       );
-
       break;
   }
 
-  // @todo: add access control to hidden fields.
+  // @todo Add access control to hidden fields.
   return $data;
 }

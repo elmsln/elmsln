@@ -38,7 +38,7 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
   public function testFilterNumericSimple() {
     $view = $this->getBasicView();
 
-    // Change the filtering
+    // Change the filtering.
     $view->display['default']->handler->override_option('filters', array(
       'age' => array(
         'id' => 'age',
@@ -82,7 +82,7 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
   public function testFilterNumericBetween() {
     $view = $this->getBasicView();
 
-    // Change the filtering
+    // Change the filtering.
     $view->display['default']->handler->override_option('filters', array(
       'age' => array(
         'id' => 'age',
@@ -114,11 +114,11 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     );
     $this->assertIdenticalResultset($view, $resultset, $this->column_map);
 
-    // test not between
+    // test not between.
     $view->delete();
     $view = $this->getBasicView();
 
-      // Change the filtering
+    // Change the filtering.
     $view->display['default']->handler->override_option('filters', array(
       'age' => array(
         'id' => 'age',
@@ -160,7 +160,6 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     $view->set_display('page_1');
     $view->display['page_1']->handler->override_option('filters', $filters);
 
-
     $this->executeView($view);
     $resultset = array(
       array(
@@ -188,7 +187,6 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     $view->set_display('page_1');
     $view->display['page_1']->handler->override_option('filters', $filters);
 
-
     $this->executeView($view);
     $resultset = array(
       array(
@@ -211,7 +209,7 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
   public function testFilterNumericEmpty() {
     $view = $this->getBasicView();
 
-    // Change the filtering
+    // Change the filtering.
     $view->display['default']->handler->override_option('filters', array(
       'age' => array(
         'id' => 'age',
@@ -223,14 +221,13 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     ));
 
     $this->executeView($view);
-    $resultset = array(
-    );
+    $resultset = array();
     $this->assertIdenticalResultset($view, $resultset, $this->column_map);
 
     $view->delete();
     $view = $this->getBasicView();
 
-    // Change the filtering
+    // Change the filtering.
     $view->display['default']->handler->override_option('filters', array(
       'age' => array(
         'id' => 'age',
@@ -243,7 +240,7 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
 
     $this->executeView($view);
     $resultset = array(
-    array(
+      array(
         'name' => 'John',
         'age' => 25,
       ),
@@ -272,15 +269,13 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     $filters = $this->getGroupedExposedFilters();
     $view = $this->getBasicPageView();
 
-    // Filter: Age, Operator: empty, Value:
+    // Filter: Age, Operator: empty, Value.
     $filters['age']['group_info']['default_group'] = 4;
     $view->set_display('page_1');
     $view->display['page_1']->handler->override_option('filters', $filters);
 
-
     $this->executeView($view);
-    $resultset = array(
-    );
+    $resultset = array();
     $this->assertIdenticalResultset($view, $resultset, $this->column_map);
   }
 
@@ -288,15 +283,14 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     $filters = $this->getGroupedExposedFilters();
     $view = $this->getBasicPageView();
 
-    // Filter: Age, Operator: empty, Value:
+    // Filter: Age, Operator: empty, Value.
     $filters['age']['group_info']['default_group'] = 5;
     $view->set_display('page_1');
     $view->display['page_1']->handler->override_option('filters', $filters);
 
-
     $this->executeView($view);
     $resultset = array(
-    array(
+      array(
         'name' => 'John',
         'age' => 25,
       ),
@@ -318,6 +312,38 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
       ),
     );
     $this->assertIdenticalResultset($view, $resultset, $this->column_map);
+  }
+
+  /**
+   * Tests the limit operators functionality.
+   */
+  public function testFilterNumericExposedLimitOperators() {
+    $filters = $this->getGroupedExposedFilters();
+    $view = $this->getBasicView();
+
+    $available_operators = array('<', '>', 'between');
+
+    $filters['age']['expose'] += array(
+      'limit_operators' => TRUE,
+      'available_operators' => drupal_map_assoc($available_operators),
+    );
+
+    $view->display['default']->handler->override_option('filters', $filters);
+
+
+    $this->executeView($view);
+
+    $form = array();
+    $form_state = array();
+    $view->filter['age']->operator_form($form, $form_state);
+
+    $operator = $form['operator'];
+
+    $this->assertTrue(in_array($operator['#default_value'], $available_operators), 'Default value operator found in list of available operators.');
+
+    foreach ($available_operators as $available_operator) {
+      $this->assertTrue($operator['#options'][$available_operator], format_string('@operator found in options', array('@operator' => $available_operator)));
+    }
   }
 
 

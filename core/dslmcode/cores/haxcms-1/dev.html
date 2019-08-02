@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="HAXCMS" />
+    <meta
+      name="viewport"
+      content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes"
+    />
+    <title>HAXCMS site list</title>
+    <meta name="description" content="My HAXCMS site description" />
+    <base href="/" />
+    <link rel="icon" href="assets/favicon.ico" />
+
+    <link rel="manifest" href="manifest.json" />
+
+    <meta name="theme-color" content="#3f51b5" />
+
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="My site" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="My App" />
+
+    <link rel="apple-touch-icon" href="assets/icon-48x48.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="assets/icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="96x96" href="assets/icon-96x96.png" />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="assets/icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="192x192"
+      href="assets/icon-192x192.png"
+    />
+
+    <meta name="msapplication-TileImage" content="assets/icon-144x144.png" />
+    <meta name="msapplication-TileColor" content="#3f51b5" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@elmsln" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="books-app" />
+    <meta property="og:image" content="assets/icon-144x144.png" />
+
+    <link rel="preconnect" crossorigin href="https://fonts.googleapis.com" />
+    <link rel="preconnect" crossorigin href="https://cdnjs.cloudflare.com" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+      }
+
+      haxcms-site-listing {
+        transition: all 1s linear;
+      }
+
+      haxcms-site-listing:not(:defined) {
+        width: 100vw;
+        display: block;
+        position: fixed;
+        height: 100vh;
+        background: #23d5ab;
+      }
+
+      haxcms-site-listing:not(:defined) div {
+        font-size: 6vw;
+        line-height: 1;
+        margin: 0 auto;
+        top: calc(50vh - 8vw);
+        width: 100%;
+        justify-content: center;
+        display: grid;
+        text-align: center;
+        padding: 0;
+        position: relative;
+        font-family: "Courier New", Courier, monospace;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      // set this in order to simulate the published form of the site
+      // window.__haxCMSContextPublished = true;
+      // set the below to simulate running a demo / end points to load data
+      // this will let you simulate more operations without having a backend
+      window.__haxCMSContextDemo = true;
+      window.appSettings = {
+        login: "dist\/dev\/login.json",
+        logout: "dist\/dev\/logout.json",
+        saveNodePath: "dist\/dev\/saveNode.json",
+        getConfigPath: "dist\/dev\/getConfigPath.json",
+        saveManifestPath: "dist\/dev\/saveNode.json",
+        setConfigPath: "dist\/dev\/saveNode.json",
+        downloadSitePath: "dist\/dev\/saveNode.json",
+        createNodePath: "dist\/dev\/saveNode.json",
+        createNewSitePath: "dist\/dev\/saveNode.json",
+        deleteNodePath: "dist\/dev\/saveNode.json",
+        saveOutlinePath: "dist\/dev\/saveNode.json",
+        publishSitePath: "dist\/dev\/saveNode.json",
+        deleteSitePath: "dist\/dev\/saveNode.json",
+        cloneSitePath: "dist\/dev\/saveNode.json",
+        archiveSitePath: "dist\/dev\/saveNode.json",
+        appStore: {
+          url: "dist\/dev\/appstore.json"
+        }
+      };
+      // need to fetch theme config dynamically...
+      var configJson, themeCoreJson;
+      fetch("_config/config.json")
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          configJson = myJson;
+          return myJson;
+        });
+      // core location
+      fetch("system/coreConfig/themes.json")
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          themeCoreJson = myJson;
+          return myJson;
+        });
+      setTimeout(() => {
+        // combine so they are there for review just like a real backend would present
+        window.appSettings.themes = Object.assign(
+          {},
+          themeCoreJson,
+          configJson.themes
+        );
+      }, 50);
+      // append global base styles
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css";
+      link.type = "text/css";
+      var def = document.getElementsByTagName("link")[0];
+      def.parentNode.insertBefore(link, def);
+    </script>
+    <haxcms-site-listing
+      create-params='{"token":"0Q3VHQU0aBv6Ak-cONONcWGDEGmVnezuB7Ly0A3Zcsg"}'
+      base-path="/"
+      method="GET"
+      data-source="dist/sites.json"
+      ><div>HAXcms</div>
+      <div>loading</div>
+    </haxcms-site-listing>
+    <noscript>Please enable JavaScript to view this website.</noscript>
+    <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    <script
+      async
+      src="node_modules/web-animations-js/web-animations-next-lite.min.js"
+    ></script>
+    <script type="module" src="dist/build-home.js"></script>
+  </body>
+</html>

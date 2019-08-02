@@ -1,8 +1,14 @@
 <?php
 
 /**
- * @file quiz_page.classes.inc
- * Support class for Quiz pages.
+ * @file
+ * Quiz page classes.
+ *
+ * This module uses the question interface to define something which is
+ * actually not a question.
+ *
+ * A Quiz page node is a placeholder for presenting multiple questions
+ * on the same page.
  */
 
 /**
@@ -11,65 +17,85 @@
 class QuizPagesQuestion extends QuizQuestion {
 
   /**
-   * Implementation of validateNode
+   * Implementation of validateNode().
    *
-   * @see QuizQuestion#validateNode($form)
+   * @see QuizQuestion::validateNode()
    */
   public function validateNode(array &$form) {
 
   }
 
   /**
-   * Implementation of saveNodeProperties
+   * Implementation of saveNodeProperties().
    *
-   * @see QuizQuestion#saveNodeProperties($is_new)
+   * @see QuizQuestion::saveNodeProperties()
    */
   public function saveNodeProperties($is_new = FALSE) {
 
   }
 
   /**
-   * Implementation of getBodyFieldTitle
+   * Implementation of getAnsweringForm().
    *
-   * @see QuizQuestion#getBodyFieldTitle()
+   * @see QuizQuestion::getAnsweringForm()
    */
-  public function getBodyFieldTitle() {
-    return t('Page');
-  }
-
-  /**
-   * Implementation of getCreationForm
-   *
-   * @see QuizQuestion#getCreationForm($form_state)
-   */
-  public function getCreationForm(array &$form_state = NULL) {
-    return array();
-  }
-
-  /**
-   * Implementation of getMaximumScore
-   *
-   * @see QuizQuestion#getMaximumScore()
-   */
-  public function getMaximumScore() {
-    return 0;
-  }
-
-  public function isGraded() {
-    return FALSE;
-  }
-
-  function getAnsweringForm(array $form_state = NULL, $result_id) {
+  public function getAnsweringForm(array $form_state = NULL, $result_id) {
     $element = array(
       '#type' => 'hidden',
     );
     return $element;
   }
 
+  /**
+   * Implementation of getBodyFieldTitle().
+   *
+   * @see QuizQuestion::getBodyFieldTitle()
+   */
+  public function getBodyFieldTitle() {
+    return t('Page');
+  }
+
+  /**
+   * Implementation of getCreationForm().
+   *
+   * @see QuizQuestion::getCreationForm()
+   */
+  public function getCreationForm(array &$form_state = NULL) {
+    return array();
+  }
+
+  /**
+   * Implementation of getMaximumScore().
+   *
+   * @see QuizQuestion::getMaximumScore()
+   */
+  public function getMaximumScore() {
+    return 0;
+  }
+
+  /**
+   * Implementation of isGraded().
+   *
+   * @see QuizQuestion::isGraded()
+   */
+  public function isGraded() {
+    return FALSE;
+  }
+
+  /**
+   * Implementation of hasFeedback().
+   *
+   * @see QuizQuestion::hasFeedback()
+   */
   public function hasFeedback() {
     return FALSE;
   }
 
+  /**
+   * Implementation of isQuestion().
+   *
+   * @see QuizQuestion::hasFeedback()
+   */
   public function isQuestion() {
     return FALSE;
   }
@@ -77,59 +103,59 @@ class QuizPagesQuestion extends QuizQuestion {
 }
 
 /**
- * Extension of QuizQuestionResponse
+ * Extension of QuizQuestionResponse.
  */
 class QuizPagesResponse extends QuizQuestionResponse {
 
   /**
-   * Implementation of save
+   * Implementation of save().
    *
-   * @see QuizQuestionResponse#save()
+   * @see QuizQuestionResponse::save()
    */
   public function save() {
 
   }
 
   /**
-   * Implementation of delete
+   * Implementation of delete().
    *
-   * @see QuizQuestionResponse#delete()
+   * @see QuizQuestionResponse::delete()
    */
   public function delete() {
 
   }
 
   /**
-   * Implementation of score
+   * Implementation of score().
    *
-   * @see QuizQuestionResponse#score()
+   * @see QuizQuestionResponse::score()
    */
   public function score() {
 
   }
 
   /**
-   * Implementation of isCorrect
+   * Implementation of isCorrect().
    *
-   * @see QuizQuestionResponse#isCorrect()
+   * @see QuizQuestionResponse::isCorrect()
    */
   public function isCorrect() {
     return TRUE;
   }
 
   /**
-   * Implementation of getResponse
+   * Implementation of getResponse().
    *
-   * @see QuizQuestionResponse#getResponse()
+   * @see QuizQuestionResponse::getResponse()
    */
   public function getResponse() {
     return $this->answer;
   }
 
   /**
-   * Implementation of getReportForm
+   * Implementation of getReportForm().
    *
-   * @see QuizQuestionResponse#getReportForm()
+   * @see QuizQuestionResponse::getReportForm()
    */
   public function getReportForm() {
     return array(

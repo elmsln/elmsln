@@ -26,6 +26,7 @@ class Canvas {
     $this->headers = array(
       'Authorization' => 'Bearer ' . $token,
       'Cache-Control' => 'no-cache',
+      'cache-control' => 'no-cache',
       'Content-Type' => 'application/x-www-form-urlencoded',
     );
   }
@@ -112,8 +113,9 @@ class Canvas {
         CURLOPT_MAXREDIRS => 10,
         CURLOPT_TIMEOUT => 30,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => $options['method'],
+        CURLOPT_CUSTOMREQUEST => strtoupper($options['method']),
         CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_POSTFIELDS => "",
       ));
       $return = curl_exec($curl);
       $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);

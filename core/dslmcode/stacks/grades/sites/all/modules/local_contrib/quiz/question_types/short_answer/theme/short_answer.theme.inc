@@ -2,46 +2,16 @@
 
 /**
  * @file
- * Theme functions for short_answer.
+ * Theme functions for the short_answer question type.
  */
 
 /**
- * Theme the list of unscored short answer questions.
+ * Theme the short_answer answer.
  *
- * @todo replace with view
- */
-function theme_short_answer_view_unscored($variables) {
-  $unscored = $variables['unscored'];
-  $output = '';
-  $header = array(
-    t('Question'),
-    t('Time Finished'),
-    t('Action')
-  );
-  $rows = array();
-
-  foreach ($unscored as $item) {
-    if ($item->time_end > 0) {
-      $rows[] = array(
-        $item->title,
-        date('Y-m-d H:i', $item->time_end),
-        l(t('score this response'), 'admin/quiz/reports/score-short-answer/' . $item->question_vid . '/' . $item->result_id, array('query' => drupal_get_destination())),
-      );
-    }
-  }
-
-  if (!empty($rows)) {
-    $output .= theme('table', array('header' => $header, 'rows' => $rows));
-  }
-  else {
-    $output .= t('There are no unscored short answers.');
-  }
-  return $output;
-}
-
-/**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * @param array $variables
+ *
+ * @return string
+ *   An HTML string.
  */
 function theme_short_answer_user_answer($variables) {
   $answer = $variables['answer'];
@@ -52,10 +22,12 @@ function theme_short_answer_user_answer($variables) {
 }
 
 /**
- * Theme the short_answer response form
+ * Theme the short_answer response form.
  *
- * @param $form
- *  The response form
+ * @param array $variables
+ *
+ * @return string
+ *   An HTML string.
  */
 function theme_short_answer_response_form($variables) {
   $form = $variables['form'];

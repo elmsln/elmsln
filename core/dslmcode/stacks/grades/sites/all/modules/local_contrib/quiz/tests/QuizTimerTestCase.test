@@ -18,7 +18,7 @@ class QuizTimerTestCase extends QuizTestCase {
   /**
    * Test quiz timer expiration.
    */
-  function testQuizTimer() {
+  public function testQuizTimer() {
     // Set up a quiz to show us feedback, 30 second expiration.
     $quiz_node = $this->drupalCreateQuiz(array(
       'review_options' => array('end' => array('score' => 'score')),
@@ -38,11 +38,11 @@ class QuizTimerTestCase extends QuizTestCase {
     $this->drupalGet("node/{$quiz_node->nid}/take/1");
     $this->drupalPost(NULL, array(
       "question[$question_node1->nid][answer]" => 1,
-      ), t('Next'));
+    ), t('Next'));
     $this->assertNoText(t('The last answer was not submitted, as the time ran out.'));
     $this->drupalPost(NULL, array(
       "question[$question_node2->nid][answer]" => 1,
-      ), t('Next'));
+    ), t('Next'));
     $this->assertNoText(t('The last answer was not submitted, as the time ran out.'));
 
     // Set the quiz result to have started 31 seconds ago.
@@ -51,7 +51,7 @@ class QuizTimerTestCase extends QuizTestCase {
     // Submit the last question past the expiration.
     $this->drupalPost(NULL, array(
       "question[$question_node3->nid][answer]" => 1,
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText(t('The last answer was not submitted, as the time ran out.'));
     $this->assertText('You got 2 of 3 possible points.');
   }

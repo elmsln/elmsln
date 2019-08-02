@@ -15,7 +15,7 @@ class views_handler_argument_taxonomy extends views_handler_argument_numeric {
   /**
    * Override the behavior of title(). Get the title of the node.
    */
-  function title() {
+  public function title() {
     // There might be no valid argument.
     if ($this->argument) {
       $term = taxonomy_term_load($this->argument);
@@ -23,7 +23,8 @@ class views_handler_argument_taxonomy extends views_handler_argument_numeric {
         return check_plain($term->name);
       }
     }
-    // TODO review text
+    // @todo review text.
     return t('No name');
   }
+
 }

@@ -6,12 +6,12 @@
  */
 
 /**
- * Implementation of hook_views_default_views()
+ * Implements hook_views_default_views().
  */
 function statistics_views_default_views() {
   $views = array();
 
-  $view = new view;
+  $view = new view();
   $view->name = 'popular';
   $view->description = 'Shows the most-viewed nodes on the site. This requires the statistics to be enabled at administer >> reports >> access log settings.';
   $view->tag = 'default';

@@ -2,13 +2,24 @@
 
 /**
  * @file
- * Tests for Views query features.
+ * Abstract class for views testing.
  */
 
 /**
- * Abstract class for views testing.
+ *
  */
 abstract class ViewsTestCase extends DrupalWebTestCase {
+
+  /**
+   *
+   */
+  protected $sort_column = NULL;
+
+  /**
+   *
+   */
+  protected $sort_order = 1;
+
   /**
    * Helper function: verify a result set returned by view.
    *
@@ -16,13 +27,13 @@ abstract class ViewsTestCase extends DrupalWebTestCase {
    * column map, taking the order of the rows into account, but not the order
    * of the columns.
    *
-   * @param $view
-   *  An executed View.
-   * @param $expected_result
-   *  An expected result set.
-   * @param $column_map
-   *  An associative array mapping the columns of the result set from the view
-   *  (as keys) and the expected result set (as values).
+   * @param view $view
+   *   An executed View.
+   * @param array $expected_result
+   *   An expected result set.
+   * @param array $column_map
+   *   An associative array mapping the columns of the result set from the view
+   *   (as keys) and the expected result set (as values).
    */
   protected function assertIdenticalResultset($view, $expected_result, $column_map = array(), $message = 'Identical result set') {
     return $this->assertIdenticalResultsetHelper($view, $expected_result, $column_map, $message, 'assertIdentical');
@@ -33,25 +44,29 @@ abstract class ViewsTestCase extends DrupalWebTestCase {
    *
    * Inverse of ViewsTestCase::assertIdenticalResultset().
    *
-   * @param $view
-   *  An executed View.
-   * @param $expected_result
-   *  An expected result set.
-   * @param $column_map
-   *  An associative array mapping the columns of the result set from the view
-   *  (as keys) and the expected result set (as values).
+   * @param view $view
+   *   An executed View.
+   * @param array $expected_result
+   *   An expected result set.
+   * @param array $column_map
+   *   An associative array mapping the columns of the result set from the view
+   *   (as keys) and the expected result set (as values).
    */
   protected function assertNotIdenticalResultset($view, $expected_result, $column_map = array(), $message = 'Identical result set') {
     return $this->assertIdenticalResultsetHelper($view, $expected_result, $column_map, $message, 'assertNotIdentical');
   }
 
+  /**
+   *
+   */
   protected function assertIdenticalResultsetHelper($view, $expected_result, $column_map, $message, $assert_method) {
     // Convert $view->result to an array of arrays.
     $result = array();
     foreach ($view->result as $key => $value) {
       $row = array();
       foreach ($column_map as $view_column => $expected_column) {
-        // The comparison will be done on the string representation of the value.
+        // The comparison will be done on the string representation of the
+        // value.
         $row[$expected_column] = (string) $value->$view_column;
       }
       $result[$key] = $row;
@@ -61,7 +76,8 @@ abstract class ViewsTestCase extends DrupalWebTestCase {
     foreach ($expected_result as $key => $value) {
       $row = array();
       foreach ($column_map as $expected_column) {
-        // The comparison will be done on the string representation of the value.
+        // The comparison will be done on the string representation of the
+        // value.
         $row[$expected_column] = (string) (is_object($value) ? $value->$expected_column : $value[$expected_column]);
       }
       $expected_result[$key] = $row;
@@ -71,14 +87,14 @@ abstract class ViewsTestCase extends DrupalWebTestCase {
     $result = array_values($result);
     $expected_result = array_values($expected_result);
 
-    $this->verbose('<pre>Returned data set: ' . print_r($result, TRUE) . "\n\nExpected: ". print_r($expected_result, TRUE));
+    $this->verbose('<pre>Returned data set: ' . print_r($result, TRUE) . "\n\nExpected: " . print_r($expected_result, TRUE));
 
     // Do the actual comparison.
     return $this->$assert_method($result, $expected_result, $message);
   }
 
   /**
-   * Helper function: order an array of array based on a column.
+   * Order an array of array based on a column.
    */
   protected function orderResultSet($result_set, $column, $reverse = FALSE) {
     $this->sort_column = $column;
@@ -87,9 +103,6 @@ abstract class ViewsTestCase extends DrupalWebTestCase {
     return $result_set;
   }
 
-  protected $sort_column = NULL;
-  protected $sort_order = 1;
-
   /**
    * Helper comparison function for orderResultSet().
    */
@@ -97,20 +110,20 @@ abstract class ViewsTestCase extends DrupalWebTestCase {
     $value1 = $a[$this->sort_column];
     $value2 = $b[$this->sort_column];
     if ($value1 == $value2) {
-        return 0;
+      return 0;
     }
     return $this->sort_order * (($value1 < $value2) ? -1 : 1);
   }
 
   /**
-   * Helper function to check whether a button with a certain id exists and has a certain label.
+   * Check whether a button with a certain id exists and has a certain label.
    */
   protected function helperButtonHasLabel($id, $expected_label, $message = 'Label has the expected value: %label.') {
     return $this->assertFieldById($id, $expected_label, t($message, array('%label' => $expected_label)));
   }
 
   /**
-   * Helper function to execute a view with debugging.
+   * Execute a view with debugging.
    *
    * @param view $view
    * @param array $args
@@ -121,14 +134,56 @@ abstract class ViewsTestCase extends DrupalWebTestCase {
     $view->execute();
     $this->verbose('<pre>Executed view: ' . ((string) $view->build_info['query']) . '</pre>');
   }
+
+  /**
+   * Log in as user 1.
+   */
+  protected function loginUser1() {
+    $password = user_password();
+    // Reset the user 1 password.
+    $account = user_load(1);
+    $edit = array(
+      'pass' => $password,
+    );
+    $account = user_save($account, $edit);
+    $account->pass_raw = $password;
+
+    // Log in as user 1.
+    $this->drupalLogin($account);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function verbose($message, $title = NULL) {
+    // Handle arrays, objects, etc.
+    if (!is_string($message)) {
+      $message = "<pre>\n" . print_r($message, TRUE) . "\n</pre>\n";
+    }
+
+    // Optional title to go before the output.
+    if (!empty($title)) {
+      $title = '<h2>' . check_plain($title) . "</h2>\n";
+    }
+
+    parent::verbose($title . $message);
+  }
+
 }
 
+/**
+ *
+ */
 abstract class ViewsSqlTest extends ViewsTestCase {
 
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp('views', 'views_ui');
 
-    // Define the schema and views data variable before enabling the test module.
+    // Define the schema and views data variable before enabling the test
+    // module.
     variable_set('views_test_schema', $this->schemaDefinition());
     variable_set('views_test_views_data', $this->viewsData());
     variable_set('views_test_views_plugins', $this->viewsPlugins());
@@ -147,14 +202,32 @@ abstract class ViewsSqlTest extends ViewsTestCase {
   }
 
   /**
-   * This function allows to enable views ui from a higher class which can't change the setup function anymore.
+   * Create a term.
    *
-   * @TODO
-   *   Convert existing setUp functions.
+   * @param int $vid
+   *   The vocabulary ID that the term is to be added to.
+   *
+   * @return object
+   *   A full term object with a random name.
+   */
+  protected function drupalCreateTerm($vid) {
+    $term = new stdClass();
+    $term->name = $this->randomName();
+    $term->description = $this->randomName();
+    $term->vid = $vid;
+    taxonomy_term_save($term);
+    return $term;
+  }
+
+  /**
+   * This function allows to enable views ui from a higher class which can't
+   * change the setup function anymore.
+   *
+   * @todo Convert existing setUp functions.
    */
   function enableViewsUi() {
     module_enable(array('views_ui'));
-    // @TODO Figure out why it's required to clear the cache here.
+    // @todo Figure out why it's required to clear the cache here.
     views_module_include('views_default', TRUE);
     views_get_all_views(TRUE);
     menu_rebuild();
@@ -202,7 +275,7 @@ abstract class ViewsSqlTest extends ViewsTestCase {
       ),
       'primary key' => array('id'),
       'unique keys' => array(
-        'name' => array('name')
+        'name' => array('name'),
       ),
       'indexes' => array(
         'ages' => array('age'),
@@ -314,6 +387,9 @@ abstract class ViewsSqlTest extends ViewsTestCase {
     return $data;
   }
 
+  /**
+   *
+   */
   protected function viewsPlugins() {
     return array();
   }
@@ -422,11 +498,12 @@ abstract class ViewsSqlTest extends ViewsTestCase {
     views_include('view');
     $view = $this->getBasicView();
 
-    // In order to test exposed filters, we have to disable
-    // the exposed forms cache.
+    // In order to test exposed filters, we have to disable the exposed forms
+    // cache.
     drupal_static_reset('views_exposed_form_cache');
 
     $display = $view->new_display('page', 'Page', 'page_1');
     return $view;
   }
+
 }

@@ -1,9 +1,11 @@
 <?php
 
 /**
- * @file rules integration for the php module
+ * @file
+ * Rules integration for the php module.
  *
  * @addtogroup rules
+ *
  * @{
  */
 
@@ -35,7 +37,7 @@ function rules_php_data_processor_info() {
   return array(
     'php' => array(
       'class' => 'RulesPHPDataProcessor',
-      'type' => array('text', 'token',  'decimal', 'integer', 'date', 'duration', 'boolean', 'uri'),
+      'type' => array('text', 'token', 'decimal', 'integer', 'date', 'duration', 'boolean', 'uri'),
       'weight' => 10,
       'module' => 'php',
     ),
@@ -124,8 +126,7 @@ function rules_php_evaluator_help($var_info, $action_help = FALSE) {
   $render['top'] = array(
     '#prefix' => '<p>',
     '#suffix' => '</p>',
-    '#markup' => t('PHP code inside of &lt;?php ?&gt; delimiters will be evaluated and replaced by its output. E.g. &lt;? echo 1+1?&gt; will be replaced by 2.')
-                 . ' ' . t('Furthermore you can make use of the following variables:'),
+    '#markup' => t('PHP code inside of &lt;?php ?&gt; delimiters will be evaluated and replaced by its output. E.g. &lt;? echo 1+1?&gt; will be replaced by 2.') . ' ' . t('Furthermore you can make use of the following variables:'),
   );
   $render['vars'] = array(
     '#theme' => 'table',
@@ -136,7 +137,7 @@ function rules_php_evaluator_help($var_info, $action_help = FALSE) {
   $cache = rules_get_cache();
   foreach ($var_info as $name => $info) {
     $row   = array();
-    $row[] = '$'. check_plain($name);
+    $row[] = '$' . check_plain($name);
     $label = isset($cache['data_info'][$info['type']]['label']) ? $cache['data_info'][$info['type']]['label'] : $info['type'];
     $row[] = check_plain(drupal_ucfirst($label));
     $row[] = check_plain($info['label']);

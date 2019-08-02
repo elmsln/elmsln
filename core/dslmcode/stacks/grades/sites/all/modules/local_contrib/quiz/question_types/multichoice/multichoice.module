@@ -1,14 +1,11 @@
 <?php
 
 /**
- * The main file for multichoice.
- *
- * Sponsored by: Norwegian Centre for Telemedicine
- * Code: falcon
- *
  * @file
  * Multiplechoice question type for the Quiz module.
  *
+ * Allows the creation of multiplechoice questions, where the user has to
+ * pick the right answer from multiple possibilities.
  */
 
 /**
@@ -34,6 +31,7 @@ function multichoice_help($path, $args) {
     ");
   }
 }
+
 /**
  * Implements hook_quiz_question_info().
  */
@@ -44,10 +42,12 @@ function multichoice_quiz_question_info() {
       'description' => t('This provides multiple choice questions for use by the Quiz module.'),
       'question provider' => 'MultichoiceQuestion',
       'response provider' => 'MultichoiceResponse',
-      'module' => 'quiz_question', // All wrapper functions are in that module.
+      // All wrapper functions are in the quiz_question module.
+      'module' => 'quiz_question',
     ),
   );
 }
+
 /**
  * Implements hook_quiz_question_config().
  */
@@ -72,7 +72,7 @@ function multichoice_quiz_question_config() {
 }
 
 /**
- * Validate the multichoice config form values
+ * Validate the multichoice config form values.
  */
 function multichoice_config_validate($form, $form_state) {
   if (!_quiz_is_int($form_state['values']['multichoice_def_num_of_alts'], 2, 50)) {
@@ -118,7 +118,7 @@ function multichoice_theme($existing, $type, $theme, $path) {
 }
 
 /**
- * ajax callback function used when adding alternatives to the node-form
+ * Ajax callback function used when adding alternatives to the node-form.
  */
 function multichoice_add_alternative_ajax_callback($form, &$form_state) {
   return $form['alternatives'];
@@ -129,8 +129,8 @@ function multichoice_add_alternative_ajax_callback($form, &$form_state) {
  */
 function multichoice_user_cancel($edit, $account, $method) {
   db_delete('quiz_multichoice_user_settings')
-  ->condition('uid', $account->uid)
-  ->execute();
+    ->condition('uid', $account->uid)
+    ->execute();
 }
 
 /**
@@ -157,4 +157,51 @@ function multichoice_views_api() {
     'api' => 3,
     'path' => drupal_get_path('module', 'multichoice'),
   );
+}
+
+/**
+ * AJAX callback function used when removing alternatives from the question edit
+ * form.
+ */
+function multichoice_remove_alternative_ajax_callback($form, &$form_state) {
+  return $form['alternatives'];
+}
+
+/**
+ * AJAX submit handler used when removing alternatives from the question edit
+ * form.
+ */
+function multichoice_remove_alternative_submit($form, &$form_state) {
+  $def_num_of_alts = variable_get('multichoice_def_num_of_alts', 2);
+  $choice_count = $form_state['choice_count'];
+  if ($choice_count <= $def_num_of_alts) {
+    drupal_set_message(t('Multiple choice must have at least !num alternatives.', array('!num' => $def_num_of_alts)), 'error');
+  }
+  else {
+    $button = $form_state['triggering_element'];
+    $delta = $button['#delta'];
+    $input = &$form_state['input']['alternatives'];
+
+    // Get IDs of choices and store it in the $input array.
+    for ($i = 0; $i < $choice_count; $i++) {
+      $input[$i]['id'] = $form_state['node']->alternatives[$i]['id'];
+    }
+
+    // Remove alternative by delta and reorder alternatives.
+    unset($input[$delta]);
+    for ($i = $delta; $i < $choice_count; $i++) {
+      $next = $i + 1;
+      if (isset($input[$next])) {
+        $input[$i] = $input[$next];
+      }
+      else {
+        unset($input[$i]);
+      }
+    }
+
+    // Update form state.
+    $form_state['choice_count'] = $choice_count - 1;
+    $form_state['node']->alternatives = $input;
+  }
+  $form_state['rebuild'] = TRUE;
 }

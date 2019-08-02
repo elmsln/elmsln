@@ -7,7 +7,7 @@
  * @ingroup print
  */
 
-define('PRINT_PDF_TCPDF_FONT_FAMILY_DEFAULT', 'dejavusans');
+define('PRINT_PDF_TCPDF_FONT_FAMILY_DEFAULT', '');
 define('PRINT_PDF_TCPDF_FONT_SIZE_DEFAULT', 10);
 define('PRINT_PDF_TCPDF_FONT_SUBSETTING_DEFAULT', FALSE);
 
@@ -84,7 +84,9 @@ function print_pdf_tcpdf_pdf_tool_version($pdf_tool) {
     // Prevent TCPDF default configs.
     define('K_TCPDF_EXTERNAL_CONFIG', TRUE);
   }
-  require_once DRUPAL_ROOT . '/' . $pdf_tool;
+  if (file_exists(DRUPAL_ROOT . '/' . $pdf_tool)) {
+    include_once DRUPAL_ROOT . '/' . $pdf_tool;
+  }
 
   // Hide warnings, as some TCPDF constants may still be undefined.
   if (class_exists('TCPDF')) {

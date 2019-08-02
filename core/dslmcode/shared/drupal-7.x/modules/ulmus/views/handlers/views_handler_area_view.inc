@@ -12,7 +12,10 @@
  */
 class views_handler_area_view extends views_handler_area {
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['view_to_insert'] = array('default' => '');
@@ -21,10 +24,9 @@ class views_handler_area_view extends views_handler_area {
   }
 
   /**
-   * Default options form that provides the label widget that all fields
-   * should have.
+   * Default options form; provides the label widget all fields should have.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     $view_display = $this->view->name . ':' . $this->view->current_display;
@@ -48,9 +50,9 @@ class views_handler_area_view extends views_handler_area {
   }
 
   /**
-   * Render the area
+   * Render the area.
    */
-  function render($empty = FALSE) {
+  public function render($empty = FALSE) {
     if ($view = $this->loadView()) {
       if (!empty($this->options['inherit_arguments']) && !empty($this->view->args)) {
         return $view->preview(NULL, $this->view->args);

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the table style plugin.
+ * Definition of views_plugin_style_jump_menu.
  */
 
 /**
@@ -11,7 +11,11 @@
  * @ingroup views_style_plugins
  */
 class views_plugin_style_jump_menu extends views_plugin_style {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['hide'] = array('default' => FALSE, 'bool' => TRUE);
@@ -28,7 +32,7 @@ class views_plugin_style_jump_menu extends views_plugin_style {
   /**
    * Render the given style.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $handlers = $this->display->handler->get_handlers('field');
     if (empty($handlers)) {
@@ -61,7 +65,7 @@ class views_plugin_style_jump_menu extends views_plugin_style {
       '#type' => 'checkbox',
       '#title' => t('Hide the "Go" button'),
       '#default_value' => !empty($this->options['hide']),
-      '#description' => t('If hidden, this button will only be hidden for users with javascript and the page will automatically jump when the select is changed.'),
+      '#description' => t('If hidden, this button will only be hidden for users with JavaScript and the page will automatically jump when the select is changed.'),
     );
 
     $form['text'] = array(
@@ -103,7 +107,7 @@ class views_plugin_style_jump_menu extends views_plugin_style {
    *
    * This is overridden so that we can render our grouping specially.
    */
-  function render() {
+  public function render() {
     $sets = $this->render_grouping($this->view->result, $this->options['grouping']);
 
     // Turn this all into an $options array for the jump menu.
@@ -122,8 +126,8 @@ class views_plugin_style_jump_menu extends views_plugin_style {
           $path = drupal_substr($path, drupal_strlen($base_path));
         }
 
-        // use drupal_parse_url() to preserve query and fragment in case the user
-        // wants to do fun tricks.
+        // Use drupal_parse_url() to preserve query and fragment in case the
+        // user wants to do fun tricks.
         $url_options = drupal_parse_url($path);
 
         $path = url($url_options['path'], $url_options);
@@ -144,8 +148,8 @@ class views_plugin_style_jump_menu extends views_plugin_style {
     $default_value = '';
     if ($this->options['default_value']) {
       $lookup_options = array();
-      // We need to check if the path is absolute
-      // or else language is not taken in account.
+      // We need to check if the path is absolute or else language is not taken
+      // in account.
       if (!empty($this->view->display[$this->view->current_display]->display_options['fields'][$this->options['path']]['absolute'])) {
         $lookup_options['absolute'] = TRUE;
       }
@@ -169,8 +173,12 @@ class views_plugin_style_jump_menu extends views_plugin_style {
     return $form;
   }
 
-  function render_set($title, $records) {
+  /**
+   *
+   */
+  public function render_set($title, $records) {
     $options = array();
     $fields = $this->rendered_fields;
   }
+
 }

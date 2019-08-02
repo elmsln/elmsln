@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @file Includes any rules integration provided by the module.
+ * @file
+ * Includes any Rules integration provided by the module.
  */
-
 
 /**
  * Implements hook_default_rules_configuration().
@@ -11,6 +11,8 @@
 function rules_test_default_rules_configuration() {
   $rule = rules_reaction_rule();
   $rule->label = 'example default rule';
+  // Add rules tags.
+  $rule->tags = array('Admin', 'Tag2');
   $rule->active = FALSE;
   $rule->event('node_update')
        ->condition(rules_condition('data_is', array('data:select' => 'node:status', 'value' => TRUE))->negate())

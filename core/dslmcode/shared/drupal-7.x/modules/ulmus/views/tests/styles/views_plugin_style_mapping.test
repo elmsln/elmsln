@@ -27,7 +27,7 @@ class ViewsPluginStyleMappingTest extends ViewsPluginStyleTestBase {
 
   protected function viewsPlugins() {
     return array(
-      'style' =>  array(
+      'style' => array(
         'test_mapping' => array(
           'title' => t('Field mapping'),
           'help' => t('Maps specific fields to specific purposes.'),

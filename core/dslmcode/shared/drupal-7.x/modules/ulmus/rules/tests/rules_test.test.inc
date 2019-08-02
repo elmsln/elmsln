@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @file Include file for testing file inclusion.
+ * @file
+ * Include file for testing file inclusion.
  */
 
 /**
@@ -11,16 +12,15 @@ function rules_test_custom_node_save($object) {
   throw new RulesEvaluationException('Custom save method invoked.');
 }
 
-
 /**
- * Custom help callback for the rules_node_publish_action
+ * Custom help callback for the rules_node_publish_action().
  */
 function rules_test_custom_help() {
   return 'custom';
 }
 
 /**
- * Action callback
+ * Action callback.
  */
 function rules_action_test_reference($data) {
   $data['changed'] = TRUE;
@@ -28,21 +28,21 @@ function rules_action_test_reference($data) {
 }
 
 /**
- * Condition: Check for selected content types
+ * Condition: Check for selected content types.
  */
 function rules_condition_content_is_type($node, $type) {
   return in_array($node->type, $type);
 }
 
 /**
- * Condition: Check if the node is published
+ * Condition: Check if the node is published.
  */
 function rules_condition_content_is_published($node, $settings) {
   return $node->status == 1;
 }
 
 /**
- * Loads a node
+ * Loads a node.
  */
 function rules_action_load_node($nid, $vid = NULL) {
   return array('node_loaded' => node_load($nid, $vid ? $vid : NULL));

@@ -2,7 +2,7 @@
 
 class QuizResultMetadataController extends EntityDefaultMetadataController {
 
-  function entityPropertyInfo() {
+  public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();
 
     $info['quiz_result']['properties']['nid']['type'] = 'node';

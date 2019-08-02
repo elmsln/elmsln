@@ -1,36 +1,35 @@
 <?php
 
 /**
- * The main classes for the short answer question type.
+ * @file
+ * Short answer classes.
  *
- * These inherit or implement code found in quiz_question.classes.inc.
+ * This module uses the question interface to define the short_answer question type.
  *
- * If you are developing your own question type, the easiest place to start is with
- * multichoice.classes.inc. short_answer and long_answer are good for understanding
- * question types that involve textual answers.
+ * If you are developing your own question type, the easiest place to start is
+ * with multichoice.classes.inc. short_answer and long_answer are good for
+ * understanding question types that involve textual answers.
  *
- * @file short_answer.classes.inc
- * Question implementation for short answer.
+ * These classes could have extended the long answer question, but this would
+ * mean having to add the long answer module as a dependency. So in order to
+ * keep them separate we've chosen to "duplicate" some code.
  */
 
 /**
  * Extension of QuizQuestion.
- *
- * This could have extended long answer, except that that would have entailed
- * adding long answer as a dependency.
  */
 class ShortAnswerQuestion extends QuizQuestion {
 
-  // Constants for answer matching options
+  // Constants for answer matching options.
   const ANSWER_MATCH = 0;
   const ANSWER_INSENSITIVE_MATCH = 1;
   const ANSWER_REGEX = 2;
   const ANSWER_MANUAL = 3;
 
   /**
-   * Implementation of saveNodeProperties
+   * Implementation of saveNodeProperties().
    *
-   * @see QuizQuestion#saveNodeProperties($is_new)
+   * @see QuizQuestion::saveNodeProperties()
    */
   public function saveNodeProperties($is_new = FALSE) {
     db_merge('quiz_short_answer_node_properties')
@@ -48,9 +47,9 @@ class ShortAnswerQuestion extends QuizQuestion {
   }
 
   /**
-   * Implementation of validateNode
+   * Implementation of validateNode().
    *
-   * @see QuizQuestion#validateNode($form)
+   * @see QuizQuestion::validateNode()
    */
   public function validateNode(array &$form) {
     if ($this->node->correct_answer_evaluation != self::ANSWER_MANUAL && empty($this->node->correct_answer)) {
@@ -59,9 +58,9 @@ class ShortAnswerQuestion extends QuizQuestion {
   }
 
   /**
-   * Implementation of delete
+   * Implementation of delete().
    *
-   * @see QuizQuestion#delete($only_this_version)
+   * @see QuizQuestion::delete()
    */
   public function delete($only_this_version = FALSE) {
     parent::delete($only_this_version);
@@ -77,9 +76,9 @@ class ShortAnswerQuestion extends QuizQuestion {
   }
 
   /**
-   * Implementation of getNodeProperties
+   * Implementation of getNodeProperties().
    *
-   * @see QuizQuestion#getNodeProperties()
+   * @see QuizQuestion::getNodeProperties()
    */
   public function getNodeProperties() {
     if (isset($this->nodeProperties)) {
@@ -93,9 +92,9 @@ class ShortAnswerQuestion extends QuizQuestion {
   }
 
   /**
-   * Implementation of getNodeView
+   * Implementation of getNodeView().
    *
-   * @see QuizQuestion#getNodeView()
+   * @see QuizQuestion::getNodeView()
    */
   public function getNodeView() {
     $content = parent::getNodeView();
@@ -115,9 +114,9 @@ class ShortAnswerQuestion extends QuizQuestion {
   }
 
   /**
-   * Implementation of getAnsweringForm
+   * Implementation of getAnsweringForm().
    *
-   * @see QuizQuestion#getAnsweringForm($form_state, $result_id)
+   * @see QuizQuestion::getAnsweringForm()
    */
   public function getAnsweringForm(array $form_state = NULL, $result_id) {
     $element = parent::getAnsweringForm($form_state, $result_id);
@@ -152,9 +151,9 @@ class ShortAnswerQuestion extends QuizQuestion {
   }
 
   /**
-   * Implementation of getCreationForm
+   * Implementation of getCreationForm().
    *
-   * @see QuizQuestion#getCreationForm($form_state)
+   * @see QuizQuestion::getCreationForm()
    */
   public function getCreationForm(array &$form_state = NULL) {
     $form['answer'] = array(
@@ -196,7 +195,7 @@ class ShortAnswerQuestion extends QuizQuestion {
         '#markup' => '<p>' .
         t('Regular expressions are an advanced syntax for pattern matching. They allow you to create a concise set of rules that must be met before a value can be considered a match.') .
         '</p><p>' .
-        t('For more on regular expression syntax, visit !url.', array('!url' => l('the PHP regular expressions documentation', 'http://www.php.net/manual/en/book.pcre.php'))) .
+        t('For more on regular expression syntax, visit !url.', array('!url' => l(t('the PHP regular expressions documentation'), 'http://www.php.net/manual/en/book.pcre.php'))) .
         '</p>',
       );
     }
@@ -214,16 +213,25 @@ class ShortAnswerQuestion extends QuizQuestion {
   }
 
   /**
-   * Implementation of getMaximumScore
+   * Implementation of getMaximumScore().
    *
-   * @see QuizQuestion#getMaximumScore()
+   * @see QuizQuestion::getMaximumScore()
    */
   public function getMaximumScore() {
     return variable_get('short_answer_default_max_score', 5);
   }
 
   /**
-   * Evaluate the correctness of an answer based on the correct answer and evaluation method.
+   * Evaluate the correctness of an answer.
+   *
+   * The way we decide how to evaluate the correctness depends on the
+   * evaluation method of the question.
+   *
+   * @param string $user_answer
+   *   The answer given by the user.
+   *
+   * @return int
+   *   The given score for the answer.
    */
   public function evaluateAnswer($user_answer) {
     $score = 0;
@@ -238,11 +246,13 @@ class ShortAnswerQuestion extends QuizQuestion {
           $score = $this->node->max_score;
         }
         break;
+
       case self::ANSWER_INSENSITIVE_MATCH:
         if (drupal_strtolower($user_answer) == drupal_strtolower($this->node->correct_answer)) {
           $score = $this->node->max_score;
         }
         break;
+
       case self::ANSWER_REGEX:
         if (preg_match($this->node->correct_answer, $user_answer) > 0) {
           $score = $this->node->max_score;
@@ -255,73 +265,9 @@ class ShortAnswerQuestion extends QuizQuestion {
 }
 
 /**
- * Extension of QuizQuestionResponse
+ * Extension of QuizQuestionResponse.
  */
 class ShortAnswerResponse extends QuizQuestionResponse {
-
-  /**
-   * Get all quiz scores that haven't been evaluated yet.
-   *
-   * @param $count
-   *  Number of items to return (default: 50).
-   * @param $offset
-   *  Where in the results we should start (default: 0).
-   *
-   * @return
-   *  Array of objects describing unanswered questions. Each object will have result_id, question_nid, and question_vid.
-   */
-  public static function fetchAllUnscoredAnswers($count = 50, $offset = 0) {
-    global $user;
-    $query = db_select('quiz_short_answer_user_answers', 'a');
-    $query->fields('a', array('answer_feedback', 'answer_feedback_format'));
-    $query->fields('r', array('title'));
-    $query->fields('qnr', array('time_end', 'time_start', 'uid'));
-    $query->fields('qnra', array('result_id', 'question_nid', 'question_vid'));
-    $query->join('quiz_node_results_answers', 'qnra', 'a.result_answer_id = qnra.result_answer_id');
-    $query->join('node_revision', 'r', 'qnra.question_vid = r.vid');
-    $query->join('quiz_node_results', 'qnr', 'qnra.result_id = qnr.result_id');
-    $query->join('node', 'n', 'qnr.nid = n.nid');
-    $query->condition('a.is_evaluated', 0);
-
-    if (user_access('score own quiz') && user_access('score taken quiz answer')) {
-      $query->condition(db_or()->condition('n.uid', $user->uid)->condition('qnr.uid', $user->uid));
-    }
-    elseif (user_access('score own quiz')) {
-      $query->condition('n.uid', $user->uid);
-    }
-    elseif (user_access('score taken quiz answer')) {
-      $query->condition('qnr.uid', $user->uid);
-    }
-
-    $results = $query->execute();
-    $unscored = array();
-    foreach ($results as $row) {
-      $unscored[] = $row;
-    }
-    return $unscored;
-  }
-
-  /**
-   * Given a question, return a list of all of the unscored answers.
-   *
-   * @param $nid
-   *  Node ID for the question to check.
-   * @param $vid
-   *  Version ID for the question to check.
-   * @param $count
-   *  Number of items to return (default: 50).
-   * @param $offset
-   *  Where in the results we should start (default: 0).
-   *
-   * @return
-   *  Indexed array of result IDs that need to be scored.
-   */
-  public static function fetchUnscoredAnswersByQuestion($nid, $vid, $count = 50, $offset = 0) {
-    return db_query('SELECT result_id FROM {quiz_short_answer_user_answers}
-      WHERE is_evaluated = :is_evaluated AND question_nid = :question_nid AND question_vid = :question_vid', array(':is_evaluated' => 0, ':question_nid' => $nid, ':question_vid' => $vid)
-      )->fetchCol();
-  }
-
   /**
    * ID of the answer.
    */
@@ -330,7 +276,15 @@ class ShortAnswerResponse extends QuizQuestionResponse {
   private $answer_feedback_format;
 
   /**
-   * Constructor
+   * Constructor.
+   *
+   * @param int $result_id
+   *   The result ID for the user's result set. There is one result ID per time
+   *   the user takes a quiz.
+   * @param stdClass $question_node
+   *   The question node.
+   * @param mixed $answer
+   *   The answer (dependent on question type).
    */
   public function __construct($result_id, stdClass $question_node, $answer = NULL) {
     parent::__construct($result_id, $question_node, $answer);
@@ -361,12 +315,13 @@ class ShortAnswerResponse extends QuizQuestionResponse {
   }
 
   /**
-   * Implementation of save
+   * Implementation of save().
    *
-   * @see QuizQuestionResponse#save()
+   * @see QuizQuestionResponse::save()
    */
   public function save() {
-    // We need to set is_evaluated depending on whether the type requires evaluation.
+    // We need to set is_evaluated depending on whether the type requires
+    // evaluation.
     $this->is_evaluated = (int) ($this->question->correct_answer_evaluation != ShortAnswerQuestion::ANSWER_MANUAL);
     db_merge('quiz_short_answer_user_answers')
       ->key(array('result_answer_id' => $this->result_answer_id))
@@ -380,9 +335,9 @@ class ShortAnswerResponse extends QuizQuestionResponse {
   }
 
   /**
-   * Implementation of delete
+   * Implementation of delete().
    *
-   * @see QuizQuestionResponse#delete()
+   * @see QuizQuestionResponse::delete()
    */
   public function delete() {
     db_delete('quiz_short_answer_user_answers')
@@ -391,9 +346,9 @@ class ShortAnswerResponse extends QuizQuestionResponse {
   }
 
   /**
-   * Implementation of score
+   * Implementation of score().
    *
-   * @see QuizQuestionResponse#score()
+   * @see QuizQuestionResponse::score()
    */
   public function score() {
     // Manual scoring means we go with what is in the DB.
@@ -412,25 +367,28 @@ class ShortAnswerResponse extends QuizQuestionResponse {
   }
 
   /**
-   * Implementation of getResponse
+   * Implementation of getResponse().
    *
-   * @see QuizQuestionResponse#getResponse()
+   * @see QuizQuestionResponse::getResponse()
    */
   public function getResponse() {
     return $this->answer;
   }
 
   /**
-   * Implementation of getReportFormResponse
+   * Implementation of getFeedbackValues().
+   *
+   * @see QuizQuestionResponse::getFeedbackValues()
    */
   public function getFeedbackValues() {
     $data = array();
 
     $data[] = array(
-      // Hide this column. Does not make sense for short answer as there are no choices.
+      // Hide this column. Does not make sense for short answer as there are no
+      // choices.
       'choice' => NULL,
       'attempt' => $this->answer,
-      'correct' => $this->question->answers[0]['is_correct'] ? quiz_icon('correct') : quiz_icon(''),
+      'correct' => $this->question->answers[0]['is_correct'] ? quiz_icon('correct') : '',
       'score' => !$this->evaluated ? t('This answer has not yet been scored.') : $this->getScore(),
       'answer_feedback' => check_markup($this->answer_feedback, $this->answer_feedback_format),
       'solution' => $this->question->correct_answer,
@@ -439,6 +397,11 @@ class ShortAnswerResponse extends QuizQuestionResponse {
     return $data;
   }
 
+  /**
+   * Implementation of getReportFormAnswerFeedback().
+   *
+   * @see QuizQuestionResponse::getReportFormAnswerFeedback()
+   */
   public function getReportFormAnswerFeedback() {
     return array(
       '#title' => t('Enter feedback'),
@@ -450,9 +413,9 @@ class ShortAnswerResponse extends QuizQuestionResponse {
   }
 
   /**
-   * Implementation of getReportFormSubmit
+   * Implementation of getReportFormSubmit().
    *
-   * @see QuizQuestionResponse#getReportFormSubmit()
+   * @see QuizQuestionResponse::getReportFormSubmit()
    */
   public function getReportFormSubmit() {
     return 'short_answer_report_submit';

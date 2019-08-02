@@ -9,7 +9,11 @@
  * Filter by system type.
  */
 class views_handler_filter_system_type extends views_handler_filter_in_operator {
-  function get_value_options() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function get_value_options() {
     if (!isset($this->value_options)) {
       $this->value_title = t('Type');
       // Enable filtering by type.
@@ -18,4 +22,5 @@ class views_handler_filter_system_type extends views_handler_filter_in_operator 
       $this->value_options = $types;
     }
   }
+
 }

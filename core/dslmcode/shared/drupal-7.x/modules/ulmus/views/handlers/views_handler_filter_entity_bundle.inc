@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of views_handler_filter_entity_bundle
+ * Definition of views_handler_filter_entity_bundle.
  */
 
 /**
@@ -13,6 +13,7 @@
  * @ingroup views_filter_handlers
  */
 class views_handler_filter_entity_bundle extends views_handler_filter_in_operator {
+
   /**
    * Stores the entity type on which the filter filters.
    *
@@ -20,7 +21,10 @@ class views_handler_filter_entity_bundle extends views_handler_filter_in_operato
    */
   public $entity_type;
 
-  function init(&$view, &$options) {
+  /**
+   * {@inheritdoc}
+   */
+  public function init(&$view, &$options) {
     parent::init($view, $options);
 
     $this->get_entity_type();
@@ -32,16 +36,17 @@ class views_handler_filter_entity_bundle extends views_handler_filter_in_operato
    * @return string
    *   The entity type on the filter.
    */
-  function get_entity_type() {
+  public function get_entity_type() {
     if (!isset($this->entity_type)) {
       $data = views_fetch_data($this->table);
       if (isset($data['table']['entity type'])) {
         $this->entity_type = $data['table']['entity type'];
       }
 
-      // If the current filter is under a relationship you can't be sure that the
-      // entity type of the view is the entity type of the current filter
-      // For example a filter from a node author on a node view does have users as entity type.
+      // If the current filter is under a relationship you can't be sure that
+      // the entity type of the view is the entity type of the current filter
+      // For example a filter from a node author on a node view does have users
+      // as entity type.
       if (!empty($this->options['relationship']) && $this->options['relationship'] != 'none') {
         $relationships = $this->view->display_handler->get_option('relationships');
         if (!empty($relationships[$this->options['relationship']])) {
@@ -55,8 +60,10 @@ class views_handler_filter_entity_bundle extends views_handler_filter_in_operato
     return $this->entity_type;
   }
 
-
-  function get_value_options() {
+  /**
+   * {@inheritdoc}
+   */
+  public function get_value_options() {
     if (!isset($this->value_options)) {
       $info = entity_get_info($this->entity_type);
       $types = $info['bundles'];
@@ -76,7 +83,7 @@ class views_handler_filter_entity_bundle extends views_handler_filter_in_operato
    * bundle, though these two need an additional join to node/vocab table
    * to work as required.
    */
-  function query() {
+  public function query() {
     $this->ensure_my_table();
 
     // Adjust the join for the comment case.
@@ -119,4 +126,5 @@ class views_handler_filter_entity_bundle extends views_handler_filter_in_operato
     }
     parent::query();
   }
+
 }

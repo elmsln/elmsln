@@ -1,15 +1,16 @@
-//var H5PEditor = (H5PEditor || {});
 (function ($, ns) {
-  H5PEditor.init = function ($form, $type, $upload, $create, $editor, $library, $params) {
+  H5PEditor.init = function ($form, $type, $upload, $create, $editor, $library, $params, $maxScore, $title, submitCallback) {
     H5PEditor.$ = H5P.jQuery;
     H5PEditor.basePath = H5PIntegration.editor.libraryUrl;
     H5PEditor.fileIcon = H5PIntegration.editor.fileIcon;
     H5PEditor.ajaxPath = H5PIntegration.editor.ajaxPath;
     H5PEditor.filesPath = H5PIntegration.editor.filesPath;
     H5PEditor.apiVersion = H5PIntegration.editor.apiVersion;
+    H5PEditor.contentLanguage = H5PIntegration.editor.language;
 
     // Semantics describing what copyright information can be stored for media.
     H5PEditor.copyrightSemantics = H5PIntegration.editor.copyrightSemantics;
+    H5PEditor.metadataSemantics = H5PIntegration.editor.metadataSemantics;
 
     // Required styles and scripts for the editor
     H5PEditor.assets = H5PIntegration.editor.assets;
@@ -46,13 +47,33 @@
       $type.filter('input[value="create"]').attr('checked', true).change();
     }
 
-    $form.submit(function () {
-      if (h5peditor !== undefined) {
-        var params = h5peditor.getParams();
-        if (params !== undefined) {
-          $library.val(h5peditor.getLibrary());
-          $params.val(JSON.stringify(params));
-        }
+    let formIsUpdated = false;
+    $form.submit(function (event) {
+      if ($type.length && $type.filter(':checked').val() === 'upload') {
+        return; // Old file upload
+      }
+
+      if (h5peditor !== undefined && !formIsUpdated) {
+
+        // Get content from editor
+        h5peditor.getContent(function (content) {
+
+          // Set the title field to the metadata title if the field exists
+          $title.val(content.title);
+
+          // Set main library
+          $library.val(content.library);
+
+          // Set params
+          $params.val(content.params);
+
+          // Submit form data
+          formIsUpdated = true;
+          $form.submit();
+        });
+
+        // Stop default submit
+        event.preventDefault();
       }
     });
   };
@@ -61,9 +82,11 @@
     var url = H5PIntegration.editor.ajaxPath + action;
 
     if (parameters !== undefined) {
+      var separator = url.indexOf('?') === -1 ? '?' : '&';
       for (var property in parameters) {
         if (parameters.hasOwnProperty(property)) {
-          url += '&' + property + '=' + parameters[property];
+          url += separator + property + '=' + parameters[property];
+          separator = '&';
         }
       }
     }

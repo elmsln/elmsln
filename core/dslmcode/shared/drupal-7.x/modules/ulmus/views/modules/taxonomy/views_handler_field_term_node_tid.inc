@@ -11,9 +11,13 @@
  * @ingroup views_field_handlers
  */
 class views_handler_field_term_node_tid extends views_handler_field_prerender_list {
-  function init(&$view, &$options) {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function init(&$view, &$options) {
     parent::init($view, $options);
-    // @todo: Wouldn't it be possible to use $this->base_table and no if here?
+    // @todo Wouldn't it be possible to use $this->base_table and no if here?
     if ($view->base_table == 'node_revision') {
       $this->additional_fields['nid'] = array('table' => 'node_revision', 'field' => 'nid');
     }
@@ -32,7 +36,10 @@ class views_handler_field_term_node_tid extends views_handler_field_prerender_li
     }
   }
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['link_to_taxonomy'] = array('default' => TRUE, 'bool' => TRUE);
@@ -45,7 +52,7 @@ class views_handler_field_term_node_tid extends views_handler_field_prerender_li
   /**
    * Provide "link to term" option.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     $form['link_to_taxonomy'] = array(
       '#title' => t('Link this field to its term page'),
       '#type' => 'checkbox',
@@ -55,7 +62,7 @@ class views_handler_field_term_node_tid extends views_handler_field_prerender_li
     $form['limit'] = array(
       '#type' => 'checkbox',
       '#title' => t('Limit terms by vocabulary'),
-      '#default_value'=> $this->options['limit'],
+      '#default_value' => $this->options['limit'],
     );
 
     $options = array();
@@ -78,13 +85,16 @@ class views_handler_field_term_node_tid extends views_handler_field_prerender_li
   }
 
   /**
-   * Add this term to the query
+   * Add this term to the query.
    */
-  function query() {
+  public function query() {
     $this->add_additional_fields();
   }
 
-  function pre_render(&$values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function pre_render(&$values) {
     $this->field_alias = $this->aliases['nid'];
     $nids = array();
     foreach ($values as $result) {
@@ -125,21 +135,31 @@ class views_handler_field_term_node_tid extends views_handler_field_prerender_li
     }
   }
 
-  function render_item($count, $item) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render_item($count, $item) {
     return $item['name'];
   }
 
-  function document_self_tokens(&$tokens) {
+  /**
+   * {@inheritdoc}
+   */
+  public function document_self_tokens(&$tokens) {
     $tokens['[' . $this->options['id'] . '-tid' . ']'] = t('The taxonomy term ID for the term.');
     $tokens['[' . $this->options['id'] . '-name' . ']'] = t('The taxonomy term name for the term.');
     $tokens['[' . $this->options['id'] . '-vocabulary-machine-name' . ']'] = t('The machine name for the vocabulary the term belongs to.');
     $tokens['[' . $this->options['id'] . '-vocabulary' . ']'] = t('The name for the vocabulary the term belongs to.');
   }
 
-  function add_self_tokens(&$tokens, $item) {
-    foreach(array('tid', 'name', 'vocabulary_machine_name', 'vocabulary') as $token) {
+  /**
+   * {@inheritdoc}
+   */
+  public function add_self_tokens(&$tokens, $item) {
+    foreach (array('tid', 'name', 'vocabulary_machine_name', 'vocabulary') as $token) {
       // Replace _ with - for the vocabulary machine name.
-      $tokens['[' . $this->options['id'] . '-' . str_replace('_', '-', $token). ']'] = isset($item[$token]) ? $item[$token] : '';
+      $tokens['[' . $this->options['id'] . '-' . str_replace('_', '-', $token) . ']'] = isset($item[$token]) ? $item[$token] : '';
     }
   }
+
 }

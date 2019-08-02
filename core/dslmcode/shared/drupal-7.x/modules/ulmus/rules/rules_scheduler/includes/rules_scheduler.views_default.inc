@@ -9,7 +9,7 @@
  * Implements hook_views_default_views().
  */
 function rules_scheduler_views_default_views() {
-  $view = new view;
+  $view = new view();
   $view->name = 'rules_scheduler';
   $view->description = 'Scheduled Rules components';
   $view->tag = '';

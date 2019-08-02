@@ -1,6 +1,3 @@
-/** @namespace H5PEditor */
-var H5PEditor = H5PEditor || {};
-
 H5PEditor.List = (function ($) {
   /**
    * List structure.
@@ -166,6 +163,7 @@ H5PEditor.List = (function ($) {
         }
         readyCallbacks = []; // Reset
       }
+      self.trigger('addedItem', child);
 
       return true;
     };
@@ -190,6 +188,7 @@ H5PEditor.List = (function ($) {
           setValue(field);
         }
       }
+      self.trigger('removedItem', index);
     };
 
     /**

@@ -11,15 +11,25 @@
  * @ingroup views_access_plugins
  */
 class views_plugin_access_role extends views_plugin_access {
-  function access($account) {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function access($account) {
     return views_check_roles(array_filter($this->options['role']), $account);
   }
 
-  function get_access_callback() {
+  /**
+   * {@inheritdoc}
+   */
+  public function get_access_callback() {
     return array('views_check_roles', array(array_filter($this->options['role'])));
   }
 
-  function summary_title() {
+  /**
+   * {@inheritdoc}
+   */
+  public function summary_title() {
     $count = count($this->options['role']);
     if ($count < 1) {
       return t('No role(s) selected');
@@ -34,15 +44,20 @@ class views_plugin_access_role extends views_plugin_access {
     }
   }
 
-
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['role'] = array('default' => array());
 
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['role'] = array(
       '#type' => 'checkboxes',
@@ -53,14 +68,21 @@ class views_plugin_access_role extends views_plugin_access {
     );
   }
 
-  function options_validate(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_validate(&$form, &$form_state) {
     if (!array_filter($form_state['values']['access_options']['role'])) {
       form_error($form['role'], t('You must select at least one role if type is "by role"'));
     }
   }
 
-  function options_submit(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_submit(&$form, &$form_state) {
     // I hate checkboxes.
     $form_state['values']['access_options']['role'] = array_filter($form_state['values']['access_options']['role']);
   }
+
 }

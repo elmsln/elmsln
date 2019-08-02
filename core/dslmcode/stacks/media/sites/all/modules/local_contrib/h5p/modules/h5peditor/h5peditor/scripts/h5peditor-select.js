@@ -1,5 +1,4 @@
-var H5PEditor = H5PEditor || {};
-
+/* global ns*/
 H5PEditor.widgets.select = H5PEditor.Select = (function (E) {
   /**
    * Initialize a new widget.
@@ -22,7 +21,7 @@ H5PEditor.widgets.select = H5PEditor.Select = (function (E) {
       for (var i = 0; i < this.changes.length; i++) {
         this.changes[i](value);
       }
-    }
+    };
   }
 
   /**
@@ -54,12 +53,13 @@ H5PEditor.widgets.select = H5PEditor.Select = (function (E) {
    * @returns {String} HTML.
    */
   C.prototype.createHtml = function () {
+    var options = '';
     if (this.field.optional === true || this.field.default === undefined) {
-      var options = E.createOption('-', '-');
+      options = E.createOption('-', '-');
     }
     options += C.createOptionsHtml(this.field.options, this.value);
 
-    var select = '<select>' + options + '</select>';
+    var select = '<select class="h5peditor-select">' + options + '</select>';
 
     return E.createFieldMarkup(this.field, select);
   };
@@ -75,7 +75,14 @@ H5PEditor.widgets.select = H5PEditor.Select = (function (E) {
     var html = '';
 
     for (var i = 0; i < options.length; i++) {
-      html += E.createOption(options[i].value, options[i].label, options[i].value === selected);
+      if (options[i].type === 'optgroup') {
+        html += '<optgroup label="' + options[i].label + '" >';
+        html += C.createOptionsHtml(options[i].options, selected);
+        html += '</optgroup>';
+      }
+      else {
+        html += E.createOption(options[i].value, options[i].label, options[i].value === selected);
+      }
     }
 
     return html;

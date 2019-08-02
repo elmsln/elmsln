@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of views_handler_field_locale_link_edit.
+ * Contains .
  */
 
 /**
@@ -11,12 +11,19 @@
  * @ingroup views_field_handlers
  */
 class views_handler_field_locale_link_edit extends views_handler_field {
-  function construct() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function construct() {
     parent::construct();
     $this->additional_fields['lid'] = 'lid';
   }
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['text'] = array('default' => '', 'translatable' => TRUE);
@@ -24,7 +31,10 @@ class views_handler_field_locale_link_edit extends views_handler_field {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     $form['text'] = array(
       '#type' => 'textfield',
       '#title' => t('Text to display'),
@@ -33,22 +43,34 @@ class views_handler_field_locale_link_edit extends views_handler_field {
     parent::options_form($form, $form_state);
   }
 
-  function query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     $this->ensure_my_table();
     $this->add_additional_fields();
   }
 
-  function access() {
+  /**
+   * {@inheritdoc}
+   */
+  public function access() {
     // Ensure user has access to edit translations.
     return user_access('translate interface');
   }
 
-  function render($values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render($values) {
     $value = $this->get_value($values, 'lid');
     return $this->render_link($this->sanitize_value($value), $values);
   }
 
-  function render_link($data, $values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render_link($data, $values) {
     $text = !empty($this->options['text']) ? $this->options['text'] : t('edit');
 
     $this->options['alter']['make_link'] = TRUE;
@@ -57,4 +79,5 @@ class views_handler_field_locale_link_edit extends views_handler_field {
 
     return $text;
   }
+
 }

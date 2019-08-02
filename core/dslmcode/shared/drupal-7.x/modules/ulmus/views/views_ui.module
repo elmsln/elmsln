@@ -435,8 +435,7 @@ function views_ui_preprocess_views_view(&$vars) {
 /**
  * Theme preprocess for theme_views_ui_view_preview_section().
  *
- * @TODO
- *    Perhaps move this to includes/admin.inc or theme/theme.inc
+ * @todo Perhaps move this to includes/admin.inc or theme/theme.inc.
  */
 function template_preprocess_views_ui_view_preview_section(&$vars) {
   switch ($vars['section']) {
@@ -483,12 +482,12 @@ function template_preprocess_views_ui_view_preview_section(&$vars) {
       break;
 
     case 'attachment_before':
-      // @todo: Add links to the attachment configuration page.
+      // @todo Add links to the attachment configuration page.
       $vars['title'] = t('Attachment before');
       break;
 
     case 'attachment_after':
-      // @todo: Add links to the attachment configuration page.
+      // @todo Add links to the attachment configuration page.
       $vars['title'] = t('Attachment after');
       break;
   }
@@ -524,9 +523,8 @@ function theme_views_ui_view_preview_section($vars) {
  * @param string $title
  *   Add a bolded title of this section.
  *
- * @TODO
- *   Bring in relationships
- *   Refactor this function to use much stuff of views_ui_edit_form_get_bucket.
+ * @todo Bring in relationships.
+ * @todo Refactor this function to use much of views_ui_edit_form_get_bucket.
  */
 function views_ui_view_preview_section_handler_links($view, $type, $title = FALSE) {
   $display = $view->display_handler->display;
@@ -806,6 +804,9 @@ function views_ui_contextual_links_suppress_pop() {
  * @see http://drupal.org/node/774876
  */
 function views_ui_ajax_get_form($form_id) {
+  $args = func_get_args();
+  array_shift($args);
+
   // @see ajax_get_form()
   $form_state = array(
     'no_redirect' => TRUE,
@@ -814,8 +815,6 @@ function views_ui_ajax_get_form($form_id) {
   $form_state['rebuild_info']['copy']['#action'] = TRUE;
 
   // @see drupal_get_form()
-  $args = func_get_args();
-  array_shift($args);
   $form_state['build_info']['args'] = $args;
   $form = drupal_build_form($form_id, $form_state);
 
@@ -904,7 +903,7 @@ function _views_ui_get_displays_list($view) {
  * @see /js/jquery.ui.dialog.patch.js
  * @see /js/jquery.ui.dialog.min.js
  *
- * The javascript patch overwrites the $.ui.dialog.overlay.events object to
+ * The JavaScript patch overwrites the $.ui.dialog.overlay.events object to
  * remove the mousedown, mouseup and click events from the list of events that
  * are bound in $.ui.dialog.overlay.create.
  */

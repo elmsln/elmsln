@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of views_handler_field_filter_format_name.
+ * Contains .
  */
 
 /**
@@ -11,18 +11,28 @@
  * @ingroup views_field_handlers
  */
 class views_handler_field_filter_format_name extends views_handler_field {
-  function construct() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function construct() {
     parent::construct();
     // Be explicit about the table we are using.
     $this->additional_fields['name'] = array('table' => 'filter_formats', 'field' => 'name');
   }
 
-  function query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     $this->ensure_my_table();
     $this->add_additional_fields();
   }
 
-  function render($values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render($values) {
     $format_name = $this->get_value($values, 'name');
     if (!$format_name) {
       // Default or invalid input format.
@@ -33,4 +43,5 @@ class views_handler_field_filter_format_name extends views_handler_field {
     }
     return $this->sanitize_value($format_name);
   }
+
 }

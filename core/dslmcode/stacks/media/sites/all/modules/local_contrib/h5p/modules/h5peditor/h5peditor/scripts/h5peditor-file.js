@@ -1,6 +1,4 @@
-var H5PEditor = H5PEditor || {};
-var ns = H5PEditor;
-
+/* global ns */
 /**
  * Adds a file upload field to the form.
  *
@@ -56,6 +54,11 @@ ns.File = function (parent, field, params, setValue) {
 
     // Clear old error messages
     self.$errors.html('');
+  });
+
+  // Monitor upload progress
+  self.on('uploadProgress', function (e) {
+    self.$file.children().html(ns.t('core', 'uploading') + ' ' + Math.round(e.data * 100) + ' %');
   });
 
   // Handle upload complete
@@ -160,9 +163,9 @@ ns.File.addCopyright = function (field, $dialog, setCopyright) {
         return list[i];
       }
     }
-  }
+  };
 
-  // Re-map old licenses that has been moved
+  // Re-map old licenses that have been moved
   if (field.copyright) {
     if (field.copyright.license === 'ODC PDDL') {
       field.copyright.license = 'PD';
@@ -175,6 +178,7 @@ ns.File.addCopyright = function (field, $dialog, setCopyright) {
   }
 
   var group = new H5PEditor.widgets.group(field, H5PEditor.copyrightSemantics, field.copyright, setCopyright);
+  // TODO: We'll have to do something here with metadataSemantics if we change the widgtets
   group.appendTo($dialog);
   group.expand();
   group.$group.find('.title').remove();
@@ -187,7 +191,6 @@ ns.File.addCopyright = function (field, $dialog, setCopyright) {
 
   // Listen for changes to license
   licenseField.changes.push(function (value) {
-
     // Find versions for selected value
     var option = find(licenseField.field.options, 'value', value);
     var versions = option.versions;
@@ -250,7 +253,7 @@ ns.File.prototype.addFile = function () {
   this.$file.html('<a href="#" title="' + ns.t('core', 'changeFile') + '" class="thumbnail"><img ' + (thumbnail.width === undefined ? '' : ' width="' + thumbnail.width + '"') + 'height="' + thumbnail.height + '" alt="' + (this.field.label === undefined ? '' : this.field.label) + '"/><a href="#" class="remove" title="' + ns.t('core', 'removeFile') + '"></a></a>').children(':eq(0)').click(function () {
     that.openFileSelector();
     return false;
-  }).children('img').attr('src', thumbnail.path).end().next().click(function (e) {
+  }).children('img').attr('src', thumbnail.path).end().next().click(function () {
     that.confirmRemovalDialog.show(H5P.jQuery(this).offset().top);
     return false;
   });

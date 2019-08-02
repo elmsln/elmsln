@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for the quiz question Module.
+ */
+
+/**
+ * Test aspects of quiz access and permissions.
+ */
+class QuizAccessTestCase extends QuizTestCase {
+
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $modules[] = 'short_answer';
+    parent::setUp($modules, $admin_permissions, $user_permissions);
+  }
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Quiz access'),
+      'description' => t('Unit test for Quiz access.'),
+      'group' => t('Quiz'),
+    );
+  }
+
+  /**
+   * Test quiz authors being able to score results for own quiz.
+   */
+  public function testQuizOwnerResultEdit() {
+    $grader = $this->drupalCreateUser(array('score own quiz', 'view results for own quiz'));
+
+    $question_node = $this->drupalCreateNode(array(
+      'type' => 'short_answer',
+      'title' => 'SA 1 title',
+      'correct_answer_evaluation' => ShortAnswerQuestion::ANSWER_MANUAL,
+      'correct_answer' => 'blue',
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'SA 1 body text'))),
+    ));
+    $quiz_node = $this->drupalCreateQuiz(array('uid' => $grader->uid));
+    $this->linkQuestionToQuiz($question_node, $quiz_node);
+
+    $this->drupalLogin($this->user);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 'bluish',
+    ), t('Finish'));
+
+    // Score.
+    $this->drupalLogin($grader);
+    $this->drupalGet("node/$quiz_node->nid/quiz/results/1/view");
+    $this->drupalPost(NULL, array(
+      'question[0][score]' => 5,
+    ), t('Save score'));
+  }
+
+  /**
+   * Test quiz takers being able to grade their own results.
+   */
+  public function testQuizTakerAnswerScore() {
+    $question_node = $this->drupalCreateNode(array(
+      'type' => 'short_answer',
+      'title' => 'SA 1 title',
+      'correct_answer_evaluation' => ShortAnswerQuestion::ANSWER_MANUAL,
+      'correct_answer' => 1,
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'SA 1 body text'))),
+    ));
+    $quiz_node = $this->linkQuestionToQuiz($question_node);
+
+    $grader = $this->drupalCreateUser(array('score taken quiz answer', 'view own quiz results'));
+    $this->drupalLogin($grader);
+    $this->drupalGet("node/$quiz_node->nid/take");
+    $this->drupalPost(NULL, array(
+      "question[$question_node->nid][answer]" => 'bluish',
+    ), t('Finish'));
+
+    // Score.
+    $this->drupalGet("node/$quiz_node->nid/quiz/results/1/view");
+    $this->drupalPost(NULL, array(
+      'question[0][score]' => 5,
+    ), t('Save score'));
+  }
+
+}

@@ -91,7 +91,7 @@ function select_or_other_element_process($element, &$form_state) {
     '#type' => $element['#select_type'],
     '#title' => $element['#title'],
     '#title_display' => $element['#title_display'],
-    '#default_value' => isset($element['#default_value']) ? $element['#default_value'] : NULL,
+    '#default_value' => !empty($element['#default_value']) ? $element['#default_value'] : NULL,
     '#disabled' => $element['#disabled'],
     '#multiple' => $element['#multiple'],
     '#required' => $element['#required'],

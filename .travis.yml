@@ -1,8 +1,10 @@
 language: php
 
 php:
-  - 5.6
-
+  - 7.2
+dist: bionic
+os:
+  - linux
 matrix:
   env:
     global:
@@ -36,7 +38,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y -qq postfix
 install:
-  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+  - sudo apt-get install -y --force-yes php7.2-fpm php7.2-zip php7.2-gd php7.2-xml git php7.2-mysql apache2
   # install drush globally
   - composer global require drush/drush:7.*
   # add composer's global bin directory to the path
@@ -45,11 +47,9 @@ install:
   - export PATH="$HOME/.config/composer/vendor/bin:$PATH"
 before_script:
   - cd ../../../
-  - sudo apt-get install apache2 libapache2-mod-fastcgi
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
-  - sudo a2enmod rewrite actions fastcgi alias
-  - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - sudo a2enmod rewrite actions alias
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
   # configure apache virtual hosts
   - sudo mkdir -p /etc/apache2/sites-available
@@ -107,10 +107,8 @@ after_script:
   - drush @online status
 
 notifications:
-  irc: irc.freenode.org#elmsln
   webhooks: https://demo.elmsln.org/build-passed.php?token=POijnbYhujiH7*768iJNnjNamkkdjnhba9873654rtghnfjBNz
   email: false
   slack:
     rooms:
       - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#qa
-      - elmsln:WmKTRMe7k3IjprunaAVV3Jjg#code

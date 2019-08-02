@@ -10,6 +10,7 @@
   <?php for ($i = 0, $s = count($styles); $i < $s; $i++): ?>
     <link rel="stylesheet" href="<?php print $styles[$i]; ?>">
   <?php endfor; ?>
+  <?php if (!empty($additional_embed_head_tags)): print implode("\n", $additional_embed_head_tags); endif; ?>
 </head>
 <body>
   <div class="h5p-content" data-content-id="<?php print $content['id']; ?>"></div>

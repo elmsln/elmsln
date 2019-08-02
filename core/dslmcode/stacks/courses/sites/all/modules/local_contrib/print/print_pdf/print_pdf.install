@@ -158,9 +158,7 @@ function print_pdf_requirements($phase) {
         // Tool is defined, get some data from it's handler module.
         $tool = explode('|', $print_pdf_pdf_tool);
         $function = $tool[0] . '_pdf_tool_info';
-        if (function_exists($function)) {
-          $info = $function();
-        }
+        $info = function_exists($function) ? $function() : array();
 
         // Is the file there?
         if (!is_file($tool[1]) || !is_readable($tool[1])) {

@@ -1,9 +1,11 @@
 <?php
 
 /**
- * @file quiz_page.module
+ * @file
+ * Quiz_page question type for the Quiz module.
  *
- * Pages are implemented as a question type. They do not affect the score.
+ * Pages are implemented as a question type. However, they do not affect the
+ * score.
  */
 
 /**
@@ -25,7 +27,8 @@ function quiz_page_quiz_question_info() {
       'description' => t('Quiz pages allow you display questions across multiple pages.'),
       'question provider' => 'QuizPagesQuestion',
       'response provider' => 'QuizPagesResponse',
-      'module' => 'quiz_question', // All wrapper functions are in that module.
+      // All wrapper functions are in the quiz_question module.
+      'module' => 'quiz_question',
     ),
   );
 }

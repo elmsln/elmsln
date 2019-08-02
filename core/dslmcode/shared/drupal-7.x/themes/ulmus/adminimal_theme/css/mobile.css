@@ -168,9 +168,11 @@ div.vertical-tabs {
   border: none;
 }
 
+body.adminimal-skin-alternative div.vertical-tabs .vertical-tabs-panes,
 div.vertical-tabs .vertical-tabs-list {
   margin: 0;
   width: 100%;
+  padding-right: 0;
   padding-bottom: 20px;
   width: 100%;
   border: none;

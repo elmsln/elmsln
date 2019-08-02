@@ -2,17 +2,28 @@
 
 /**
  * @file
- * Contains the comment RSS row style plugin.
+ * Definition of views_plugin_row_comment_rss.
  */
 
 /**
  * Plugin which formats the comments as RSS items.
  */
 class views_plugin_row_comment_rss extends views_plugin_row {
-   var $base_table = 'comment';
-   var $base_field = 'cid';
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+   public $base_table = 'comment';
+
+   /**
+    * {@inheritdoc}
+    */
+   public $base_field = 'cid';
+
+   /**
+    * {@inheritdoc}
+    */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['item_length'] = array('default' => 'default');
@@ -21,7 +32,10 @@ class views_plugin_row_comment_rss extends views_plugin_row {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     $form['item_length'] = array(
@@ -37,8 +51,10 @@ class views_plugin_row_comment_rss extends views_plugin_row {
     );
   }
 
-
-  function pre_render($result) {
+  /**
+   * {@inheritdoc}
+   */
+  public function pre_render($result) {
     $cids = array();
     $nids = array();
 
@@ -59,10 +75,10 @@ class views_plugin_row_comment_rss extends views_plugin_row {
    * Return the main options, which are shown in the summary title
    *
    * @see views_plugin_row_node_rss::options_form_summary_options()
-   * @todo: Maybe provide a views_plugin_row_rss_entity and reuse this method
+   * @todo Maybe provide a views_plugin_row_rss_entity and reuse this method
    * in views_plugin_row_comment|node_rss.inc
    */
-  function options_form_summary_options() {
+  public function options_form_summary_options() {
     $entity_info = entity_get_info('node');
     $options = array();
     if (!empty($entity_info['view modes'])) {
@@ -75,8 +91,10 @@ class views_plugin_row_comment_rss extends views_plugin_row {
     return $options;
   }
 
-
-  function render($row) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render($row) {
     global $base_url;
 
     $cid = $row->{$this->field_alias};
@@ -89,7 +107,7 @@ class views_plugin_row_comment_rss extends views_plugin_row {
       $item_length = variable_get('feed_item_length', 'teaser');
     }
 
-    // Load the specified comment and its associated node:
+    // Load the specified comment and its associated node.
     $comment = $this->comments[$cid];
     if (empty($comment) || empty($this->nodes[$comment->nid])) {
       return;
@@ -149,4 +167,5 @@ class views_plugin_row_comment_rss extends views_plugin_row {
       'row' => $item
     ));
   }
+
 }

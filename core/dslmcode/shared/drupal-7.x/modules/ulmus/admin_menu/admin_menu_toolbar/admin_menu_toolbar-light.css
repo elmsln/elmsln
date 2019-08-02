@@ -1,0 +1,54 @@
+/***** Clean Menu *****/
+#admin-menu-wrapper {
+  background-color: #FFF;
+}
+
+#admin-menu .dropdown a {
+    color: #777;
+}
+#admin-menu .admin-menu-search input {
+  border: 1px solid #eee;
+  color: 1px solid #eee;
+}
+
+#admin-menu li.admin-menu-account > a {
+    background: #eee;
+}
+
+#admin-menu .dropdown .admin-menu-icon > a {
+    background-color: #bebfb9;
+}
+
+#admin-menu .dropdown .admin-menu-toolbar-category > a.active-trail {
+  background: #888;
+  color: #eee;
+  text-shadow: initial;
+}
+
+#admin-menu .dropdown .admin-menu-toolbar-category > a:hover {
+    background-color: #444;
+    color: #eee;
+}
+
+#admin-menu .dropdown li li, #admin-menu .dropdown li li.expandable {
+  background-color: #FFF;
+}
+
+#admin-menu .dropdown li li {
+    filter: initial;
+    opacity: initial;
+}
+
+#admin-menu .dropdown li li:hover {
+    background-color: #555;
+}
+
+#admin-menu .dropdown li li a {
+    border-right: none;
+    border-top: 1px solid #ddd;
+}
+
+#admin-menu .dropdown li li.expandable:hover li a, #admin-menu .dropdown li li.expandable:hover li.expandable:hover li a {
+    border-color: #ddd;
+    color: #777;
+}

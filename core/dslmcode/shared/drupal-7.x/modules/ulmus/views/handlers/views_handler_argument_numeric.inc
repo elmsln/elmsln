@@ -6,25 +6,30 @@
  */
 
 /**
- * Basic argument handler for arguments that are numeric. Incorporates
- * break_phrase.
+ * Basic argument handler for arguments that are numeric.
+ *
+ * Incorporates break_phrase.
  *
  * @ingroup views_argument_handlers
  */
 class views_handler_argument_numeric extends views_handler_argument {
+
   /**
    * The operator used for the query: or|and.
    * @var string
    */
-  var $operator;
+  public $operator;
 
   /**
    * The actual value which is used for querying.
    * @var array
    */
-  var $value;
+  public $value;
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['break_phrase'] = array('default' => FALSE, 'bool' => TRUE);
@@ -33,7 +38,10 @@ class views_handler_argument_numeric extends views_handler_argument {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     // allow + for or, , for and
@@ -54,7 +62,10 @@ class views_handler_argument_numeric extends views_handler_argument {
     );
   }
 
-  function title() {
+  /**
+   * {@inheritdoc}
+   */
+  public function title() {
     if (!$this->argument) {
       return !empty($this->definition['empty field name']) ? $this->definition['empty field name'] : t('Uncategorized');
     }
@@ -80,14 +91,18 @@ class views_handler_argument_numeric extends views_handler_argument {
 
   /**
    * Override for specific title lookups.
+   *
    * @return array
    *    Returns all titles, if it's just one title it's an array with one entry.
    */
-  function title_query() {
+  public function title_query() {
     return $this->value;
   }
 
-  function query($group_by = FALSE) {
+  /**
+   * {@inheritdoc}
+   */
+  public function query($group_by = FALSE) {
     $this->ensure_my_table();
 
     if (!empty($this->options['break_phrase'])) {
@@ -110,7 +125,11 @@ class views_handler_argument_numeric extends views_handler_argument {
     }
   }
 
-  function get_sort_name() {
+  /**
+   * {@inheritdoc}
+   */
+  public function get_sort_name() {
     return t('Numerical', array(), array('context' => 'Sort order'));
   }
+
 }

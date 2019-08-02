@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the list style plugin.
+ * Definition of views_plugin_style_list.
  */
 
 /**
@@ -11,10 +11,11 @@
  * @ingroup views_style_plugins
  */
 class views_plugin_style_list extends views_plugin_style {
+
   /**
-   * Set default options
+   * Set default options.
    */
-  function option_definition() {
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['type'] = array('default' => 'ul');
@@ -27,7 +28,7 @@ class views_plugin_style_list extends views_plugin_style {
   /**
    * Render the given style.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['type'] = array(
       '#type' => 'radios',
@@ -50,4 +51,5 @@ class views_plugin_style_list extends views_plugin_style {
       '#default_value' => $this->options['class'],
     );
   }
+
 }

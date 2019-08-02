@@ -6,12 +6,12 @@
  */
 
 /**
- * Implementation of hook_views_default_views()
+ * Implements hook_views_default_views().
  */
 function comment_views_default_views() {
   $views = array();
 
-  $view = new view;
+  $view = new view();
   $view->name = 'comments_recent';
   $view->description = 'Contains a block and a page to list recent comments; the block will automatically link to the page, which displays the comment body as well as a link to the node.';
   $view->tag = 'default';
@@ -122,7 +122,7 @@ function comment_views_default_views() {
 
   $views['comments_recent'] = $view;
 
-  $view = new view;
+  $view = new view();
   $view->name = 'tracker';
   $view->description = 'Shows all new activity on system.';
   $view->tag = 'default';

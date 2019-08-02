@@ -7,14 +7,14 @@ include_once 'HAXService.php';
  * Headless Authoring eXperience, all we do is accept calls and make things haxable in the first place.
  */
 
-define('HAX_DEFAULT_ELEMENTS', 'video-player wikipedia-query lrn-table media-image');
+define('HAX_DEFAULT_ELEMENTS', 'oer-schema lrn-aside grid-plate tab-list magazine-cover video-player image-compare-slider license-element self-check multiple-choice lrn-table hero-banner task-list media-image lrndesign-blockquote meme-maker a11y-gif-player paper-audio-player wikipedia-query lrn-vocab lrn-math person-testimonial citation-element code-editor place-holder stop-note q-r wave-player');
 /**
  * Implements hook_permission().
  */
 function hax_permission() {
   return array(
     'use hax' =>  array(
-      'title' => t('Use HAX editor'),
+      'title' => t('Use HAX block editor'),
       'description' => t('Advanced authoring experience that is pulled in from hax capable web components.'),
     ),
   );
@@ -46,7 +46,7 @@ function hax_menu() {
     'access arguments' => array('use hax'),
   );
   $items['node/%node/hax'] = array(
-    'title' => 'HAX mode',
+    'title' => 'Block editor mode',
     'description' => 'Edit the node with HAX',
     'page callback' => '_hax_node_form',
     'page arguments' => array(1),
@@ -56,7 +56,7 @@ function hax_menu() {
     'access arguments' => array('update', 1),
   );
   $items['admin/config/content/hax'] = array(
-    'title' => 'HAX',
+    'title' => 'HAX block editor',
     'description' => 'Settings for basic customizations to HAX.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('hax_settings'),
@@ -64,27 +64,6 @@ function hax_menu() {
     'access arguments' => array('administer site configuration'),
   );
   return $items;
-}
-
-/**
- * Implements hook_node_view().
- */
-function hax_node_view($node, $view_mode, $langcode) {
-  if ($view_mode == 'full' && variable_get('hax_autoload_element_node_view', TRUE)) {
-    // generate autoload list
-    $elementstring = variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS);
-    // blow up based on space
-    $elements = explode(' ', $elementstring);
-    // pull in from webcomponents location
-    $base = libraries_get_path('webcomponents') . '/polymer/bower_components/';
-    foreach ($elements as $element) {
-      $component = new stdClass();
-      $component->machine_name = $element;
-      // pull in from webcomponents location
-      $component->file = $base . $element . '/' . $element . '.html';
-      _webcomponents_add_to_head($component, 10001);
-    }
-  }
 }
 
 /**
@@ -229,10 +208,6 @@ function _hax_node_form($node) {
   // set page title
   drupal_set_title(t('HAX edit @title', array('@title' => $node->title)), PASS_THROUGH);
   // fake a component to get it into the head of the document, heavy weighting
-  $component = new stdClass();
-  $component->machine_name = 'cms-hax';
-  $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/cms-hax/cms-hax.html';
-  _webcomponents_add_to_head($component, 10000);
   $appStoreConnection = array(
     'url' => base_path() . 'hax-app-store/' . drupal_get_token('hax'),
   );
@@ -240,7 +215,6 @@ function _hax_node_form($node) {
   $attributes = array(
     'align' => variable_get('hax_align', 'left'),
     'end-point' => base_path() . 'hax-node-save/' . $node->nid . '/' . drupal_get_token('hax'),
-    'body-offset-left' => variable_get('hax_offset_left', 0),
     'app-store-connection' => json_encode($appStoreConnection),
     'redirect-location' => base_path() . 'node/' . $node->nid,
   );
@@ -254,13 +228,13 @@ function _hax_node_form($node) {
   $attributes['allowed-tags'] = json_encode($autoloader);
   // can't reflect attributes to false so just don't add if they are FALSE
   if (variable_get('hax_hide_panel_ops', FALSE)) {
-    $attributes['hide-panel-ops'] = TRUE;
+    $attributes['hide-panel-ops'] = 'hide-panel-ops';
   }
   if (variable_get('hax_open_default', TRUE)) {
-    $attributes['open-default'] = TRUE;
+    $attributes['open-default'] = 'open-default';
   }
   if (variable_get('hax_hide_preferences_button', FALSE)) {
-    $attributes['hide-preferences-button'] = TRUE;
+    $attributes['hide-preferences-button'] = 'hide-preferences-button';
   }
 
   // deep developer function to allow full control over tag's properties
@@ -275,12 +249,6 @@ function _hax_node_form($node) {
  * Helper function to make outline designer settings more obvious.
  */
 function hax_settings($form, &$form_state) {
-  $form['hax_offset_left'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Offset'),
-    '#default_value' => variable_get('hax_offset_left', 0),
-    '#description' => t("Helps with theme compatibility when positioning the context menu. Adjust this if HAX context menu doesn't correctly align with the side of your content when editing. Value is in pixels but should not include px. Some themes that mess with box-model may or may not have this issue."),
-  );
   // collapse default state
   $form['hax_autoload_element_list'] = array(
     '#type' => 'textfield',

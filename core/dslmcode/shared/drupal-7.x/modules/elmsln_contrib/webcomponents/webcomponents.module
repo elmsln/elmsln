@@ -4,68 +4,71 @@
  */
 
 define('WEBCOMPONENTS_CLASS_IDENTIFIER', 'webcomponent-module-selector');
+include_once 'WebComponentsService.php';
 
 /**
- * Implements hook_page_build().
+ * Implements hook_menu().
  */
-function webcomponents_page_build(&$page) {
-  $components = webcomponents_load_all();
-  $files = array();
-  // ensure files w/ multiple elements are only
-  // imported once
-  foreach ($components as $component) {
-    // if it matches multiple to same file
-    // it doesn't matter since it'll still be available
-    $files[$component->file] = $component;
+function webcomponents_menu() {
+  $items = array();
+  $items['admin/config/content/webcomponents'] = array(
+    'title' => 'Web components',
+    'description' => 'Settings for basic customizations to web components.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('webcomponents_admin_settings'),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Set CDN if you want
+ */
+function webcomponents_admin_settings($form, &$form_state) {
+  $form['webcomponents_project_location'] = [
+    '#type' => 'select',
+    '#title' => t('Webcomponents Location'),
+    '#default_value' => variable_get('webcomponents_project_location', 'https://webcomponents.psu.edu/cdn/'),
+    '#options' => array(
+      'https://webcomponents.psu.edu/cdn/' => 'Penn State CDN',
+      'https://cdn.waxam.io/' => 'Waxam CDN',
+      'sites/all/libraries/webcomponents/' => 'Local libraries folder (sites/all/libraries/webcomponents/)',
+      'other' => t('Other'),
+    ),
+    '#description' => t("Use this to point to CDNs or if you've installed your web components some place else. Start without a slash and end with a slash."),
+  ];
+  $form['webcomponents_project_location_other'] = [
+    '#type' => 'textfield',
+    '#title' => t('Other Location'),
+    '#default_value' => variable_get('webcomponents_project_location_other', ''),
+    '#maxlength' => 1000,
+    '#description' => t("Only use this if you need to use a source other than the above supported options."),
+  ];
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_process_html().
+ */
+function webcomponents_process_html(&$variables) {
+  $location = variable_get('webcomponents_project_location', 'https://webcomponents.psu.edu/cdn/');
+  if ($location == 'other') {
+    $location = variable_get('webcomponents_project_location_other', '');  
   }
-  // let developers modify which files are appended to the document
-  // right before we do so
-  drupal_alter('webcomponent_attached_files', $files);
-  // write the component file reference to the screen
-  foreach ($files as $component) {
-    _webcomponents_add_to_head($component);
+  // append base_path if this site has a url to start it
+  if (strpos($location, 'http') === FALSE) {
+    $location = base_path() . $location;
   }
+  $files = array('build.js');
+  drupal_alter('webcomponents_build_file_location', $files);
   // load webcomponentsjs polyfill library if it exists
-  $libraries = libraries_get_libraries();
-  if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/webcomponentsjs')) {
-    // option to use full polyfill.. tho it's not recommended
-    if (variable_get('webcomponents_lite_polyfill', TRUE)) {
-      $polyfill = 'webcomponents-lite.min.js';
-    }
-    else {
-      $polyfill = 'webcomponents.min.js';
-    }
-    $inline = "
-<script type='text/javascript'>
-window.onload = function() {
-  if ('registerElement' in document
-    && 'import' in document.createElement('link')
-    && 'content' in document.createElement('template')) {
-    // platform is good!
-  }
-  else {
-    // polyfill the platform!
-    var wjs = document.createElement('script');
-    wjs.src = '" . _webcomponents_base_path() . $libraries['webcomponents'] . "/webcomponentsjs/" . $polyfill . "';
-    document.head.appendChild(wjs);
-  }";
-    // support for custom element v0 -> v1 polyfill
-    if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/document-register-element')) {
-      $inline .="
-  var dre = document.createElement('script');
-  dre.src = '" . _webcomponents_base_path() . $libraries['webcomponents'] . "/document-register-element/build/document-register-element.js';
-  document.head.appendChild(dre);";
-    }
-    $inline .="
-};
-</script>";
-    $element = array(
-      '#type' => 'markup',
-      '#markup' => $inline,
-      '#weight' => -10000000,
-    );
-    drupal_add_html_head($element, 'webcomponents-lite');
-  }
+  $wc = new WebComponentsService();
+  $element = array(
+    '#type' => 'markup',
+    '#markup' => $wc->applyWebcomponents($location, $files),
+  );
+  $variables['page_bottom'] .= drupal_render($element);
 }
 
 /**
@@ -112,7 +115,6 @@ function _webcomponents_render_component($component) {
     if (!is_array($component->properties)) {
       $component->properties = unserialize($component->properties);
     }
-    _webcomponents_add_to_head($component);
     // support token replacement of properties passed in
     foreach ($component->properties as &$property) {
       $property = token_replace($property);
@@ -333,31 +335,6 @@ function _webcomponents_rebuild($hide_messages = FALSE) {
 }
 
 /**
- * Add webcomponent to the header of the site so it can work.
- */
-function _webcomponents_add_to_head($component, $weight = 0, $hashSize = FALSE) {
-  // generate filename hash based on the size of the file
-  // this is a quick and dirty way to do invalidation when it updates without local cache refreshes client side
-  if (file_exists(DRUPAL_ROOT . '/' . $component->file)) {
-    if ($hashSize) {
-      $hash = '?h' . filesize(DRUPAL_ROOT . '/' . $component->file);
-    }
-    else {
-      $hash = '';
-    }
-    $element = array(
-      '#tag' => 'link', // The #tag is the html tag
-      '#attributes' => array( // Set up an array of attributes inside the tag
-        'href' => _webcomponents_base_path() . $component->file . $hash,
-        'rel' => 'import',
-      ),
-      '#weight' => $weight,
-    );
-    drupal_add_html_head($element, 'webcomponent-' . $component->machine_name);
-  }
-}
-
-/**
  * Get path and allow people to override it, this helps with supporting
  * CDNs and other things.
  */
@@ -416,12 +393,14 @@ function webcomponent_load_by_name($name) {
  * @param  string $dir a directory to search for .html includes
  * @return array       an array of html files to look for web components in
  */
-function _webcomponents_find_html_includes($dir, $ignore = array(), $find = '.html') {
+function _webcomponents_find_includes($dir, $ignore = array(), $find = '.js') {
   $files = array();
   // common things to ignore
   $ignore[] = '.';
   $ignore[] = '..';
   $ignore[] = 'index.html';
+  $ignore[] = 'node_modules';
+  $ignore[] = 'demo';
   if (is_dir($dir)) {
     // step into the polymer directory and find all html templates
     $di = new DirectoryIterator(DRUPAL_ROOT . '/' . $dir);

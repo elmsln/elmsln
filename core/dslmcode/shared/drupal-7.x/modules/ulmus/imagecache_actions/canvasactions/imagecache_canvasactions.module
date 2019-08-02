@@ -145,6 +145,15 @@ function imagecache_canvasactions_image_effect_info() {
     'form callback' => 'canvasactions_interlace_form',
   );
 
+  $effects['canvasactions_perspective'] = array(
+    'label' => t('Perspective transform'),
+    'help' => t('Adds a perspective transformation to the image.'),
+    'effect callback' => 'canvasactions_perspective_effect',
+    'dimensions passthrough' => TRUE,
+    'form callback' => 'canvasactions_perspective_form',
+    'summary theme' => 'canvasactions_perspective_summary',
+  );
+
   return $effects;
 }
 
@@ -190,6 +199,13 @@ function imagecache_canvasactions_theme() {
     'canvasactions_blur_summary' => array(
       'variables' => array('data' => NULL),
       'file' => 'canvasactions.inc',
+    ),
+    'canvasactions_perspective_summary' => array(
+      'variables' => array('data' => NULL),
+      'file' => 'canvasactions.inc',
+    ),
+    'canvasactions_perspective_anchor' => array(
+      'render element' => 'element',
     ),
   );
 }

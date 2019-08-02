@@ -12,11 +12,17 @@
  */
 class views_handler_field_node_revision_link_delete extends views_handler_field_node_revision_link {
 
-  function access() {
+  /**
+   * {@inheritdoc}
+   */
+  public function access() {
     return user_access('delete revisions') || user_access('administer nodes');
   }
 
-  function render_link($data, $values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render_link($data, $values) {
     list($node, $vid) = $this->get_revision_entity($values, 'delete');
     if (!isset($vid)) {
       return;
@@ -33,4 +39,5 @@ class views_handler_field_node_revision_link_delete extends views_handler_field_
 
     return !empty($this->options['text']) ? $this->options['text'] : t('delete');
   }
+
 }

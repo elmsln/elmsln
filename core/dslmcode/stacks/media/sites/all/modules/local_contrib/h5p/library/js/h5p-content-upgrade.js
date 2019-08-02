@@ -1,7 +1,7 @@
-/*jshint -W083 */
+/* global H5PAdminIntegration H5PUtils */
 
 (function ($, Version) {
-  var info, $container, librariesCache = {}, scriptsCache = {};
+  var info, $log, $container, librariesCache = {}, scriptsCache = {};
 
   // Initialize
   $(document).ready(function () {
@@ -9,7 +9,9 @@
     info = H5PAdminIntegration.libraryInfo;
 
     // Get and reset container
-    $container = $('#h5p-admin-container').html('<p>' + info.message + '</p>');
+    const $wrapper = $('#h5p-admin-container').html('');
+    $log = $('<ul class="content-upgrade-log"></ul>').appendTo($wrapper);
+    $container = $('<div><p>' + info.message + '</p></div>').appendTo($wrapper);
 
     // Make it possible to select version
     var $version = $(getVersionSelect(info.versions)).appendTo($container);
@@ -120,9 +122,7 @@
       },
       error: function (error) {
         self.printError(error.err);
-
-        // Stop everything
-        self.terminate();
+        self.workDone(error.id, null, this);
       },
       loadLibrary: function (details) {
         var worker = this;
@@ -184,7 +184,7 @@
       self.token = inData.token;
 
       // Start processing
-      self.processBatch(inData.params);
+      self.processBatch(inData.params, inData.skipped);
     });
   };
 
@@ -202,11 +202,12 @@
    *
    * @param {Object} parameters
    */
-  ContentUpgrade.prototype.processBatch = function (parameters) {
+  ContentUpgrade.prototype.processBatch = function (parameters, skipped) {
     var self = this;
 
     // Track upgraded params
     self.upgraded = {};
+    self.skipped = skipped;
 
     // Track current batch
     self.parameters = parameters;
@@ -276,7 +277,7 @@
       }, function done(err, result) {
         if (err) {
           self.printError(err);
-          return ;
+          result = null;
         }
 
         self.workDone(id, result);
@@ -291,7 +292,12 @@
     var self = this;
 
     self.working--;
-    self.upgraded[id] = result;
+    if (result === null) {
+      self.skipped.push(id);
+    }
+    else {
+      self.upgraded[id] = result;
+    }
 
     // Update progress message
     self.throbber.setProgress(Math.round((info.total - self.left + self.current) / (info.total / 100)) + ' %');
@@ -302,6 +308,7 @@
       self.nextBatch({
         libraryId: self.version.libraryId,
         token: self.token,
+        skipped: JSON.stringify(self.skipped),
         params: JSON.stringify(self.upgraded)
       });
     }
@@ -410,14 +417,29 @@
   ContentUpgrade.prototype.printError = function (error) {
     var self = this;
 
-    if (error.type === 'errorParamsBroken') {
-      error = info.errorContent.replace('%id', error.id) + ' ' + info.errorParamsBroken;
-    }
-    else if (error.type === 'scriptMissing') {
-      error = info.errorScript.replace('%lib', error.library);
+    switch (error.type) {
+      case 'errorParamsBroken':
+        error = info.errorContent.replace('%id', error.id) + ' ' + info.errorParamsBroken;
+        break;
+
+      case 'libraryMissing':
+        error = info.errorLibrary.replace('%lib', error.library);
+        break;
+
+      case 'scriptMissing':
+        error = info.errorScript.replace('%lib', error.library);
+        break;
+
+      case 'errorTooHighVersion':
+        error = info.errorContent.replace('%id', error.id) + ' ' + info.errorTooHighVersion.replace('%used', error.used).replace('%supported', error.supported);
+        break;
+
+      case 'errorNotSupported':
+        error = info.errorContent.replace('%id', error.id) + ' ' + info.errorNotSupported.replace('%used', error.used);
+        break;
     }
 
-    self.setStatus('<p>' + info.error + '<br/>' + error + '</p>');
+    $('<li>' + info.error + '<br/>' + error + '</li>').appendTo($log);
   };
 
 })(H5P.jQuery, H5P.Version);

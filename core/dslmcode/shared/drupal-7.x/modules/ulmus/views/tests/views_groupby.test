@@ -2,20 +2,103 @@
 
 /**
  * @file
- * Tests aggregate functionality of Views.
+ * Definitions of ViewsQueryGroupByTest and ViewsUiGroupbyTestCase.
  */
 
 /**
  * Tests aggregate functionality of views, for example count.
  */
 class ViewsQueryGroupByTest extends ViewsSqlTest {
+
+  /**
+   * Test meta data.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Groupby',
       'description' => 'Tests aggregate functionality of views, for example count.',
       'group' => 'Views',
     );
+  }
 
+  // tests ambiguous group by column error (postgresql)
+  public function testAggregateAmbiguity() {
+    // Create 4 nodes of type1
+    $type1 = $this->drupalCreateContentType();
+
+    $node_1 = array(
+      'type' => $type1->type,
+    );
+    $this->drupalCreateNode($node_1);
+    $this->drupalCreateNode($node_1);
+    $this->drupalCreateNode($node_1);
+    $this->drupalCreateNode($node_1);
+
+    $view = $this->viewsAggregateAmbiguityView();
+    $output = $view->execute_display();
+
+    $this->assertEqual(count($view->result), 1, 'Make sure there are no ambiguity problems with the group by operation.');
+  }
+
+  public function viewsAggregateAmbiguityView() {
+    $view = new view();
+    $view->name = 'aggregate_ambiguity';
+    $view->description = '';
+    $view->tag = 'default';
+    $view->base_table = 'node';
+    $view->human_name = '';
+    $view->core = 7;
+    $view->api_version = '3.0';
+    $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+    /* Display: Master */
+    $handler = $view->new_display('default', 'Master', 'default');
+    $handler->display->display_options['use_more_always'] = FALSE;
+    $handler->display->display_options['group_by'] = TRUE;
+    $handler->display->display_options['access']['type'] = 'none';
+    $handler->display->display_options['cache']['type'] = 'none';
+    $handler->display->display_options['query']['type'] = 'views_query';
+    $handler->display->display_options['exposed_form']['type'] = 'basic';
+    $handler->display->display_options['pager']['type'] = 'full';
+    $handler->display->display_options['style_plugin'] = 'default';
+    $handler->display->display_options['row_plugin'] = 'fields';
+    /* Field: COUNT(Content revision: Nid) */
+    $handler->display->display_options['fields']['nid']['id'] = 'nid';
+    $handler->display->display_options['fields']['nid']['table'] = 'node_revision';
+    $handler->display->display_options['fields']['nid']['field'] = 'nid';
+    $handler->display->display_options['fields']['nid']['group_type'] = 'count';
+    $handler->display->display_options['fields']['nid']['alter']['alter_text'] = 0;
+    $handler->display->display_options['fields']['nid']['alter']['make_link'] = 0;
+    $handler->display->display_options['fields']['nid']['alter']['word_boundary'] = 1;
+    $handler->display->display_options['fields']['nid']['alter']['ellipsis'] = 1;
+    $handler->display->display_options['fields']['nid']['alter']['strip_tags'] = 0;
+    $handler->display->display_options['fields']['nid']['alter']['trim'] = 0;
+    $handler->display->display_options['fields']['nid']['alter']['html'] = 0;
+    $handler->display->display_options['fields']['nid']['hide_empty'] = 0;
+    $handler->display->display_options['fields']['nid']['empty_zero'] = 0;
+    /* Field: Content: Nid */
+    $handler->display->display_options['fields']['nid_1']['id'] = 'nid_1';
+    $handler->display->display_options['fields']['nid_1']['table'] = 'node';
+    $handler->display->display_options['fields']['nid_1']['field'] = 'nid';
+    $handler->display->display_options['fields']['nid_1']['alter']['alter_text'] = 0;
+    $handler->display->display_options['fields']['nid_1']['alter']['make_link'] = 0;
+    $handler->display->display_options['fields']['nid_1']['alter']['word_boundary'] = 1;
+    $handler->display->display_options['fields']['nid_1']['alter']['ellipsis'] = 1;
+    $handler->display->display_options['fields']['nid_1']['alter']['strip_tags'] = 0;
+    $handler->display->display_options['fields']['nid_1']['alter']['trim'] = 0;
+    $handler->display->display_options['fields']['nid_1']['alter']['html'] = 0;
+    $handler->display->display_options['fields']['nid_1']['hide_empty'] = 0;
+    $handler->display->display_options['fields']['nid_1']['empty_zero'] = 0;
+    /* Contextual filter: Content: Type */
+    $handler->display->display_options['arguments']['type']['id'] = 'type';
+    $handler->display->display_options['arguments']['type']['table'] = 'node';
+    $handler->display->display_options['arguments']['type']['field'] = 'type';
+    $handler->display->display_options['arguments']['type']['default_action'] = 'summary';
+    $handler->display->display_options['arguments']['type']['default_argument_type'] = 'fixed';
+    $handler->display->display_options['arguments']['type']['summary']['format'] = 'default_summary';
+
+
+    return $view;
   }
 
   /**
@@ -48,7 +131,7 @@ class ViewsQueryGroupByTest extends ViewsSqlTest {
 
     $types = array();
     foreach ($view->result as $item) {
-      // num_records is a alias for nid.
+      // 'num_records' is a alias for nid.
       $types[$item->node_type] = $item->num_records;
     }
 
@@ -56,9 +139,15 @@ class ViewsQueryGroupByTest extends ViewsSqlTest {
     $this->assertEqual($types[$type2->type], 3);
   }
 
-  //public function testAggregateSum() {
-  //}
+  /**
+   *
+   */
+  // public function testAggregateSum() {
+  // }
 
+  /**
+   *
+   */
   public function viewsAggregateCountView() {
     $view = new view;
     $view->name = 'aggregate_count';
@@ -103,7 +192,6 @@ class ViewsQueryGroupByTest extends ViewsSqlTest {
     $handler->display->display_options['arguments']['type']['default_argument_type'] = 'fixed';
     $handler->display->display_options['arguments']['type']['summary']['format'] = 'default_summary';
 
-
     return $view;
   }
 
@@ -144,7 +232,9 @@ class ViewsQueryGroupByTest extends ViewsSqlTest {
     // There's no need for a function in order to have aggregation.
     if (empty($group_by)) {
       $types = array($type1->type, $type2->type);
-      $results = array_map(function ($item) { return $item->node_type; }, $view->result);
+      $results = array_map(function ($item) {
+        return $item->node_type;
+      }, $view->result);
       sort($types);
       sort($results);
       $this->assertIdentical($results, $types);
@@ -160,6 +250,9 @@ class ViewsQueryGroupByTest extends ViewsSqlTest {
     $this->assertEqual($results[$type2->type], $values[1]);
   }
 
+  /**
+   *
+   */
   function viewsGroupByViewHelper($group_by = NULL) {
     $view = new view;
     $view->name = 'group_by_count';
@@ -219,31 +312,51 @@ class ViewsQueryGroupByTest extends ViewsSqlTest {
     return $view;
   }
 
+  /**
+   *
+   */
   public function testGroupByCount() {
     $this->GroupByTestHelper('count', array(4, 3));
   }
 
-  function testGroupBySum() {
+  /**
+   *
+   */
+  public function testGroupBySum() {
     $this->GroupByTestHelper('sum', array(10, 18));
   }
 
-
-  function testGroupByAverage() {
+  /**
+   *
+   */
+  public function testGroupByAverage() {
     $this->GroupByTestHelper('avg', array(2.5, 6));
   }
 
-  function testGroupByMin() {
+  /**
+   *
+   */
+  public function testGroupByMin() {
     $this->GroupByTestHelper('min', array(1, 5));
   }
 
-  function testGroupByMax() {
+  /**
+   * {@inheritdoc}
+   */
+  public function testGroupByMax() {
     $this->GroupByTestHelper('max', array(4, 7));
   }
 
-  function testGroupByNone() {
+  /**
+   *
+   */
+  public function testGroupByNone() {
     $this->GroupByTestHelper();
   }
 
+  /**
+   *
+   */
   public function testGroupByCountOnlyFilters() {
     // Check if GROUP BY and HAVING are included when a view
     // Doesn't display SUM, COUNT, MAX... functions in SELECT statment
@@ -264,6 +377,9 @@ class ViewsQueryGroupByTest extends ViewsSqlTest {
     $this->assertTrue(strpos($view->build_info['query'], 'HAVING'), t('Make sure that HAVING is in the query'));
   }
 
+  /**
+   *
+   */
   function viewsGroupByCountViewOnlyFilters() {
     $view = new view;
     $view->name = 'group_by_in_filters';
@@ -308,12 +424,17 @@ class ViewsQueryGroupByTest extends ViewsSqlTest {
 
     return $view;
   }
+
 }
 
 /**
- * Tests UI of aggregate functionality..
+ * Tests UI of aggregate functionality.
  */
-class viewsUiGroupbyTestCase extends DrupalWebTestCase {
+class ViewsUiGroupbyTestCase extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     // Enable views_ui.
     parent::setUp('views_ui', 'views_test');
@@ -323,6 +444,9 @@ class viewsUiGroupbyTestCase extends DrupalWebTestCase {
     $this->drupalLogin($views_admin);
   }
 
+  /**
+   * Test meta data.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Groupby UI',
@@ -349,4 +473,5 @@ class viewsUiGroupbyTestCase extends DrupalWebTestCase {
 
     $this->drupalGet('admin/structure/views/nojs/display/test_views_groupby_save/default/group_by');
   }
+
 }

@@ -16,8 +16,8 @@
  * Analyze a review and return the results.
  *
  * @return
- *   An array of analyze results organized into arrays keyed by 'ok',
- *   'warning' and 'error'.
+ *   An array of analyze results organized into arrays keyed by 'ok', 'warning'
+ *   and 'error'.
  */
 function views_analyze_view(&$view) {
   $view->init_display();
@@ -79,12 +79,12 @@ function views_analyze_format_result($view, $messages) {
  * that may be broken unless the user knows what he or she is doing,
  * and 'error' for items that are definitely broken are much more useful.
  *
- * @param $messages
+ * @param string $message
  *   The message to report.
- * @param $type
+ * @param string $type
  *   The type of message. This should be "ok", "warning" or "error". Other
- *   values can be used but how they are treated by the output routine
- *   is undefined.
+ *   values can be used but how they are treated by the output routine is
+ *   undefined.
  */
 function views_ui_analysis($message, $type = 'error') {
   return array('message' => $message, 'type' => $type);
@@ -99,7 +99,7 @@ function views_ui_analysis($message, $type = 'error') {
  */
 function views_ui_views_analyze($view) {
   $ret = array();
-  // Check for something other than the default display:
+  // Check for something other than the default display.
   if (count($view->display) < 2) {
     $ret[] = views_ui_analysis(t('This view has only a default display and therefore will not be placed anywhere on your site; perhaps you want to add a page or a block display.'), 'warning');
   }

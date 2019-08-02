@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Contains the embed display plugin.
+ * Definition of views_plugin_display_embed.
  */
 
 /**

@@ -25,19 +25,28 @@ H5P.ContentUpgradeProcess = (function (Version) {
     }
 
     self.loadLibrary = loadLibrary;
-    self.upgrade(name, oldVersion, newVersion, params, function (err, result) {
+    self.upgrade(name, oldVersion, newVersion, params.params, params.metadata, function (err, upgradedParams, upgradedMetadata) {
       if (err) {
+        err.id = id;
         return done(err);
       }
 
-      done(null, JSON.stringify(params));
+      done(null, JSON.stringify({params: upgradedParams, metadata: upgradedMetadata}));
     });
   }
 
   /**
+   * Run content upgrade.
    *
+   * @public
+   * @param {string} name
+   * @param {Version} oldVersion
+   * @param {Version} newVersion
+   * @param {Object} params
+   * @param {Object} metadata
+   * @param {Function} done
    */
-  ContentUpgradeProcess.prototype.upgrade = function (name, oldVersion, newVersion, params, done) {
+  ContentUpgradeProcess.prototype.upgrade = function (name, oldVersion, newVersion, params, metadata, done) {
     var self = this;
 
     // Load library details and upgrade routines
@@ -45,9 +54,15 @@ H5P.ContentUpgradeProcess = (function (Version) {
       if (err) {
         return done(err);
       }
+      if (library.semantics === null) {
+        return done({
+          type: 'libraryMissing',
+          library: library.name + ' ' + library.version.major + '.' + library.version.minor
+        });
+      }
 
       // Run upgrade routines on params
-      self.processParams(library, oldVersion, newVersion, params, function (err, params) {
+      self.processParams(library, oldVersion, newVersion, params, metadata, function (err, params, metadata) {
         if (err) {
           return done(err);
         }
@@ -61,7 +76,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
             next(err);
           });
         }, function (err) {
-          done(err, params);
+          done(err, params, metadata);
         });
       });
     });
@@ -77,7 +92,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
    * @param {Object} params
    * @param {Function} next
    */
-  ContentUpgradeProcess.prototype.processParams = function (library, oldVersion, newVersion, params, next) {
+  ContentUpgradeProcess.prototype.processParams = function (library, oldVersion, newVersion, params, metadata, next) {
     if (H5PUpgrades[library.name] === undefined) {
       if (library.upgradesScript) {
         // Upgrades script should be loaded so the upgrades should be here.
@@ -110,16 +125,19 @@ H5P.ContentUpgradeProcess = (function (Version) {
             var unnecessaryWrapper = (upgrade.contentUpgrade !== undefined ? upgrade.contentUpgrade : upgrade);
 
             try {
-              unnecessaryWrapper(params, function (err, upgradedParams) {
+              unnecessaryWrapper(params, function (err, upgradedParams, upgradedExtras) {
                 params = upgradedParams;
+                if (upgradedExtras && upgradedExtras.metadata) { // Optional
+                  metadata = upgradedExtras.metadata;
+                }
                 nextMinor(err);
-              });
+              }, {metadata: metadata});
             }
             catch (err) {
-              if (console && console.log) {
-                console.log("Error", err.stack);
-                console.log("Error", err.name);
-                console.log("Error", err.message);
+              if (console && console.error) {
+                console.error("Error", err.stack);
+                console.error("Error", err.name);
+                console.error("Error", err.message);
               }
               next(err);
             }
@@ -127,7 +145,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
         }, nextMajor);
       }
     }, function (err) {
-      next(err, params);
+      next(err, params, metadata);
     });
   };
 
@@ -155,7 +173,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
         // Look for available upgrades
         var usedLib = params.library.split(' ', 2);
         for (var i = 0; i < field.options.length; i++) {
-          var availableLib = field.options[i].split(' ', 2);
+          var availableLib = (typeof field.options[i] === 'string') ? field.options[i].split(' ', 2) : field.options[i].name.split(' ', 2);
           if (availableLib[0] === usedLib[0]) {
             if (availableLib[1] === usedLib[1]) {
               return done(); // Same version
@@ -165,20 +183,32 @@ H5P.ContentUpgradeProcess = (function (Version) {
             var usedVer = new Version(usedLib[1]);
             var availableVer = new Version(availableLib[1]);
             if (usedVer.major > availableVer.major || (usedVer.major === availableVer.major && usedVer.minor >= availableVer.minor)) {
-              return done(); // Larger or same version that's available
+              return done({
+                type: 'errorTooHighVersion',
+                used: usedLib[0] + ' ' + usedVer,
+                supported: availableLib[0] + ' ' + availableVer
+              }); // Larger or same version that's available
             }
 
             // A newer version is available, upgrade params
-            return self.upgrade(availableLib[0], usedVer, availableVer, params.params, function (err, upgraded) {
+            return self.upgrade(availableLib[0], usedVer, availableVer, params.params, params.metadata, function (err, upgradedParams, upgradedMetadata) {
               if (!err) {
                 params.library = availableLib[0] + ' ' + availableVer.major + '.' + availableVer.minor;
-                params.params = upgraded;
+                params.params = upgradedParams;
+                if (upgradedMetadata) {
+                  params.metadata = upgradedMetadata;
+                }
               }
               done(err, params);
             });
           }
         }
-        done();
+
+        // Content type was not supporte by the higher version
+        done({
+          type: 'errorNotSupported',
+          used: usedLib[0] + ' ' + usedVer
+        });
         break;
 
       case 'group':

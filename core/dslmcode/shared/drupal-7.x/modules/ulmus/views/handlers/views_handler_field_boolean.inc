@@ -11,18 +11,22 @@
  * Allows for display of true/false, yes/no, on/off, enabled/disabled.
  *
  * Definition terms:
- *   - output formats: An array where the first entry is displayed on boolean true
- *      and the second is displayed on boolean false. An example for sticky is:
- *      @code
- *      'output formats' => array(
- *        'sticky' => array(t('Sticky'), ''),
- *      ),
- *      @endcode
+ * - output formats: An array where the first entry is displayed on boolean true
+ *   and the second is displayed on boolean false. An example for sticky is:
+ *   @code
+ *   'output formats' => array(
+ *     'sticky' => array(t('Sticky'), ''),
+ *   ),
+ *   @endcode
  *
  * @ingroup views_field_handlers
  */
 class views_handler_field_boolean extends views_handler_field {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['type'] = array('default' => 'yes-no');
     $options['type_custom_true'] = array('default' => '', 'translatable' => TRUE);
@@ -32,7 +36,10 @@ class views_handler_field_boolean extends views_handler_field {
     return $options;
   }
 
-  function init(&$view, &$options) {
+  /**
+   * {@inheritdoc}
+   */
+  public function init(&$view, &$options) {
     parent::init($view, $options);
 
     $default_formats = array(
@@ -48,7 +55,10 @@ class views_handler_field_boolean extends views_handler_field {
     $this->formats = array_merge($default_formats, $output_formats, $custom_format);
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     foreach ($this->formats as $key => $item) {
       $options[$key] = implode('/', $item);
     }
@@ -91,7 +101,10 @@ class views_handler_field_boolean extends views_handler_field {
     parent::options_form($form, $form_state);
   }
 
-  function render($values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render($values) {
     $value = $this->get_value($values);
     if (!empty($this->options['not'])) {
       $value = !$value;
@@ -100,11 +113,12 @@ class views_handler_field_boolean extends views_handler_field {
     if ($this->options['type'] == 'custom') {
       return $value ? filter_xss_admin($this->options['type_custom_true']) : filter_xss_admin($this->options['type_custom_false']);
     }
-    else if (isset($this->formats[$this->options['type']])) {
+    elseif (isset($this->formats[$this->options['type']])) {
       return $value ? $this->formats[$this->options['type']][0] : $this->formats[$this->options['type']][1];
     }
     else {
       return $value ? $this->formats['yes-no'][0] : $this->formats['yes-no'][1];
     }
   }
+
 }

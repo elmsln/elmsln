@@ -15,7 +15,7 @@ class views_handler_field_node_link_edit extends views_handler_field_node_link {
   /**
    * Renders the link.
    */
-  function render_link($node, $values) {
+  public function render_link($node, $values) {
     // Ensure user has access to edit this node.
     if (!node_access('update', $node)) {
       return;
@@ -28,4 +28,5 @@ class views_handler_field_node_link_edit extends views_handler_field_node_link {
     $text = !empty($this->options['text']) ? $this->options['text'] : t('edit');
     return $text;
   }
+
 }

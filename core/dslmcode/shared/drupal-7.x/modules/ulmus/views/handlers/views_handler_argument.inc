@@ -2,7 +2,7 @@
 
 /**
  * @file
- * @todo.
+ * Definition of views_handler_argument.
  */
 
 /**
@@ -14,50 +14,63 @@
 /**
  * Base class for arguments.
  *
- * The basic argument works for very simple arguments such as nid and uid
+ * The basic argument works for very simple arguments such as nid and uid.
  *
  * Definition terms for this handler:
  * - name field: The field to use for the name to use in the summary, which is
- *               the displayed output. For example, for the node: nid argument,
- *               the argument itself is the nid, but node.title is displayed.
+ *   the displayed output. For example, for the node: nid argument, the argument
+ *   itself is the nid, but node.title is displayed.
  * - name table: The table to use for the name, should it not be in the same
- *               table as the argument.
+ *   table as the argument.
  * - empty field name: For arguments that can have no value, such as taxonomy
- *                     which can have "no term", this is the string which
- *                     will be displayed for this lack of value. Be sure to use
- *                     t().
+ *   which can have "no term", this is the string which will be displayed for
+ *   this lack of value. Be sure to use t().
  * - validate type: A little used string to allow an argument to restrict
- *                  which validator is available to just one. Use the
- *                  validator ID. This probably should not be used at all,
- *                  and may disappear or change.
+ *   which validator is available to just one. Use the validator ID. This
+ *   probably should not be used at all, and may disappear or change.
  * - numeric: If set to TRUE this field is numeric and will use %d instead of
- *            %s in queries.
+ *   %s in queries.
  *
  * @ingroup views_argument_handlers
  */
 class views_handler_argument extends views_handler {
-  var $validator = NULL;
-  var $argument = NULL;
-  var $value = NULL;
 
   /**
-   * The table to use for the name, should it not be in the same table as the argument.
+   * @var object
+   */
+  public $validator = NULL;
+
+  /**
+   * @var mixed
+   */
+  public $argument = NULL;
+
+  /**
+   * @var mixed
+   */
+  public $value = NULL;
+
+  /**
+   * The table to use for the name, if not the same table as the argument.
+   *
    * @var string
    */
-  var $name_table;
+  public $name_table;
 
   /**
-   * The field to use for the name to use in the summary, which is
-   * the displayed output. For example, for the node: nid argument,
-   * the argument itself is the nid, but node.title is displayed.
+   * The field to use for the name to use in the summary.
+   *
+   * Used as the displayed output. For example, for the node: nid argument, the
+   * argument itself is the nid, but node.title is displayed.
+   *
    * @var string
    */
-  var $name_field;
+  public $name_field;
 
   /**
-   * Constructor
+   * {@inheritdoc}
    */
-  function construct() {
+  public function construct() {
     parent::construct();
 
     if (!empty($this->definition['name field'])) {
@@ -68,7 +81,10 @@ class views_handler_argument extends views_handler {
     }
   }
 
-  function init(&$view, &$options) {
+  /**
+   * {@inheritdoc}
+   */
+  public function init(&$view, &$options) {
     parent::init($view, $options);
 
     // Compatibility: The new UI changed several settings.
@@ -132,31 +148,43 @@ class views_handler_argument extends views_handler {
 
   /**
    * Give an argument the opportunity to modify the breadcrumb, if it wants.
-   * This only gets called on displays where a breadcrumb is actually used.
+   *
+   * Only gets called on displays where a breadcrumb is actually used.
    *
    * The breadcrumb will be in the form of an array, with the keys being
    * the path and the value being the already sanitized title of the path.
    */
-  function set_breadcrumb(&$breadcrumb) { }
+  public function set_breadcrumb(&$breadcrumb) {
+  }
 
   /**
-   * Determine if the argument can generate a breadcrumb
+   * Determine if the argument can generate a breadcrumb.
    *
-   * @return TRUE/FALSE
+   * @return bool
+   *   Indicates whether the argument can generate a breadcrumb.
    */
-  function uses_breadcrumb() {
+  public function uses_breadcrumb() {
     $info = $this->default_actions($this->options['default_action']);
     return !empty($info['breadcrumb']);
   }
 
-  function is_exception($arg = NULL) {
+  /**
+   * {@inheritdoc}
+   */
+  public function is_exception($arg = NULL) {
     if (!isset($arg)) {
       $arg = isset($this->argument) ? $this->argument : NULL;
     }
-    return !empty($this->options['exception']['value']) && $this->options['exception']['value'] === $arg;
+    return !empty($this->options['exception']['value']) && ($this->options['exception']['value'] === $arg);
   }
 
-  function exception_title() {
+  /**
+   * Work out which title to use.
+   *
+   * @return string
+   *   The title string to use.
+   */
+  public function exception_title() {
     // If title overriding is off for the exception, return the normal title.
     if (empty($this->options['exception']['title_enable'])) {
       return $this->get_title();
@@ -167,15 +195,19 @@ class views_handler_argument extends views_handler {
   /**
    * Determine if the argument needs a style plugin.
    *
-   * @return TRUE/FALSE
+   * @return bool
+   *   the argument needs a plugin style.
    */
-  function needs_style_plugin() {
+  public function needs_style_plugin() {
     $info = $this->default_actions($this->options['default_action']);
     $validate_info = $this->default_actions($this->options['validate']['fail']);
     return !empty($info['style plugin']) || !empty($validate_info['style plugin']);
   }
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['default_action'] = array('default' => 'ignore');
@@ -213,7 +245,10 @@ class views_handler_argument extends views_handler {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
     $argument_text = $this->view->display_handler->get_argument_text();
@@ -380,8 +415,9 @@ class views_handler_argument extends views_handler {
               '#prefix' => '<div id="edit-options-validate-options-' . $id . '-wrapper">',
               '#suffix' => '</div>',
               '#type' => 'item',
-              // Even if the plugin has no options add the key to the form_state.
-              '#input' => TRUE, // trick it into checking input to make #process run
+              // Even if the plugin has no options, add the key to the
+              // form_state. Trick it into checking input to make #process run.
+              '#input' => TRUE,
               '#dependency' => array(
                 'edit-options-specify-validation' => array('1'),
                 'edit-options-validate-type' => array($id),
@@ -411,7 +447,10 @@ class views_handler_argument extends views_handler {
     );
   }
 
-  function options_validate(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_validate(&$form, &$form_state) {
     if (empty($form_state['values']['options'])) {
       return;
     }
@@ -440,7 +479,10 @@ class views_handler_argument extends views_handler {
 
   }
 
-  function options_submit(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_submit(&$form, &$form_state) {
     if (empty($form_state['values']['options'])) {
       return;
     }
@@ -451,7 +493,8 @@ class views_handler_argument extends views_handler {
     if ($plugin) {
       $options = &$form_state['values']['options']['argument_default'][$default_id];
       $plugin->options_submit($form['argument_default'][$default_id], $form_state, $options);
-      // Copy the now submitted options to their final resting place so they get saved.
+      // Copy the now submitted options to their final resting place so they
+      // get saved.
       $form_state['values']['options']['default_argument_options'] = $options;
     }
 
@@ -462,7 +505,8 @@ class views_handler_argument extends views_handler {
       if ($plugin) {
         $options = &$form_state['values']['options']['summary']['options'][$summary_id];
         $plugin->options_submit($form['summary']['options'][$summary_id], $form_state, $options);
-        // Copy the now submitted options to their final resting place so they get saved.
+        // Copy the now submitted options to their final resting place so they
+        // get saved.
         $form_state['values']['options']['summary_options'] = $options;
       }
     }
@@ -472,7 +516,8 @@ class views_handler_argument extends views_handler {
     if ($plugin) {
       $options = &$form_state['values']['options']['validate']['options'][$validate_id];
       $plugin->options_submit($form['validate']['options'][$validate_id], $form_state, $options);
-      // Copy the now submitted options to their final resting place so they get saved.
+      // Copy the now submitted options to their final resting place so they
+      // get saved.
       $form_state['values']['options']['validate_options'] = $options;
     }
 
@@ -484,47 +529,53 @@ class views_handler_argument extends views_handler {
   }
 
   /**
-   * Provide a list of default behaviors for this argument if the argument
-   * is not present.
+   * List of default behaviors for this argument if the argument is not present.
    *
    * Override this method to provide additional (or fewer) default behaviors.
    */
-  function default_actions($which = NULL) {
+  public function default_actions($which = NULL) {
     $defaults = array(
       'ignore' => array(
         'title' => t('Display all results for the specified field'),
         'method' => 'default_ignore',
-        'breadcrumb' => TRUE, // generate a breadcrumb to here
+        // Generate a breadcrumb to here.
+        'breadcrumb' => TRUE,
       ),
       'default' => array(
         'title' => t('Provide default value'),
         'method' => 'default_default',
         'form method' => 'default_argument_form',
         'has default argument' => TRUE,
-        'default only' => TRUE, // this can only be used for missing argument, not validation failure
-        'breadcrumb' => TRUE, // generate a breadcrumb to here
+        // This can only be used for missing argument, not validation failure.
+        'default only' => TRUE,
+        // Generate a breadcrumb to here.
+        'breadcrumb' => TRUE,
       ),
       'not found' => array(
         'title' => t('Hide view'),
         'method' => 'default_not_found',
-        'hard fail' => TRUE, // This is a hard fail condition
+        // This is a hard fail condition.
+        'hard fail' => TRUE,
       ),
       'summary' => array(
         'title' => t('Display a summary'),
         'method' => 'default_summary',
         'form method' => 'default_summary_form',
         'style plugin' => TRUE,
-        'breadcrumb' => TRUE, // generate a breadcrumb to here
+        // Generate a breadcrumb to here.
+        'breadcrumb' => TRUE,
       ),
       'empty' => array(
         'title' => t('Display contents of "No results found"'),
         'method' => 'default_empty',
-        'breadcrumb' => TRUE, // generate a breadcrumb to here
+        // Generate a breadcrumb to here.
+        'breadcrumb' => TRUE,
       ),
       'access denied' => array(
         'title' => t('Display "Access Denied"'),
         'method' => 'default_access_denied',
-        'breadcrumb' => FALSE, // generate a breadcrumb to here
+        // Generate a breadcrumb to here.
+        'breadcrumb' => FALSE,
       ),
     );
 
@@ -543,10 +594,11 @@ class views_handler_argument extends views_handler {
   }
 
   /**
-   * Provide a form for selecting the default argument when the
-   * default action is set to provide default argument.
+   * Provide a form for selecting the default argument.
+   *
+   * Used when the default action is set to provide default argument.
    */
-  function default_argument_form(&$form, &$form_state) {
+  public function default_argument_form(&$form, &$form_state) {
     $plugins = views_fetch_plugin_data('argument default');
     $options = array();
 
@@ -554,7 +606,7 @@ class views_handler_argument extends views_handler {
       '#type' => 'checkbox',
       '#title' => t('Skip default argument for view URL'),
       '#default_value' => $this->options['default_argument_skip_url'],
-      '#description' => t('Select whether to include this default argument when constructing the URL for this view. Skipping default arguments is useful e.g. in the case of feeds.')
+      '#description' => t('Select whether to include this default argument when constructing the URL for this view. Skipping default arguments is useful e.g. in the case of feeds.'),
     );
 
     $form['default_argument_type'] = array(
@@ -564,8 +616,11 @@ class views_handler_argument extends views_handler {
       '#id' => 'edit-options-default-argument-type',
       '#title' => t('Type'),
       '#default_value' => $this->options['default_argument_type'],
-
-      '#dependency' => array('radio:options[default_action]' => array('default')),
+      '#dependency' => array(
+        'radio:options[default_action]' => array(
+          'default',
+        ),
+      ),
       // Views custom key, moves this element to the appropriate container
       // under the radio button.
       '#argument_option' => 'default',
@@ -588,7 +643,7 @@ class views_handler_argument extends views_handler {
             '#input' => TRUE,
             '#dependency' => array(
               'radio:options[default_action]' => array('default'),
-              'edit-options-default-argument-type' => array($id)
+              'edit-options-default-argument-type' => array($id),
             ),
             '#dependency_count' => 2,
           );
@@ -603,10 +658,11 @@ class views_handler_argument extends views_handler {
   }
 
   /**
-   * Provide a form for selecting further summary options when the
-   * default action is set to display one.
+   * Form for selecting further summary options.
+   *
+   * Only used when the default action is set to display one.
    */
-  function default_summary_form(&$form, &$form_state) {
+  public function default_summary_form(&$form, &$form_state) {
     $style_plugins = views_fetch_plugin_data('style');
     $summary_plugins = array();
     $format_options = array();
@@ -635,7 +691,7 @@ class views_handler_argument extends views_handler {
       '#default_value' => $this->options['summary']['number_of_records'],
       '#options' => array(
         0 => $this->get_sort_name(),
-        1 => t('Number of records')
+        1 => t('Number of records'),
       ),
       '#dependency' => array('radio:options[default_action]' => array('summary')),
     );
@@ -659,7 +715,8 @@ class views_handler_argument extends views_handler {
           '#suffix' => '</div>',
           '#id' => 'edit-options-summary-options-' . $id,
           '#type' => 'item',
-          '#input' => TRUE, // trick it into checking input to make #process run
+          // Trick it into checking input to make #process run.
+          '#input' => TRUE,
           '#dependency' => array(
             'radio:options[default_action]' => array('summary'),
             'radio:options[summary][format]' => array($id),
@@ -677,11 +734,11 @@ class views_handler_argument extends views_handler {
    *
    * Override this method only with extreme care.
    *
-   * @return
+   * @return bool
    *   A boolean value; if TRUE, continue building this view. If FALSE,
    *   building the view will be aborted here.
    */
-  function default_action($info = NULL) {
+  public function default_action($info = NULL) {
     if (!isset($info)) {
       $info = $this->default_actions($this->options['default_action']);
     }
@@ -699,29 +756,30 @@ class views_handler_argument extends views_handler {
   }
 
   /**
-   * How to act if validation failes
+   * How to act if validation fails.
    */
-  function validate_fail() {
+  public function validate_fail() {
     $info = $this->default_actions($this->options['validate']['fail']);
     return $this->default_action($info);
   }
+
   /**
    * Default action: ignore.
    *
-   * If an argument was expected and was not given, in this case, simply
-   * ignore the argument entirely.
+   * If an argument was expected and was not given, in this case, simply ignore
+   * the argument entirely.
    */
-  function default_ignore() {
+  public function default_ignore() {
     return TRUE;
   }
 
   /**
    * Default action: not found.
    *
-   * If an argument was expected and was not given, in this case, report
-   * the view as 'not found' or hide it.
+   * If an argument was expected and was not given, in this case, report the
+   * view as 'not found' or hide it.
    */
-  function default_not_found() {
+  public function default_not_found() {
     // Set a failure condition and let the display manager handle it.
     $this->view->build_info['fail'] = TRUE;
     return FALSE;
@@ -730,21 +788,21 @@ class views_handler_argument extends views_handler {
   /**
    * Default action: access denied.
    *
-   * If an argument was expected and was not given, in this case, report
-   * the view as 'access denied'.
+   * If an argument was expected and was not given, in this case, report the
+   * view as 'access denied'.
    */
-  function default_access_denied() {
+  public function default_access_denied() {
     $this->view->build_info['denied'] = TRUE;
     return FALSE;
   }
 
   /**
-   * Default action: empty
+   * Default action: empty.
    *
-   * If an argument was expected and was not given, in this case, display
-   * the view's empty text
+   * If an argument was expected and was not given, in this case, display the
+   * view's empty text.
    */
-  function default_empty() {
+  public function default_empty() {
     // We return with no query; this will force the empty text.
     $this->view->built = TRUE;
     $this->view->executed = TRUE;
@@ -753,17 +811,20 @@ class views_handler_argument extends views_handler {
   }
 
   /**
-   * This just returns true. The view argument builder will know where
-   * to find the argument from.
+   * This just returns true.
+   *
+   * The view argument builder will know where to find the argument from.
+   *
+   * @todo Why is this needed?
    */
-  function default_default() {
+  public function default_default() {
     return TRUE;
   }
 
   /**
    * Determine if the argument is set to provide a default argument.
    */
-  function has_default_argument() {
+  public function has_default_argument() {
     $info = $this->default_actions($this->options['default_action']);
     return !empty($info['has default argument']);
   }
@@ -771,7 +832,7 @@ class views_handler_argument extends views_handler {
   /**
    * Get a default argument, if available.
    */
-  function get_default_argument() {
+  public function get_default_argument() {
     $plugin = $this->get_plugin('argument default');
     if ($plugin) {
       return $plugin->get_argument();
@@ -784,7 +845,7 @@ class views_handler_argument extends views_handler {
    * For example, the validation plugin may want to alter an argument for use in
    * the URL.
    */
-  function process_summary_arguments(&$args) {
+  public function process_summary_arguments(&$args) {
     if ($this->options['validate']['type'] != 'none') {
       if (isset($this->validator) || $this->validator = $this->get_plugin('argument validator')) {
         $this->validator->process_summary_arguments($args);
@@ -795,20 +856,19 @@ class views_handler_argument extends views_handler {
   /**
    * Default action: summary.
    *
-   * If an argument was expected and was not given, in this case, display
-   * a summary query.
+   * If an argument was expected and was not given, in this case, display a
+   * summary query.
    */
-  function default_summary() {
+  public function default_summary() {
     $this->view->build_info['summary'] = TRUE;
     $this->view->build_info['summary_level'] = $this->options['id'];
 
-    // Change the display style to the summary style for this
-    // argument.
+    // Change the display style to the summary style for this argument.
     $this->view->plugin_name = $this->options['summary']['format'];
     $this->view->style_options = $this->options['summary_options'];
 
-    // Clear out the normal primary field and whatever else may have
-    // been added and let the summary do the work.
+    // Clear out the normal primary field and whatever else may have been added
+    // and let the summary do the work.
     $this->query->clear_fields();
     $this->summary_query();
 
@@ -826,14 +886,14 @@ class views_handler_argument extends views_handler {
    *
    * This must:
    * - add_groupby: group on this field in order to create summaries.
-   * - add_field: add a 'num_nodes' field for the count. Usually it will
-   *   be a count on $view->base_field
+   * - add_field: add a 'num_nodes' field for the count. Usually it will be a
+   *   count on $view->base_field
    * - set_count_field: Reset the count field so we get the right paging.
    *
-   * @return
+   * @return string
    *   The alias used to get the number of records (count) for this entry.
    */
-  function summary_query() {
+  public function summary_query() {
     $this->ensure_my_table();
     // Add the field.
     $this->base_alias = $this->query->add_field($this->table_alias, $this->real_field);
@@ -844,15 +904,15 @@ class views_handler_argument extends views_handler {
 
   /**
    * Add the name field, which is the field displayed in summary queries.
+   *
    * This is often used when the argument is numeric.
    */
-  function summary_name_field() {
-    // Add the 'name' field. For example, if this is a uid argument, the
-    // name field would be 'name' (i.e, the username).
-
+  public function summary_name_field() {
+    // Add the 'name' field. For example, if this is a uid argument, the name
+    // field would be 'name' (i.e, the username).
     if (isset($this->name_table)) {
-      // if the alias is different then we're probably added, not ensured,
-      // so look up the join and add it instead.
+      // If the alias is different then we're probably added, not ensured, so
+      // look up the join and add it instead.
       if ($this->table_alias != $this->name_table) {
         $j = views_get_table_join($this->name_table, $this->table);
         if ($j) {
@@ -878,15 +938,21 @@ class views_handler_argument extends views_handler {
   }
 
   /**
-   * Some basic summary behavior that doesn't need to be repeated as much as
-   * code that goes into summary_query()
+   * Some basic summary behavior.
+   *
+   * This doesn't need to be repeated as much as code that goes into
+   * summary_query().
    */
-  function summary_basics($count_field = TRUE) {
-    // Add the number of nodes counter
+  public function summary_basics($count_field = TRUE) {
+    // Add the number of nodes counter.
     $distinct = ($this->view->display_handler->get_option('distinct') && empty($this->query->no_distinct));
 
-    $count_alias = $this->query->add_field($this->query->base_table, $this->query->base_field, 'num_records',
-                                           array('count' => TRUE, 'distinct' => $distinct));
+    $count_alias = $this->query->add_field($this->query->base_table,
+      $this->query->base_field, 'num_records',
+      array(
+        'count' => TRUE,
+        'distinct' => $distinct,
+      ));
     $this->query->add_groupby($this->name_alias);
 
     if ($count_field) {
@@ -897,36 +963,44 @@ class views_handler_argument extends views_handler {
   }
 
   /**
-   * Sorts the summary based upon the user's selection. The base variant of
-   * this is usually adequte.
+   * Sorts the summary based upon the user's selection.
    *
-   * @param $order
+   * The base variant of this is usually adequte.
+   *
+   * @param string $order
    *   The order selected in the UI.
+   * @param string $by
+   *   Optional alias for this field.
    */
-  function summary_sort($order, $by = NULL) {
+  public function summary_sort($order, $by = NULL) {
     $this->query->add_orderby(NULL, NULL, $order, (!empty($by) ? $by : $this->name_alias));
   }
 
   /**
-   * Provide the argument to use to link from the summary to the next level;
-   * this will be called once per row of a summary, and used as part of
+   * Provide the argument to use to link from the summary to the next level.
+   *
+   * This will be called once per row of a summary, and used as part of
    * $view->get_url().
    *
-   * @param $data
+   * @param object $data
    *   The query results for the row.
    */
-  function summary_argument($data) {
+  public function summary_argument($data) {
     return $data->{$this->base_alias};
   }
 
   /**
-   * Provides the name to use for the summary. By default this is just
-   * the name field.
+   * Provides the name to use for the summary.
    *
-   * @param $data
+   * By default this is just the name field.
+   *
+   * @param object $data
    *   The query results for the row.
+   *
+   * @return string
+   *   The summary.
    */
-  function summary_name($data) {
+  public function summary_name($data) {
     $value = $data->{$this->name_alias};
     if (empty($value) && !empty($this->definition['empty field name'])) {
       $value = $this->definition['empty field name'];
@@ -938,8 +1012,11 @@ class views_handler_argument extends views_handler {
    * Set up the query for this argument.
    *
    * The argument sent may be found at $this->argument.
+   *
+   * @param bool $group_by
+   *   Whether the query uses a group-by.
    */
-  function query($group_by = FALSE) {
+  public function query($group_by = FALSE) {
     $this->ensure_my_table();
     $this->query->add_where(0, "$this->table_alias.$this->real_field", $this->argument);
   }
@@ -949,15 +1026,17 @@ class views_handler_argument extends views_handler {
    *
    * This usually needs to be overridden to provide a proper title.
    */
-  function title() {
+  public function title() {
     return check_plain($this->argument);
   }
 
   /**
-   * Called by the view object to get the title. This may be set by a
-   * validator so we don't necessarily call through to title().
+   * Called by the view object to get the title.
+   *
+   * This may be set by a validator so we don't necessarily call through to
+   * title().
    */
-  function get_title() {
+  public function get_title() {
     if (isset($this->validated_title)) {
       return $this->validated_title;
     }
@@ -969,7 +1048,7 @@ class views_handler_argument extends views_handler {
   /**
    * Validate that this argument works. By default, all arguments are valid.
    */
-  function validate_arg($arg) {
+  public function validate_arg($arg) {
     // By using % in URLs, arguments could be validated twice; this eases
     // that pain.
     if (isset($this->argument_validated)) {
@@ -989,7 +1068,7 @@ class views_handler_argument extends views_handler {
       return $this->argument_validated = $plugin->validate_argument($arg);
     }
 
-    // If the plugin isn't found, fall back to the basic validation path:
+    // If the plugin isn't found, fall back to the basic validation path.
     return $this->argument_validated = $this->validate_argument_basic($arg);
   }
 
@@ -997,10 +1076,10 @@ class views_handler_argument extends views_handler {
    * Called by the menu system to validate an argument.
    *
    * This checks to see if this is a 'soft fail', which means that if the
-   * argument fails to validate, but there is an action to take anyway,
-   * then validation cannot actually fail.
+   * argument fails to validate, but there is an action to take anyway, then
+   * validation cannot actually fail.
    */
-  function validate_argument($arg) {
+  public function validate_argument($arg) {
     $validate_info = $this->default_actions($this->options['validate']['fail']);
     if (empty($validate_info['hard fail'])) {
       return TRUE;
@@ -1008,8 +1087,8 @@ class views_handler_argument extends views_handler {
 
     $rc = $this->validate_arg($arg);
 
-    // If the validator has changed the validate fail condition to a
-    // soft fail, deal with that:
+    // If the validator has changed the validate fail condition to a soft fail,
+    // deal with that.
     $validate_info = $this->default_actions($this->options['validate']['fail']);
     if (empty($validate_info['hard fail'])) {
       return TRUE;
@@ -1021,11 +1100,14 @@ class views_handler_argument extends views_handler {
   /**
    * Provide a basic argument validation.
    *
-   * This can be overridden for more complex types; the basic
-   * validator only checks to see if the argument is not NULL
-   * or is numeric if the definition says it's numeric.
+   * This can be overridden for more complex types; the basic validator only
+   * checks to see if the argument is not NULL or is numeric if the definition
+   * says it's numeric.
+   *
+   * @return bool
+   *   Whether or not the argument validates.
    */
-  function validate_argument_basic($arg) {
+  public function validate_argument_basic($arg) {
     if (!isset($arg) || $arg === '') {
       return FALSE;
     }
@@ -1038,19 +1120,23 @@ class views_handler_argument extends views_handler {
   }
 
   /**
-   * Set the input for this argument
+   * Set the input for this argument.
    *
-   * @return TRUE if it successfully validates; FALSE if it does not.
+   * @return bool
+   *   TRUE if it successfully validates; FALSE if it does not.
    */
-  function set_argument($arg) {
+  public function set_argument($arg) {
     $this->argument = $arg;
     return $this->validate_arg($arg);
   }
 
   /**
    * Get the value of this argument.
+   *
+   * @return string
+   *   The value.
    */
-  function get_value() {
+  public function get_value() {
     // If we already processed this argument, we're done.
     if (isset($this->argument)) {
       return $this->argument;
@@ -1089,8 +1175,11 @@ class views_handler_argument extends views_handler {
    *
    * Arguments can have styles for the summary view. This special export
    * handler makes sure this works properly.
+   *
+   * @return string
+   *   The export summary.
    */
-  function export_summary($indent, $prefix, $storage, $option, $definition, $parents) {
+  public function export_summary($indent, $prefix, $storage, $option, $definition, $parents) {
     $output = '';
     $name = $this->options['summary'][$option];
     $options = $this->options['summary_options'];
@@ -1113,8 +1202,11 @@ class views_handler_argument extends views_handler {
    *
    * Arguments use validation plugins. This special export handler makes sure
    * this works properly.
+   *
+   * @return string
+   *   The validation response.
    */
-  function export_validation($indent, $prefix, $storage, $option, $definition, $parents) {
+  public function export_validation($indent, $prefix, $storage, $option, $definition, $parents) {
     $output = '';
     $name = $this->options['validate'][$option];
     $options = $this->options['validate_options'];
@@ -1137,8 +1229,11 @@ class views_handler_argument extends views_handler {
    *
    * Since style and validation plugins have their own export handlers, this
    * one is currently only used for default argument plugins.
+   *
+   * @return string
+   *   Export string.
    */
-  function export_plugin($indent, $prefix, $storage, $option, $definition, $parents) {
+  public function export_plugin($indent, $prefix, $storage, $option, $definition, $parents) {
     $output = '';
     if ($option == 'default_argument_type') {
       $type = 'argument default';
@@ -1162,28 +1257,30 @@ class views_handler_argument extends views_handler {
   /**
    * Get the display or row plugin, if it exists.
    */
-  function get_plugin($type = 'argument default', $name = NULL) {
+  public function get_plugin($type = 'argument default', $name = NULL) {
     $options = array();
     switch ($type) {
       case 'argument default':
         $plugin_name = $this->options['default_argument_type'];
         $options_name = 'default_argument_options';
         break;
+
       case 'argument validator':
         $plugin_name = $this->options['validate']['type'];
         $options_name = 'validate_options';
         break;
+
       case 'style':
         $plugin_name = $this->options['summary']['format'];
         $options_name = 'summary_options';
+        break;
     }
 
     if (!$name) {
       $name = $plugin_name;
     }
 
-    // we only fetch the options if we're fetching the plugin actually
-    // in use.
+    // We only fetch the options if we're fetching the plugin actually in use.
     if ($name == $plugin_name) {
       $options = $this->options[$options_name];
     }
@@ -1206,10 +1303,14 @@ class views_handler_argument extends views_handler {
    *
    * Subclasses should override this to specify what the default sort order of
    * their argument is (e.g. alphabetical, numeric, date).
+   *
+   * @return string
+   *   The label for the sorter.
    */
-  function get_sort_name() {
+  public function get_sort_name() {
     return t('Default sort', array(), array('context' => 'Sort order'));
   }
+
 }
 
 /**
@@ -1218,22 +1319,44 @@ class views_handler_argument extends views_handler {
  * @ingroup views_argument_handlers
  */
 class views_handler_argument_broken extends views_handler_argument {
-  function ui_name($short = FALSE) {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function ui_name($short = FALSE) {
     return t('Broken/missing handler');
   }
 
-  function ensure_my_table() { /* No table to ensure! */ }
-  function query($group_by = FALSE) { /* No query to run */ }
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function ensure_my_table() {
+    // No table to ensure!
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function query($group_by = FALSE) {
+    // No query to run.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     $form['markup'] = array(
       '#markup' => '<div class="form-item description">' . t('The handler for this item is broken or missing and cannot be used. If a module provided the handler and was disabled, re-enabling the module may restore it. Otherwise, you should probably delete this item.') . '</div>',
     );
   }
 
   /**
-   * Determine if the handler is considered 'broken'
+   * {@inheritdoc}
    */
-  function broken() { return TRUE; }
+  public function broken() {
+    return TRUE;
+  }
+
 }
 
 /**

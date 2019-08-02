@@ -170,6 +170,13 @@ function _uuid_services_entity_update($entity_type, $uuid, $entity) {
         }
       }
     }
+
+    // Sanitize user roles if user is not allowed to modify them.
+    if ($entity_type == 'user' && !empty($entity->roles) && !user_access('administer permissions')) {
+      $original_user = user_load(entity_get_id_by_uuid('user', array($entity->uuid))[$entity->uuid]);
+      $entity->roles = $original_user->roles;
+    }
+
     entity_uuid_save($entity_type, $entity);
     return $entity;
   }
@@ -194,7 +201,7 @@ function _uuid_services_entity_delete($entity_type, $uuid) {
       return TRUE;
     }
 
-    $return = entity_uuid_delete($entity_type, array($uuid)) !== FALSE;
+    $return = entity_uuid_delete($entity_type, $uuid) !== FALSE;
     return $return;
   }
   catch (Exception $exception) {

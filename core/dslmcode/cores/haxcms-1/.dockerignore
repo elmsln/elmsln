@@ -1,0 +1,16 @@
+.vagrant
+.DS_Store
+node_modules
+_sites
+_published
+_archived
+_config
+!build/es5-amd/node_modules
+!build/es5-amd/node_modules/**
+!build/es6-amd/node_modules
+!build/es6-amd/node_modules/**
+!build/es6/node_modules
+!build/es6/node_modules/**
+yarn.lock
+.dockerignore
+docker-compose.yml

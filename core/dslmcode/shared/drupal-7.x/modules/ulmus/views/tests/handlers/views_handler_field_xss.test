@@ -23,7 +23,7 @@ class ViewsHandlerTestXss extends ViewsSqlTest {
     $map = array(
       'John' => 'John',
       "Foo\xC0barbaz" => '',
-      'Fooÿñ' => 'Fooÿñ'
+      'Fooÿñ' => 'Fooÿñ',
     );
 
     return $map;
@@ -57,4 +57,5 @@ class ViewsHandlerTestXss extends ViewsSqlTest {
       $counter++;
     }
   }
+
 }

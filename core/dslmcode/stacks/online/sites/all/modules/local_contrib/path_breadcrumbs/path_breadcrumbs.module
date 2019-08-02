@@ -452,7 +452,7 @@ function path_breadcrumbs_breadcrumb($variables) {
     }
 
     // Get breadcrumb delimiter and wrap it into <span> for customization.
-    $delimiter = variable_get('path_breadcrumbs_delimiter', '»');
+    $delimiter = check_plain(variable_get('path_breadcrumbs_delimiter', '»'));
     $delimiter = '<span class="delimiter">' . trim($delimiter) . '</span>';
 
     $classes = array('breadcrumb');

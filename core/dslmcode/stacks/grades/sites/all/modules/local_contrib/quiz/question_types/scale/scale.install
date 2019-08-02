@@ -1,18 +1,15 @@
 <?php
 
 /**
- * Sponsored by: Norwegian Centre for Telemedicine
- * Code: falcon
- *
  * @file
- * Scale Install (a quiz question type)
+ * Scale questions install file.
  */
 
 /**
  * Implements hook_install().
  */
 function scale_install() {
-  // Add body field to scale node
+  // Add body field to scale node.
   quiz_question_add_body_field('scale');
 
   _scale_insert_collection(array('Always', 'Very often', 'Some times', 'Rarely', 'Very rarely', 'Never'));
@@ -112,7 +109,7 @@ function scale_schema() {
       ),
     ),
     'primary key' => array(
-      'uid', 'answer_collection_id'
+      'uid', 'answer_collection_id',
     ),
   );
   /*
@@ -152,20 +149,20 @@ function scale_uninstall() {
 }
 
 /**
- * Inserts answer collections into the database
+ * Inserts answer collections into the database.
  *
- * @param $answers
- *  Array of answers to include in the answer collection
+ * @param array $answers
+ *   Array of answers to include in the answer collection.
  */
 function _scale_insert_collection($answers) {
-  // Save the collection as a global preset
+  // Save the collection as a global preset.
   $collection_id = db_insert('quiz_scale_answer_collection')
     ->fields(array(
-      'for_all' => 1
+      'for_all' => 1,
     ))
     ->execute();
 
-  // Save the collections as a preset collection for user 1
+  // Save the collections as a preset collection for user 1.
   db_insert('quiz_scale_user')
     ->fields(array(
       'answer_collection_id' => $collection_id,
@@ -175,7 +172,7 @@ function _scale_insert_collection($answers) {
 
   $insert = db_insert('quiz_scale_answer')->fields(array('answer_collection_id', 'answer'));
   $values = array();
-  // Save the answers belonging to the collection
+  // Save the answers belonging to the collection.
   for ($i = 0; $i < count($answers); $i++) {
     $values = array(
       'answer_collection_id' => $collection_id,
@@ -214,5 +211,5 @@ function scale_update_7501() {
     'type' => 'serial',
     'unsigned' => TRUE,
     'not null' => TRUE,
-    ), array('primary key' => array('id')));
+  ), array('primary key' => array('id')));
 }

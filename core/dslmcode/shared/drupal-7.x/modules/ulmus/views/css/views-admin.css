@@ -117,12 +117,12 @@
  *
  * The tabs that switch between sections
  */
- .views-displays .secondary {
-   border-bottom: 0 none;
-   margin: 0;
-   overflow: visible;
-   padding: 0;
- }
+.views-displays .secondary {
+  border-bottom: 0 none;
+  margin: 0;
+  overflow: visible;
+  padding: 0;
+}
 
 .views-displays .secondary > li {
   border-right: 0 none;
@@ -312,9 +312,7 @@ div.form-item-options-value-all {
 
 /* @end */
 
-
-
-/* @group Javascript dependent styling */
+/* @group JavaScript dependent styling */
 
 .js-only {
   display: none;

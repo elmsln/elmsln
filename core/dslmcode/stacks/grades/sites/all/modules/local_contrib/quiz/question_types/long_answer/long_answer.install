@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Long answer questions.
  * @file
+ * Long_answer questions install file.
  */
 
 /**
  * Implements hook_install().
  */
 function long_answer_install() {
-  // Add body field to long answer node
+  // Add body field to long answer node.
   quiz_question_add_body_field('long_answer');
 
   variable_set('node_options_long_answer', array('status'));
@@ -34,6 +34,16 @@ function long_answer_schema() {
       ),
       'rubric' => array(
         'type' => 'text',
+      ),
+      'rubric_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'description' => 'Text format for the rubric text.',
+      ),
+      'answer_text_processing' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'description' => 'Whether or not to allow filtered text answers.',
       ),
     ),
     'primary key' => array('nid', 'vid'),
@@ -66,10 +76,15 @@ function long_answer_schema() {
         'not null' => TRUE,
       ),
       'answer' => array(
-        'type' => 'text'
+        'type' => 'text',
+      ),
+      'answer_format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'description' => 'Text format for the answer text.',
       ),
       'answer_feedback' => array(
-        'type' => 'text'
+        'type' => 'text',
       ),
       'answer_feedback_format' => array(
         'type' => 'varchar',
@@ -86,7 +101,7 @@ function long_answer_schema() {
 }
 
 /**
- * Adding feedback field to table {quiz_long_answer_user_answers}
+ * Adding feedback field to table {quiz_long_answer_user_answers}.
  */
 function long_answer_update_7401() {
   if (!db_field_exists('quiz_long_answer_user_answers', 'answer_feedback')) {
@@ -99,7 +114,7 @@ function long_answer_update_7401() {
 }
 
 /**
- * Adding feedback format field to table {quiz_long_answer_user_answers}
+ * Adding feedback format field to table {quiz_long_answer_user_answers}.
  */
 function long_answer_update_7402() {
   if (!db_field_exists('quiz_long_answer_user_answers', 'answer_feedback_format')) {
@@ -131,4 +146,38 @@ function long_answer_update_7500() {
   db_drop_field('quiz_long_answer_user_answers', 'question_vid');
 
   db_add_unique_key('quiz_long_answer_user_answers', 'result_answer_id', array('result_answer_id'));
+}
+
+/**
+ * Add filtered input support for long answer rubrics and answers.
+ */
+function long_answer_update_7501() {
+  db_add_field('quiz_long_answer_node_properties', 'answer_text_processing', array(
+    'type' => 'int',
+    'size' => 'tiny',
+    'description' => 'Whether or not to allow filtered text answers.',
+  ));
+
+  db_add_field('quiz_long_answer_node_properties', 'rubric_format', array(
+    'type' => 'varchar',
+    'length' => 255,
+    'description' => 'Text format for the rubric text.',
+  ));
+
+  db_add_field('quiz_long_answer_user_answers', 'answer_format', array(
+    'type' => 'varchar',
+    'length' => 255,
+    'description' => 'Text format for the answer text.',
+  ));
+
+  // Updating existing, which were all plain text.
+  db_update('quiz_long_answer_user_answers')
+    ->fields(array('answer_format' => 'plain_text'))
+    ->execute();
+
+  db_update('quiz_long_answer_node_properties')
+    ->fields(array('rubric_format' => 'plain_text', 'answer_text_processing' => 0))
+    ->execute();
+
+  return t('Added text format selection for long answer rubrics and answers.');
 }

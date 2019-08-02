@@ -1,8 +1,17 @@
 <?php
 
 /**
- * @file Rules - Installation file.
+ * @file
+ * Rules - Installation file.
  */
+
+/**
+ * Implements hook_enable().
+ */
+function rules_enable() {
+  // Enable evaluation of Rules right after enabling the module.
+  rules_event_invocation_enabled(TRUE);
+}
 
 /**
  * Implements hook_install().
@@ -10,7 +19,7 @@
 function rules_install() {
   module_load_include('inc', 'rules', 'modules/events');
   // Set the modules' weight to 20, see
-  // http://drupal.org/node/445084#comment-1533280 for the reasoning.
+  // https://www.drupal.org/node/445084#comment-1533280 for the reasoning.
   db_query("UPDATE {system} SET weight = 20 WHERE name = 'rules'");
 }
 
@@ -18,8 +27,22 @@ function rules_install() {
  * Implements hook_uninstall().
  */
 function rules_uninstall() {
-  variable_del('rules_event_whitelist');
   variable_del('rules_debug');
+  variable_del('rules_debug_log');
+  variable_del('rules_log_errors');
+  variable_del('rules_log_level');
+
+  variable_del('rules_clean_path');
+  variable_del('rules_path_cleaning_callback');
+  variable_del('rules_path_lower_case');
+  variable_del('rules_path_replacement_char');
+  variable_del('rules_path_transliteration');
+
+  // Delete all the debug region variables and then clear the variables cache.
+  db_delete('variable')
+    ->condition('name', 'rules_debug_region_%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
 }
 
 /**
@@ -46,7 +69,7 @@ function rules_schema() {
         'description' => 'The label of the configuration.',
         'default' => 'unlabeled',
       ),
-     'plugin' => array(
+      'plugin' => array(
         'type' => 'varchar',
         'length' => 127,
         'not null' => TRUE,
@@ -114,7 +137,7 @@ function rules_schema() {
       'name' => array('name'),
     ),
     'indexes' => array(
-      'plugin' => array('plugin'),
+      'plugin' => array('plugin', 'active'),
     ),
   );
   $schema['rules_trigger'] = array(
@@ -214,7 +237,7 @@ function rules_update_7200() {
         'description' => 'The label of the configuration.',
         'default' => 'unlabeled',
       ),
-     'plugin' => array(
+      'plugin' => array(
         'type' => 'varchar',
         'length' => 127,
         'not null' => TRUE,
@@ -484,7 +507,7 @@ function rules_update_7212() {
  * Recover the "owner" property for broken configurations.
  */
 function rules_update_7213() {
-  $rows= db_select('rules_config', 'c')
+  $rows = db_select('rules_config', 'c')
     ->fields('c')
     ->condition('status', ENTITY_OVERRIDDEN)
     ->condition('owner', 'rules', '<>')
@@ -499,4 +522,42 @@ function rules_update_7213() {
         ->execute();
     }
   }
+}
+
+/**
+ * Switch out the rules_event_whitelist variable for a cache equivalent.
+ */
+function rules_update_7214() {
+  // Enable Rules if currently disabled so that this update won't fail.
+  $disable_rules = FALSE;
+  if (!module_exists('rules')) {
+    module_enable(array('rules'));
+    $disable_rules = TRUE;
+  }
+  // Set new event_whitelist cache cid.
+  rules_set_cache('rules_event_whitelist', variable_get('rules_event_whitelist', array()));
+  // Delete old conf variable.
+  variable_del('rules_event_whitelist');
+  // Avoid any missing class errors.
+  registry_rebuild();
+  // Clear and rebuild Rules caches.
+  // See: rules_admin_settings_cache_rebuild_submit.
+  rules_clear_cache();
+  rules_get_cache();
+  _rules_rebuild_component_cache();
+  RulesEventSet::rebuildEventCache();
+  // Disable Rules again if it was disabled before this update started.
+  if ($disable_rules) {
+    module_disable(array('rules'));
+  }
+}
+
+/**
+ * Add an index for retrieving active config of a certain plugin.
+ */
+function rules_update_7215() {
+  if (db_index_exists('rules_config', 'plugin')) {
+    db_drop_index('rules_config', 'plugin');
+  }
+  db_add_index('rules_config', 'plugin', array('plugin', 'active'));
 }

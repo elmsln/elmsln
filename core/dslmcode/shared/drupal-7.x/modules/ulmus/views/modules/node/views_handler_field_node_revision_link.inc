@@ -12,16 +12,25 @@
  */
 class views_handler_field_node_revision_link extends views_handler_field_node_link {
 
-  function construct() {
+  /**
+   * {@inheritdoc}
+   */
+  public function construct() {
     parent::construct();
     $this->additional_fields['node_vid'] = array('table' => 'node_revision', 'field' => 'vid');
   }
 
-  function access() {
+  /**
+   * {@inheritdoc}
+   */
+  public function access() {
     return user_access('view revisions') || user_access('administer nodes');
   }
 
-  function render_link($data, $values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render_link($data, $values) {
     list($node, $vid) = $this->get_revision_entity($values, 'view');
     if (!isset($vid)) {
       return;
@@ -52,7 +61,7 @@ class views_handler_field_node_revision_link extends views_handler_field_node_li
    *   A numerically indexed array containing the current node object and the
    *   revision ID for this row.
    */
-  function get_revision_entity($values, $op) {
+  public function get_revision_entity($values, $op) {
     $vid = $this->get_value($values, 'node_vid');
     $node = $this->get_value($values);
     // Unpublished nodes ignore access control.
@@ -63,4 +72,5 @@ class views_handler_field_node_revision_link extends views_handler_field_node_li
     }
     return array($node, $vid);
   }
+
 }

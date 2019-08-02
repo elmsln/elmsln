@@ -2,26 +2,27 @@
 
 /**
  * @file
- * Definition of ViewsViewTest.
+ * Views class tests.
  */
 
 /**
- * Views class tests.
  *
- * @codingStandardsIgnoreStart
  */
 class ViewsViewTest extends ViewsSqlTest {
-  // @codingStandardsIgnoreEnd
+
+  /**
+   * Provide the test's meta information.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Test the view class',
-      'description' => 'Tests some  functionality of the view class',
+      'description' => 'Tests some functionality of the view class',
       'group' => 'Views',
     );
   }
 
   /**
-   * Tests the deconstructor to be sure that every kind of heavy objects are removed.
+   * Ensure that every kind of heavy objects are removed by the destructor.
    */
   function testDestroy() {
     $view = $this->view_test_destroy();
@@ -39,6 +40,12 @@ class ViewsViewTest extends ViewsSqlTest {
     $this->assertViewDestroy($view);
   }
 
+  /**
+   * Assert that a given view is destroyed properly.
+   *
+   * @param object $view
+   *   The view to destroy.
+   */
   function assertViewDestroy($view) {
     $this->assertFalse(isset($view->display['default']->handler), 'Make sure all displays are destroyed.');
     $this->assertFalse(isset($view->display['attachment_1']->handler), 'Make sure all displays are destroyed.');
@@ -61,8 +68,11 @@ class ViewsViewTest extends ViewsSqlTest {
     $this->assertEqual($view->attachment_after, '');
   }
 
+  /**
+   * Test deleting a view.
+   */
   function testDelete() {
-    // Delete a database view
+    // Delete a database view.
     $view = $this->view_test_delete();
     $view->save();
     $view = views_get_view($view->name);
@@ -75,10 +85,13 @@ class ViewsViewTest extends ViewsSqlTest {
     $this->assertNull($view, "Make sure that the old view gets cleared by the reset parameter.");
   }
 
+  /**
+   * Test validation.
+   */
   function testValidate() {
     // Test a view with multiple displays.
     // Validating a view shouldn't change the active display.
-    // @todo: Create an extra validation view.
+    // @todo Create an extra validation view.
     $view = $this->view_test_destroy();
     $view->set_display('page_1');
 
@@ -86,17 +99,20 @@ class ViewsViewTest extends ViewsSqlTest {
 
     $this->assertEqual('page_1', $view->current_display, "The display should be constant while validating");
 
-    // @todo: Write real tests for the validation.
+    // @todo Write real tests for the validation.
     // In general the following things could be tested:
-    // - Deleted displays shouldn't be validated
+    // - Deleted displays shouldn't be validated.
     // - Multiple displays are validating and the errors are merged together.
   }
 
   /**
-   * This view provides some filters, fields, arguments, relationships, sorts, areas and attachments.
+   * Generate an example view.
+   *
+   * Includes:
+   *   filters, fields, arguments, relationships, sorts, areas and attachments.
    */
   function view_test_destroy() {
-    $view = new view;
+    $view = new view();
     $view->name = 'test_destroy';
     $view->description = '';
     $view->tag = '';
@@ -257,8 +273,12 @@ class ViewsViewTest extends ViewsSqlTest {
 
     return $view;
   }
+
+  /**
+   * Creates a test view.
+   */
   function view_test_delete() {
-    $view = new view;
+    $view = new view();
     $view->name = 'test_view_delete';
     $view->description = '';
     $view->tag = '';
@@ -294,4 +314,5 @@ class ViewsViewTest extends ViewsSqlTest {
 
     return $view;
   }
+
 }

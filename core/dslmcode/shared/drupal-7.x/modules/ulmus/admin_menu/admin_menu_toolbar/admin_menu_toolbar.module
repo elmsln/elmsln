@@ -38,6 +38,10 @@ function admin_menu_toolbar_page_build(&$page) {
     $attached['css'][drupal_get_path('module', 'shortcut') . '/shortcut.css'] = $options;
   }
 
+  if (variable_get('admin_menu_theme', 'default') !== 'default') {
+    $attached['css'][$path . '/admin_menu_toolbar-light.css'] = $options;
+  }
+
   $settings = array();
   // Add current path to support menu item highlighting.
   // @todo Compile real active trail here?
@@ -115,4 +119,3 @@ function admin_menu_toolbar_admin_menu_output_alter(&$content) {
     $content['account']['account']['#options']['html'] = TRUE;
   }
 }
-

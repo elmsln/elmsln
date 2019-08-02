@@ -4,5 +4,5 @@
  * Implements hook_install().
  */
 function hax_install() {
-  drupal_set_message(t('Make sure you copy bower.json from the hax module directory into sites/all/libraries/webcomponents/polymer/ and then run bower install to get dependencies in order for HAX to work.'), 'status');
+  drupal_set_message(t('Either use a CDN listed in webcomponents module or make sure you copy the contents of CopyThisStuff from the hax module directory into sites/all/libraries/webcomponents/ and then run npm install to get dependencies in order for HAX to work.'), 'status');
 }

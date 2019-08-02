@@ -54,6 +54,9 @@ function _cle_studio_kanban_kanban_data($machine_name, $app_route, $params, $arg
     $service = new LRNAppOpenStudioProjectService();
     $assignmentservice = new LRNAppOpenStudioAssignmentService();
     $data['projects'] = $service->getProjects($options);
+    if ($data['projects'] == null) {
+      $data['projects'] = array();
+    }
     if (!empty($data['projects'])) {
       $status = 200;
       foreach ($data['projects'] as $key => &$project) {

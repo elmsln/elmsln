@@ -5,6 +5,7 @@
  * Contains rules integration for the php module needed during evaluation.
  *
  * @addtogroup rules
+ *
  * @{
  */
 
@@ -13,10 +14,21 @@
  */
 class RulesPHPEvaluator extends RulesDataInputEvaluator {
 
-  public static function access() {
-    return user_access('use PHP for settings');
+  /**
+   * Overrides RulesDataProcessor::editAccess().
+   */
+  public function editAccess() {
+    return parent::editAccess() && (user_access('use PHP for settings') || drupal_is_cli());
   }
 
+  /**
+   * Helper function to find variables in PHP code.
+   *
+   * @param string $text
+   *   The PHP code.
+   * @param array $var_info
+   *   Array with variable names as keys.
+   */
   public static function getUsedVars($text, $var_info) {
     if (strpos($text, '<?') !== FALSE) {
       $used_vars = array();
@@ -29,14 +41,19 @@ class RulesPHPEvaluator extends RulesDataInputEvaluator {
     }
   }
 
+  /**
+   * Overrides RulesDataInputEvaluator::prepare().
+   */
   public function prepare($text, $var_info) {
     // A returned NULL skips the evaluator.
     $this->setting = self::getUsedVars($text, $var_info);
   }
 
   /**
-   * Evaluates PHP code contained in $text. This doesn't apply $options, thus
-   * the PHP code is responsible for behaving appropriately.
+   * Evaluates PHP code contained in $text.
+   *
+   * This method doesn't apply $options, thus the PHP code is responsible for
+   * behaving appropriately.
    */
   public function evaluate($text, $options, RulesState $state) {
     $vars['eval_options'] = $options;
@@ -46,6 +63,9 @@ class RulesPHPEvaluator extends RulesDataInputEvaluator {
     return rules_php_eval($text, rules_unwrap_data($vars));
   }
 
+  /**
+   * Overrides RulesDataInputEvaluator::help().
+   */
   public static function help($var_info) {
     module_load_include('inc', 'rules', 'rules/modules/php.rules');
 
@@ -58,6 +78,7 @@ class RulesPHPEvaluator extends RulesDataInputEvaluator {
 
     return $render;
   }
+
 }
 
 /**
@@ -65,6 +86,9 @@ class RulesPHPEvaluator extends RulesDataInputEvaluator {
  */
 class RulesPHPDataProcessor extends RulesDataProcessor {
 
+  /**
+   * Overrides RulesDataProcessor::form().
+   */
   protected static function form($settings, $var_info) {
     $settings += array('code' => '');
     $form = array(
@@ -84,14 +108,21 @@ class RulesPHPDataProcessor extends RulesDataProcessor {
     return $form;
   }
 
-  public static function access() {
-    return user_access('use PHP for settings');
+  /**
+   * Overrides RulesDataProcessor::editAccess().
+   */
+  public function editAccess() {
+    return parent::editAccess() && (user_access('use PHP for settings') || drupal_is_cli());
   }
 
+  /**
+   * Overrides RulesDataProcessor::process().
+   */
   public function process($value, $info, RulesState $state, RulesPlugin $element) {
     $value = isset($this->processor) ? $this->processor->process($value, $info, $state, $element) : $value;
     return rules_php_eval_return($this->setting['code'], array('value' => $value));
   }
+
 }
 
 /**
@@ -108,11 +139,11 @@ function rules_execute_php_eval($code, $settings, $state, $element) {
 }
 
 /**
- * Evalutes the given PHP code, with the given variables defined.
+ * Evaluates the given PHP code, with the given variables defined.
  *
- * @param $code
- *   The PHP code to run, with <?php ?>
- * @param $arguments
+ * @param string $code
+ *   The PHP code to run, including <?php and ?>
+ * @param array $arguments
  *   Array containing variables to be extracted to the code.
  *
  * @return
@@ -122,7 +153,7 @@ function rules_php_eval($code, $arguments = array()) {
   extract($arguments);
 
   ob_start();
-  print eval('?>'. $code);
+  print eval('?>' . $code);
   $output = ob_get_contents();
   ob_end_clean();
 
@@ -130,13 +161,15 @@ function rules_php_eval($code, $arguments = array()) {
 }
 
 /**
- * Evalutes the given PHP code, with the given variables defined. This is like
- * rules_php_eval() but does return the returned data from the PHP code.
+ * Evaluates the given PHP code, with the given variables defined.
  *
- * @param $code
- *   The PHP code to run, without <?php ?>
- * @param $arguments
- * Array containing variables to be extracted to the code.
+ * This is like rules_php_eval(), but does return the returned data from
+ * the PHP code.
+ *
+ * @param string $code
+ *   The PHP code to run, without <?php or ?>
+ * @param array $arguments
+ *   Array containing variables to be extracted to the code.
  *
  * @return
  *   The return value of the evaled code.

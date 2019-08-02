@@ -2,14 +2,14 @@
 
 /**
  * @file
- * The installer file for truefalse question type. *
+ * Truefalse question install file.
  */
 
 /**
  * Implements hook_install().
  */
 function truefalse_install() {
-  // Add body field to true false node
+  // Add body field to true false node.
   quiz_question_add_body_field('truefalse');
 
   variable_set('node_options_truefalse', array('status'));
@@ -20,7 +20,7 @@ function truefalse_install() {
  */
 function truefalse_schema() {
 
-  // Extensions to nodes for T/F
+  // Extensions to nodes for T/F.
   $schema['quiz_truefalse_node'] = array(
     'fields' => array(
       'nid' => array(
@@ -42,11 +42,11 @@ function truefalse_schema() {
       ),
     ),
     'primary key' => array(
-      'vid', 'nid'
+      'vid', 'nid',
     ),
   );
 
-  // Place to store user answers for T/F questions
+  // Place to store user answers for T/F questions.
   $schema['quiz_truefalse_user_answers'] = array(
     'fields' => array(
       'answer_id' => array(
@@ -89,7 +89,7 @@ function truefalse_update_7500() {
   db_add_field('quiz_truefalse_user_answers', 'answer_id', array(
     'type' => 'serial',
     'not null' => TRUE,
-    ), array('primary key' => array('answer_id')));
+  ), array('primary key' => array('answer_id')));
   db_add_field('quiz_truefalse_user_answers', 'result_answer_id', array(
     'type' => 'int',
     'unsigned' => TRUE,

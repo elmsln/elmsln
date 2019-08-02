@@ -6,16 +6,20 @@
  */
 
 /**
- * Render a field as a numeric value
+ * Render a field as a numeric value.
  *
  * Definition terms:
  * - float: If true this field contains a decimal value. If unset this field
- *          will be assumed to be integer.
+ *   will be assumed to be integer.
  *
  * @ingroup views_field_handlers
  */
 class views_handler_field_numeric extends views_handler_field {
-  function option_definition() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['set_precision'] = array('default' => FALSE, 'bool' => TRUE);
@@ -31,7 +35,10 @@ class views_handler_field_numeric extends views_handler_field {
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     if (!empty($this->definition['float'])) {
       $form['set_precision'] = array(
         '#type' => 'checkbox',
@@ -105,8 +112,16 @@ class views_handler_field_numeric extends views_handler_field {
     parent::options_form($form, $form_state);
   }
 
-  function render($values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render($values) {
     $value = $this->get_value($values);
+
+    // Output nothing if the value is null.
+    if (is_null($value)) {
+      return '';
+    }
 
     // Hiding should happen before rounding or adding prefix/suffix.
     if ($this->options['hide_empty'] && empty($value) && ($value !== 0 || $this->options['empty_zero'])) {
@@ -117,12 +132,13 @@ class views_handler_field_numeric extends views_handler_field {
       $value = number_format($value, $this->options['precision'], $this->options['decimal'], $this->options['separator']);
     }
     else {
-      $remainder = abs($value) - intval(abs($value));
+      $point_position = strpos($value, '.');
+      $remainder = ($point_position === FALSE) ? '' : substr($value, $point_position + 1);
       $value = $value > 0 ? floor($value) : ceil($value);
       $value = number_format($value, 0, '', $this->options['separator']);
       if ($remainder) {
         // The substr may not be locale safe.
-        $value .= $this->options['decimal'] . substr($remainder, 2);
+        $value .= $this->options['decimal'] . $remainder;
       }
     }
 
@@ -135,4 +151,5 @@ class views_handler_field_numeric extends views_handler_field {
       . $this->sanitize_value($value)
       . $this->sanitize_value($this->options['suffix'], 'xss');
   }
+
 }

@@ -5,13 +5,11 @@ wkhtmltopdf support:
   libraries in your site, which may present problems in shared hosting
   environments.  The best, if you can run it.
 
-  1. Download wkhtmltopdf from
-  http://code.google.com/p/wkhtmltopdf/downloads/list. You can choose to
-  download the source and compile it or simply download the static binary,
-  which doesn't require you to compile anything. Note that the compiled
-  version may require a running X server (static uses patched libs that can
-  work without one).
-  2. Place the wkhtmltopdf executable into one of the supported paths. 
-  (usually sites/all/modules/print/lib).  You can also place a symbolic link
-  to the executable.
+  1. Download wkhtmltopdf from http://wkhtmltopdf.org/downloads.html. You can
+  choose to download the source and compile it or simply download the installer
+  for your OS. Note that the compiled version may require a running X server
+  (the installers use patched libs that can work without one).
+  2. Place a symbolic link to the executable in one of the supported paths
+  (usually sites/all/libraries/wkhtmltopdf). Or if you can also place the
+  wkhtmltopdf executable directly into that folder.
   3. Check http://code.google.com/p/wkhtmltopdf/ for further information.

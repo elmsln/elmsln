@@ -42,4 +42,5 @@ class ViewsHandlerFieldMath extends ViewsSqlTest {
 
     $this->assertEqual($rand1 + $rand2, $view->style_plugin->get_field(0, 'expression'));
   }
+
 }

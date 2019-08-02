@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of views_handler_filter_node_language.
+ * Contains .
  */
 
 /**
@@ -11,7 +11,11 @@
  * @ingroup views_filter_handlers
  */
 class views_handler_filter_node_language extends views_handler_filter_in_operator {
-  function get_value_options() {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function get_value_options() {
     if (!isset($this->value_options)) {
       $this->value_title = t('Language');
       $languages = array(
@@ -23,4 +27,5 @@ class views_handler_filter_node_language extends views_handler_filter_in_operato
       $this->value_options = $languages;
     }
   }
+
 }

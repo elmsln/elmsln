@@ -84,9 +84,18 @@ class H5PDevelopment {
 
       // TODO: Validate props? Not really needed, is it? this is a dev site.
 
-      // Save/update library.
       $library['libraryId'] = $this->h5pF->getLibraryId($library['machineName'], $library['majorVersion'], $library['minorVersion']);
+
+      // Convert metadataSettings values to boolean & json_encode it before saving
+      $library['metadataSettings'] = isset($library['metadataSettings']) ?
+        H5PMetadata::boolifyAndEncodeSettings($library['metadataSettings']) :
+        NULL;
+
+      // Save/update library.
       $this->h5pF->saveLibraryData($library, $library['libraryId'] === FALSE);
+
+      // Need to decode it again, since it is served from here.
+      $library['metadataSettings'] = json_decode($library['metadataSettings']);
 
       $library['path'] = 'development/' . $contents[$i];
       $this->libraries[H5PDevelopment::libraryToString($library['machineName'], $library['majorVersion'], $library['minorVersion'])] = $library;

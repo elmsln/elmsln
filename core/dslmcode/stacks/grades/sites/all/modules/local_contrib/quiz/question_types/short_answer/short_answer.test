@@ -20,7 +20,7 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
     );
   }
 
-  function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+  public function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
     parent::setUp(array('short_answer'), array('score any quiz'));
   }
 
@@ -41,21 +41,21 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'This is an incorrect answer.',
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('Your score: 0%');
 
     // Test correct.
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'the Zero One Infinity rule',
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('Your score: 100%');
 
     // Test correct.
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'the zero one Infinity rule',
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('Your score: 100%');
   }
 
@@ -80,14 +80,14 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'the zero one Infinity rule',
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('Your score: 0%');
 
     // Test correct.
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'the Zero One Infinity rule',
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('Your score: 100%');
   }
 
@@ -110,14 +110,14 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'um some rule, I forget',
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('Your score: 0%');
 
     // Test correct.
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'the answer is the zero one infinity rule',
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('Your score: 100%');
   }
 
@@ -149,18 +149,18 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalPost(NULL, array(
       "question[$question_node1->nid][answer]" => 'the answer is the zero one infinity rule',
-      ), t('Next'));
+    ), t('Next'));
     $this->drupalPost(NULL, array(
       "question[$question_node2->nid][answer]" => 'the number two really is ridiculous',
-      ), t('Finish'));
+    ), t('Finish'));
     $this->assertText('Your score: 0%');
     // Strange behavior - extra spaces in HTML.
     //$this->assertText('Score ? of 10');
     $this->assertText('This answer has not yet been scored.');
-    $this->assertNoFieldByName('0[score]');
-    $this->assertNoFieldByName('1[score]');
-    $this->assertNoFieldByName('0[answer_feedback][value]');
-    $this->assertNoFieldByName('1[answer_feedback][value]');
+    $this->assertNoFieldByName('question[0][score]');
+    $this->assertNoFieldByName('question[1][score]');
+    $this->assertNoFieldByName('question[0][answer_feedback][value]');
+    $this->assertNoFieldByName('question[1][answer_feedback][value]');
     $this->assertNoRaw(t('Save score'));
     $url_of_result = $this->getUrl();
     $admin_url_of_result = preg_replace('#quiz-results/(\d+)#', 'quiz/results/$1', $this->getUrl());
@@ -168,16 +168,16 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
     // Test grading the question.
     $this->drupalLogin($this->admin);
     $this->drupalGet($admin_url_of_result);
-    $this->assertFieldByName('0[score]');
-    $this->assertFieldByName('1[score]');
+    $this->assertFieldByName('question[0][score]');
+    $this->assertFieldByName('question[1][score]');
     $this->drupalPost(NULL, array(
-      "0[score]" => 2,
-      "1[score]" => 3,
-      "0[answer_feedback][value]" => 'Feedback for answer 1.',
-      "1[answer_feedback][value]" => 'Feedback for answer 2.',
-      "0[answer_feedback][format]" => 'filtered_html',
-      "1[answer_feedback][format]" => 'filtered_html',
-      ), t('Save score'));
+      "question[0][score]" => 2,
+      "question[1][score]" => 3,
+      "question[0][answer_feedback][value]" => 'Feedback for answer 1.',
+      "question[1][answer_feedback][value]" => 'Feedback for answer 2.',
+      "question[0][answer_feedback][format]" => 'filtered_html',
+      "question[1][answer_feedback][format]" => 'filtered_html',
+    ), t('Save score'));
     $this->assertText('The scoring data you provided has been saved.');
 
     // Test the score is visible to the user.
@@ -195,7 +195,7 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
   /**
    * Test adding and taking a truefalse question.
    */
-  function testCreateQuizQuestion($settings = array()) {
+  public function testCreateQuizQuestion($settings = array()) {
     if (!$settings) {
       $settings = array(
         'correct_answer_evaluation' => ShortAnswerQuestion::ANSWER_INSENSITIVE_MATCH,
@@ -210,7 +210,7 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
       'type' => $this->question_node_type,
       'title' => 'SA 1 title',
       'body' => array(LANGUAGE_NONE => array(array('value' => 'SA 1 body text.'))),
-      ) + $settings);
+    ) + $settings);
 
     return $question_node;
   }
@@ -218,7 +218,7 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
   /**
    * Test that the question response can be edited.
    */
-  function testEditQuestionResponse() {
+  public function testEditQuestionResponse() {
     $this->drupalLogin($this->admin);
 
     // Create & link a question.
@@ -230,16 +230,15 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
     // Login as non-admin.
     $this->drupalLogin($this->user);
 
-
     $this->drupalGet("node/$quiz_node->nid/take");
     $this->drupalGet("node/$quiz_node->nid/take/1");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'um some rule, I forget',
-      ), t('Next'));
+    ), t('Next'));
     $this->drupalGet("node/$quiz_node->nid/take/1");
     $this->drupalPost(NULL, array(
       "question[$question_node->nid][answer]" => 'um some rule, I forget',
-      ), t('Next'));
+    ), t('Next'));
   }
 
 }

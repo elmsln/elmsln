@@ -1,0 +1,1 @@
+import"../node_modules/@lrnwebcomponents/haxcms-elements/lib/core/themes/haxcms-legacy-player.js";import"./my-custom-elements.js";

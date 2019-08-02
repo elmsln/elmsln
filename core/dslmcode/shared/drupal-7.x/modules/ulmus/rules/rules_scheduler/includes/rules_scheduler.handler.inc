@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Views integration for the rules scheduler module.
+ */
+
+/**
  * Default scheduled task handler.
  */
 class RulesSchedulerDefaultTaskHandler implements RulesSchedulerTaskHandlerInterface {

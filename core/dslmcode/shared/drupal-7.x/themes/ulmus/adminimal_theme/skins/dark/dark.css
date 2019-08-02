@@ -1,0 +1,1013 @@
+/* Style checkbox and radio buttons in Chrome + Safari + Opera */
+@supports (-webkit-appearance:none) {
+  .style-checkboxes input[type=checkbox],
+  .style-checkboxes input[type=radio],
+  .style-checkboxes input[type=checkbox]#edit-delete {
+    -webkit-appearance:none;
+    display: inline-block;
+    position: relative;
+    top: 3px;
+    margin-right: 0.25em;
+    padding: 0;
+    background: #353535;
+    border: 1px solid #4A4A4A;
+    width: 16px !important;
+    height: 16px !important;
+    -webkit-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+    outline: none;
+  }
+
+  .adminimal-theme .location .form-item input.form-checkbox {
+    width: 16px;
+    display: inline-block;
+  }
+
+  .style-checkboxes input[type=checkbox]#edit-delete {
+    margin-bottom: 0;
+  }
+
+  .style-checkboxes input[type=radio] {
+    border-radius: 50%;
+  }
+
+  .style-checkboxes input[type=checkbox]:hover,
+  .style-checkboxes input[type=checkbox]:focus,
+  .style-checkboxes input[type=radio]:hover,
+  .style-checkboxes input[type=radio]:focus {
+    border-color: #fff;
+    cursor: pointer;
+  }
+
+  .style-checkboxes input[type=checkbox]#edit-delete:hover,
+  .style-checkboxes input[type=checkbox]#edit-delete:focus {
+    border-color: #D01616;
+    cursor: pointer;
+  }
+
+  .style-checkboxes input[type=checkbox]:checked,
+  .style-checkboxes input[type=checkbox]:disabled:checked,
+  .style-checkboxes input[type=radio]:checked,
+  .style-checkboxes input[type=radio]:disabled:checked{
+    background: #fff;
+    box-shadow: inset 0px 0px 0px 4px #3A3A3A;
+    border-color: #fff;
+  }
+
+  .style-checkboxes input[type=checkbox]#edit-delete:checked,
+  .style-checkboxes input[type=checkbox]#edit-delete:disabled:checked {
+    background: #D01616;
+    box-shadow: inset 0px 0px 0px 4px #fff;
+  }
+
+  .style-checkboxes input[type=checkbox]:disabled,
+  .style-checkboxes input[type=radio]:disabled {
+    opacity: .5;
+    background: #E2E2E2;
+  }
+
+  .style-checkboxes input[type=checkbox]#edit-delete:disabled {
+    opacity: .5;
+    background: #E88181;
+  }
+
+  .style-checkboxes input[type=checkbox]:disabled:hover {
+    border-color: #B5B5B5;
+    cursor: default;
+  }
+
+  .style-checkboxes input[type=checkbox]:disabled:hover,
+  .style-checkboxes input[type=radio]:disabled:hover {
+    border-color: #B5B5B5;
+    cursor: default;
+    /*cursor: not-allowed;*/
+  }
+
+}
+
+/* Buttons */
+
+/* Gray Button */
+input.form-submit,
+a.button,
+div.exposed-filters input#edit-submit {
+  cursor: pointer;
+  background: #656565;
+  border: none;
+  border-radius: 0;
+  padding: 5px 15px;
+  margin-bottom: 1em;
+  margin-right: 1em;/* LTR */
+  color: #fff;
+  text-align: center;
+  font-weight: normal;
+  font-size: 14px;
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  transition: all, 0.3s;
+}
+
+input.form-submit:hover,
+a.button:hover,
+div.exposed-filters input#edit-submit:hover {
+  background: #545454;
+}
+
+input.form-submit:active,
+a.button:active,
+div.exposed-filters input#edit-submit:active {
+  border-radius: 0;
+  border: none;
+}
+
+input.form-submit:focus,
+a.button:focus,
+div.exposed-filters input#edit-submit:focus {
+  outline: 3px solid #3A3A3A;
+}
+
+/* Green Button */
+input[type="submit"][id^="edit-submit"],
+input#edit-actions-submit,
+input[id^="save-continue"],
+input[type="submit"][id^="edit-save"],
+input#edit-save,
+input#edit-submit,
+input#edit-actions-save,
+.field-widget-inline-entity-form .container-inline .form-submit,
+#media-browser-page a.button-yes,
+input.add-new-condition,
+#edit-field-product-und-form-actions input.ief-entity-submit {
+  cursor: pointer;
+  border-radius: 0;
+  border: none;
+  padding: 5px 15px;
+  margin-bottom: 1em;
+  margin-right: 1em;/* LTR */
+  color: #fff;
+  text-align: center;
+  font-weight: normal;
+  font-size: 14px;
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  background: #4d8f46;
+  transition: all, 0.3s;
+}
+
+input[type="submit"][id^="edit-submit"]:hover,
+input#edit-actions-submit:hover,
+input[id^="save-continue"]:hover,
+input[type="submit"][id^="edit-save"]:hover,
+input#edit-save:hover,
+input#edit-submit:hover,
+input#edit-actions-save:hover,
+.field-widget-inline-entity-form .container-inline .form-submit:hover,
+#media-browser-page a.button-yes:hover,
+input.add-new-condition:hover,
+#edit-field-product-und-form-actions input.ief-entity-submit:hover {
+  background: #0a6700;
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input[type="submit"][id^="edit-submit"]:active,
+input#edit-actions-submit:active,
+input[id^="save-continue"]:active,
+input[type="submit"][id^="edit-save"]:active,
+input#edit-save:active,
+input#edit-submit:active,
+.field-widget-inline-entity-form .container-inline .form-submit:active,
+input#edit-actions-save:active,
+input.add-new-condition:active,
+#edit-field-product-und-form-actions input.ief-entity-submit:active {
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input[type="submit"][id^="edit-submit"]:focus,
+input#edit-actions-submit:focus,
+input[id^="save-continue"]:focus,
+input[type="submit"][id^="edit-save"]:focus,
+input#edit-save:focus,
+input#edit-submit:focus,
+.field-widget-inline-entity-form .container-inline .form-submit:focus,
+input#edit-actions-save:focus,
+input.add-new-condition:focus,
+#edit-field-product-und-form-actions input.ief-entity-submit:focus {
+  outline: 3px solid #163A13;
+}
+
+/* Red Button */
+input#edit-delete,
+input#remove-button,
+input#edit-remove,
+input#edit-clear,
+a.button.remove,
+.page-node-delete input#edit-submit,
+input[id*="remove-button"],
+.page-admin-modules-uninstall input#edit-submit,
+.remove-condition input,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit {
+  cursor: pointer;
+  padding: 5px 15px;
+  border-radius: 0;
+  border: none;
+  margin-bottom: 1em;
+  margin-right: 1em;/* LTR */
+  color: #fff;
+  text-align: center;
+  font-weight: normal;
+  font-size: 14px;
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  background: #b73939;
+  transition: all, 0.3s;
+}
+
+input#edit-delete:hover,
+input#remove-button:hover,
+input#edit-remove:hover,
+input#edit-clear:hover,
+a.button.remove:hover,
+.page-node-delete input#edit-submit:hover,
+input[id*="remove-button"]:hover,
+body.page-admin-modules-uninstall input#edit-submit:hover,
+.remove-condition input:hover,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit:hover {
+  background: #990000;
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input#edit-delete:active,
+input#remove-button:active,
+input#edit-remove:active,
+input#edit-clear:active,
+.page-node-delete input#edit-submit:active,
+input[id*="remove-button"]:active,
+body.page-admin-modules-uninstall input#edit-submit:active,
+.remove-condition input:active,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit:active {
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input#edit-delete:focus,
+input#remove-button:focus,
+input#edit-remove:focus,
+input#edit-clear:focus,
+.page-node-delete input#edit-submit:focus,
+input[id*="remove-button"]:focus,
+body.page-admin-modules-uninstall input#edit-submit:focus,
+.remove-condition input:focus,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="remove"].form-submit:focus {
+  outline: 3px solid #FFD8D8;
+}
+
+/* Blue Button */
+input#edit-preview,
+input#edit-next,
+input#preview-submit,
+input.ief-entity-submit,
+input[type="submit"][id^="edit-return"],
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"] {
+  cursor: pointer;
+  border-radius: 0;
+  border: none;
+  padding: 5px 15px;
+  margin-bottom: 1em;
+  margin-right: 1em;/* LTR */
+  color: #fff;
+  text-align: center;
+  font-weight: normal;
+  font-size: 14px;
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  background: #0074BD;
+  transition: all, 0.3s;
+}
+
+input#edit-preview:hover,
+input#edit-next:hover,
+input#preview-submit:hover,
+input.ief-entity-submit:hover,
+input[type="submit"][id^="edit-return"]:hover,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"]:hover {
+  background: #004c99;
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input#edit-preview:active,
+input#edit-next:active,
+input#preview-submit:active,
+input.ief-entity-submit:active,
+input[type="submit"][id^="edit-return"]:active,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"]:active {
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+input#edit-preview:focus,
+input#edit-next:focus,
+input#preview-submit:focus,
+input.ief-entity-submit:focus,
+input[type="submit"][id^="edit-return"]:focus,
+.field-widget-inline-entity-form .ief-entity-operations input[id*="edit"]:focus {
+  outline: 3px solid #D2E4F7;
+}
+
+/* Orange Button */
+#edit-cancel,
+#edit-actions-cancel,
+input#edit-buttons-revert,
+#media-browser-page a.button-no,
+.field-widget-inline-entity-form input[id*="cancel"] {
+  cursor: pointer;
+  border-radius: 0;
+  border: none;
+  padding: 5px 15px;
+  margin-bottom: 1em;
+  margin-right: 1em;/* LTR */
+  color: #fff;
+  text-align: center;
+  font-weight: normal;
+  font-size: 14px;
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  background: #f69231;
+  transition: all, 0.3s;
+}
+
+a#edit-cancel,a#edit-actions-cancel {
+  padding: 6px 10px;
+  text-decoration: none;
+  border-radius: 0;
+  border: none;
+}
+
+#edit-cancel:hover,
+#edit-actions-cancel:hover,
+input#edit-buttons-revert:hover,
+#media-browser-page a.button-no:hover,
+.field-widget-inline-entity-form input[id*="cancel"]:hover {
+  background: #ef6114;
+  text-decoration: none;
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+#edit-cancel:active,
+#edit-actions-cancel:active,
+input#edit-buttons-revert:active,
+.field-widget-inline-entity-form input[id*="cancel"]:active {
+  border-radius: 0;
+  border: none;
+  color: #fff;
+}
+
+#edit-cancel:focus,
+#edit-actions-cancel:focus,
+input#edit-buttons-revert:focus,
+.field-widget-inline-entity-form input[id*="cancel"]:focus {
+  outline: 3px solid #FFE8D2;
+}
+
+html body input.disabled,
+html body input.disabled:hover,
+html body input.disabled:active,
+html body input.disabled:focus {
+  background-color: #A0A0A0;
+  color: #CCCCCC;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+input[type="submit"]:disabled {
+  background: repeating-linear-gradient(
+    -45deg,
+    #FFFFFF,
+    #D2D2D2 4px
+  ) !important;
+  color: #6B6B6B !important;
+  cursor: not-allowed !important;
+  outline: none !important;
+  opacity: 0.665 !important;
+  text-shadow: 1px 1px 0px #fff !important;
+}
+
+/* END Buttons */
+
+strong {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: bold !important;
+}
+
+/* Omega Fieldset fix */
+body.page-admin-appearance-settings-omega fieldset {
+  border: solid 1px #ddd !important;
+  border-top: 3px solid #0074BD !important;
+  padding: 12px !important;
+  margin: 18px 0 !important;
+}
+
+div.breadcrumb a {
+  transition: all, 0.3s;
+}
+
+ul.action-links a {
+  padding: 0px 20px;
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  background: #fff;
+  line-height: 30px;
+  border: 2px solid #0074BD;
+  margin: 5px auto;
+  border-radius: 100px;
+  display: block;
+  transition: all, 0.3s;
+}
+
+body.no-rounded-buttons ul.action-links a {
+  border-radius: 0;
+}
+
+ul.action-links a:hover {
+  text-decoration: none;
+  background: #0074BD;
+  color: #fff;
+}
+
+#admin-menu {
+  box-shadow: none;
+  background: #2B2B2B;
+}
+
+#admin-menu .dropdown .admin-menu-toolbar-category > a.active-trail {
+  background: #0074BD;
+}
+
+.overlay #overlay-close,
+.overlay #overlay-close:hover {
+  height: 44px;
+  background-position-y: 10px;
+  left: -36px;
+}
+
+.overlay #overlay-tabs {
+  right: 2px;
+}
+
+body.sticky-actions .form-actions.form-wrapper {
+  box-shadow: -20px 2px 40px rgba(0,0,0,0.4);
+}
+
+body.sticky-actions .ajax-new-content .form-actions.form-wrapper {
+  box-shadow: none;
+}
+
+.adminimal-skin-dark #branding {
+  background-color: #252525;
+}
+
+.adminimal-skin-dark ul.primary {
+  background: #252525;
+}
+
+.adminimal-skin-dark ul.primary li.active a,
+.adminimal-skin-dark ul.primary li.active a.active,
+.adminimal-skin-dark ul.primary li.active a:active,
+.adminimal-skin-dark ul.primary li.active a:visited {
+  background-color: #303030;
+  border: 0 none;
+  margin-top: 0;
+  color: #FFF;
+  box-shadow: none;
+}
+
+.adminimal-skin-dark ul.primary li a:hover {
+  color: #FFF;
+}
+
+.adminimal-skin-dark #page {
+  background: #303030;
+  color: #C1C1C1;
+}
+
+.adminimal-skin-dark ul.action-links a {
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  background: #1976D2;
+  border: none;
+  color: #fff;
+}
+
+.adminimal-skin-dark ul.action-links a:hover {
+  background: #2196F3;
+}
+
+.adminimal-skin-dark fieldset {
+  box-shadow: none;
+  border: 1px solid #424242;
+}
+
+.adminimal-skin-dark fieldset legend {
+  background: transparent;
+}
+
+body.adminimal-menu.adminimal-skin-dark div#admin-menu {
+  border-bottom: 1px solid #202020;
+}
+
+.adminimal-skin-dark a {
+  color: #fff;
+}
+
+.adminimal-skin-dark a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.adminimal-skin-dark dl dd,
+.adminimal-skin-dark dl dl {
+  color: #969696;
+}
+
+html,
+body.adminimal-skin-dark {
+  height: 100%;
+  background: #303030;
+}
+
+.adminimal-skin-dark table th {
+  background: none repeat scroll 0 0 #292929;
+  color: #B9B9B9;
+}
+
+.adminimal-skin-dark tr.even,
+.adminimal-skin-dark tr.odd {
+  background: #303030;
+  border: none;
+}
+
+.adminimal-skin-dark table td {
+  color: #afafaf;
+}
+
+.adminimal-skin-dark table th.active {
+  background: #424242;
+  color: #fff;
+}
+
+.adminimal-theme.adminimal-skin-dark tr.even:hover,
+.adminimal-theme.adminimal-skin-dark tr.odd:hover {
+  background: #424242;
+}
+
+.adminimal-skin-dark input.form-autocomplete,
+.adminimal-skin-dark select.form-select {
+  background-color: #353535;
+  border: 1px solid #4A4A4A;
+  color: #A0A0A0;
+}
+
+.adminimal-skin-dark table tr.selected td.active,
+.adminimal-skin-dark table tr.selected td {
+  border: none;
+  background: #424242;
+}
+
+.adminimal-skin-dark .exposed-filters .form-item label {
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.adminimal-skin-dark #module-filter-tabs ul {
+  background-color: #292929;
+  border: 1px solid #292929;
+}
+
+.adminimal-skin-dark #module-filter-tabs li.selected a,
+.adminimal-skin-dark #module-filter-tabs li.selected a:hover,
+.adminimal-skin-dark #module-filter-tabs li.selected a:focus,
+.adminimal-skin-dark #module-filter-tabs li.selected a:active {
+  background-color: #303030;
+  color: #fff;
+}
+
+html.js .adminimal-skin-dark #module-filter-modules {
+  border: 1px solid #292929;
+}
+
+.adminimal-skin-dark #module-filter-tabs li a {
+  background-color: #292929;
+  color: #A0A0A0;
+}
+
+.adminimal-skin-dark #module-filter-tabs li a:hover,
+.adminimal-skin-dark #module-filter-tabs li a:focus {
+  background-color: #292929;
+  color: #fff;
+}
+
+.adminimal-skin-dark #module-filter-tabs li {
+  background-color: #292929;
+  border-top: none;
+}
+
+html.js .adminimal-skin-dark .toggle-enable {
+  border: 1px solid #555;
+}
+
+html.js .adminimal-skin-dark .toggle-enable div {
+  background: #292929;
+}
+
+.adminimal-skin-dark input#edit-module-filter-name {
+  border-bottom: 3px solid #404040;
+  color: #fff;
+}
+
+.adminimal-skin-dark input#edit-module-filter-name:focus {
+  border-bottom: 3px solid #D4D4D4;
+}
+
+body.adminimal-skin-dark div.warning {
+  color: #C1C1C1;
+  border-top: 1px solid #F57C00;
+  border-bottom: 1px solid #F57C00;
+}
+
+body.adminimal-skin-dark div.warning a {
+  color: #fff;
+}
+
+body.adminimal-skin-dark div.error {
+  color: #C1C1C1;
+  border-top: 1px solid #D32F2F;
+  border-bottom: 1px solid #D32F2F;
+}
+
+body.adminimal-skin-dark div.error a {
+  color: #fff;
+}
+
+body.adminimal-skin-dark div.status {
+  color: #C1C1C1;
+  border-top: 1px solid #388E3C;
+  border-bottom: 1px solid #388E3C;
+}
+
+body.adminimal-skin-dark div.status a {
+  color: #fff;
+}
+
+body.adminimal-skin-dark .ctools-button-processed {
+  border-color: #404040;
+  background: #303030;
+}
+
+body.adminimal-skin-dark .ctools-dropbutton-processed .ctools-link {
+  border-left: none;
+}
+
+.adminimal-skin-dark .ctools-dropbutton-processed .ctools-content {
+  border-right: 1px solid #404040;
+}
+
+.adminimal-skin-dark .ctools-dropbutton-processed.open:hover {
+  border-color: #404040;
+}
+
+.adminimal-skin-dark .ctools-dropbutton-processed.open li + li {
+  border-color: #404040;
+}
+
+.adminimal-skin-dark #module-filter-modules table tr.enabling {
+  background-color: #2F3E30;
+}
+
+.adminimal-skin-dark #module-filter-modules table tr.disabling {
+  background-color: #3E2F2F;
+}
+
+.adminimal-skin-dark #module-filter-tabs li.disabled,
+.adminimal-skin-dark #module-filter-tabs li#new-tab.disabled {
+  border-top-color: #303030;
+  border-bottom-color: #303030;
+}
+
+html.js .adminimal-skin-dark #module-filter-submit.fixed {
+  border-top: 1px solid #292929;
+}
+
+html.js .adminimal-skin-dark #module-filter-submit {
+  background-color: #292929;
+  border: 1px solid #292929;
+}
+
+.adminimal-skin-dark input.form-autocomplete,
+.adminimal-skin-dark input.form-text,
+.adminimal-skin-dark input.form-file,
+.adminimal-skin-dark textarea.form-textarea,
+.adminimal-skin-dark select.form-select {
+  background-color: #353535;
+  border-color: #4A4A4A;
+  color: #A0A0A0;
+}
+
+.adminimal-skin-dark input.form-text:focus,
+.adminimal-skin-dark input.form-file:focus,
+.adminimal-skin-dark textarea.form-textarea:focus,
+.adminimal-skin-dark select.form-select:focus {
+  color: #fff;
+  border-color: #fff;
+}
+
+.adminimal-skin-dark input.form-text:focus,
+.adminimal-skin-dark input.form-file:focus,
+.adminimal-skin-dark textarea.form-textarea:focus,
+.adminimal-skin-dark select.form-select:focus {
+  outline-color: transparent;
+}
+
+.adminimal-skin-dark .resizable-textarea .grippie {
+  border: 1px solid #4A4A4A;
+  background-color: #4A4A4A;
+}
+
+.adminimal-skin-dark div.krumo-root {
+  border: none;
+}
+
+.adminimal-skin-dark ul.krumo-first {
+  border: solid 1px #4A4A4A;
+}
+
+.adminimal-skin-dark li.krumo-footnote {
+  background: #303030;
+  margin: 0;
+  border-top: none;
+}
+
+.adminimal-skin-dark div.krumo-element {
+  border: none;
+}
+
+.adminimal-skin-dark a.krumo-name {
+  color: #fff;
+}
+
+.adminimal-skin-dark .krumo-nest {
+  background: #303030;
+}
+
+.adminimal-skin-dark div.krumo-preview {
+  background: #303030;
+}
+
+.adminimal-skin-dark div.krumo-element {
+  background: #303030;
+}
+
+.adminimal-skin-dark div.krumo-hover {
+  background: #303030;
+}
+
+.adminimal-skin-dark div.krumo-element.krumo-expand {
+  background: #252525;
+}
+
+.adminimal-skin-dark div.krumo-expand:hover {
+  background: #4A4A4A;
+}
+
+.adminimal-skin-dark div.vertical-tabs {
+  background: #2D2D2D;
+  border: none;
+}
+
+.adminimal-skin-dark div.vertical-tabs ul li.selected a,
+.adminimal-skin-dark div.vertical-tabs ul li.selected a:hover,
+.adminimal-skin-dark div.vertical-tabs ul li.selected a:focus,
+.adminimal-skin-dark div.vertical-tabs ul li.selected a:active {
+  background: none repeat scroll 0 0 #2D2D2D;
+}
+
+.adminimal-skin-dark div.vertical-tabs ul li.vertical-tab-button a {
+  background: #252525;
+  border: none;
+}
+
+.adminimal-skin-dark div.vertical-tabs ul li.vertical-tab-button a:hover {
+  background-color: #1F1F1F;
+}
+
+.adminimal-skin-dark div.vertical-tabs ul li.selected a {
+  margin-left: 3px;
+  box-shadow: -3px 0px 0px #0074BD;
+  background: #2D2D2D;
+}
+
+.adminimal-skin-dark div.vertical-tabs ul li.selected a:hover {
+  background: #2D2D2D;
+}
+
+.adminimal-skin-dark div.vertical-tabs .vertical-tabs-list {
+  border: none;
+}
+
+.adminimal-skin-dark ul.secondary {
+  background-color: #303030;
+}
+
+.adminimal-skin-dark ul.primary li.active a.active:after {
+  background: #303030;
+}
+
+body.adminimal-theme.adminimal-skin-dark ul.secondary li a {
+  text-decoration: none;
+}
+
+body.adminimal-theme.adminimal-skin-dark ul.secondary li a:hover {
+  text-decoration: none;
+  color: #fff;
+}
+
+body.adminimal-theme.adminimal-skin-dark ul.secondary li.active a,
+.adminimal-skin-dark ul.secondary li.active a.active {
+  color: #FFF;
+  border-bottom: 1px solid #FFFFFF;
+}
+
+body.adminimal-theme.adminimal-skin-dark ul.secondary li a {
+  border-bottom: 1px solid #252525;
+}
+
+.adminimal-skin-dark ul.tips, div.description,
+.adminimal-skin-dark .form-item div.description {
+  color: #8C8C8C;
+}
+
+.adminimal-skin-dark table.system-status-report tr.info {
+  color: #040f37;
+  background-color: #303030;
+}
+
+.adminimal-skin-dark table.system-status-report tr.ok {
+  color: #040f37;
+  background-color: #303030;
+}
+
+.adminimal-theme.adminimal-skin-dark table tr.error {
+  color: #F44336;
+  background-color: #252525;
+  border-left: 3px solid #D32F2F;
+}
+
+.adminimal-theme.adminimal-skin-dark table tr.error td {
+ color: #F44336;
+}
+
+.adminimal-skin-dark table.system-status-report .status-icon > div {
+  visibility: hidden;
+}
+
+.adminimal-skin-dark table.system-status-report tr.warning {
+  color: #840;
+  background-color: #272727;
+  border-left: 3px solid #FF9800;
+}
+
+body.page-admin-appearance.adminimal-skin-dark fieldset legend {
+  background: transparent !important;
+}
+
+body.page-admin-appearance.adminimal-skin-dark fieldset fieldset {
+  background-color: transparent !important;
+}
+
+body.adminimal-theme.adminimal-skin-dark div.admin-panel {
+  background-color: #3c3c3c;
+}
+
+.adminimal-skin-dark tr.dblog-notice {
+  background: #303030;
+  border: none;
+}
+
+.adminimal-skin-dark tr.dblog-access-denied .active,
+.adminimal-skin-dark tr.dblog-access-denied .active,
+.adminimal-skin-dark tr.dblog-user .active,
+.adminimal-skin-dark tr.dblog-error .active,
+.adminimal-skin-dark tr.dblog-page-not-found .active,
+.adminimal-skin-dark tr.dblog-access-denied .active {
+  background: transparent;
+}
+
+.adminimal-theme.adminimal-skin-dark tr.dblog-error,
+.adminimal-theme.adminimal-skin-dark tr.dblog-error:hover {
+  background: #D32F2F;
+}
+
+.adminimal-theme.adminimal-skin-dark tr.dblog-error td {
+  color: #fff;
+}
+
+.adminimal-skin-dark table#admin-dblog tr.dblog-error td.icon,
+.adminimal-skin-dark table#admin-dblog tr.dblog-critical td.icon,
+.adminimal-skin-dark table#admin-dblog tr.dblog-alert td.icon,
+.adminimal-skin-dark table#admin-dblog tr.dblog-emerg td.icon {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAE+ElEQVR4Xu2ai3EUNhCGdytIqCChgpAKAhUkVABUAKkgoQKcCgIVBCoAVwBUAKkgoYLNfBfJI4Qeq4d9eHya8XjGvlvt/vr3oV2p3PClN9x+OQFwYsANR+DkApdBADP7XlU/7pRtZndV9c1OmcjazgAzeygif4rII1V9vkPhROZzVX20Q2aUsRWARNEofxmEgsytIGwDANqLyIfC6UyDUDA+ir+3yx22AYBmDYUPIJjZTyLyi4jcEZFvw2+++k5E/g2/X6rqeU/WLjfYCkAHBAzEaM+qfXaaTbVNtwPQAcFjfO0z242/lCwQAOCk34oIcWHHIqX+qKowY+vazgAzw/jXiX/nCr8QkZf4fAxk5PjgHsSHBxULiRMEv60gbAWgY/xTETnrGRBkPBGR3wpAbAdhNwCcPKeZrvci8lBVUd69zIxMAVO+y75ElrjvFtT54DYAzOz3wqmdk/Z6p17TMbABEEif6Xqqquy3vLYAEE6LoJefPPX7ks8GELgD/JDJv73jvrELgJz6GI2CS8ZHgwMIVJlpHfFGVe+tUsANQIjUUPGP1LDwdwDIF8ZzGXox6v+J4cQBsgIXrFIR9VlJHIB6LCLn3lJ5BIB4yhh2FoEws1LgK4EBjQmE8Ur7PgIZFI8UJ4hieEyNrUM+sCAxnOwBUG52uAConDJAEKA4nWMuWEb9kDPEdWHyAoChPzusJOpzwoCSpy/H15sf+Tu4FMzIs0Lpi69UFWCaywsA6EIvfr5pSLyvqoDFzZDN+UHhWTAwGkDJ/ancvxo6fAou2i26kOECIIvGNSA+qWrxthd6BQDB3SAWSvkpwh4WBlP748fFtpqZ4X75QQwZHm0aAiADAt9L3cJFuUSGpaeoqm5dzCx3yVeh2hxOu+5Nc8oVKr+h6szMVgDIq86hvT8Dvhckav83M6ia0tgVdTcxADdKaw/yfn4HcZm2woAcgKHSdJEBef/xKABMUzhkiaN+fykIfg0GrDBoVww46gl+dQCIyK2R29+KAaH2/2c2jQ4xIFe0EVqPmQWqavXqi24WOAGQFSwNBgwVI4suUGq/FVW7SgYM5eJFAPIa5PJcoFEJ5sUIff5brvLr/9vidBYxMwJgevEaKsKGgmDLIDOjw5M2K93jq1kACkNTOkt0kKZWNwh2AKA1Rg8uLveNcAGA/CZIj5Ir+tRaBQDk83a4i44zAFTeIDAzHBq6bHOBUBLnAcnVkJwEIG/ADgXeEkWWGBAAiG+CUvndomgUgEpj1h1zav6xBECYCPEgKg9C3cHICACVwQg2QX1AuHoXCNH4WePVR3OS6wXAMW4H7F9nX6QNMyAohOGeeQDxgU7xF706DwBhLzrAnm4PPUqAGOoLDgHQoDx0pDHJyucHRZr2AGjsVdtnyiXcAITTwJhSjx/kzxqTXJSjfr+YK9YASMZcpfE3bw0OE2czI/fDxHwxS7jjZYIbgErE/+LxQweEOE7DNfJXpLgUVC+Nudj+wvhoceURxVBmGAIggIDiTGx56/Ok4t/U6VSJtfc+o1Wbdy8m0Z7YdLH/DAAYBw0Po6rWCpkCIFrjtJYIpj08r/HsBXMowi4vCPYMLv0/efTUmyumX58ac83oN8yAmU0Sn43DUgqn0mzw8H7Ac+IreqTfvVIAdim9U84JgJ1oXkdZJwZcx1PbqfOJATvRvI6yTgy4jqe2U+cbz4D/AME4iV+fZezPAAAAAElFTkSuQmCC);
+  background-size: 32px;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+}
+
+/*.adminimal-skin-dark table#admin-dblog tr.dblog-warning {
+  border: 1px solid #2b2b2b;
+}*/
+
+.adminimal-skin-dark table#admin-dblog tr.dblog-warning td.icon {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAADrUlEQVR4Xu2a/XEUMQzF9SqADkgqIKkAUgGkAkgFQAVABUAFQAUJFRAqIFRA6AAqeIxufBnHZ+36e2/m1n8l97G2fpb1JOsgBz5w4PbLCmD1gAMnsB6BJR2A5EOdH8DfpdaxqAeQ/OIAvDw4ACSfish3Z/gZgOslICzmASTVeIWg4xrA2cEAIKku/zkw+ALA5kiMHMM9wAW+nyJyFBh6KyKnowPiEgDeichbY5ffA9D3h42hAEjqrv+ese4YgHrDkDEawKWIPPcs++f+fuC9dgXgfIj1moOMmiiQve20F+6PMCAOk8WRADTwnXjAfwHY/E/yRkQee+/dADgdsTlDABiyd7fLlneMkMXuAJzsaeDb5P1ufAVwL/0leSUiz7zPaH2gAbFrnTACwEcReRUEvpMw0juF0KPgB8RPAF73PApdARiyZ2o9yViO0FUWewPw833dyD8aCC23dsdFveCRt+td64RuAEoD21zAbH0cegLQwOfn+z8AbKu/STtIamn8xPvQLYDj1sbr87oAMM5ycnJjeM8bABpQm47mAFJlb84Kd1v0orcs9gCgNb2/cM33j3L13IHUosiXxZ38YQ7k3PtNAZDU1FZTXn8Ul7jGUdI7A1WKJqM1gB3ZAxBefGwWTpK+BQCiayGpXtBNFpsBIKllrpa7/jgHoCnuzsgAkPXcXLdoAsC45pqUvVQAzlt2ZLHV9VkrALEUdvKsZgJoGlvuHb1clwk/7/J9DXx+tTdbxOQAcF4QFlVaJSrkquuzag+I6HWS7BUAUMDNZbEKQE3GlgvAeYGWxh8CL0zOMGPeXgsgWfYiRydJBiPfayqLxQBqq7YSD3Be4PcUt3yKu0pFAIx8P7nay0mEjBwilMXi67NSANU3N6Ue4ODFGixFKXc2gNxrLktmawAYsqgvZ1+flQCIdXeyq70G+UdMFrO7SlkASq+5ao2d8KJYmz1LFnMBhNdcd92dXCNrj8B2vtquUjIAkk2TkIYAYrKYfH2WBMCQvW8A/E5vlhO0AuACYnFXKRVAWIgURVyfUGMAMVmcLch0PbMAWslelnsUfLi0q5QCIKu7U7D2Jl8p7SpNAjCuuYrz7iaWTjzEqE/Ma7nZI0CyuLvT29iJ3CCrq2R6gHGmlrKrdl6zTrCuojXNDH/UULuIJb9vVosWgLC7s+TiW80d7SrtAEj8LV+rRY1+zk61OCuDo1c4er4VwGji+zbf6gH7tiOj17N6wGji+zbf6gH7tiOj13PwHvAffTboUCaEWC0AAAAASUVORK5CYII=);
+  background-size: 32px;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-color: #2b2b2b;
+}
+
+.adminimal-skin-dark table#admin-dblog tr.dblog-info td.icon {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAEmUlEQVR4Xu1bjVEVQQxOKtAO1AqECoQKlAqECoQKxArECoQKhAqECoQKhA6ggjif5pwYb3/uNns8fS8zN28e3O1tviRfspt9TGsuvOb60waAjQesOQKbEFjCAUTkORG9IqItvfAdl5VbIsJ1rdcVM+N7V+nmASICZd8S0ZsRZWuVAgDnRHTGzAAmXMIBEJEdInpPRPiMlEsi+sDM+AyTMADU4h87KO6VBQBHUR4RAoCIQPHDjFkeiAgThxvj894roAA+VQARPq8LZj5h5qNWV2gCQMntixLb2FwuiOiUmRHHk0VE9pVDUmAA0L0WspwNgFrsKxHBal6g+GHLxOyACvRJwivuiWh3bkjMAkCJDpb3yt8R0X40UQ1g6HtPieiZQ3w2CJMByFj+TK2OyXQTEQHo8AakWCuzQJgEgLritxHLHzAzLLOYiAhIF+TrQdieEnpTAYDyYGgriytvQgIk+dnN55qZt2stUQ2AiMDt3q2K8gaEMU/4xMy5tPxbjSoANO5hfSsoT2GBRxcRQfh5TkAoFMvnWgCQ7mxpC7bfYuauhFeLrBIjlLXZ4ZKZd0tjFAHQ1AMArCDvNtXkIiJ2QGYuziWnzNx5Fl8qIt76Ia4fDQDAERFUnLZqLHpBFoBE7L+YkmZSVusEAPYYvrt3ZrmgBIBn/gtmxvq+WXoAkPCCbEYoAQA07c4NFh6zFjbNiFUOoAsoWxvcMvOL1ONJALTqs+70wMxjC5/KqS13m/cuIkqGbQ4AX2WFuX9vKEQEGQp7kIMkq9UcAD7+sR113HvyEeOLCOaJbblBkjyQA8Cj2Jz7rXK9SFCJEEWbrV2wwzy6R5kDwBNgVWlZa8HOAGDBZkv3JBHmAAit1DwwPQFQL6ia/waAJSu1pThg4wG/1gXNIYC2lF1e/sskeMfMvhf50yE3aTDDAV0LoVoXrU2rjl9CCqGupXBnAEJK4b/W1q27NktlgZDFkKYST4RhW+C9PGBkOZwkwCwJKgBrvyHia2rgsj5bYuoFnlDOmXlvDjv35gARQcPWbtklV4HDXGp2hf3SEs82L42jOaDbtnjCC0COqAxXqTGC5a+t9orWL5Lg4CaJ7XGc/DhoDYWI50UEm6C+TVdVuhdDwIAw1hzFYSX8/dEk0SaPbY4aENB/e+m0DasNpqI4kvMxxA0z+xZ+cuhqD1AuQIwBhCePDYKIoFXvvQ+n0dC0rT5hOgkABQHoIjV6ENCiRkh0JUbtBONkiI95KL9T0xK3xpsMQAEEII+QaOocp/xVUx0Iz6/tZylfnQXGJqSZYcwTcDvaZ/CGalfMxb92qWD1sb7kbOWbADCcAGU9MQ764H+oHHGCbLKIyHDYOtWQvQEoLUDPCgGvSeL8kL8NYAxHZdFn/OP4inoUeAWV53DlQKtOdblBQgAwvABWtj25yVaveOBKzyMWz/9UjBX/oyklKmxJRQMBxY+jCTbMA0bCAulyOOzsj7bWGAf34DAWQgdld4jF/Yu7AWBfpCyOuLY/mfGgQFn7kxmc7wnJIotwQK1JV+2+RTxg1ZRurgRXWaGpc9t4wFTE/rf7194DfgBfdlJfRZMO/QAAAABJRU5ErkJggg==);
+  background-size: 32px;
+  opacity: 0.1;
+}
+
+.adminimal-skin-dark table#admin-dblog tr.dblog-debug td.icon {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABbklEQVR4Xu2aURLCMAhE4SYeTU+mN9Ob4DijM9pRkRKzpFm/JS2PXUrSqkz+08nzFwKgAiYnQAtMLgA2QVqAFnAImJmNDElVv6rctQABUAG0wEsP8DyF7hdLy3r3G+4B3oIEACZABSyatqfYsAXABQ5fngA4CHESbDsKe54Km7RxAJ8C/34KUAFOV22s6PBytEAVC5jZTlUv4RImA0oowMz2InIUkYOqnpI5hcLhAJ6Sf9x4VwhQADfZi8j5Tcm6QYACuCX+RgFdlQAHgIZQAgASQhkAKAilACAgEECVSRBR/fs1Q8f44TPBX3eDqMdhCQugki+hgGjy0ZevngKhClgzCm8KwIfG93UfsDkACwjuJmiTAO4Q5j0QCZ1gNP4ztAk2zmXVcgRQaRReVcJkEBXwbwUkC9Q93Jscw5uh7hkkL0gA/EAi+YFEUoHlw90eUD6D5A0SQBLg8OFUwPAlTCZABSQBDh9OBQxfwmQCVwPZmFAfyJEWAAAAAElFTkSuQmCC);
+  background-size: 32px;
+  background-color: #2b2b2b;
+}
+
+.adminimal-skin-dark table#admin-dblog tr.dblog-notice td.icon {
+  background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAADrUlEQVR4Xu2a/XEUMQzF9SqADkgqIKkAUgGkAkgFQAVABUAFQAUJFRAqIFRA6AAqeIxufBnHZ+36e2/m1n8l97G2fpb1JOsgBz5w4PbLCmD1gAMnsB6BJR2A5EOdH8DfpdaxqAeQ/OIAvDw4ACSfish3Z/gZgOslICzmASTVeIWg4xrA2cEAIKku/zkw+ALA5kiMHMM9wAW+nyJyFBh6KyKnowPiEgDeichbY5ffA9D3h42hAEjqrv+ese4YgHrDkDEawKWIPPcs++f+fuC9dgXgfIj1moOMmiiQve20F+6PMCAOk8WRADTwnXjAfwHY/E/yRkQee+/dADgdsTlDABiyd7fLlneMkMXuAJzsaeDb5P1ufAVwL/0leSUiz7zPaH2gAbFrnTACwEcReRUEvpMw0juF0KPgB8RPAF73PApdARiyZ2o9yViO0FUWewPw833dyD8aCC23dsdFveCRt+td64RuAEoD21zAbH0cegLQwOfn+z8AbKu/STtIamn8xPvQLYDj1sbr87oAMM5ycnJjeM8bABpQm47mAFJlb84Kd1v0orcs9gCgNb2/cM33j3L13IHUosiXxZ38YQ7k3PtNAZDU1FZTXn8Ul7jGUdI7A1WKJqM1gB3ZAxBefGwWTpK+BQCiayGpXtBNFpsBIKllrpa7/jgHoCnuzsgAkPXcXLdoAsC45pqUvVQAzlt2ZLHV9VkrALEUdvKsZgJoGlvuHb1clwk/7/J9DXx+tTdbxOQAcF4QFlVaJSrkquuzag+I6HWS7BUAUMDNZbEKQE3GlgvAeYGWxh8CL0zOMGPeXgsgWfYiRydJBiPfayqLxQBqq7YSD3Be4PcUt3yKu0pFAIx8P7nay0mEjBwilMXi67NSANU3N6Ue4ODFGixFKXc2gNxrLktmawAYsqgvZ1+flQCIdXeyq70G+UdMFrO7SlkASq+5ao2d8KJYmz1LFnMBhNdcd92dXCNrj8B2vtquUjIAkk2TkIYAYrKYfH2WBMCQvW8A/E5vlhO0AuACYnFXKRVAWIgURVyfUGMAMVmcLch0PbMAWslelnsUfLi0q5QCIKu7U7D2Jl8p7SpNAjCuuYrz7iaWTjzEqE/Ma7nZI0CyuLvT29iJ3CCrq2R6gHGmlrKrdl6zTrCuojXNDH/UULuIJb9vVosWgLC7s+TiW80d7SrtAEj8LV+rRY1+zk61OCuDo1c4er4VwGji+zbf6gH7tiOj17N6wGji+zbf6gH7tiOj13PwHvAffTboUCaEWC0AAAAASUVORK5CYII=);
+  background-size: 32px;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  opacity: 0.1;
+}
+
+.adminimal-theme.adminimal-skin-dark tr.dblog-error,
+.adminimal-theme.adminimal-skin-dark tr.dblog-error:hover {
+  background: #292929;
+}
+
+.adminimal-skin-dark table#admin-dblog tr.dblog-error td.icon {
+  background-color: #E53936;
+}
+
+.adminimal-skin-dark table#admin-dblog tr.dblog-critical td.icon {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAEwElEQVRoQ+1Zy3HbSBB9DVftHs2NwAATWG0EpiIwdTDpm6QITEdgbwRLRSDqZtAH0RGIisBkAgQ2gqWPYpXRrhkMgBnMgAD4sVcu8YjPoF/3698j4ZH/6JHbjycAPzuCTxH4ZSLAb3wfCV4CXh/EHTA6IDqRAJkXIKzBtAaSGTzc08c4PgT4vSnEA/8coFFubFOrBCjwmKbxTdNXXM85AfAbvwf2zilcXVYdnj5D1wD5+xggo+PxO/oYzyu/NQgm8HjiesYCwH2/g98oAlEHwMQFgofdawAX9gf5M0BzULLAN6zpU7yQDHrtn+AZOmDvBOAeQK8cxrq/JYwnOgfzGhsOaBav9XdtAINgDqKX2kP5wRLc73QLUC+/z/gKYIxNMi4fXulR6SRvBGAEwvPiOZ7jgc+yczgzvvjYnMLotBIAD7ofQHhf+vA7CldjFZk7g+vMN9jwqKnhZUDKIRMjIoJSGz4VZzrtYfxN09WH7Kw8AiXqpPeZ72kaSW/zMLgzPA9IYHvxX73Mw66Ixj96JDJPc5kRJSoVAMreF9TYJL70RJnzSXJJn+LJNuN5GCwA+jMrozSN/tr6/Gv/Ap4nciv7SeqmjvVig2paFCQAt/fTUKmKdKcd3MjzPOyywdVwVVuyrUhQcioqj0UlLQopgHIIDe8HUV4qmW9oGjmqj6Me7QBAUXWW5wTzQkTOGQVFYQUgKF6Spyjv62HVQDXh/S4RKNigUUbR1U5o/kxh1M8iYIQblASi1fMg+FKMA2b214HYFYAEoedjFgUxqrAXlWlJPPD7IO9WqwD/Uhj5crbRX3hI/mhTLvcCIPuN919uU+bQYRAD9CK/zskZ8bArSuFbDdkVhasRG1UhDVed1/X7+wCwciGjUdlWQXW7ziZnNI1nPDTyolHlOSwAvTekDrTYIvqUBSAvXdpIoa790AikA2VavlVDtUq6BFDmVcG3onyqaz8UgBgAPe+L3gjlUJhdS4EtRA44G45+nRo0oTK4fXNA9afctswG69xfAECpNLlK1s+mEHhJYXRiUUhcf/xJbI2rhyqj2jSqPNiyCGgj9rYyeqRG1sZY17NGH9reyKxRIqYwCvYdJfYBkG5qDUeJcrmSHy4SWVtK2g5z7RYao4sby5VK4Kphzpo7KsdptypQ5eld+4C1XDUcp82dVNt4zNUQM5quzprQY2cAg+4tCGpwVN43pZ7s83I+01ZK9965+0rZvgpZS0vlSlns61uW+oIylj7TYKlvEiWD9+WlXq2v2/Z1ma7ZIe69k3MhyWp4SEYUxldtDXWWzEH3PQi51mPIOVafKrxvAJC56xK2sv04VeXmuVSSJvsMm+SyzaZmeD2VTK4LzstDl3jgXmthK4+ELSTlSoQK58yQHkXCg4S0eNUUiIr2W4CFqi002PTHfI8N9yulRU1oy16pEHdVQlfIKLZmmRmAGSiZI4EQdb8a4i7wHB5OwF7P9HhuvFOyyb9VoYpUy+sJXWzTgJS8PjYotVNC8BLEo4PJ621tSJd/GrUHwkskPK6TKOvsqZX76g7I6Sta/Tf04FE//XsJnQIUL8FYy7+ZEp7hGeb/m7+YmgI81nMHi8CxDKw79wlAnYeOff8pAsf2cN353wFPwcYo85cIagAAAABJRU5ErkJggg==);
+}
+
+.adminimal-theme.adminimal-skin-dark tr.dblog-critical,
+.adminimal-theme.adminimal-skin-dark tr.dblog-critical:hover {
+  background: #FFF59D;
+}
+
+.adminimal-theme.adminimal-skin-dark tr.dblog-critical td,
+.adminimal-skin-dark tr.dblog-critical td a {
+  color: #F44336;
+  font-weight: bold;
+}
+
+.adminimal-theme.adminimal-skin-dark tr.dblog-alert,
+.adminimal-theme.adminimal-skin-dark tr.dblog-alert:hover {
+  background: #D32F2F;
+}
+
+.adminimal-theme.adminimal-skin-dark tr.dblog-alert td,
+.adminimal-theme.adminimal-skin-dark tr.dblog-alert td a {
+  color: #fff;
+}
+
+.adminimal-skin-dark table#admin-dblog tr.dblog-alert td.icon {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAEdklEQVR4Xu1ai3EVMQyUKgAqACogVACpAKgAqIBQAaECQgUkFZBUQFIBpAKSCkgqELODzPg5vrPkz+XNvNPMDRPefaz1aiXZZtpx4x33n1YAVgbsOAJrCOw4AVYRXCwEROQhEb0gotdE9ISI8PeeMvAXEd0Q0RURnTLz2VLMHA6AiMDZT0T0zunUMRF9ZmaAMsyGAaCOf9EZb3HglIg+jgKiOwANM14CaQgjugEgIojnDwWqXyPG9boKs6qgIVSgD7gez6ABIL4yM3Sj2aoAUEF7pkL2kohwBUHLDeqCiA6Z+dwyYhEBCAcqmlOPAAC8DxcE9JKZ8a/LzACIiLje/O9mzPgBM2PW3aZAHBUYkX0vM5t8M92ELzgBuCSiI2YGXZtNRJBBwAiwzmT3AQCcBh2Pe8Vn6qnqDMBAyM2CsQQAKFZCHP4XNNP0dLgpEs6gP6/i1y4BwL5V1HL+piFlHfDEuwDCj+i3W2ZGpVk0jwaA3ihlg20zABfMDFCKtgJQhEhvEJGUAe9bVL5zCCBDoOwONoQBSGlvo4+gUTm0AphR9I26olEDMA40XMFOmNnUfHlCIP0IylEgX2WdGYBiCWV4MPPkeAAAot9qaJZDqDMA1eHpASBNNTfM/Khq+jOVZWMI/NG+xJ2hPACgW/sdO9w46J4akPYpT63rB2YA4LiIYHUmblWra4FeISAiKTOvmRmTZTIvAOjq4pLTLDajsoCIpOJ8xsxop03mBaA63w4EIBVALJ8hK5jMC0BKN6rVgY4hkMa/KyxdAKgOYNXlQQTvm5oFjx4A6ILJ92gs5iYoPFMDQFoRmquumJOdAGgeSw0AEJgY9ap6oBMAaf53s9ENQK8waAUgQ/8qPaoFIKXeOTPvm2RXb+oAABZA4p6/KhRrAbiTDYjIXH15gJroI+5UpUTkUv9qEQwPZtYHqmagBgwRSRmIPYG5fYnJz1QxQHUg7Q7x38NZoIuhGz0JEVUvzlQDMNEbuLXAywARQQaKS11X7Z9+rxWANCXi/aZYrBHBTOOD71XPPh5uAkBZkNbi6Bifl/bpvADofuRPPVwRJtK89jfFtB4AQHwwsNiKy2UVAKTLXma2zYVZMwDKgrQlLVLTA0Cu6NEt8uo1yeY0mKIqItgmi/fr0DRBD5r28XU/EEVPvNODXee9UphZBLYLA5QFCAXoQdwpAgToQdU5H417OJ/meLyzCdjuDJipDTBQMMF1eGHG+SbV75oGJ8rUnFi5QJhxvnu12S0EYjAypSp+NmmCxjyKnXRhs7vzXeqAKaGZAQFrdtmTI3oSBHt86db2EOeHAqCakDYtAa+Ns3+FM4XDnB8OwEyNEEIirN4in+cONBQLKkuqG14IlQahhQzYEKfIucducd6wZrG1NJbhWWBGEyBqACE+ZZK7HWcK4XxV7bC1AISBqdCB+ikbMOs4TGne1PA6m7t/SBosDUzzPOI+1PJwGucKXcVS6TuW3+8FAMvAlrpnBWAppLf1OysDtnVmlhrXyoClkN7W7+w8A/4CzUIpX0Z6vkQAAAAASUVORK5CYII=);
+}
+
+.adminimal-theme.adminimal-skin-dark tr.dblog-emerg,
+.adminimal-theme.adminimal-skin-dark tr.dblog-emerg:hover {
+  background: #d32f2f;
+}
+
+.adminimal-theme.adminimal-skin-dark tr.dblog-emerg td,
+.adminimal-theme.adminimal-skin-dark tr.dblog-emerg td a {
+  color: #fff;
+}
+
+.adminimal-skin-dark table#admin-dblog tr.dblog-emerg td.icon {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAC2klEQVR4Xu2a4XETQQyF9SoAKgA6CBWQEqADUgF0AHQAFZAOoASogHQAVEBSgRiFM6Ns1vau9sk+xnv/PPbtSk9P3+ougZz4hRPPX6YA0wEnrsBsgRM3wITg0VpAVdW7D8BRYjnKppb4FGA6YLbAZMB/DUFVfWUJALiMzBIsCI7GEToFlk0/LYlfRERgCMCIo1uAYtNN8UMiRJyzuYcVB0sAi+tgImxJPhRDtwDLEGP9v2kBX8h0EZjJ3zIsakN2IC1xZOwZFmCLE25E5BzAlevVcxF5LSJnIvKkJVER+SkitsZHAF/dWraGfX7g1hly3ZAAhQi15K1Nbo/LgesSwMUWEYaSH2oBn9Bizaui8h+Wyg/k/u9Wc8KbQoSzyPFbBjPsgFp2qmpW/8HI3K3xFIC1BvXKEuCdiLx1kf5a2NCUgKpar38RkcdujfcAbF3qlSWAger5CKgqxP8GwIBKvbIEuPOkJyLd9q21UcZbI7oAi32/uzLdAHgYKZuqXhdH3jMP2sia6RBkWldVh1tpn0gZDiiPvzC8VLWE6Z3jcF9yLd9nCFBW7SUAI3r3paovROSzu5EOwgwBhgHoBp578wQbhFsFKF9Y3INH5T0+E4BOhCYQRuK1PdgClI/Jw5atgLDaUmsRgAZA54AShFWorkUAGgCdAE0gpAvQjey/f+76LSJ+6OmeAMt9KxPhNYBHkfhq99BOgUqg4QmwIkIJwmFhN3swBWiyaqRyrSCMrM0UoAlWkSArE2F4ukx7FsisUuZEyHQAHYA7JkIaCCkCZAJwx0RIASFLgDQAOgHoM8bOUbgHVpmQ6p0Ie+JmCpBSHZ9MFghZLZAGwGwQDgtwCABmgpAhQDoAM0HIECBtAqw8E9D36hZg32NnL4XZv+99ZTYF6K3AdEDxL669Amb/Pr0FshM49PrdDDh0gNn7TQGyFV77+tMBa69QdnzTAdkKr3396YC1Vyg7vj9EH8JQYKDAVQAAAABJRU5ErkJggg==);
+}

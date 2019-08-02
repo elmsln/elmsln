@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains views_handler_area_messages.
+ * Definition of views_handler_area_messages.
  */
 
 /**

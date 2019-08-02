@@ -14,7 +14,11 @@
  * @ingroup views_field_handlers
  */
 class views_handler_field_history_user_timestamp extends views_handler_field_node {
-  function init(&$view, &$options) {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function init(&$view, &$options) {
     parent::init($view, $options);
     global $user;
     if ($user->uid) {
@@ -26,7 +30,10 @@ class views_handler_field_history_user_timestamp extends views_handler_field_nod
     }
   }
 
-  function option_definition() {
+  /**
+   * {@inheritdoc}
+   */
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['comments'] = array('default' => FALSE, 'bool' => TRUE);
@@ -34,7 +41,10 @@ class views_handler_field_history_user_timestamp extends views_handler_field_nod
     return $options;
   }
 
-  function options_form(&$form, &$form_state) {
+  /**
+   * {@inheritdoc}
+   */
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     if (module_exists('comment')) {
       $form['comments'] = array(
@@ -46,7 +56,10 @@ class views_handler_field_history_user_timestamp extends views_handler_field_nod
     }
   }
 
-  function query() {
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {
     // Only add ourselves to the query if logged in.
     global $user;
     if (!$user->uid) {
@@ -55,7 +68,10 @@ class views_handler_field_history_user_timestamp extends views_handler_field_nod
     parent::query();
   }
 
-  function render($values) {
+  /**
+   * {@inheritdoc}
+   */
+  public function render($values) {
     // Let's default to 'read' state.
     // This code shadows node_mark, but it reads from the db directly and
     // we already have that info.
@@ -65,7 +81,7 @@ class views_handler_field_history_user_timestamp extends views_handler_field_nod
       $last_read = $this->get_value($values);
       $changed = $this->get_value($values, 'changed');
 
-      $last_comment = module_exists('comment') && !empty($this->options['comments']) ?  $this->get_value($values, 'last_comment') : 0;
+      $last_comment = module_exists('comment') && !empty($this->options['comments']) ? $this->get_value($values, 'last_comment') : 0;
 
       if (!$last_read && $changed > NODE_NEW_LIMIT) {
         $mark = MARK_NEW;
@@ -79,4 +95,5 @@ class views_handler_field_history_user_timestamp extends views_handler_field_nod
       return $this->render_link(theme('mark', array('type' => $mark)), $values);
     }
   }
+
 }

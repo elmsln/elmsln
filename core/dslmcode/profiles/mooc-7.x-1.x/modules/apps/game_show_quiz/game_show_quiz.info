@@ -1,0 +1,10 @@
+name = Game show scoreboard
+description = Single page app for collecting and visualizing game show data
+core = 7.x
+package = MOOC
+dependencies[] = features
+dependencies[] = uuid
+dependencies[] = webcomponents_app
+dependencies[] = webcomponents_app_context
+features[features_api][] = api:2
+features[user_permission][] = access game-show-scoreboard app

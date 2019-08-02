@@ -1,0 +1,149 @@
+<?php
+
+/**
+ * @file
+ * Rules Scheduler tests.
+ */
+
+/**
+ * Test cases for the Rules Scheduler module.
+ */
+class RulesSchedulerTestCase extends DrupalWebTestCase {
+
+  /**
+   * Declares test metadata.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Rules Scheduler tests',
+      'description' => 'Test scheduling components.',
+      'group' => 'Rules',
+    );
+  }
+
+  /**
+   * Overrides DrupalWebTestCase::setUp().
+   */
+  protected function setUp() {
+    parent::setUp('rules_scheduler', 'rules_scheduler_test');
+    RulesLog::logger()->clear();
+    variable_set('rules_debug_log', TRUE);
+  }
+
+  /**
+   * Tests scheduling components from the action.
+   *
+   * Note that this also makes sure Rules properly handles timezones, else this
+   * test could fail due to a wrong 'now' timestamp.
+   */
+  public function testComponentSchedule() {
+    $set = rules_rule_set(array(
+      'node1' => array('type' => 'node', 'label' => 'node'),
+    ));
+    $set->rule(rule()->condition('node_is_published', array('node:select' => 'node1'))
+                     ->action('node_unpublish', array('node:select' => 'node1'))
+               );
+    $set->integrityCheck()->save('rules_test_set_2');
+
+    // Use different names for the variables to ensure they are properly mapped.
+    $rule = rule(array(
+      'node2' => array('type' => 'node', 'label' => 'node'),
+    ));
+    $rule->action('schedule', array(
+      'component' => 'rules_test_set_2',
+      'identifier' => 'node_[node2:nid]',
+      'date' => 'now',
+      'param_node1:select' => 'node2',
+    ));
+
+    $node = $this->drupalCreateNode(array('title' => 'The title.', 'status' => 1));
+    $rule->execute($node);
+
+    // Run cron to let the rules scheduler do its work.
+    $this->cronRun();
+
+    $node = node_load($node->nid, NULL, TRUE);
+    $this->assertFalse($node->status, 'The component has been properly scheduled.');
+    RulesLog::logger()->checkLog();
+  }
+
+  /**
+   * Makes sure recursion prevention is working fine for scheduled rule sets.
+   */
+  public function testRecursionPrevention() {
+    $set = rules_rule_set(array(
+      'node1' => array('type' => 'node', 'label' => 'node'),
+    ));
+    $set->rule(rule()->condition('node_is_published', array('node:select' => 'node1'))
+                     ->action('node_unpublish', array('node:select' => 'node1'))
+               );
+    $set->integrityCheck()->save('rules_test_set_2');
+
+    // Add an reaction rule that is triggered upon a node save. The scheduled
+    // component changes the node, thus it would be scheduled again and run in
+    // an endless loop.
+    $rule = rules_reaction_rule();
+    $rule->event('node_insert');
+    $rule->event('node_update');
+    $rule->action('schedule', array(
+      'component' => 'rules_test_set_2',
+      'identifier' => 'test_recursion_prevention',
+      'date' => 'now',
+      'param_node1:select' => 'node',
+    ));
+    $rule->save();
+
+    // Create a node, what triggers the rule.
+    $node = $this->drupalCreateNode(array('title' => 'The title.', 'status' => 1));
+    // Run cron to let the rules scheduler do its work.
+    $this->cronRun();
+
+    $node = node_load($node->nid, NULL, TRUE);
+    $this->assertFalse($node->status, 'The component has been properly scheduled.');
+
+    // Create a simple user account with permission to see the dblog.
+    $user = $this->drupalCreateUser(array('access site reports'));
+    $this->drupalLogin($user);
+
+    // View the database log.
+    $this->drupalGet('admin/reports/dblog');
+
+    // Can't use
+    // $this->clickLink('Rules debug information: " Scheduled evaluation...')
+    // because xpath doesn't allow : or " in the string.
+    // So instead, use our own xpath to figure out the href of the second link
+    // on the page (the first link is the most recent log entry, which is the
+    // log entry for the user login, above.)
+
+    // All links.
+    $links = $this->xpath('//a[contains(@href, :href)]', array(':href' => 'admin/reports/event/'));
+    // Strip off /?q= from href.
+    $href = explode('=', $links[1]['href']);
+    // Click the link for the RulesLog entry.
+    $this->drupalGet($href[1]);
+    $this->assertRaw(RulesTestCase::t('Not evaluating reaction rule %unlabeled to prevent recursion.', array('unlabeled' => $rule->name)), "Scheduled recursion prevented.");
+    RulesLog::logger()->checkLog();
+  }
+
+  /**
+   * Tests that custom task handlers are properly invoked.
+   */
+  public function testCustomTaskHandler() {
+    // Set up a scheduled task that will simply write a variable when executed.
+    $variable = 'rules_schedule_task_handler_variable';
+    rules_scheduler_schedule_task(array(
+      'date' => REQUEST_TIME,
+      'identifier' => '',
+      'config' => '',
+      'data' => array('variable' => $variable),
+      'handler' => 'RulesTestTaskHandler',
+    ));
+
+    // Run cron to let the rules scheduler do its work.
+    $this->cronRun();
+
+    // The task handler should have set the variable to TRUE now.
+    $this->assertTrue(variable_get($variable));
+  }
+
+}

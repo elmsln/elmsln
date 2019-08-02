@@ -45,7 +45,7 @@ class ViewsModuleTest extends ViewsSqlTest {
       'khoảng cách từ đại lí đến',
       'của hãng bao gồm ba dòng',
       'сд асд асд ас',
-      'асд асд асд ас'
+      'асд асд асд ас',
     );
     // Just test maxlength without word boundry.
     $alter = array(
@@ -91,7 +91,8 @@ class ViewsModuleTest extends ViewsSqlTest {
    */
   function testModuleTemplates() {
     $views_status = variable_get('views_defaults', array());
-    $views_status['frontpage'] = FALSE; // false is enabled
+    $views_status['frontpage'] = FALSE;
+    // false is enabled.
     variable_set('views_defaults', $views_status);
 
     $existing = array();
@@ -127,7 +128,6 @@ class ViewsModuleTest extends ViewsSqlTest {
     }
 
     // Test the automatic conversion feature.
-
     // Test the automatic table renaming.
     $handler = views_get_handler('views_test_previous', 'id', 'field');
     $this->assertInstanceHandler($handler, 'views_test', 'id', 'field');
@@ -194,7 +194,6 @@ class ViewsModuleTest extends ViewsSqlTest {
     $this->assertEqual(variable_get('views_test_views_data_count', 0), 1, 'Views data rebuilt once');
     $this->assertFalse(drupal_static('_views_fetch_data_fully_loaded'), 'Views data is not fully loaded');
 
-
     // Test if the cache consistency is ensured. There was an issue where
     // calling _views_fetch_data() first with a table would prevent the function
     // from properly rebuilt a missing the general cache entry.
@@ -238,4 +237,5 @@ class ViewsModuleTest extends ViewsSqlTest {
     drupal_static_reset('_views_fetch_data_recursion_protected');
     drupal_static_reset('_views_fetch_data_fully_loaded');
   }
+
 }

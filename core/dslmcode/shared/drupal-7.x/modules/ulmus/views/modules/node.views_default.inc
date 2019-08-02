@@ -6,12 +6,12 @@
  */
 
 /**
- * Implementation of hook_views_default_views()
+ * Implements hook_views_default_views().
  */
 function node_views_default_views() {
   $views = array();
 
-  $view = new view;
+  $view = new view();
   $view->name = 'archive';
   $view->description = 'Display a list of months that link to content for that month.';
   $view->tag = 'default';
@@ -99,7 +99,7 @@ function node_views_default_views() {
 
   $views['archive'] = $view;
 
-  $view = new view;
+  $view = new view();
   $view->name = 'frontpage';
   $view->description = 'Emulates the default Drupal front page; you may set the default home page path to this view to make it your front page.';
   $view->tag = 'default';
@@ -181,7 +181,7 @@ function node_views_default_views() {
 
   $views['frontpage'] = $view;
 
-  $view = new view;
+  $view = new view();
   $view->name = 'glossary';
   $view->description = 'A list of all content, by letter.';
   $view->tag = 'default';

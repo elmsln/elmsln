@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @file Contains classes for data processing.
+ * @file
+ * Contains classes for data processing.
  *
  * Data processors can be used to process element arguments on evaluation time,
  * e.g. to apply input evaluators or to apply simple calculations to number
@@ -39,25 +40,28 @@ abstract class RulesDataProcessor {
   }
 
   /**
-   * Returns whether the current user has permission to edit this chain of data
-   * processors.
+   * Determines whether the current user has permission to edit this chain of
+   * data processors.
+   *
+   * @return bool
+   *   Whether the current user has permission to edit this chain of data
+   *   processors.
    */
   public function editAccess() {
     return $this->access() && (!isset($this->processor) || $this->processor->editAccess());
   }
 
-
   /**
    * Prepares the processor for parameters.
    *
-   * It turns the settings into a suiting processor object, which gets invoked
+   * It turns the settings into a suitable processor object, which gets invoked
    * on evaluation time.
    *
    * @param $setting
    *   The processor settings which are to be prepared.
    * @param $param_info
    *   The info about the parameter to prepare the processor for.
-   * @param $var_info
+   * @param array $var_info
    *   An array of info about the available variables.
    */
   public static function prepareSetting(&$setting, $param_info, $var_info = array()) {
@@ -88,17 +92,22 @@ abstract class RulesDataProcessor {
 
   /**
    * Returns defined data processors applicable for the given parameter.
-   * Optionally also access to the processors is checked.
+   *
+   * Optionally also checks access to the processors.
    *
    * @param $param_info
    *   If given, only processors valid for this parameter are returned.
+   * @param bool $access_check
+   * @param string $hook
    */
   public static function processors($param_info = NULL, $access_check = TRUE, $hook = 'data_processor_info') {
     static $items = array();
 
     if (!isset($items[$hook]['all'])) {
       $items[$hook]['all'] = rules_fetch_data($hook);
-      uasort($items[$hook]['all'], array(__CLASS__, '_item_sort'));
+      if (isset($items[$hook]['all'])) {
+        uasort($items[$hook]['all'], array(__CLASS__, '_item_sort'));
+      }
     }
     // Data processing isn't supported for multiple types.
     if (isset($param_info) && is_array($param_info['type'])) {
@@ -182,17 +191,20 @@ abstract class RulesDataProcessor {
   }
 
   /**
-   * Processes the value. If $this->processor is set, invoke this processor
-   * first so chaining multiple processors is working.
+   * Processes the value.
+   *
+   * If $this->processor is set, invoke this processor first so chaining
+   * multiple processors is working.
    *
    * @param $value
    *   The value to process.
    * @param $info
    *   Info about the parameter for which we process the value.
-   * @param $state RulesState
+   * @param RulesState $state
    *   The rules evaluation state.
-   * @param $element RulesPlugin
+   * @param RulesPlugin $element
    *   The element for which we process the value.
+   *
    * @return
    *   The processed value.
    */
@@ -200,6 +212,9 @@ abstract class RulesDataProcessor {
 
   /**
    * Return whether the current user has permission to use the processor.
+   *
+   * @return bool
+   *   Whether the current user has permission to use the processor.
    */
   public static function access() {
     return TRUE;
@@ -210,7 +225,7 @@ abstract class RulesDataProcessor {
    *
    * @param $settings
    *   The settings of the processor.
-   * @param $var_info
+   * @param array $var_info
    *   An array of info about the available variables.
    *
    * @return
@@ -219,13 +234,15 @@ abstract class RulesDataProcessor {
   protected static function form($settings, $var_info) {
     return array();
   }
+
 }
 
 
 /**
- * A base processor for use as input evaluators. Input evaluators are not listed
- * in hook_rules_data_processor_info(). Instead they use
- * hook_rules_evaluator_info() and get attached to input forms.
+ * A base processor for use by input evaluators.
+ *
+ * Input evaluators are not listed in hook_rules_data_processor_info(). Instead
+ * they use hook_rules_evaluator_info() and get attached to input forms.
  */
 abstract class RulesDataInputEvaluator extends RulesDataProcessor {
 
@@ -266,9 +283,10 @@ abstract class RulesDataInputEvaluator extends RulesDataProcessor {
   }
 
   /**
-   * Overriden to prepare input evaluator processors. The setting is expected
-   * to be the input value to be evaluated later on and is replaced by the
-   * suiting processor.
+   * Overridden to prepare input evaluator processors.
+   *
+   * The setting is expected to be the input value to be evaluated later on
+   * and is replaced by the suitable processor.
    */
   public static function prepareSetting(&$setting, $param_info, $var_info = array()) {
     $processor = NULL;
@@ -284,7 +302,9 @@ abstract class RulesDataInputEvaluator extends RulesDataProcessor {
   }
 
   /**
-   * Overriden to just attach the help() of evaluators.
+   * Overrides RulesDataProcessor::attachForm().
+   *
+   * Overridden to just attach the help() of evaluators.
    */
   public static function attachForm(&$form, $settings, $param_info, $var_info, $access_check = TRUE) {
     foreach (self::evaluators($param_info, $access_check) as $name => $info) {
@@ -294,14 +314,15 @@ abstract class RulesDataInputEvaluator extends RulesDataProcessor {
   }
 
   /**
-   * Returns all input evaluators that can be applied to the parameters needed
-   * type.
+   * Returns all input evaluators that can be applied to the parameters type.
    */
   public static function evaluators($param_info = NULL, $access_check = TRUE) {
     return parent::processors($param_info, $access_check, 'evaluator_info');
   }
 
   /**
+   * Overrides RulesDataProcessor::processors().
+   *
    * Overridden to default to our hook, thus being equivalent to
    * self::evaluators().
    */
@@ -310,14 +331,16 @@ abstract class RulesDataInputEvaluator extends RulesDataProcessor {
   }
 
   /**
-   * Prepares the evalution, e.g. to determine whether the input evaluator has
-   * been used. If this evaluator should be skipped just unset $this->setting.
+   * Prepares the evaluation.
    *
-   * @param $text
+   * For example, to determine whether the input evaluator has been used.
+   * If this evaluator should be skipped just unset $this->setting.
+   *
+   * @param string $text
    *   The text to evaluate later on.
-   * @param $variables
+   * @param array $variables
    *   An array of info about available variables.
-   * @param $param_info
+   * @param array $param_info
    *   (optional) An array of information about the handled parameter value.
    *   For backward compatibility, this parameter is not required.
    */
@@ -326,9 +349,9 @@ abstract class RulesDataInputEvaluator extends RulesDataProcessor {
   /**
    * Apply the input evaluator.
    *
-   * @param $text
+   * @param string $text
    *   The text to evaluate.
-   * @param $options
+   * @param array $options
    *   A keyed array of settings and flags to control the processing.
    *   Supported options are:
    *   - language: A language object to be used when processing.
@@ -337,7 +360,7 @@ abstract class RulesDataInputEvaluator extends RulesDataProcessor {
    *     certain way.
    *   - sanitize: A boolean flag indicating whether incorporated replacements
    *     should be sanitized.
-   * @param RulesState
+   * @param RulesState $state
    *   The rules evaluation state.
    *
    * @return
@@ -348,13 +371,13 @@ abstract class RulesDataInputEvaluator extends RulesDataProcessor {
   /**
    * Provide some usage help for the evaluator.
    *
-   * @param $variables
+   * @param array $variables
    *   An array of info about available variables.
-   * @param $param_info
+   * @param array $param_info
    *   (optional) An array of information about the handled parameter value.
    *   For backward compatibility, this parameter is not required.
    *
-   * @return
+   * @return array
    *   A renderable array.
    */
   public static function help($variables) {

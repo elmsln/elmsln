@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @file Contains the state and data related stuff.
+ * @file
+ * Contains the state and data related stuff.
  */
 
 /**
@@ -14,16 +15,22 @@ class RulesState {
 
   /**
    * Globally keeps the ids of rules blocked due to recursion prevention.
+   *
+   * @var array
    */
   static protected $blocked = array();
 
   /**
    * The known variables.
+   *
+   * @var array
    */
   public $variables = array();
 
   /**
    * Holds info about the variables.
+   *
+   * @var array
    */
   protected $info = array();
 
@@ -33,8 +40,9 @@ class RulesState {
   protected $save;
 
   /**
-   * Holds the arguments while an element is executed. May be used by the
-   * element to easily access the wrapped arguments.
+   * Holds the arguments while an element is executed.
+   *
+   * May be used by the element to easily access the wrapped arguments.
    */
   public $currentArguments;
 
@@ -43,7 +51,9 @@ class RulesState {
    */
   protected $currentlyBlocked;
 
-
+  /**
+   * Constructs a RulesState object.
+   */
   public function __construct() {
     // Use an object in order to ensure any cloned states reference the same
     // save information.
@@ -131,7 +141,7 @@ class RulesState {
    *
    * If necessary, the specified handler is invoked to fetch the variable.
    *
-   * @param $name
+   * @param string $name
    *   The name of the variable to return.
    *
    * @return
@@ -164,7 +174,8 @@ class RulesState {
    *
    * @param $selector
    *   The data selector of the wrapper to save or just a variable name.
-   * @param $immediate
+   * @param $wrapper
+   * @param bool $immediate
    *   Pass FALSE to postpone saving to later on. Else it's immediately saved.
    */
   public function saveChanges($selector, $wrapper, $immediate = FALSE) {
@@ -234,9 +245,11 @@ class RulesState {
   }
 
   /**
-   * Merges the info about to be saved variables form the given state into the
-   * existing state. Therefor we can aggregate saves from invoked components.
-   * Merged in saves are removed from the given state, but not mergable saves
+   * Merges info from the given state into the existing state.
+   *
+   * Merges the info about to-be-saved variables from the given state into the
+   * existing state. Therefore we can aggregate saves from invoked components.
+   * Merged-in saves are removed from the given state, but not-mergeable saves
    * remain there.
    *
    * @param $state
@@ -267,9 +280,9 @@ class RulesState {
   /**
    * Returns an entity metadata wrapper as specified in the selector.
    *
-   * @param $selector
+   * @param string $selector
    *   The selector string, e.g. "node:author:mail".
-   * @param $langcode
+   * @param string $langcode
    *   (optional) The language code used to get the argument value if the
    *   argument value should be translated. Defaults to LANGUAGE_NONE.
    *
@@ -291,7 +304,7 @@ class RulesState {
     try {
       foreach (explode(':', $parts[1]) as $name) {
         if ($wrapper instanceof EntityListWrapper || $wrapper instanceof EntityStructureWrapper) {
-          // Make sure we are usign the right language. Wrappers might be cached
+          // Make sure we are using the right language. Wrappers might be cached
           // and have previous langcodes set, so always set the right language.
           if ($wrapper instanceof EntityStructureWrapper) {
             $wrapper->language($langcode);
@@ -312,30 +325,37 @@ class RulesState {
 
   /**
    * Magic method. Only serialize variables and their info.
+   *
    * Additionally we remember currently blocked configs, so we can restore them
    * upon deserialization using restoreBlocks().
    */
-  public function __sleep () {
+  public function __sleep() {
     $this->currentlyBlocked = self::$blocked;
     return array('info', 'variables', 'currentlyBlocked');
   }
 
+  /**
+   * Magic method. Unserialize variables and their info.
+   */
   public function __wakeup() {
     $this->save = new ArrayObject();
   }
 
   /**
-   * Restore the before serialization blocked configurations.
+   * Restores the before-serialization blocked configurations.
    *
    * Warning: This overwrites any possible currently blocked configs. Thus
-   * do not invoke this method, if there might be evaluations active.
+   * do not invoke this method if there might be evaluations active.
    */
   public function restoreBlocks() {
     self::$blocked = $this->currentlyBlocked;
   }
 
   /**
-   * Defines always available variables.
+   * Defines always-available variables.
+   *
+   * @param $key
+   *   (optional)
    */
   public static function defaultVariables($key = NULL) {
     // Add a variable for accessing site-wide data properties.
@@ -350,12 +370,13 @@ class RulesState {
     );
     return isset($key) ? $vars[$key] : $vars;
   }
+
 }
 
 /**
  * A class holding static methods related to data.
  */
-class RulesData  {
+class RulesData {
 
   /**
    * Returns whether the type match. They match if type1 is compatible to type2.
@@ -364,11 +385,11 @@ class RulesData  {
    *   The name of the type to check for whether it is compatible to type2.
    * @param $param_info
    *   The type expression to check for.
-   * @param $ancestors
-   *   Whether sub-type relationships for checking type compatibility should be
-   *   taken into account. Defaults to TRUE.
+   * @param bool $ancestors
+   *   (optional) Whether sub-type relationships for checking type compatibility
+   *   should be taken into account. Defaults to TRUE.
    *
-   * @return
+   * @return bool
    *   Whether the types match.
    */
   public static function typesMatch($var_info, $param_info, $ancestors = TRUE) {
@@ -395,7 +416,7 @@ class RulesData  {
       $cache = &rules_get_cache();
       self::typeCalcAncestors($cache, $var_type);
       // If one of the types is an ancestor return TRUE.
-      return (bool)array_intersect_key($cache['data_info'][$var_type]['ancestors'], array_flip($valid_types));
+      return (bool) array_intersect_key($cache['data_info'][$var_type]['ancestors'], array_flip($valid_types));
     }
     return FALSE;
   }
@@ -417,25 +438,27 @@ class RulesData  {
   }
 
   /**
-   * Returns matching data variables or properties for the given info and the to
-   * be configured parameter.
+   * Returns data for the given info and the to-be-configured parameter.
+   *
+   * Returns matching data variables or properties for the given info and the
+   * to-be-configured parameter.
    *
    * @param $source
    *   Either an array of info about available variables or a entity metadata
    *   wrapper.
    * @param $param_info
    *   The information array about the to be configured parameter.
-   * @param $prefix
+   * @param string $prefix
    *   An optional prefix for the data selectors.
-   * @param $recursions
+   * @param int $recursions
    *   The number of recursions used to go down the tree. Defaults to 2.
-   * @param $suggestions
+   * @param bool $suggestions
    *   Whether possibilities to recurse are suggested as soon as the deepest
    *   level of recursions is reached. Defaults to TRUE.
    *
-   * @return
-   *  An array of info about matching variables or properties that match, keyed
-   *  with the data selector.
+   * @return array
+   *   An array of info about matching variables or properties that match, keyed
+   *   with the data selector.
    */
   public static function matchingDataSelector($source, $param_info, $prefix = '', $recursions = 2, $suggestions = TRUE) {
     // If an array of info is given, get entity metadata wrappers first.
@@ -467,7 +490,8 @@ class RulesData  {
           $matches += self::matchingDataSelector($wrapper, $param_info, $prefix . $name . ':', $recursions - 1, $suggestions);
         }
         elseif ($suggestions) {
-          // We may not recurse any more, but indicate the possibility to recurse.
+          // We may not recurse any more,
+          // but indicate the possibility to recurse.
           $matches[$prefix . $name . ':'] = $wrapper->info();
           if (!is_array($source) && $source instanceof EntityListWrapper) {
             // Add some more possible list items.
@@ -482,8 +506,10 @@ class RulesData  {
   }
 
   /**
-   * Adds asserted metadata to the variable info. In case there are already
-   * assertions for a variable, the assertions are merged such that both apply.
+   * Adds asserted metadata to the variable info.
+   *
+   * In case there are already assertions for a variable, the assertions are
+   * merged such that both apply.
    *
    * @see RulesData::applyMetadataAssertions()
    */
@@ -508,10 +534,9 @@ class RulesData  {
         // before the child-wrapper is created.
         if (count($parts) == 1) {
           // Support asserting a type in case of generic entity references only.
-          if (isset($assertion['type']) && $var_info[$parts[0]]['type'] == 'entity') {
-            if (entity_get_info($assertion['type'])) {
-              $var_info[$parts[0]]['type'] = $assertion['type'];
-            }
+          $var_type = &$var_info[$parts[0]]['type'];
+          if (isset($assertion['type']) && ($var_type == 'entity' || $var_type == 'list<entity>')) {
+            $var_type = $assertion['type'];
             unset($assertion['type']);
           }
           // Add any single bundle directly to the variable info, so the
@@ -547,8 +572,9 @@ class RulesData  {
   }
 
   /**
-   * Property info alter callback for the entity metadata wrapper for applying
-   * the rules metadata assertions.
+   * Property info alter callback for the entity metadata wrapper.
+   *
+   * Used for applying the rules metadata assertions.
    *
    * @see RulesData::addMetadataAssertions()
    */
@@ -586,7 +612,8 @@ class RulesData  {
         $property_info['properties'][$key]['rules assertion'] = $assertion[$key];
         $property_info['properties'][$key]['property info alter'] = array('RulesData', 'applyMetadataAssertions');
 
-        // Apply any 'type' and 'bundle' assertion directly to the propertyinfo.
+        // Apply any 'type' and 'bundle' assertion directly to the property
+        // info.
         if (isset($assertion[$key]['#info']['type'])) {
           $type = $assertion[$key]['#info']['type'];
           // Support asserting a type in case of generic entity references only.
@@ -608,9 +635,10 @@ class RulesData  {
   }
 
   /**
-   * Property info alter callback for the entity metadata wrapper to inject
-   * metadata for the 'site' variable. In contrast to doing this via
-   * hook_rules_data_info() this callback makes use of the already existing
+   * Property info alter callback for the entity metadata wrapper.
+   *
+   * Used to inject metadata for the 'site' variable. In contrast to doing this
+   * via hook_rules_data_info() this callback makes use of the already existing
    * property info cache for site information of entity metadata.
    *
    * @see RulesPlugin::availableVariables()
@@ -622,6 +650,7 @@ class RulesData  {
     // have specified further metadata.
     return RulesData::applyMetadataAssertions($wrapper, $property_info);
   }
+
 }
 
 /**
@@ -653,7 +682,7 @@ abstract class RulesIdentifiableDataWrapper extends EntityStructureWrapper {
    *   The type of the passed data.
    * @param $data
    *   Optional. The data to wrap or its identifier.
-   * @param $info
+   * @param array $info
    *   Optional. Used internally to pass info about properties down the tree.
    */
   public function __construct($type, $data = NULL, $info = array()) {
@@ -722,7 +751,7 @@ abstract class RulesIdentifiableDataWrapper extends EntityStructureWrapper {
   }
 
   /**
-   * Prepare for serializiation.
+   * Prepare for serialization.
    */
   public function __sleep() {
     $vars = parent::__sleep();
@@ -734,6 +763,9 @@ abstract class RulesIdentifiableDataWrapper extends EntityStructureWrapper {
     return $vars;
   }
 
+  /**
+   * Prepare for unserialization.
+   */
   public function __wakeup() {
     if ($this->id !== FALSE) {
       // Make sure data is set, so the data will be loaded when needed.
@@ -756,10 +788,11 @@ abstract class RulesIdentifiableDataWrapper extends EntityStructureWrapper {
    *   The loaded data object, or FALSE if loading failed.
    */
   abstract protected function load($id);
+
 }
 
 /**
- * Interface that allows custom wrapper classes to declare that they are savable.
+ * Used to declare custom wrapper classes as savable.
  */
 interface RulesDataWrapperSavableInterface {
 
@@ -767,4 +800,5 @@ interface RulesDataWrapperSavableInterface {
    * Save the currently wrapped data.
    */
   public function save();
+
 }

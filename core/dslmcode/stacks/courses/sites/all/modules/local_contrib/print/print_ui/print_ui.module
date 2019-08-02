@@ -785,7 +785,7 @@ function _print_ui_page_match($visibility, $path, $pages) {
  * @param string $parent
  *   The be used in recursive calls.
  *
- * @return string
+ * @return array
  *   urlencoded string which can be appended to/as the URL query string
  */
 function _print_ui_query_string_encode($query, $exclude = array(), $parent = '') {

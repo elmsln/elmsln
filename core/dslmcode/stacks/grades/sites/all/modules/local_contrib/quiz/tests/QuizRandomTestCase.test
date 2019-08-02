@@ -30,7 +30,7 @@ class QuizRandomTestCase extends QuizTestCase {
     $this->drupalLogin($this->admin);
 
     $quiz_node = $this->drupalCreateQuiz(array(
-      'randomization' => 1
+      'randomization' => 1,
     ));
 
     $question_node1 = $this->drupalCreateNode(array(
@@ -128,11 +128,11 @@ class QuizRandomTestCase extends QuizTestCase {
     $this->drupalGet("node/{$quiz_node->nid}/quiz/questions");
     $this->drupalPost(NULL, array(
       "compulsories[{$question_node1->nid}-{$question_node1->vid}]" => TRUE,
-      ), t('Submit'));
+    ), t('Submit'));
 
     for ($i = 1; $i <= 10; $i++) {
       $questions = quiz_build_question_list($quiz_node);
-      $this->assertEqual(count($questions), 3, t('Quiz has 2 questions.'));
+      $this->assertEqual(count($questions), 3, t('Quiz has 3 questions.'));
       $out[$i] = '';
       foreach ($questions as $question) {
         $out[$i] .= $question['nid'];
@@ -142,6 +142,10 @@ class QuizRandomTestCase extends QuizTestCase {
 
     // Also check that at least one of the orders is different.
     $this->assertNotEqual(count(array_unique($out)), 1, t('At least one set of questions were different.'));
+
+    // Test number of questions.
+    $num_questions = quiz_get_number_of_questions($quiz_node->vid, $quiz_node->nid);
+    $this->assertEqual($num_questions, 3);
 
     // Start the quiz.
     $this->drupalLogin($this->user);
@@ -155,23 +159,23 @@ class QuizRandomTestCase extends QuizTestCase {
    */
   public function testCategorizedRandomQuestions() {
     // Vocabs.
-    $v1 = new stdClass;
+    $v1 = new stdClass();
     $v1->name = "Vocab 1";
     $v1->machine_name = "vocab1";
     taxonomy_vocabulary_save($v1);
 
     // Terms.
-    $v1t1 = new stdClass;
+    $v1t1 = new stdClass();
     $v1t1->vid = $v1->vid;
     $v1t1->name = 'Vocab 1 Term 1';
     taxonomy_term_save($v1t1);
 
-    $v1t2 = new stdClass;
+    $v1t2 = new stdClass();
     $v1t2->vid = $v1->vid;
     $v1t2->name = 'Vocab 1 Term 2';
     taxonomy_term_save($v1t2);
 
-    $v1t3 = new stdClass;
+    $v1t3 = new stdClass();
     $v1t3->vid = $v1->vid;
     $v1t3->name = 'Vocab 1 Term 3';
     taxonomy_term_save($v1t3);
@@ -201,6 +205,11 @@ class QuizRandomTestCase extends QuizTestCase {
     );
     drupal_write_record('quiz_terms', $quiz_term2);
 
+    // We have to resave the node to process the above.
+    $this->drupalLogin($this->admin);
+    $this->drupalGet("node/$quiz->nid/quiz/questions");
+    $this->drupalPost(NULL, array(), t('Submit'));
+
     // Add a field to quiz result and make it required for starting.
     $field = array(
       'field_name' => 'question_category',
@@ -224,48 +233,47 @@ class QuizRandomTestCase extends QuizTestCase {
     field_create_instance($instance);
 
     $questions[] = $this->drupalCreateNode(array(
-        'title' => 'tf 1 v1t1',
-        'type' => 'truefalse',
-        'correct_answer' => 1,
-        'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t1->tid))),
-        'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
-      ))->nid;
+      'title' => 'tf 1 v1t1',
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t1->tid))),
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
+    ))->nid;
     $questions[] = $this->drupalCreateNode(array(
-        'title' => 'tf 2 v1t1',
-        'type' => 'truefalse',
-        'correct_answer' => 1,
-        'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t1->tid))),
-        'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
-      ))->nid;
+      'title' => 'tf 2 v1t1',
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t1->tid))),
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
+    ))->nid;
     $questions[] = $this->drupalCreateNode(array(
-        'title' => 'tf 3 v1t1',
-        'type' => 'truefalse',
-        'correct_answer' => 1,
-        'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t1->tid))),
-        'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
-      ))->nid;
-
+      'title' => 'tf 3 v1t1',
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t1->tid))),
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
+    ))->nid;
     $questions[] = $this->drupalCreateNode(array(
-        'title' => 'tf 4 v1t2',
-        'type' => 'truefalse',
-        'correct_answer' => 1,
-        'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t2->tid))),
-        'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
-      ))->nid;
+      'title' => 'tf 4 v1t2',
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t2->tid))),
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
+    ))->nid;
     $questions[] = $this->drupalCreateNode(array(
-        'title' => 'tf 5 v1t2',
-        'type' => 'truefalse',
-        'correct_answer' => 1,
-        'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t2->tid))),
-        'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
-      ))->nid;
+      'title' => 'tf 5 v1t2',
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t2->tid))),
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
+    ))->nid;
     $questions[] = $this->drupalCreateNode(array(
-        'title' => 'tf 6 v1t2',
-        'type' => 'truefalse',
-        'correct_answer' => 1,
-        'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t2->tid))),
-        'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
-      ))->nid;
+      'title' => 'tf 6 v1t2',
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'question_category' => array(LANGUAGE_NONE => array(array('tid' => $v1t2->tid))),
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
+    ))->nid;
 
     $list = quiz_build_question_list($quiz);
     $this->assertEqual(count($list), 4, 'Quiz had 4 questions.');
@@ -273,6 +281,10 @@ class QuizRandomTestCase extends QuizTestCase {
       $qq_nids[] = $qinfo['nid'];
     }
     $this->assertEqual(count(array_intersect($qq_nids, $questions)), 4, 'Questions were from the terms excluding 2.');
+
+    // Test number of questions.
+    $num_questions = quiz_get_number_of_questions($quiz->vid, $quiz->nid);
+    $this->assertEqual($num_questions, 4);
 
     // Start the quiz.
     $this->drupalLogin($this->user);
@@ -282,25 +294,37 @@ class QuizRandomTestCase extends QuizTestCase {
   /**
    * Test that questions inside of pages are shuffled.
    */
-  function testRandomOrderInPages() {
+  public function testRandomOrderInPages() {
     $this->drupalLogin($this->admin);
 
     $quiz_node = $this->drupalCreateQuiz(array(
-      'randomization' => 1
+      'randomization' => 1,
     ));
 
     // Create the questions.
-    $question_node1 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text')))));
-    $this->linkQuestionToQuiz($question_node1, $quiz_node); // QNR ID 1
-    $question_node2 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 2 body text')))));
-    $this->linkQuestionToQuiz($question_node2, $quiz_node); // QNR ID 2
-    $question_node3 = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1, 'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 3 body text')))));
-    $this->linkQuestionToQuiz($question_node3, $quiz_node);  // QNR ID 3
+    $question_node1 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 1 body text'))),
+    ));
+    $this->linkQuestionToQuiz($question_node1, $quiz_node);
+    $question_node2 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 2 body text'))),
+    ));
+    $this->linkQuestionToQuiz($question_node2, $quiz_node);
+    $question_node3 = $this->drupalCreateNode(array(
+      'type' => 'truefalse',
+      'correct_answer' => 1,
+      'body' => array(LANGUAGE_NONE => array(array('value' => 'TF 3 body text'))),
+    ));
+    $this->linkQuestionToQuiz($question_node3, $quiz_node);
     // Create the pages.
     $page_node1 = $this->drupalCreateNode(array('type' => 'quiz_page'));
-    $this->linkQuestionToQuiz($page_node1, $quiz_node); // QNR ID 4
+    $this->linkQuestionToQuiz($page_node1, $quiz_node);
     $page_node2 = $this->drupalCreateNode(array('type' => 'quiz_page'));
-    $this->linkQuestionToQuiz($page_node2, $quiz_node); // QNR ID 5
+    $this->linkQuestionToQuiz($page_node2, $quiz_node);
     // Go to the manage questions form.
     $this->drupalGet("node/$quiz_node->nid/quiz/questions");
     $post = array(

@@ -45,6 +45,7 @@ function admin_menu_uninstall() {
   variable_del('admin_menu_devel_modules');
   variable_del('admin_menu_devel_modules_enabled');
   variable_del('admin_menu_devel_modules_skip');
+  variable_del('admin_menu_exclude_paths');
 }
 
 /**

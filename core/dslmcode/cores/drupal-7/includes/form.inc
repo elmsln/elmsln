@@ -1812,11 +1812,13 @@ function form_builder($form_id, &$element, &$form_state) {
     $element['#defaults_loaded'] = TRUE;
   }
   // Assign basic defaults common for all form elements.
-  $element += array(
-    '#required' => FALSE,
-    '#attributes' => array(),
-    '#title_display' => 'before',
-  );
+  if (is_array($element)) {
+    $element += array(
+      '#required' => FALSE,
+      '#attributes' => array(),
+      '#title_display' => 'before',
+    );
+  }
 
   // Special handling if we're on the top level form element.
   if (isset($element['#type']) && $element['#type'] == 'form') {

@@ -12,7 +12,10 @@
  */
 class views_handler_filter_field_list_boolean extends views_handler_filter_field_list {
 
-  function get_value_options() {
+  /**
+   * {@inheritdoc}
+   */
+  public function get_value_options() {
     $field = field_info_field($this->definition['field_name']);
     $value_options = list_allowed_values($field);
 
@@ -30,4 +33,5 @@ class views_handler_filter_field_list_boolean extends views_handler_filter_field
 
     $this->value_options = $value_options;
   }
+
 }

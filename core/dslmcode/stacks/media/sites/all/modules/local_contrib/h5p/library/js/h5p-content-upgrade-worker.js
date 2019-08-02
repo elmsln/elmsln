@@ -1,3 +1,4 @@
+/* global importScripts */
 var H5P = H5P || {};
 importScripts('h5p-version.js', 'h5p-content-upgrade-process.js');
 

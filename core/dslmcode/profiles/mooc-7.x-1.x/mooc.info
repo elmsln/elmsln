@@ -122,10 +122,6 @@ dependencies[] = cis_course_service
 ; ----------
 ; MOOC Dependencies
 ; ----------
-; Accessibility
-dependencies[] = accessibility
-dependencies[] = accessibility_wysiwyg
-dependencies[] = accessibility_content
 ; Feeds
 dependencies[] = feeds
 dependencies[] = feeds_node_helper
@@ -136,7 +132,6 @@ dependencies[] = mooc_helper_book_nav
 ; OG
 dependencies[] = og_access
 ; Other
-dependencies[] = autosave
 dependencies[] = book_copy
 dependencies[] = book_delete
 dependencies[] = elmsln_ecd
@@ -152,8 +147,6 @@ dependencies[] = outline_designer_book
 dependencies[] = book_cache
 ; Permissions
 dependencies[] = hidden_nodes
-; Textbook
-dependencies[] = speedreader
 ; User interface
 dependencies[] = token_insert_entity
 dependencies[] = token_insert
@@ -168,7 +161,6 @@ dependencies[] = mooc_textbook
 dependencies[] = mooc_ux_defaults
 dependencies[] = mooc_page
 dependencies[] = mooc_container_type
-dependencies[] = mooc_autosave
 dependencies[] = mooc_sar
 dependencies[] = mooc_hax
 dependencies[] = mooc_perms

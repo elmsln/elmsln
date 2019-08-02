@@ -216,10 +216,10 @@ class LRNAppOpenStudioAssignmentService {
    *
    * @return array
    */
-  public function encodeAssignments($assignments, $app_route) {
+  public function encodeAssignments($assignments, $app_route, $truncate = array()) {
     if (is_array($assignments)) {
       foreach ($assignments as &$assignment) {
-        $assignment = $this->encodeAssignment($assignment, $app_route);
+        $assignment = $this->encodeAssignment($assignment, $app_route, $truncate);
       }
       return $assignments;
     }
@@ -236,7 +236,7 @@ class LRNAppOpenStudioAssignmentService {
    *
    * @return Object
    */
-  public function encodeAssignment($assignment, $app_route = '') {
+  public function encodeAssignment($assignment, $app_route = '', $truncate = array()) {
     global $user;
     global $base_url;
     $account = $user;
@@ -267,7 +267,12 @@ class LRNAppOpenStudioAssignmentService {
         $encoded_assignment->meta->canDelete = 1;
       }
       // add in related submissions
-      $encoded_assignment->meta->relatedSubmissions = _cle_submission_submission_status($assignment);
+      if (!isset($truncate['relatedSubmissions'])) {
+        $encoded_assignment->meta->relatedSubmissions = _cle_submission_submission_status($assignment);
+      }
+      else {
+        $encoded_assignment->meta->relatedSubmissions = NULL;
+      }
       // see if this allows late submissions
       $allowLate = (bool)$assignment->field_assignment_late_submission[LANGUAGE_NONE][0]['value'];
       // calculate if this is on time / can be active for submissions

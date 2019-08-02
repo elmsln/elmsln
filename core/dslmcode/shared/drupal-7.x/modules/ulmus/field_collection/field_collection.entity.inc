@@ -192,6 +192,7 @@ class FieldCollectionItemEntity extends Entity {
       list($this->hostEntityId, $this->hostEntityRevisionId) = entity_extract_ids($this->hostEntityType, $this->hostEntity);
       // If the host entity is not saved yet, set the id to FALSE. So
       // fetchHostDetails() does not try to load the host entity details.
+      // Checking value of $this->hostEntityId.
       if (!isset($this->hostEntityId)) {
         $this->hostEntityId = FALSE;
       }
@@ -231,7 +232,7 @@ class FieldCollectionItemEntity extends Entity {
     }
     list($recieved_id) = entity_extract_ids($this->hostEntityType, $entity);
 
-    if ($this->isInUse()) {
+    if ($this->isInUse() && !empty($this->hostEntityId)) {
       $current_id = $this->hostEntityId;
     }
     else {
@@ -311,19 +312,24 @@ class FieldCollectionItemEntity extends Entity {
         }
         $result = $query->execute();
         if ($result) {
-          list($this->hostEntityType, $data) = each($result);
-        }
+          $this->hostEntityType = key($result);
+          $data = current($result);
 
-        if ($this->isInUse()) {
-          $data_array_keys = array_keys($data);
-          $this->hostEntityId = $data ? end($data_array_keys) : FALSE;
-          $this->hostEntityRevisionId = FALSE;
+          if ($this->isInUse()) {
+            $data_array_keys = array_keys($data);
+            $this->hostEntityId = $data ? end($data_array_keys) : FALSE;
+            $this->hostEntityRevisionId = FALSE;
+          }
+          // If we are querying for revisions, we get the revision ID.
+          else {
+            $data_array_keys = array_keys($data);
+            $this->hostEntityId = FALSE;
+            $this->hostEntityRevisionId = $data ? end($data_array_keys) : FALSE;
+          }
         }
-        // If we are querying for revisions, we get the revision ID.
         else {
-          $data_array_keys = array_keys($data);
+          // No host entity available yet.
           $this->hostEntityId = FALSE;
-          $this->hostEntityRevisionId = $data ? end($data_array_keys) : FALSE;
         }
       }
       else {
@@ -469,9 +475,11 @@ class FieldCollectionItemEntity extends Entity {
   /**
    * Deletes the field collection item and the reference in the host entity.
    */
-  public function delete() {
+  public function delete($skip_host_save = FALSE) {
     parent::delete();
-    $this->deleteHostEntityReference();
+    if (!$skip_host_save) {
+      $this->deleteHostEntityReference();
+    }
   }
 
   /**
@@ -574,7 +582,7 @@ class FieldCollectionItemEntity extends Entity {
       }
       if (!$row && !isset($this->hostEntity()->{$this->field_name}[$this->langcode()][$this->delta()])) {
         // Delete if there is no existing revision or translation to be saved.
-        $this->delete();
+        $this->delete($skip_host_update);
       }
     }
   }

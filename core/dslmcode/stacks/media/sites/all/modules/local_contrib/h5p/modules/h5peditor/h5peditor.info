@@ -14,9 +14,8 @@ files[] = h5peditor/h5peditor-storage.interface.php
 files[] = h5peditor/h5peditor-ajax.interface.php
 files[] = h5peditor/h5peditor.class.php
 
-; Information added by Drupal.org packaging script on 2017-08-30
-version = "7.x-1.32"
+; Information added by Drupal.org packaging script on 2019-03-26
+version = "7.x-1.43"
 core = "7.x"
 project = "h5p"
-datestamp = "1504093495"
-
+datestamp = "1553605625"

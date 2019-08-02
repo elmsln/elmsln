@@ -5,6 +5,7 @@
  * Contains rules integration for the system module needed during evaluation.
  *
  * @addtogroup rules
+ *
  * @{
  */
 
@@ -42,8 +43,8 @@ function rules_action_drupal_goto($url, $force = FALSE, $destination = FALSE) {
   if ($force && isset($_GET['destination'])) {
     unset($_GET['destination']);
   }
-  // We don't invoke drupal_goto() right now, as this would end the the current
-  // page execution unpredictly for modules. So we'll take over drupal_goto()
+  // We don't invoke drupal_goto() right now, as this would end the current
+  // page execution unpredictably for modules. So we'll take over drupal_goto()
   // calls from somewhere else via hook_drupal_goto_alter() and make sure
   // a drupal_goto() is invoked before the page is output with
   // rules_page_build().
@@ -106,9 +107,8 @@ function rules_action_mail_to_users_of_role($roles, $subject, $message, $from = 
     $result = db_query('SELECT mail FROM {users} WHERE uid > 0');
   }
   else {
-    $rids = implode(',', $roles);
     // Avoid sending emails to members of two or more target role groups.
-    $result = db_query('SELECT DISTINCT u.mail FROM {users} u INNER JOIN {users_roles} r ON u.uid = r.uid WHERE r.rid IN ('. $rids .')');
+    $result = db_query('SELECT DISTINCT u.mail FROM {users} u INNER JOIN {users_roles} r ON u.uid = r.uid WHERE r.rid IN (:rids)', array(':rids' => $roles));
   }
 
   // Now, actually send the mails.
@@ -125,7 +125,7 @@ function rules_action_mail_to_users_of_role($roles, $subject, $message, $from = 
     $message = drupal_mail('rules', $key, $row->mail, language_default(), $params, $from);
     // If $message['result'] is FALSE, then it's likely that email sending is
     // failing at the moment, and we should just abort sending any more. If
-    // however, $mesage['result'] is NULL, then it's likely that a module has
+    // however, $message['result'] is NULL, then it's likely that a module has
     // aborted sending this particular email to this particular user, and we
     // should just keep on sending emails to the other users.
     // For more information on the result value, see drupal_mail().
@@ -142,7 +142,7 @@ function rules_action_mail_to_users_of_role($roles, $subject, $message, $from = 
 /**
  * Implements hook_mail().
  *
- * Set's the message subject and body as configured.
+ * Sets the message subject and body as configured.
  */
 function rules_mail($key, &$message, $params) {
 
@@ -166,6 +166,9 @@ function rules_action_block_ip($ip_address = NULL) {
  */
 class RulesTokenEvaluator extends RulesDataInputEvaluator {
 
+  /**
+   * Overrides RulesDataInputEvaluator::prepare().
+   */
   public function prepare($text, $var_info) {
     $text = is_array($text) ? implode('', $text) : $text;
     // Skip this evaluator if there are no tokens.
@@ -173,6 +176,8 @@ class RulesTokenEvaluator extends RulesDataInputEvaluator {
   }
 
   /**
+   * Evaluate tokens.
+   *
    * We replace the tokens on our own as we cannot use token_replace(), because
    * token usually assumes that $data['node'] is a of type node, which doesn't
    * hold in general in our case.
@@ -262,6 +267,7 @@ class RulesTokenEvaluator extends RulesDataInputEvaluator {
     }
     return $render;
   }
+
 }
 
 /**

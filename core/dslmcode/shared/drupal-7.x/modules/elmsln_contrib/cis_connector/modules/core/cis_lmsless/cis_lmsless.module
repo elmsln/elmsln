@@ -294,6 +294,13 @@ function _cis_lmsless_theme_vars() {
         if ($nid = _cis_section_load_section_by_id($section)) {
           $tmpnode = node_load($nid);
           $vars['section_title'] = filter_xss($tmpnode->title);
+          // additional CIS data mix in for UX
+          $cisSectionData = _cis_connector_transaction('section', 'default', array(), $section);
+          if (isset($cisSectionData['host_entity']['field_semester']['und'][0]['value'])) {
+            $vars['section_title'] = strtoupper($cisSectionData['host_entity']['field_semester']['und'][0]['value']) . $cisSectionData['host_entity']['field_year']['und'][0]['value'] . ' - ' . $vars['section_title'];
+          }
+          // allow developers to hijack this / make it as they need displayed
+          drupal_alter('cis_lmsless_section_title', $vars['section_title'], $section, $cisSectionData);
         }
       }
     }
@@ -454,19 +461,6 @@ function _cis_lmsless_theme_vars() {
         $vars['userbackground'] = '<img class="background" src="' .  base_path() . $libraries['materialize'] . '/images/office.jpg" alt="">';
       }
     }
-    // load up the a11y stuff
-    $a11y = module_invoke_all('fa_a11y');
-    drupal_alter('fa_a11y', $a11y);
-    // add in the form api wrapper meta properties to render as materialize collapse
-    $a11y['#type'] = 'fieldset';
-    $a11y['#materialize'] = array(
-      'type' => 'collapsible_wrapper'
-    );
-    $a11y['#attributes'] = array(
-      'class' => array('collapsible', 'elmsln-materialize-collapse-list'),
-      'data-collapsible' => 'accordion',
-    );
-    $vars['a11y'] = drupal_render($a11y);
     // set a login link if we don't have a user name
     if ($vars['username'] == t("Anonymous")) {
       $vars['userlink'] = array(
@@ -614,6 +608,7 @@ function _cis_lmsless_get_distro_classes($distro = NULL) {
     'text' => 'black-text',
     'outline' => 'blue-outline',
     'code' => '#2196f3',
+    'color_code_dark' => '#0D47A1',
     'code_text' => '#085390',
   );
   // statically cache future calls

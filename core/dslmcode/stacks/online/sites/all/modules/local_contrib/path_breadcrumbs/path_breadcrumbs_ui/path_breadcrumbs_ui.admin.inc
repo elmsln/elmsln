@@ -157,7 +157,7 @@ function path_breadcrumbs_ui_settings($form, $form_state) {
     '#title' => t('Delimiter'),
     '#default_value' => variable_get('path_breadcrumbs_delimiter', '»'),
     '#size' => 3,
-    '#description' => t('Symbol that separates breadcrumbs.'),
+    '#description' => t('Symbol that separates breadcrumbs. HTML is not allowed. You can use <code>.delimiter</code> class name to style the delimiter in CSS.'),
     '#states' => array(
       'disabled' => array(
         ':input[name="path_breadcrumbs_internal_render"]' => array('checked' => FALSE),

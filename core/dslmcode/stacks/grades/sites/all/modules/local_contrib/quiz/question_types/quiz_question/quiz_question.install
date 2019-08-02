@@ -1,16 +1,9 @@
 <?php
 
 /**
- * The installer file for quiz_question.
  * @file
+ * The installer file for quiz_question.
  */
-
-/**
- * Implements hook_install().
- */
-function quiz_question_install() {
-
-}
 
 /**
  * Implements hook_schema().
@@ -62,18 +55,11 @@ function quiz_question_schema() {
 }
 
 /**
- * Implements hook_uninstall().
- */
-function quiz_question_uninstall() {
-
-}
-
-/**
  * Implements hook_update_N()
  */
 
 /**
- * Make the question body visible by default for the question view mode
+ * Make the question body visible by default for the question view mode.
  */
 function quiz_question_update_7401() {
   $question_types = array_keys(quiz_question_get_info());
@@ -101,7 +87,8 @@ function quiz_question_update_7500() {
 
   db_add_field('quiz_question_properties', 'qqp_id', array(
     'type' => 'serial',
-    ), array('primary key' => array('qqp_id')));
+    'not null' => TRUE,
+  ), array('primary key' => array('qqp_id')));
 
   db_add_field('quiz_question_properties', 'feedback', array(
     'type' => 'text',

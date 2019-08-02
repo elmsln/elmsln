@@ -11,6 +11,9 @@
  */
 class views_embed_field_views_handler_field_thumbnail_path extends views_handler_field {
 
+  /**
+   * {@inheritdoc}
+   */
   function get_value($values, $field = NULL) {
     $value = parent::get_value($values, $field);
 

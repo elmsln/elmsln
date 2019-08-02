@@ -1,11 +1,14 @@
 <?php
 
 /**
+ * @file
  * Form builder; Form for editing a video style.
- * Used by CTools export ui
  *
- * @ingroup forms
- * @see video_embed_field_video_style_form_submit()
+ * Used by CTools export ui.
+ */
+
+/**
+ * Video embed style form handler.
  */
 function video_embed_field_video_style_form(&$form, &$form_state) {
   if (isset($form_state['item'])) {
@@ -16,16 +19,28 @@ function video_embed_field_video_style_form(&$form, &$form_state) {
   }
   $form_state['video_style'] = $style;
 
-  //Grab the settings off the parser form
+  // Grab the settings off the parser form.
   $values = isset($style['data']) ? $style['data'] : array();
   $parser_form = video_embed_field_get_form($values);
 
-  //General settings for playback - formerly in the configuration section
+  // General settings for playback - formerly in the configuration section.
   $form['data'] = array(
     '#type' => 'vertical_tabs',
     '#title' => t('Playback settings'),
     '#tree' => TRUE,
-  ) + $parser_form; //add in our extra settings
+  ) + $parser_form;
 
   return $form;
+}
+
+/**
+ * VEF settings page form callback.
+ */
+function video_embed_field_settings_form($form, &$form_state) {
+  $form['video_embed_field_youtube_v3_api_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Youtube v3 API key'),
+    '#default_value' => variable_get('video_embed_field_youtube_v3_api_key', ''),
+  );
+  return system_settings_form($form);
 }

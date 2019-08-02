@@ -5,6 +5,7 @@
  * Contains rules integration for the path module needed during evaluation.
  *
  * @addtogroup rules
+ *
  * @{
  */
 
@@ -74,9 +75,12 @@ function rules_condition_path_alias_exists($alias, $langcode = LANGUAGE_NONE) {
 }
 
 /**
- * Cleans the given path by replacing non ASCII characters with the replacment character.
+ * Cleans the given path.
  *
- * Path cleaning may be adapted by overriding the configuration variables
+ * A path is cleaned by replacing non ASCII characters in the path with the
+ * replacement character.
+ *
+ * Path cleaning may be customized by overriding the configuration variables:
  * @code rules_clean_path @endcode,
  * @code rules_path_replacement_char @endcode and
  * @code rules_path_transliteration @endcode

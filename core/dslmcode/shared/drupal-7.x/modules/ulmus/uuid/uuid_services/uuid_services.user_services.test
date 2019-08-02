@@ -1,0 +1,231 @@
+<?php
+
+/**
+ * @file
+ * Test the UUID User Services integration.
+ */
+
+ /**
+  * Test the UUID User Services integration.
+  */
+class UuidUserServicesTest extends ServicesWebTestCase {
+
+  /**
+   * The endpoint configuration.
+   *
+   * @var object
+   */
+  protected $endpoint = NULL;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'UUID User Services tests',
+      'description' => 'Test the user services resource UUID methods and actions.',
+      'group' => 'UUID',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp(
+      'ctools',
+      'services',
+      'rest_server',
+      'uuid_services'
+    );
+    $this->endpoint = $this->saveNewEndpoint();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function saveNewEndpoint() {
+    $edit = $this->populateEndpointFAPI();
+    $endpoint = new stdClass();
+    $endpoint->disabled = FALSE;
+    $endpoint->api_version = 3;
+    $endpoint->name = $edit['name'];
+    $endpoint->server = $edit['server'];
+    $endpoint->path = $edit['path'];
+    $endpoint->authentication = array(
+      'services' => 'services',
+    );
+    $endpoint->server_settings = array(
+      'formatters' => array(
+        'json' => TRUE,
+        'bencode' => TRUE,
+        'rss' => TRUE,
+        'plist' => TRUE,
+        'xmlplist' => TRUE,
+        'php' => TRUE,
+        'yaml' => TRUE,
+        'jsonp' => FALSE,
+        'xml' => FALSE,
+      ),
+      'parsers' => array(
+        'application/x-yaml' => TRUE,
+        'application/json' => TRUE,
+        'application/vnd.php.serialized' => TRUE,
+        'application/plist' => TRUE,
+        'application/plist+xml' => TRUE,
+        'application/x-www-form-urlencoded' => TRUE,
+        'multipart/form-data' => TRUE,
+      ),
+    );
+    $endpoint->resources = array(
+      'user' => array(
+        'operations' => array(
+          'create' => array(
+            'enabled' => 1,
+          ),
+          'retrieve' => array(
+            'enabled' => 1,
+          ),
+          'update' => array(
+            'enabled' => 1,
+          ),
+          'delete' => array(
+            'enabled' => 1,
+          ),
+          'index' => array(
+            'enabled' => 1,
+          ),
+        ),
+      ),
+    );
+    $endpoint->debug = 1;
+    $endpoint->export_type = FALSE;
+    services_endpoint_save($endpoint);
+    $endpoint = services_endpoint_load($endpoint->name);
+    $this->assertTrue($endpoint->name == $edit['name'], 'Endpoint successfully created');
+    return $endpoint;
+  }
+
+  /**
+   * Tests user Retrieve.
+   */
+  public function testUserRetrieve() {
+    $admin_user = $this->drupalCreateUser(array(
+      'administer services',
+      'administer users',
+    ));
+    $this->drupalLogin($admin_user);
+    $other_user = $this->drupalCreateUser();
+
+    // Verify user is found.
+    $response = $this->servicesGet($this->endpoint->path . '/user/' . $other_user->uuid);
+    $this->assertTrue($other_user->uuid == $response['body']->uuid,
+      'Successfully received User info');
+  }
+
+  /**
+   * Tests user Update his own account.
+   */
+  public function testUserUpdate() {
+    $admin_user = $this->drupalCreateUser(array(
+      'administer services',
+      'administer users',
+      'administer permissions',
+    ));
+    $this->drupalLogin($admin_user);
+
+    $other_user = $this->drupalCreateUser();
+    $update = array(
+      'uuid' => $other_user->uuid,
+      'roles' => array(
+        '2' => 'authenticated user',
+        '3' => 'administrator',
+      ),
+    );
+    $this->servicesPut($this->endpoint->path . '/user/' . $other_user->uuid, $update);
+    $user_after_update = user_load($other_user->uid, TRUE);
+    $this->assertTrue(in_array('administrator', $user_after_update->roles), 'Administrator role successfully added');
+  }
+
+  /**
+   * Tests user Update another account fail with no permissions.
+   */
+  public function testUserUpdatePermFail() {
+    $user = $this->drupalCreateUser();
+    $this->drupalLogin($user);
+
+    $other_user = $this->drupalCreateUser();
+
+    $update = array(
+      'uuid' => $other_user->uuid,
+      'name' => 'test_edit',
+      'roles' => array(
+        '2' => 'authenticated user',
+        '3' => 'administrator',
+      ),
+    );
+    $response = $this->servicesPut($this->endpoint->path . '/user/' . $other_user->uuid, $update);
+    $user_after_update = user_load($other_user->uid, TRUE);
+    $this->assertNotEqual($update['name'], $user_after_update->name, 'User name was not updated without the needed permissions');
+    $this->assertFalse(in_array('administrator', $user_after_update->roles), 'Administrator role was not added without the needed permissions');
+    $this->assertTrue($response['code'] == 403,
+      'Updating the user failed without the needed permissions');
+  }
+
+  /**
+   * Tests user Update his own account fail with no permissions.
+   */
+  public function testUserOwnUpdatePermFail() {
+    $user = $this->drupalCreateUser([
+      'access user profiles',
+    ]);
+    $this->drupalLogin($user);
+    $user = user_load($user->uid, TRUE);
+
+    $update = array(
+      'uuid' => $user->uuid,
+      'roles' => array(
+        '2' => 'authenticated user',
+        '3' => 'administrator',
+      ),
+    );
+    $this->servicesPut($this->endpoint->path . '/user/' . $user->uuid, $update);
+    $user_after_update = user_load($user->uid, TRUE);
+    $this->assertFalse(in_array('administrator', $user_after_update->roles), 'Administrator role was not added without the needed permissions');
+    $this->assertEqual($user->roles, $user_after_update->roles, 'Existing roles persist after update.');
+  }
+
+  /**
+   * Tests user Delete.
+   */
+  public function testUserDelete() {
+    $admin_user = $this->drupalCreateUser(array(
+      'administer services',
+      'administer users',
+    ));
+    $this->drupalLogin($admin_user);
+
+    $other_user = $this->drupalCreateUser();
+
+    $this->servicesDelete($this->endpoint->path . '/user/' . $other_user->uuid);
+    $user_after_update = user_load($other_user->uid, TRUE);
+    $this->assertTrue(empty($user_after_update), 'User was deleted');
+  }
+
+  /**
+   * Tests user Delete fail with no permissions.
+   */
+  public function testUserDeletePermFail() {
+    $user = $this->drupalCreateUser();
+    $this->drupalLogin($user);
+
+    $other_user = $this->drupalCreateUser();
+
+    $response = $this->servicesDelete($this->endpoint->path . '/user/' . $other_user->uuid);
+    $user_after_update = user_load($other_user->uid, TRUE);
+    $this->assertTrue(!empty($user_after_update), 'User was not deleted without the needed permissions');
+    $this->assertTrue($response['code'] == 403,
+      'Deleting the user failed without the needed permissions');
+  }
+
+}

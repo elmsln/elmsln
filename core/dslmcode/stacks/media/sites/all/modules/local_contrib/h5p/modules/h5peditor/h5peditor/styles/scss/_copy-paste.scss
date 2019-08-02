@@ -1,0 +1,78 @@
+.h5peditor-copypaste-wrap {
+  float: right;
+}
+.h5peditor > .h5peditor-copypaste-wrap {
+  /* Make sure buttons are visible when Tutorial and Example is missing */
+  margin-bottom: 14px;
+}
+.h5peditor-copypaste-wrap.hidden {
+  display: none;
+}
+.h5peditor-clearfix {
+  clear: both;
+}
+
+.h5peditor-paste-button,
+.h5peditor-copy-button {
+  border: 1px solid #cdcdcd;
+  background: #f5f5f5;
+  padding: 0.5em 0.75em 0.75em 0.5em;
+  margin-left: 0.5em;
+  border-radius: 0.25em;
+  cursor: pointer;
+  background: #f2faff;
+  border-color: #deeeec;
+  line-height: 0.5em;
+
+  &:hover {
+    border-color: #bbdae8;
+  }
+  &:active {
+    background-color: #deeffb
+  }
+  &.disabled {
+    opacity: 0.3;
+    cursor: auto;
+  }
+}
+
+.h5peditor-copy-button:before,
+.h5peditor-paste-button:before {
+  font-family: $icon-font-family;
+  margin-right: 5px;
+  font-size: 1.5em;
+  position: relative;
+  top: 0.2em;
+  color: #2d8ad6;
+}
+.h5peditor-copy-button:before {
+  content: "\e905";
+}
+.h5peditor-paste-button:before {
+  content: "\e90a";
+}
+.h5p-hub .h5peditor-paste-button {
+  font-family: $font-family;
+  color: #fff;
+  border: solid 1px transparent;
+  padding: 0 0.75em 0.5em 0.75em;
+  background: transparent;
+  line-height: 1;
+  height: auto;
+  margin-top: 0.5em;
+  margin-right: 0.5em;
+
+  &:hover {
+    background: #4b5460;
+    border-color: #606a78;
+  }
+  &:active {
+    background: #434b55;
+  }
+  &.disabled {
+    border-color:transparent;
+  }
+}
+.h5p-hub .h5peditor-paste-button:before {
+  color: #68a9ed;
+}

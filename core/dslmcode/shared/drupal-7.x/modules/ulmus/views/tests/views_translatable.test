@@ -31,7 +31,7 @@ class ViewsTranslatableTest extends ViewsSqlTest {
           'help' => t('This is a test description.'),
           'handler' => 'views_plugin_localization_test',
           'parent' => 'parent',
-          'path' => drupal_get_path('module', 'views') .'/tests',
+          'path' => drupal_get_path('module', 'views') . '/tests',
         ),
       ),
     );
@@ -100,7 +100,6 @@ class ViewsTranslatableTest extends ViewsSqlTest {
     $view->init_display();
 
     // Don't run translation. We just want to get the right keys.
-
     foreach ($view->display as $display_id => $display) {
       $translatables = array();
       $display->handler->unpack_translatables($translatables);
@@ -145,7 +144,7 @@ class ViewsTranslatableTest extends ViewsSqlTest {
   }
 
   public function view_unpack_translatable() {
-    $view = new view;
+    $view = new view();
     $view->name = 'view_unpack_translatable';
     $view->description = '';
     $view->tag = '';
@@ -218,4 +217,5 @@ class ViewsTranslatableTest extends ViewsSqlTest {
 
     return $view;
   }
+
 }

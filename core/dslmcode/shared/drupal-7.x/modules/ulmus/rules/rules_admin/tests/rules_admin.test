@@ -1,0 +1,126 @@
+<?php
+
+/**
+ * @file
+ * Rules UI tests.
+ */
+
+/**
+ * Tests for creating rules through the UI.
+ */
+class RulesUiTestCase extends DrupalWebTestCase {
+
+  /**
+   * Declares test metadata.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Rules UI Tests ',
+      'description' => 'Tests Rules UI.',
+      'group' => 'Rules',
+    );
+  }
+
+  /**
+   * Overrides DrupalWebTestCase::setUp().
+   */
+  protected function setUp() {
+    parent::setUp('rules', 'rules_admin', 'rules_test');
+    RulesLog::logger()->clear();
+    variable_set('rules_debug_log', TRUE);
+  }
+
+  /**
+   * Tests that NOT condition labels are not HTML-encoded in the UI.
+   *
+   * @see https://www.drupal.org/project/rules/issues/1945006
+   */
+  public function testConditionLabel() {
+    // Create a simple user account with permission to create a rule.
+    $user = $this->drupalCreateUser(array('access administration pages', 'administer rules'));
+    $this->drupalLogin($user);
+
+    // First we need an event.
+    $this->drupalGet('admin/config/workflow/rules/reaction/add');
+    $edit = array(
+      'settings[label]' => 'Test node event',
+      'settings[name]' => 'test_node_event',
+      'event' => 'node_insert',
+    );
+    $this->drupalPost(NULL, $edit, 'Save');
+    $this->assertText('Editing reaction rule', 'Rule edit page is shown.');
+
+    // Now add a condition with a special character in the label.
+    $this->clickLink('Add condition');
+    $this->assertText('Add a new condition', 'Condition edit page is shown.');
+    $edit = array(
+      'element_name' => 'rules_test_condition_apostrophe',
+    );
+    $this->drupalPost(NULL, $edit, 'Continue');
+
+    // Negate the condition, as this is how it gets improperly HTML encoded.
+    $edit = array(
+      'negate' => TRUE,
+    );
+    $this->drupalPost(NULL, $edit, 'Save');
+    $this->assertNoRaw("&amp;#039;", 'Apostrophe is not HTML-encoded.');
+  }
+
+}
+
+/**
+ * UI test cases for the minimal profile.
+ *
+ * The minimal profile is useful for testing because it has fewer dependencies
+ * so the tests run faster. Also, removing the profile-specific configuration
+ * reveals assumptions in the code. For example, the minimal profile doesn't
+ * define any content types, so when Rules expects to have content types to
+ * operate on that assumpation may cause errors.
+ */
+class RulesMinimalProfileTestCase extends DrupalWebTestCase {
+
+  protected $profile = 'minimal';
+
+  /**
+   * Declares test metadata.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Rules UI Minimal Profile Tests ',
+      'description' => 'Tests UI support for minimal profile.',
+      'group' => 'Rules',
+    );
+  }
+
+  /**
+   * Overrides DrupalWebTestCase::setUp().
+   */
+  protected function setUp() {
+    parent::setUp('rules', 'rules_admin');
+    RulesLog::logger()->clear();
+    variable_set('rules_debug_log', TRUE);
+  }
+
+  /**
+   * Tests node event UI without content types.
+   *
+   * @see https://www.drupal.org/project/rules/issues/2267341
+   */
+  public function testNodeEventUi() {
+    // Create a simple user account with permission to create a rule.
+    $user = $this->drupalCreateUser(array('access administration pages', 'administer rules'));
+    $this->drupalLogin($user);
+
+    $this->drupalGet('admin/config/workflow/rules/reaction/add');
+    $edit = array(
+      'settings[label]' => 'Test node event',
+      'settings[name]' => 'test_node_event',
+      'event' => 'node_insert',
+    );
+    $this->drupalPostAJAX(NULL, $edit, 'event');
+    $this->assertText('Restrict by type', 'Restrict by type selection is visible.');
+    $this->drupalPost(NULL, $edit, 'Save');
+    $this->assertText('Editing reaction rule', 'Rule edit page is shown.');
+  }
+
+}

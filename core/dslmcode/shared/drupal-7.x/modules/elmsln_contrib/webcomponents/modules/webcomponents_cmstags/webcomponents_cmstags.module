@@ -97,16 +97,6 @@ function webcomponents_cmstags_page_build(&$page) {
   // only append these to the header if we aren't on a traditional edit page
   // Traditional edit forms will have WYSIWYG fields which will unpack
   // these assets and make things angry as a result
-  if (arg(2) != 'edit' && arg(2) != 'hax') {
-    $component = new stdClass();
-    $cms_tags = array('token', 'views', 'block', 'entity');
-    foreach ($cms_tags as $tag) {
-      $component->machine_name = 'cms-' . $tag;
-      // pull in from webcomponents location
-      $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/cms-hax/cms-' . $tag . '.html';
-      _webcomponents_add_to_head($component, 10002);
-    }
-  }
   // write the little endPoint shims we use for the other 3 things to decouple
   $js = 'window.cmsviewsEndPoint="' . base_path() . 'webcomponents/cms-views/' . drupal_get_token('webcomponents_cmstags_views') . '";' . "\n";
   $js .= 'window.cmsentityEndPoint="' . base_path() . 'webcomponents/cms-entity/' . drupal_get_token('webcomponents_cmstags_entity') . '";' . "\n";
@@ -297,11 +287,18 @@ function _webcomponents_cmstags_block_render() {
 function webcomponents_cmstags_filter_info() {
   $filters = array();
   $filters['webcomponents_cmstags'] = array(
-    'title' => t('Webcomponents filter'),
+    'title' => t('Web components filter'),
     'description' => t('Fake substitute for the cms-token tag'),
     'process callback' => '_webcomponents_cmstags_process',
     'tips callback' => '_webcomponents_cmstags_tips',
     'weight' => -100,
+  );
+  $filters['webcomponents_cmstags_jsonfix'] = array(
+    'title' => t('Web components filter JSON fix'),
+    'description' => t('Fix JSON after the fact'),
+    'process callback' => '_webcomponents_cmstags_process_json',
+    'tips callback' => '_webcomponents_cmstags_tips',
+    'weight' => 100,
   );
   return $filters;
 }
@@ -334,10 +331,10 @@ function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cac
     if (empty($evaluatedtext)) {
       // match anything that seems like it's a token with no white space
       // @todo make sure this doesn't match other things
-      $regex = '/\[\S*\]/';
+      $regex = '/\[\S*?\]/';
       if (preg_match_all($regex, $text, $matches)) {
-        // replacement will consist of patterns and replacements
-        $replacements = array();
+        $patterns = array();
+        $media = array();
         // Have to process multiple matches since more than one player can be on a node.
         foreach ($matches[0] as $key => $match) {
           $tmptoken = str_replace(']', '', str_replace('[', '', $match));
@@ -345,20 +342,60 @@ function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cac
           // this is up to developers to implement special cases
           $process = TRUE;
           drupal_alter('webcomponents_cmstagsprocess', $process, $tmptoken);
+          $patterns[] = $match;
           if ($process) {
-            // add a new replacement
-            $replacements[] = array(
-              'search' => $match,
-              'replace' => '<cms-token token="' . $tmptoken . '"></cms-token>',
-            );
+            // DO NOT ALLOW VALID JSON TO GET BROKEN OFF THIS WAY
+            // NEEDS TO REPLACE ITSELF IN PLACE
+            if (@json_decode(html_entity_decode($match))) {
+              $media[] = str_replace(']', '""``""', str_replace('[', '``""``', $match));
+            }
+            elseif ($tmptoken != '') {
+              // trap juuuuust to make sure this isn't actually an empty []
+              $media[] = '<cms-token token="' . $tmptoken . '"></cms-token>';
+            }
+            else {
+              $media[] = $match;
+            }
+          }
+          else {
+            $media[] = $match;
           }
         }
-        foreach ($replacements as $key => $replacement) {
-          $text = str_replace($replacement['search'], $replacement['replace'], $text);
-        }
+        $text = str_replace($patterns, $media, $text, $temp = 1);
       }
       $evaluatedtext = $text;
     }
+    return $evaluatedtext;
+  }
+  else {
+    return $text;
+  }
+}
+
+/**
+ * Callback function to perform the content processing.
+ */
+function _webcomponents_cmstags_process_json($text, $filter, $format, $langcode, $cache, $cache_id) {
+  // see if we need to skip
+  if (!isset($GLOBALS['skip_drupal_token'])) {
+    // match anything that seems like it's a token with no white space
+    // @todo make sure this doesn't match other things
+    $regex = '/\`\`\"\"\`\`\S*?\"\"\`\`\"\"/';
+    if (preg_match_all($regex, $text, $matches)) {
+      $patterns = array();
+      $media = array();
+      // Have to process multiple matches since more than one player can be on a node.
+      foreach ($matches[0] as $key => $match) {
+        $process = TRUE;
+        drupal_alter('webcomponents_cmstagsprocess', $process, $match);
+        if ($process) {
+          $patterns[] = $regex;
+          $media[] = str_replace('""``""', ']', str_replace('``""``', '[', $match));
+        }
+      }
+      $text = preg_replace($patterns, $media, $text, 1);
+    }
+    $evaluatedtext = $text;
     return $evaluatedtext;
   }
   else {

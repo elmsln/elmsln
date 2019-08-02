@@ -81,7 +81,7 @@ Drupal.rules = Drupal.rules || {};
 
     this.jqObject.bind("autocompleteselect", function(event, ui) {
       // If a group was selected then set the groupSelected to true for the
-      // overriden close function from jquery autocomplete.
+      // overridden close function from jquery autocomplete.
       if (ui.item.value.substring(ui.item.value.length - 1, ui.item.value.length) == ":") {
         instance.groupSelected = true;
       }
@@ -103,14 +103,18 @@ Drupal.rules = Drupal.rules || {};
       });
     });
 
+    // Newer versions of jQuery UI use element.data('ui-autocomplete'), older
+    // versions use element.data('autocomplete').
+    var autocompleteDataKey = typeof(this.jqObject.data('autocomplete')) === 'object' ? 'autocomplete' : 'ui-autocomplete';
+
     // Since jquery autocomplete by default strips html text by using .text()
     // we need our own _renderItem function to display html content.
-    this.jqObject.data("autocomplete")._renderItem = function(ul, item) {
+    this.jqObject.data(autocompleteDataKey)._renderItem = function(ul, item) {
       return $("<li></li>").data("item.autocomplete", item).append("<a>" + item.label + "</a>").appendTo(ul);
     };
 
     // Override close function
-    this.jqObject.data("autocomplete").close = function (event) {
+    this.jqObject.data(autocompleteDataKey).close = function (event) {
       var value = this.element.val();
       // If the selector is not a group, then trigger the close event an and
       // hide the menu.
@@ -119,7 +123,10 @@ Drupal.rules = Drupal.rules || {};
         if (this.menu.element.is(":visible")) {
           this._trigger("close", event);
           this.menu.element.hide();
-          this.menu.deactivate();
+          // Use deactivate for older versions of jQuery UI.
+          if (typeof(this.menu.deactivate) === 'function') {
+            this.menu.deactivate();
+          }
         }
       }
       else {
@@ -173,7 +180,7 @@ Drupal.rules = Drupal.rules || {};
   };
 
   /**
-   * Toogle the autcomplete window.
+   * Toggle the autocomplete window.
    */
   Drupal.rules.autocomplete.prototype.toggle = function() {
     if (this.jqObject.autocomplete("widget").is(":visible")) {

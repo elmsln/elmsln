@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * Install file for Rules i18n.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function rules_i18n_install() {
+  global $language;
+
+  $langcode = $language->language;
+  drupal_static_reset('i18n_object_info');
+  drupal_static_reset('entity_get_info');
+  drupal_static_reset('entity_i18n_controller');
+  cache_clear_all("entity_info:$langcode", 'cache');
+}

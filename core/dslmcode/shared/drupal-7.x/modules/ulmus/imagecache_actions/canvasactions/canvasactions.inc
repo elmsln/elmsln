@@ -269,6 +269,7 @@ function canvasactions_definecanvas_form(array $data) {
   return $form;
 }
 
+/** @noinspection PhpDocMissingThrowsInspection */
 /**
  * Implements theme_hook() for the define canvas effect summary.
  *
@@ -295,6 +296,7 @@ function theme_canvasactions_definecanvas_summary(array $variables) {
     $output .= ' top:' . $data['relative']['topdiff'];
     $output .= ' bottom:' . $data['relative']['bottomdiff'];
   }
+  /** @noinspection PhpUnhandledExceptionInspection */
   $output .= theme('imagecacheactions_rgb', array('RGB' => $data['RGB']));
   $output .= ($data['under']) ? t(" <b>under</b> image ") : t(" <b>over</b> image ");
   return $output;
@@ -320,19 +322,19 @@ function canvasactions_definecanvas_effect(stdClass $image, array $data) {
       $data['exact']['height'] = $image->info['height'];
     }
 
-    $targetsize['width'] = imagecache_actions_percent_filter($data['exact']['width'], $image->info['width']);
-    $targetsize['height'] = imagecache_actions_percent_filter($data['exact']['height'], $image->info['height']);
+    $target_size['width'] = imagecache_actions_percent_filter($data['exact']['width'], $image->info['width']);
+    $target_size['height'] = imagecache_actions_percent_filter($data['exact']['height'], $image->info['height']);
 
-    $targetsize['left'] = image_filter_keyword($data['exact']['xpos'], $targetsize['width'], $image->info['width']);
-    $targetsize['top'] = image_filter_keyword($data['exact']['ypos'], $targetsize['height'], $image->info['height']);
+    $target_size['left'] = image_filter_keyword($data['exact']['xpos'], $target_size['width'], $image->info['width']);
+    $target_size['top'] = image_filter_keyword($data['exact']['ypos'], $target_size['height'], $image->info['height']);
 
   }
   else {
     // Calculate relative size.
-    $targetsize['width'] = $image->info['width'] + ((int) $data['relative']['leftdiff']) + ((int) $data['relative']['rightdiff']);
-    $targetsize['height'] = $image->info['height'] + ((int) $data['relative']['topdiff']) + ((int) $data['relative']['bottomdiff']);
-    $targetsize['left'] = (int) $data['relative']['leftdiff'];
-    $targetsize['top'] = (int) $data['relative']['topdiff'];
+    $target_size['width'] = $image->info['width'] + ((int) $data['relative']['leftdiff']) + ((int) $data['relative']['rightdiff']);
+    $target_size['height'] = $image->info['height'] + ((int) $data['relative']['topdiff']) + ((int) $data['relative']['bottomdiff']);
+    $target_size['left'] = (int) $data['relative']['leftdiff'];
+    $target_size['top'] = (int) $data['relative']['topdiff'];
   }
 
   // Convert from hex (as it is stored in the UI).
@@ -341,12 +343,12 @@ function canvasactions_definecanvas_effect(stdClass $image, array $data) {
   }
 
   // All the math is done, now defer to the toolkit in use.
-  $data['targetsize'] = $targetsize;
+  $data['targetsize'] = $target_size;
 
   $success = image_toolkit_invoke('definecanvas', $image, array($data));
   if ($success) {
-    $image->info['width'] = $targetsize['width'];
-    $image->info['height'] = $targetsize['height'];
+    $image->info['width'] = $target_size['width'];
+    $image->info['height'] = $target_size['height'];
   }
   return $success;
 }
@@ -363,10 +365,10 @@ function canvasactions_definecanvas_effect(stdClass $image, array $data) {
  *   true on success, false otherwise.
  */
 function image_gd_definecanvas(stdClass $image, array $data) {
-  $targetsize = $data['targetsize'];
+  $target_size = $data['targetsize'];
   $RGB = $data['RGB'];
 
-  $newcanvas = imagecreatetruecolor($targetsize['width'], $targetsize['height']);
+  $newcanvas = imagecreatetruecolor($target_size['width'], $target_size['height']);
   imagesavealpha($newcanvas, TRUE);
   imagealphablending($newcanvas, FALSE);
   imagesavealpha($image->resource, TRUE);
@@ -378,19 +380,19 @@ function image_gd_definecanvas(stdClass $image, array $data) {
     // No color, attempt transparency, assume white.
     $background = imagecolorallocatealpha($newcanvas, 255, 255, 255, 127);
   }
-  imagefilledrectangle($newcanvas, 0, 0, $targetsize['width'], $targetsize['height'], $background);
+  imagefilledrectangle($newcanvas, 0, 0, $target_size['width'], $target_size['height'], $background);
 
   if ($data['under']) {
     $canvas_object = new stdClass();
     $canvas_object->resource = $newcanvas;
     $canvas_object->info = array(
-        'width' => $targetsize['width'],
-        'height' => $targetsize['height'],
+        'width' => $target_size['width'],
+        'height' => $target_size['height'],
         'mime_type' => $image->info['mime_type'],
         'extension' => $image->info['extension'],
       );
     $canvas_object->toolkit = $image->toolkit;
-    image_overlay($image, $canvas_object, $targetsize['left'], $targetsize['top'], 100, TRUE);
+    image_overlay($image, $canvas_object, $target_size['left'], $target_size['top'], 100, TRUE);
   }
   else {
     $image->resource = $newcanvas;
@@ -421,10 +423,10 @@ function image_imagemagick_definecanvas(stdClass $image, $data) {
   $compose_operator = $data['under'] ? 'src-over' : 'dst-over';
   $image->ops[] = "-compose $compose_operator";
 
-  $targetsize = $data['targetsize'];
-  $geometry = sprintf('%dx%d', $targetsize['width'], $targetsize['height']);
-  if ($targetsize['left'] || $targetsize['top']) {
-    $geometry .= sprintf('%+d%+d', -$targetsize['left'], -$targetsize['top']);
+  $target_size = $data['targetsize'];
+  $geometry = sprintf('%dx%d', $target_size['width'], $target_size['height']);
+  if ($target_size['left'] || $target_size['top']) {
+    $geometry .= sprintf('%+d%+d', -$target_size['left'], -$target_size['top']);
   }
   $image->ops[] = '-extent ' . escapeshellarg($geometry);
 
@@ -594,7 +596,7 @@ function canvasactions_canvas2file_effect(stdClass $image, array $data) {
     // This func modifies the underlay image by ref, placing the current canvas on it.
     if (image_overlay($image, $underlay, $data['xpos'], $data['ypos'], $data['alpha'], TRUE)) {
       //$image->resource = $underlay->resource;
-      $image = $underlay; //@todo: this is a no-op.
+      //$image = $underlay; //@todo: this is a no-op.
       return TRUE;
     }
   }
@@ -998,9 +1000,13 @@ function canvasactions_resizepercent_form(array $data) {
   return $form;
 }
 
-
 /**
  * Element validate handler to ensure that a positive number is specified.
+ *
+ * @param array $element
+ *   The form element to validate.
+ * @param array $form_state
+ *   The form state.
  */
 function canvasactions_resizepercent_validate($element, &$form_state) {
   element_validate_number($element, $form_state);
@@ -1246,4 +1252,442 @@ function image_gd_interlace($image/*, array $data*/) {
 function image_imagemagick_interlace($image/*, array $data*/) {
   $image->ops[] = '-interlace Plane';
   return TRUE;
+}
+
+/**
+ * Image effect form callback for the Perspective effect.
+ *
+ * @param array $data
+ *   The current configuration for this image effect.
+ *
+ * @return array
+ *   The form definition for this effect.
+ */
+function canvasactions_perspective_form(array $data) {
+  $defaults = array(
+    'vanish' => 'right',
+    'symmetry' => 'symmetrical',
+    'distortion' => 14,
+    'opposite_distortion' => 10,
+  );
+  $data = array_merge($defaults, $data);
+
+  $form['vanish'] = array(
+    '#type' => 'radios',
+    '#title' => t('Vanishing point'),
+    '#options' => array(
+      'top' => t('Top'),
+      'left' => t('Left'),
+      'right' => t('Right'),
+      'bottom' => t('Bottom'),
+    ),
+    '#theme' => 'canvasactions_perspective_anchor',
+    '#default_value' => $data['vanish'],
+    '#description' => t('The position of the vanishing point relative to the source image.'),
+  );
+
+  $form['symmetry'] = array(
+    '#type' => 'radios',
+    '#title' => t('Symmetry of image perspective'),
+    '#description' => t('If symmetrical, the perspective effect will be built symmetrically. If asymmetrical, you can set different distortion values for both sides. Mathematically speaking: symmetrical distortion results in an isosceles trapezoid, whereas asymmetrical distortion results in just an acute trapezoid.'),
+    '#default_value' => $data['symmetry'],
+    '#options' => array(
+      'symmetrical'   => t('Symmetrical perspective'),
+      'asymmetrical'  => t('Asymmetrical perspective'),
+    ),
+  );
+
+  $form['distortion'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Distortion'),
+    '#field_suffix' => '%',
+    '#size' => 5,
+    '#default_value' => $data['distortion'],
+    '#element_validate' => array('canvasactions_perspective_distortion_validate'),
+    '#description' => t('How much the corner(s) (on the vanishing point side of the image) should move to the horizon (i.e. the line containing the vanishing point). With 0% you will have no perspective effect at all and the vanishing point will be infinitely far away. With a sum of 100%, the 2 corner(s) and the vanishing point will be the same, resulting in a triangle instead of a trapezoid. For a pleasing effect, you should choose (a) number(s) between 0 and 35%, especially with ImageMagick as that toolkit also adds some stretching within the image.'),
+  );
+
+  $form['opposite_distortion'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Distortion for opposite side'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="data[symmetry]"]' => array('value' => 'asymmetrical'),
+      ),
+    ),
+    '#field_suffix' => '%',
+    '#size' => 5,
+    '#default_value' => $data['opposite_distortion'],
+    '#element_validate' => array('canvasactions_perspective_distortion_validate'),
+    '#description' => t('How much the 2nd corner on the vanishing point side of the image should move to the horizon line containing the vanishing point.'),
+  );
+
+  $form['additional_help'] = array(
+    '#markup' => '<p>Some notes:</p>
+      <ul><li>This effect adds a perspective effect to an image.
+      Normally, to get a realistic effect, the side that gets the perspective effect should be reduced in size.
+      However, this effect does not do so, as it is easy to add a (percentage) resize effect to the image style yourself.
+      A resize to 85% of the original size is a good start when experimenting.</li>
+      <li>CSS3 also defines <a href="https://www.w3.org/TR/2009/WD-css3-3d-transforms-20090320/#perspective-property">3D perspective transformations</a>.
+      So you might get some of the results of ths effect with pure CSS as well.</li></ul>',
+  );
+
+  return $form;
+}
+
+/**
+ * Form element validation handler for distortion.
+ *
+ * @param array $element
+ *   The form element to validate.
+ * @param array $form_state
+ *   The form state.
+ */
+function canvasactions_perspective_distortion_validate($element, &$form_state) {
+  $symmetrical  = $form_state['values']['data']['symmetry'] === 'symmetrical';
+  $element_name = $element['#name'];
+  // Do not check opposite distortion if it is hidden in the UI.
+  if (!$symmetrical || $element_name === 'data[distortion]') {
+    $value = $element['#value'];
+    // Check value itself: a number between 0 and 100 (50 if symmetrical):
+    $max_value = $symmetrical ? 50 : 100;
+    if (!is_numeric($value) || $value < 0 || $value >= $max_value) {
+      if ($symmetrical) {
+        form_error($element, t('!name must be a value between 0 and 50.', array('!name' => $element['#title'])));
+      }
+      else {
+        form_error($element, t('!name must be a value between 0 and 100.',array('!name' => $element['#title'])));
+      }
+    }
+    // Sum of both distortion values should also be smaller then 100.
+    if (!$symmetrical) {
+      $other_value_name = $element_name === 'data[distortion]' ? 'opposite_distortion' : 'distortion';
+      $other_value = $form_state['values']['data'][$other_value_name];
+      if (is_numeric($other_value) && $value + $other_value >= 100) {
+        form_error($element, t('The sum of %name and %name2 must be lower then 100.',
+          array(
+            '%name' => $element['#title'],
+            '%name2' => $other_value_name === 'distortion' ? t('Distortion') : t('Distortion for opposite side'),
+          ))
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements theme_hook() for the define perspective effect summary.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - data: The current configuration for this image effect.
+ *
+ * @return string
+ *   The HTML for the summary of this image effect.
+ * @ingroup themeable
+ */
+function theme_canvasactions_perspective_summary(array $variables) {
+  $data = $variables['data'];
+  $output = array();
+
+  $output[] = t('%symmetry. Vanishing point: %vanish.',
+    array(
+      '%symmetry' => $data['symmetry'],
+      '%vanish' => $data['vanish'],
+    ));
+
+  if ($data['symmetry'] == 'asymmetrical') {
+    switch ($data['vanish']) {
+      case 'top':
+      case 'bottom':
+        $output[] = t('Left distortion: %distortion, right distortion: %opposite_distortion.',
+          array(
+            '%distortion' => $data['distortion'] . '%',
+            '%opposite_distortion' => $data['opposite_distortion'] . '%',
+          ));
+        break;
+
+      case 'right':
+      case 'left':
+        $output[] = t('Top distortion: %distortion, bottom distortion: %opposite_distortion.',
+          array(
+            '%distortion' => $data['distortion'] . '%',
+            '%opposite_distortion' => $data['opposite_distortion'] . '%',
+          ));
+        break;
+    }
+  }
+  else {
+    $output[] = t('Distortion: %distortion.', array('%distortion' => $data['distortion'] . '%'));
+  }
+
+  return implode(' ', $output);
+}
+
+/**
+ * Image effect callback for the Perspective effect.
+ *
+ * @param stdClass $image
+ *   Image object containing the image to operate on.
+ * @param array $data
+ *   The current configuration for this image effect, contains the keys:
+ *   distortion, vanish, symmetry and opposite_distortion options.
+ *
+ * @return bool
+ *   True on success, false otherwise.
+ */
+function canvasactions_perspective_effect(stdClass $image, array $data) {
+  if (!image_toolkit_invoke('perspective', $image, array($data))) {
+    watchdog('imagecache_canvasactions', 'Image perspective transform failed using the %toolkit toolkit on %path (%mimetype, %dimensions)', array(
+      '%toolkit' => $image->toolkit,
+      '%path' => $image->source,
+      '%mimetype' => $image->info['mime_type'],
+      '%dimensions' => $image->info['height'] . 'x' . $image->info['height'],
+    ), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * GD toolkit specific implementation of the image Perspective effect.
+ *
+ * @param stdClass $image
+ *   Image object containing the image resource to operate on.
+ * @param array $data
+ *   The current configuration for this image effect, contains the keys:
+ *   distortion, vanish, symmetry and opposite_distortion options.
+ *
+ * @return bool
+ *   True on success, false otherwise.
+ */
+function image_gd_perspective(stdClass $image, $data) {
+  $width = $image->info['width'];
+  $height = $image->info['height'];
+  $distortion = $data['distortion'];
+  $opposite_distortion = $data['symmetry'] === 'symmetrical' ? $distortion : $data['opposite_distortion'];
+
+  // To reduce distortion, we work with a temporary hires version of the image.
+  // @todo: during processing we have 2 resources this size: this might crash on memory limits: warn and/or prevent.
+  $multiplier = 3;
+  $hires_width = $width * $multiplier;
+  $hires_height = $height * $multiplier;
+  $hires_source_image = imagecreatetruecolor($hires_width, $hires_height);
+  $transparent_white = imagecolorallocatealpha($hires_source_image, 255, 255, 255, 127);
+  imagealphablending($hires_source_image, FALSE);
+  imagefilledrectangle($hires_source_image, 0, 0, $hires_width, $hires_height, $transparent_white);
+  imagesavealpha($hires_source_image, TRUE);
+  imagecopyresized($hires_source_image, $image->resource, 0, 0, 0, 0, $hires_width, $hires_height, $width, $height);
+  imagedestroy($image->resource);
+
+  // Creating a hires target canvas to apply the perspective effect on.
+  $hires_target_image = imagecreatetruecolor($hires_width, $hires_height);
+  $transparent_white = imagecolorallocatealpha($hires_target_image, 255, 255, 255, 127);
+  // We don't want to blend: the transparent background we set is only for the
+  // parts that do not get covered.
+  imagealphablending($hires_target_image, FALSE);
+  imagefilledrectangle($hires_target_image, 0, 0, $hires_width, $hires_height, $transparent_white);
+
+  // Building perspective effect with help four point distortion methods.
+  // On each step found new distortion point by right triangle formula.
+  switch ($data['vanish']) {
+    case 'top':
+      $left = round($hires_width * $distortion / 100);
+      $right = round($hires_width - ($hires_width * (100 - $opposite_distortion) / 100));
+
+      $tg_beta_left = $left / $hires_height;
+      $tg_beta_right = $right / $hires_height;
+
+      for ($y = 0; $y < $hires_height; $y++) {
+        $new_left = ($hires_height - $y) * $tg_beta_left;
+        $new_right = ($hires_height - $y) * $tg_beta_right;
+        $new_width = $hires_width - $new_left - $new_right;
+        imagecopyresampled($hires_target_image, $hires_source_image,
+          $new_left, $y,
+          0, $y,
+          $new_width, 1,
+          $hires_width, 1);
+      }
+      break;
+
+    case 'bottom':
+      $left = round($hires_width * $distortion / 100);
+      $right = round($hires_width - ($hires_width * (100 - $opposite_distortion) / 100));
+
+      $tg_beta_left = $left / $hires_height;
+      $tg_beta_right = $right / $hires_height;
+
+      for ($y = $hires_height; $y > 0; $y--) {
+        $new_left = $y * $tg_beta_left;
+        $new_right = $y * $tg_beta_right;
+        $new_width = $hires_width - $new_left - $new_right;
+        imagecopyresampled($hires_target_image, $hires_source_image,
+          $new_left, $y,
+          0, $y,
+          $new_width, 1,
+          $hires_width, 1);
+      }
+      break;
+
+    case 'right':
+      $top = round($hires_height * $distortion / 100);
+      $bottom = round($hires_height - ($hires_height * (100 - $opposite_distortion) / 100));
+
+      $tg_beta_top = $top / $hires_width;
+      $tg_beta_bottom = $bottom / $hires_width;
+
+      for ($x = $hires_width; $x > 0; $x--) {
+        $new_top = $x * $tg_beta_top;
+        $new_bottom = $x * $tg_beta_bottom;
+        $new_height = $hires_height - $new_top - $new_bottom;
+        imagecopyresampled($hires_target_image, $hires_source_image,
+          $x, $new_top,
+          $x, 0,
+          1, $new_height,
+          1, $hires_height);
+      }
+      break;
+
+    case 'left':
+      $top = round($hires_height * $distortion / 100);
+      $bottom = round($hires_height - ($hires_height * (100 - $opposite_distortion) / 100));
+
+      $tg_beta_top = $top / $hires_width;
+      $tg_beta_bottom = $bottom / $hires_width;
+
+      for ($x = 0; $x < $hires_width; $x++) {
+        $new_top = ($hires_width - $x) * $tg_beta_top;
+        $new_bottom = ($hires_width - $x) * $tg_beta_bottom;
+        $new_height = $hires_height - $new_top - $new_bottom;
+        imagecopyresampled($hires_target_image, $hires_source_image,
+          $x, $new_top,
+          $x, 0,
+          1, $new_height,
+          1, $hires_height);
+      }
+      break;
+  }
+  imagedestroy($hires_source_image);
+  imagealphablending($hires_target_image, FALSE);
+  imagesavealpha($hires_target_image, TRUE);
+
+  // Return image with perspective effect to original size.
+  $target_image = imagecreatetruecolor($width, $height);
+  imagealphablending($target_image, FALSE);
+  imagecopyresampled($target_image, $hires_target_image, 0, 0, 0, 0, $width, $height, $hires_width, $hires_height);
+  imagedestroy($hires_target_image);
+  imagesavealpha($target_image, TRUE);
+
+  $image->resource = $target_image;
+
+  return TRUE;
+}
+
+/**
+ * Imagemagick toolkit specific implementation of the image Perspective effect.
+ *
+ * @param stdClass $image
+ *   Image object containing the image to operate on.
+ * @param array $data
+ *   The current configuration for this image effect, contains the keys
+ *   distortion, vanish, symmetry and opposite_distortion options.
+ *
+ * @return bool
+ *   True on success, false otherwise.
+ */
+function image_imagemagick_perspective(stdClass $image, $data) {
+  $width = $image->info['width'];
+  $height = $image->info['height'];
+  $distortion = $data['distortion'];
+  $opposite_distortion = $data['symmetry'] === 'symmetrical' ? $distortion : $data['opposite_distortion'];
+
+  switch ($data['vanish']) {
+    case 'top':
+      $left = round($width * $distortion / 100);
+      $right = round($width * (100 - $opposite_distortion) / 100);
+      $perspective_arg = "0,0,$left,0 0,$height,0,$height $width,0,$right,0 $width,$height,$width,$height";
+      break;
+
+    case 'right':
+    default: // Prevents warning about possibly undefined variable.
+      $top = round($height * $distortion / 100);
+      $bottom = round($height * (100 - $opposite_distortion) / 100);
+      $perspective_arg = "0,0,0,0 0,$height,0,$height $width,0,$width,$top $width,$height,$width,$bottom";
+      break;
+
+    case 'bottom':
+      $left = round($width * $distortion / 100);
+      $right = round($width * (100 - $opposite_distortion) / 100);
+      $perspective_arg = "0,0,0,0 0,$height,$left,$height $width,0,$width,0 $width,$height,$right,$height";
+      break;
+
+    case 'left':
+      $top = round($height * $distortion / 100);
+      $bottom = round($height * (100 - $opposite_distortion) / 100);
+      $perspective_arg = "0,0,0,$top 0,$height,0,$bottom $width,0,$width,0 $width,$height,$width,$height";
+      break;
+  }
+
+  $transparent_white = escapeshellarg('#ffffffff');
+  $perspective = escapeshellarg($perspective_arg);
+  $image->ops[] = "-background $transparent_white -virtual-pixel background -distort Perspective $perspective";
+
+  return TRUE;
+}
+
+/** @noinspection PhpDocMissingThrowsInspection */
+/**
+ * Implements theme_hook().
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: A render element containing radio buttons.
+ *
+ * @return string
+ *   The HTML for a 3x3 grid of checkboxes for image anchors.
+ * @ingroup themeable
+ */
+function theme_canvasactions_perspective_anchor($variables) {
+  $element = $variables['element'];
+
+  $rows = $row = $option = array();
+
+  $blank = array('#markup' => '');
+  $blank = drupal_render($blank);
+
+  /** @noinspection PhpUnhandledExceptionInspection */
+  $image = array(
+    '#markup' => theme('image', array(
+      'path' => drupal_get_path('module', 'image') . '/sample.png',
+      'attributes' => array('width' => "40", 'height' => "40"),
+    )),
+  );
+  $image = drupal_render($image);
+
+  foreach (element_children($element) as $key) {
+    $element[$key]['#attributes']['title'] = $element[$key]['#title'];
+    unset($element[$key]['#title']);
+    $option[] = drupal_render($element[$key]);
+  }
+
+  $row[] = $blank;
+  $row[] = $option[0];
+  $row[] = $blank;
+  $rows[] = $row;
+  $row = array();
+
+  $row[] = $option[1];
+  $row[] = $image;
+  $row[] = $option[2];
+  $rows[] = $row;
+  $row = array();
+
+  $row[] = $blank;
+  $row[] = $option[3];
+  $row[] = $blank;
+  $rows[] = $row;
+
+  /** @noinspection PhpUnhandledExceptionInspection */
+  return theme('table', array('header' => array(), 'rows' => $rows, 'attributes' => array('class' => array('image-anchor'))));
 }

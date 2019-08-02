@@ -1,0 +1,57 @@
+{
+  "learn-two-theme": {
+    "element": "learn-two-theme",
+    "path": "@lrnwebcomponents/learn-two-theme/learn-two-theme.js",
+    "name": "Learn"
+  },
+  "haxor-slevin": {
+    "element": "haxor-slevin",
+    "path": "@lrnwebcomponents/haxor-slevin/haxor-slevin.js",
+    "name": "Coder blog"
+  },
+  "outline-player": {
+    "element": "outline-player",
+    "path": "@lrnwebcomponents/outline-player/outline-player.js",
+    "name": "Documentation"
+  },
+  "simple-blog": {
+    "element": "simple-blog",
+    "path": "@lrnwebcomponents/simple-blog/simple-blog.js",
+    "name": "Simple blog"
+  },
+  "haxcms-basic-theme": {
+    "element": "haxcms-basic-theme",
+    "path": "@lrnwebcomponents/haxcms-elements/lib/core/themes/haxcms-basic-theme.js",
+    "name": "Basic site"
+  },
+  "haxcms-custom-theme": {
+    "element": "haxcms-custom-theme",
+    "path": "@lrnwebcomponents/haxcms-elements/lib/core/themes/haxcms-custom-theme.js",
+    "name": "Custom theme"
+  },
+  "haxcms-user-theme": {
+    "element": "haxcms-user-theme",
+    "path": "@lrnwebcomponents/haxcms-elements/lib/core/themes/haxcms-user-theme.js",
+    "name": "User theme"
+  },
+  "haxcms-minimalist-theme": {
+    "element": "haxcms-minimalist-theme",
+    "path": "@lrnwebcomponents/haxcms-elements/lib/core/themes/haxcms-minimalist-theme.js",
+    "name": "Minimalist site"
+  },
+  "haxcms-slide-theme": {
+    "element": "haxcms-slide-theme",
+    "path": "@lrnwebcomponents/haxcms-elements/lib/core/themes/haxcms-slide-theme.js",
+    "name": "Slide deck"
+  },
+  "haxcms-dev-theme": {
+    "element": "haxcms-dev-theme",
+    "path": "@lrnwebcomponents/haxcms-elements/lib/development/haxcms-dev-theme.js",
+    "name": "DEVELOPER: Test theme"
+  },
+  "haxcms-theme-developer": {
+    "element": "haxcms-theme-developer",
+    "path": "@lrnwebcomponents/haxcms-elements/lib/development/haxcms-theme-developer.js",
+    "name": "EXPERIMENTAL: HAX Theme Maker"
+  }
+}

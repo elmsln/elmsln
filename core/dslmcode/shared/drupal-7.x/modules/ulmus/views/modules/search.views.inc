@@ -12,12 +12,11 @@
  */
 function search_views_data() {
   // Basic table information.
-
-  // Define the base group of this table. Fields that don't
-  // have a group defined will go into this field by default.
+  // Define the base group of this table. Fields that don't have a group
+  // defined will go into this field by default.
   $data['search_index']['table']['group']  = t('Search');
 
-  // For other base tables, explain how we join
+  // For other base tables, explain how we join.
   $data['search_index']['table']['join'] = array(
     'node' => array(
       'left_field' => 'nid',
@@ -35,7 +34,7 @@ function search_views_data() {
       'left_table' => 'search_index',
       'left_field' => 'word',
       'field' => 'word',
-    )
+    ),
   );
 
   $data['search_dataset']['table']['join'] = array(
@@ -56,9 +55,8 @@ function search_views_data() {
   );
 
   // ----------------------------------------------------------------
-  // Fields
-
-  // score
+  // Fields.
+  // Score.
   $data['search_index']['score'] = array(
     'title' => t('Score'),
     'help' => t('The score of the search item. This will not be used if the search filter is not also present.'),
@@ -111,11 +109,13 @@ function search_views_data() {
     ),
   );
 
-  // search filter
+  // Search filter.
   $data['search_index']['keys'] = array(
-    'title' => t('Search Terms'), // The item it appears as on the UI,
-    'help' => t('The terms to search for.'), // The help that appears on the UI,
-    // Information for searching terms using the full search syntax
+    // The item it appears as on the UI,
+    'title' => t('Search Terms'),
+    // The help that appears on the UI,
+    'help' => t('The terms to search for.'),
+    // Information for searching terms using the full search syntax.
     'filter' => array(
       'handler' => 'views_handler_filter_search',
       'no group by' => TRUE,
@@ -135,16 +135,20 @@ function search_views_data() {
 function search_views_plugins() {
   return;
   // DISABLED. This currently doesn't work.
+  // @todo Fix this.
   return array(
-    'module' => 'views', // This just tells our themes are elsewhere.
+    'module' => 'views',
+    // This just tells our themes are elsewhere.
     'row' => array(
       'search' => array(
         'title' => t('Search'),
         'help' => t('Display the results with standard search view.'),
         'handler' => 'views_plugin_row_search_view',
         'theme' => 'views_view_row_search',
-        'path' => drupal_get_path('module', 'views') . '/modules/search', // not necessary for most modules
-        'base' => array('node'), // only works with 'node' as base.
+        'path' => drupal_get_path('module', 'views') . '/modules/search',
+        // Not necessary for most modules.
+        'base' => array('node'),
+        // Only works with 'node' as base.
         'type' => 'normal',
       ),
       'views_handler_argument_search' => array(
@@ -155,16 +159,18 @@ function search_views_plugins() {
 }
 
 /**
- * Template helper for theme_views_view_row_search
+ * Template helper for theme_views_view_row_search.
  */
 function template_preprocess_views_view_row_search(&$vars) {
-  $vars['node'] = ''; // make sure var is defined.
+  $vars['node'] = '';
+  // Make sure var is defined.
   $nid = $vars['row']->nid;
   if (!is_numeric($nid)) {
     return;
   }
 
-  // @todo: Once the search row is fixed this node_load should be replace by a node_load_multiple
+  // @todo Once the search row is fixed this node_load should be replace by a
+  // node_load_multiple().
   $node = node_load($nid);
 
   if (empty($node)) {
@@ -175,10 +181,10 @@ function template_preprocess_views_view_row_search(&$vars) {
   $node = node_build_content($node, FALSE, FALSE);
   $node->body = drupal_render($node->content);
 
-  // Fetch comments for snippet
+  // Fetch comments for snippet.
   $node->body .= module_invoke('comment', 'nodeapi', $node, 'update index');
 
-  // Fetch terms for snippet
+  // Fetch terms for snippet.
   $node->body .= module_invoke('taxonomy', 'nodeapi', $node, 'update index');
 
   $vars['url'] = url('node/' . $nid);
@@ -196,7 +202,7 @@ function template_preprocess_views_view_row_search(&$vars) {
   $vars['info'] = implode(' - ', $info);
 
   $vars['node'] = $node;
-  // @todo: get score from ???
-//$vars['score'] = $item->score;
+  // @todo Where does the score come from?
+  // $vars['score'] = $item->score;
   $vars['snippet'] = search_excerpt($vars['view']->value, $node->body);
 }

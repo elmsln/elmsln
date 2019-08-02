@@ -11,7 +11,7 @@
  * @param $menu_name
  *   The menu name to use as base for the tree.
  */
-function admin_menu_tree($menu_name) {
+function _admin_menu_tree($menu_name) {
   // Get placeholder expansion arguments from hook_admin_menu_map()
   // implementations.
   module_load_include('inc', 'admin_menu', 'admin_menu.map');
@@ -50,7 +50,7 @@ function admin_menu_tree($menu_name) {
 /**
  * Load menu link trees for router paths containing dynamic arguments.
  *
- * @param $expand_map
+ * @param array $expand_map
  *   An array containing menu router path placeholder expansion argument
  *   mappings.
  *
@@ -97,7 +97,7 @@ function admin_menu_tree_dynamic(array $expand_map) {
   $db_or = db_or();
   foreach ($plids as $path_plids) {
     $db_and = db_and();
-    // plids with value 0 may be ignored.
+    // Plids with value 0 may be ignored.
     foreach (array_filter($path_plids) as $column => $plid) {
       $db_and->condition($column, $plid);
     }
@@ -188,7 +188,9 @@ function admin_menu_merge_tree(array &$tree, array $tree_dynamic, array $expand_
         }
       }
       else {
-        $current_expand_map = $expand_map;
+        if (!empty($current_expand_map)) {
+          $expand_map = $current_expand_map;
+        }
       }
 
       // Skip dynamic items without expansion parameters.
@@ -204,7 +206,7 @@ function admin_menu_merge_tree(array &$tree, array $tree_dynamic, array $expand_
         foreach ($load_functions as $index => $function) {
           if ($function) {
             if (is_array($function)) {
-              list($function,) = each($function);
+              $function = key($function);
             }
             // Add the loader function name minus "_load".
             $placeholder = '%' . substr($function, 0, -5);
@@ -269,7 +271,7 @@ function admin_menu_translate($router_item, $map) {
     // replace any other.
     // @todo Doing this instead leads to plenty of duplicate links below
     //   admin/structure/menu; likely a hidden recursion problem.
-    // $router_item['mlid'] = $router_item['href'] . $router_item['mlid'];
+    // $router_item['mlid'] = $router_item['href'] . $router_item['mlid'];.
     $router_item['mlid'] = $router_item['href'];
     // Turn menu callbacks into regular menu items to make them visible.
     if ($router_item['type'] == MENU_CALLBACK) {
@@ -278,10 +280,12 @@ function admin_menu_translate($router_item, $map) {
 
     // @see _menu_tree_check_access()
     $key = (50000 + $router_item['weight']) . ' ' . $router_item['title'] . ' ' . $router_item['mlid'];
-    return array($key => array(
-      'link' => $router_item,
-      'below' => array(),
-    ));
+    return array(
+      $key => array(
+        'link' => $router_item,
+        'below' => array(),
+      ),
+    );
   }
 
   return array();
@@ -442,6 +446,9 @@ function admin_menu_links_icon() {
     '#weight' => 50,
     '#access' => user_access('administer site configuration'),
     '#href' => 'admin/reports/status/run-cron',
+    '#options' => array(
+      'query' => array('token' => drupal_get_token('run-cron')),
+    ),
   );
   // Add link to run update.php.
   $links['icon']['update'] = array(
@@ -461,20 +468,22 @@ function admin_menu_links_icon() {
     '#access' => user_access('display drupal links'),
     '#href' => 'http://drupal.org',
   );
-  // Add links to project issue queues.
-  foreach (module_list(FALSE, TRUE) as $module) {
-    $info = drupal_parse_info_file(drupal_get_path('module', $module) . '/' . $module . '.info');
-    if (!isset($info['project']) || isset($links['icon']['drupal.org'][$info['project']])) {
-      continue;
+  if (variable_get('admin_menu_issue_queues', TRUE)) {
+    // Add links to project issue queues.
+    foreach (module_list(FALSE, TRUE) as $module) {
+      $info = drupal_parse_info_file(drupal_get_path('module', $module) . '/' . $module . '.info');
+      if (!isset($info['project']) || isset($links['icon']['drupal.org'][$info['project']])) {
+        continue;
+      }
+      $links['icon']['drupal.org'][$info['project']] = array(
+        '#title' => t('@project issue queue', array('@project' => $info['name'])),
+        '#weight' => ($info['project'] == 'drupal' ? -10 : 0),
+        '#href' => 'http://drupal.org/project/issues/' . $info['project'],
+        '#options' => array(
+          'query' => array('version' => (isset($info['core']) ? $info['core'] : 'All')),
+        ),
+      );
     }
-    $links['icon']['drupal.org'][$info['project']] = array(
-      '#title' => t('@project issue queue', array('@project' => $info['name'])),
-      '#weight' => ($info['project'] == 'drupal' ? -10 : 0),
-      '#href' => 'http://drupal.org/project/issues/' . $info['project'],
-      '#options' => array(
-        'query' => array('version' => (isset($info['core']) ? $info['core'] : 'All')),
-      ),
-    );
   }
   // Add items to flush caches.
   $links['icon']['flush-cache'] = array(
@@ -570,7 +579,7 @@ function admin_menu_links_users() {
     '#description' => t('Current anonymous / authenticated users'),
     '#weight' => -90,
     '#attributes' => array('class' => array('admin-menu-action', 'admin-menu-users')),
-    '#href' => (user_access('administer users') ? 'admin/people/people' : 'user'),
+    '#href' => (user_access('administer users') ? 'admin/people' : 'user'),
   );
   return $links;
 }
@@ -658,7 +667,7 @@ function admin_menu_theme_settings() {
     '#default_value' => variable_get('admin_menu_tweak_modules', 0),
   );
   if (module_exists('util')) {
-    $form['tweaks']['admin_menu_tweak_modules']['#description'] .= '<br /><strong>' . t('If the Utility module was installed for this purpose, it can be safely disabled and uninstalled.') . '</strong>';
+    $form['tweaks']['admin_menu_tweak_modules']['#description'] = '<br /><strong>' . t('If the Utility module was installed for this purpose, it can be safely disabled and uninstalled.') . '</strong>';
   }
   $form['tweaks']['admin_menu_tweak_permissions'] = array(
     '#type' => 'checkbox',
@@ -674,6 +683,22 @@ function admin_menu_theme_settings() {
     '#default_value' => variable_get('admin_menu_tweak_tabs', 0),
     '#description' => t('Moves the tabs on all pages into the administration menu. Only possible for themes using the CSS classes <code>tabs primary</code> and <code>tabs secondary</code>.'),
   );
+  $form['tweaks']['admin_menu_tweak_tabs_exclude_admin'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Only move local tasks on frontend-pages'),
+    '#description' => t('eg. because there, the tabs destroy your theme\'s layout. Do not move on admin-pages, since the standard admin-theme has room for them.'),
+    '#default_value' => variable_get('admin_menu_tweak_tabs_exclude_admin', 0),
+    '#prefix' => '<div style="margin-left:1.5em">',
+    '#suffix' => '</div>',
+    '#attributes' => array(
+      'class' => array('someclass'),
+    ),
+    '#states' => array(
+      'enabled' => array(
+        ':checkbox[name="admin_menu_tweak_tabs"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
 
   $form['performance'] = array(
     '#type' => 'fieldset',
@@ -684,6 +709,40 @@ function admin_menu_theme_settings() {
     '#type' => 'checkbox',
     '#title' => t('Cache menu in client-side browser'),
     '#default_value' => variable_get('admin_menu_cache_client', 1),
+  );
+  $form['performance']['admin_menu_issue_queues'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Issue Queue links in icon menu'),
+    '#default_value' => variable_get('admin_menu_issue_queues', 1),
+  );
+
+  $form['accessibility'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Accessibility'),
+    '#group' => 'advanced',
+  );
+  $form['accessibility']['admin_menu_font_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Font size'),
+    '#description' => t('Font size in pixels (px), ems (em), or percentage (%).<br /> ie. <em>1.1em</em> or <em>16px</em> or <em>120%</em><br /> Leave this field blank to use the default font size.'),
+    '#size' => 10,
+    '#maxlength' => 5,
+    '#default_value' => variable_get('admin_menu_font_size', ''),
+  );
+
+  $form['themes'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Toolbar themes'),
+    '#group' => 'advanced',
+  );
+  $form['themes']['admin_menu_theme'] = array(
+    '#type' => 'radios',
+    '#title' => t('Choose theme for your toolbar'),
+    '#options' => array(
+      'default' => t('Default theme'),
+      'light' => t('Light theme'),
+    ),
+    '#default_value' => variable_get('admin_menu_theme', 'default'),
   );
 
   return system_settings_form($form);
@@ -712,6 +771,18 @@ function admin_menu_theme_settings_validate(&$form, &$form_state) {
   // Change the configured components to Boolean values.
   foreach ($form_state['values']['admin_menu_components'] as $component => &$enabled) {
     $enabled = (bool) $enabled;
+  }
+  // Validates that the font size is valid.
+  if (!empty($form_state['values']['admin_menu_font_size'])) {
+    $font_size_raw = $form_state['values']['admin_menu_font_size'];
+    $allowed_units = array('em', '%', 'px');
+    $font_size_base = str_replace($allowed_units, '', $font_size_raw);
+    if ($font_size_base === $font_size_raw) {
+      form_set_error('admin_menu_font_size', t('The font size unit must be specified with px, em, or %.'));
+    }
+    if (!is_numeric($font_size_base) || $font_size_base <= 0) {
+      form_set_error('admin_menu_font_size', t('The font size base value must be a positive number.'));
+    }
   }
 }
 
@@ -763,18 +834,20 @@ function admin_menu_flush_cache($name = NULL) {
     if (!isset($caches[$name])) {
       return MENU_NOT_FOUND;
     }
+    $message = t('@title cache cleared.', array('@title' => $caches[$name]['title']));
   }
   else {
     $caches[$name] = array(
       'title' => t('Every'),
       'callback' => 'drupal_flush_all_caches',
     );
+    $message = t('All caches cleared.');
   }
   // Pass the cache to flush forward to the callback.
   $function = $caches[$name]['callback'];
   $function($name);
 
-  drupal_set_message(t('!title cache cleared.', array('!title' => $caches[$name]['title'])));
+  drupal_set_message($message);
 
   // The JavaScript injects a destination request parameter pointing to the
   // originating page, so the user is redirected back to that page. Without
@@ -907,4 +980,3 @@ function template_preprocess_admin_menu_icon(&$variables) {
 function theme_admin_menu_icon($variables) {
   return '<img class="admin-menu-icon" src="' . $variables['src'] . '" width="16" height="16" alt="' . $variables['alt'] . '" />';
 }
-

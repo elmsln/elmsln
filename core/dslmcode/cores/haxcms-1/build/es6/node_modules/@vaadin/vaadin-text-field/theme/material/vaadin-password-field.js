@@ -1,0 +1,2 @@
+import './vaadin-password-field-styles.js';
+import '../../src/vaadin-password-field.js';
