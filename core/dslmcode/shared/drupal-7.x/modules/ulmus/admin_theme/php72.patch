@@ -1,0 +1,16 @@
+ admin_theme.module | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/admin_theme.module b/admin_theme.module
+index 6cebaad..5ad88ab 100644
+--- a/admin_theme.module
++++ b/admin_theme.module
+@@ -43,7 +43,7 @@ function admin_theme_list() {
+   $options = array();
+   foreach (module_list() as $module) {
+     $module_options = module_invoke($module, 'admin_theme_info');
+-    if (count($module_options) > 0) {
++    if (is_array($module_options) && count($module_options) > 0) {
+       foreach ($module_options as $option => $info) {
+         $info['option'] = $option;
+         $info['module'] = $module;
