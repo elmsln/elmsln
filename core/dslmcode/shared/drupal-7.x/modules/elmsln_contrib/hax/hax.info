@@ -1,4 +1,4 @@
-name = "HAX"
+name = "HAX Block editor"
 description = "A completely Headless Authoring eXperience, #haxtheweb."
 core = "7.x"
 package = Webcomponents
