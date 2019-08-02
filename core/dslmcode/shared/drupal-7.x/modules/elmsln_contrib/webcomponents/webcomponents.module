@@ -26,12 +26,25 @@ function webcomponents_menu() {
  * Set CDN if you want
  */
 function webcomponents_admin_settings($form, &$form_state) {
-  $form['webcomponents_project_location'] = array(
+  $form['webcomponents_project_location'] = [
+    '#type' => 'select',
+    '#title' => t('Webcomponents Location'),
+    '#default_value' => variable_get('webcomponents_project_location', 'https://webcomponents.psu.edu/cdn/'),
+    '#options' => array(
+      'https://webcomponents.psu.edu/cdn/' => 'Penn State CDN',
+      'https://cdn.waxam.io/' => 'Waxam CDN',
+      'sites/all/libraries/webcomponents/' => 'Local libraries folder (sites/all/libraries/webcomponents/)',
+      'other' => t('Other'),
+    ),
+    '#description' => t("Use this to point to CDNs or if you've installed your web components some place else. Start without a slash and end with a slash."),
+  ];
+  $form['webcomponents_project_location_other'] = [
     '#type' => 'textfield',
-    '#title' => t('CDN location'),
-    '#default_value' => variable_get('webcomponents_project_location', 'sites/all/libraries/webcomponents/'),
-    '#description' => t("Base path needs to start without a slach and end with a slash. This supports CDNs as well."),
-  );
+    '#title' => t('Other Location'),
+    '#default_value' => variable_get('webcomponents_project_location_other', ''),
+    '#maxlength' => 1000,
+    '#description' => t("Only use this if you need to use a source other than the above supported options."),
+  ];
   return system_settings_form($form);
 }
 
@@ -39,7 +52,10 @@ function webcomponents_admin_settings($form, &$form_state) {
  * Implements hook_process_html().
  */
 function webcomponents_process_html(&$variables) {
-  $location = variable_get('webcomponents_project_location', 'sites/all/libraries/webcomponents/');
+  $location = variable_get('webcomponents_project_location', 'https://webcomponents.psu.edu/cdn/');
+  if ($location == 'other') {
+    $location = variable_get('webcomponents_project_location_other', '');  
+  }
   // append base_path if this site has a url to start it
   if (strpos($location, 'http') === FALSE) {
     $location = base_path() . $location;
