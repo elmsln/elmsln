@@ -1,0 +1,26 @@
+diff --git a/views_timelinejs_plugin_style_timelinejs.inc b/views_timelinejs_plugin_style_timelinejs.inc
+index 52c7bbd..4b858e4 100644
+--- a/views_timelinejs_plugin_style_timelinejs.inc
++++ b/views_timelinejs_plugin_style_timelinejs.inc
+@@ -600,7 +600,9 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
+ 
+       // Allow other modules to alter timeline rows before rendering by
+       // implementing hook_views_timelinejs_rows_alter().
+-      drupal_alter('views_timelinejs_rows', $rows, clone $this->view);
++      $view = clone $this->view;
++      drupal_alter('views_timelinejs_rows', $rows, $view);
++      unset($view);
+ 
+       // Prepare data array that TimelineJS understands.
+       $data = array(
+@@ -634,7 +636,9 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
+ 
+     // Allow other modules to alter timeline data before rendering by
+     // implementing hook_views_timelinejs_data_alter().
+-    drupal_alter('views_timelinejs_data', $data, clone $this->view);
++    $view = clone $this->view;
++    drupal_alter('views_timelinejs_data', $data, $view);
++    unset($view);
+ 
+     // Skip rendering if view is being edited or previewed.
+     if (!$this->view->editing) {
