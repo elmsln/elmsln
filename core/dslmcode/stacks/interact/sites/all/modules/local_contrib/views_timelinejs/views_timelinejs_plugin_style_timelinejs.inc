@@ -460,8 +460,7 @@ class views_timelinejs_plugin_style_timelinejs extends views_plugin_style {
 
       // Allow other modules to alter timeline data before rendering by
       // implementing hook_views_timelinejs_data_alter().
-      $newView = clone $view;
-      drupal_alter('views_timelinejs_data', $rows, $newView);
+      drupal_alter('views_timelinejs_data', $rows, clone $view);
 
       // Prepare data array that TimelineJS understands.
       $data = array(
