@@ -9,7 +9,7 @@ Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
 | Version | PHP | Includes | Status |
 | ------- | --- | -------- | ------ |
-[0.10.0](https://github.com/elmsln/elmsln/archive/0.10.0.zip)  | 5.4+ & 7.x | Polymer 1.x.x, Drupal 7.x, GravCMS 1.x.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/elmsln/sponsors/badge.svg)](#sponsors)
+[0.10.0](https://github.com/elmsln/elmsln/archive/0.10.0.zip)  | 5.4+ & 7.x | Polymer 1.x.x, Drupal 7.x, GravCMS 1.x.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers) [![OpenCollective]
 
 Contributing
 ==============
@@ -41,8 +41,7 @@ Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, ph
 ## Backers
 Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/elmsln#backer)]
 
-## Sponsors
-Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/elmsln#sponsor)]
+
 
 LICENSE
 ==============
