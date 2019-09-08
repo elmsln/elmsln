@@ -38,8 +38,7 @@ There are many ways you can get involved in helping build ELMSLN; not all of whi
 
 Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, phone, meet ups, drupalcamps, edtech events, our offices, coffee shops, or anywhere else that you can find pieces that will help build upon this work. We are here to make the future awesome together.
 
-## Backers
-Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/elmsln#backer)]
+
 
 ## Sponsors
 Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/elmsln#sponsor)]
