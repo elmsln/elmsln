@@ -41,9 +41,6 @@ Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, ph
 ## Backers
 Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/elmsln#backer)]
 
-## Sponsors
-Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/elmsln#sponsor)]
-
 LICENSE
 ==============
 ELMSLN is a collection of many, many projects, all individually licensed, all open source. The myriad of License files is why this section is added to avoid confusion. If you have a licensing question or concern please raise it in the issue queue.
