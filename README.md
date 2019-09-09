@@ -9,7 +9,7 @@ Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
 | Version | PHP | Includes | Status |
 | ------- | --- | -------- | ------ |
-[0.10.0](https://github.com/elmsln/elmsln/archive/0.10.0.zip)  | 5.4+ & 7.x | Polymer 1.x.x, Drupal 7.x, GravCMS 1.x.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers)
+[0.10.0](https://github.com/elmsln/elmsln/archive/0.10.0.zip)  | 5.4+ & 7.x | Polymer 1.x.x, Drupal 7.x, GravCMS 1.x.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) 
 
 Contributing
 ==============
@@ -37,11 +37,6 @@ How can I get more involved?
 There are many ways you can get involved in helping build ELMSLN; not all of which are technical in nature. The easiest way is to click the issues button in this repository. Submit feedback, help, questions, pedagogy, ideas, fan-art anything that helps us further our mission! All help and outreach is welcome and responded to.
 
 Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, phone, meet ups, drupalcamps, edtech events, our offices, coffee shops, or anywhere else that you can find pieces that will help build upon this work. We are here to make the future awesome together.
-
-## Backers
-Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/elmsln#backer)]
-
-
 
 LICENSE
 ==============
