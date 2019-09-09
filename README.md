@@ -40,8 +40,7 @@ Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, ph
 
 
 
-## Sponsors
-Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/elmsln#sponsor)]
+
 
 LICENSE
 ==============
