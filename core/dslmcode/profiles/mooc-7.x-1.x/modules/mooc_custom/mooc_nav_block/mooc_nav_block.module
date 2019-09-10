@@ -140,7 +140,7 @@ function _mooc_nav_block_mooc_nav_block($node) {
     }
   }
   // @todo may need to hijack the theme suggestion here
-  drupal_alter('mooc_nav_block', $tree);
+  drupal_alter('mooc_nav_mooc_nav_block', $tree);
   $output .= drupal_render($tree);
   $block['subject'] = $nav['label'];
   $block['content'] = $output;
