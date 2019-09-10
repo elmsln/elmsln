@@ -301,6 +301,7 @@ function _mooc_helper_book_nav_build($globalnode) {
       }
       $nav_count++;
       $firstlevel = FALSE;
+      drupal_alter('mooc_helper_book_nav', $items, $nav_count);
       $breadcrumbs[] = theme('book_sibling_nav', array('parent' => $parents[$mlid] ,'items' => $items, 'count' => $nav_count));
     }
     $breadcrumbs = array_reverse($breadcrumbs);
@@ -422,4 +423,3 @@ function mooc_helper_book_nav_admin_menu_cache_info() {
   );
   return $caches;
 }
-
