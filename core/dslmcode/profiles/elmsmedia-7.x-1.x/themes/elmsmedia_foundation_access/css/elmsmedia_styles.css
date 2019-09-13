@@ -3,6 +3,11 @@
   margin-right: -100px;
 }
 
+.node-form .field-type-file,
+.node-form .field-type-image {
+  border: 1px solid grey;
+  padding: 4px;
+}
 .able-poster {
   width: 100%;
 }
