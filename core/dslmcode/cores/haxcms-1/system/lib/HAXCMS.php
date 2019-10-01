@@ -3,6 +3,8 @@
  * HAXCMS - The worlds smallest, most nothing yet most empowering CMS.
  * Simply a tremendous CMS. The greatest.
  */
+// system constants
+include_once 'Variables.php';
 // service creation / HAX app store service abstraction
 include_once 'HAXService.php';
 // working with sites
@@ -15,6 +17,8 @@ include_once 'JSONOutlineSchema.php';
 include_once 'JWT.php';
 // working with git operators
 include_once 'Git.php';
+// basica request validation / handling
+include_once dirname(__FILE__) . '/Request.php';
 // composer...ugh
 include_once dirname(__FILE__) . "/../../vendor/autoload.php";
 use Symfony\Component\Filesystem\Filesystem;
@@ -29,6 +33,7 @@ class HAXCMS
     public $outlineSchema;
     public $privateKey;
     public $config;
+    public $userData;
     public $superUser;
     public $user;
     public $sitesDirectory;
@@ -36,6 +41,8 @@ class HAXCMS
     public $publishedDirectory;
     public $sites;
     public $data;
+    public $developerMode;
+    public $developerModeAdminOnly;
     public $configDirectory;
     public $sitesJSON;
     public $domain;
@@ -43,20 +50,35 @@ class HAXCMS
     public $basePath;
     public $safePost;
     public $safeGet;
+    public $safeCLI;
     public $safeInputStream;
     public $sessionJwt;
     public $sessionToken;
     public $siteListingAttr;
+    public $systemRequestBase;
+    private $validArgs;
     private $events;
     /**
      * Establish defaults for HAXCMS
      */
     public function __construct()
     {
+      $this->developerMode = FALSE;
+      $this->developerModeAdminOnly = FALSE;
+      // critical for the CLI operations to validate
+      $this->validArgs = array('op:', 'siteName::', 'theme:');
+      // test for CLI and bring in arg data correctly
+        if ($this->isCLI()) {
+            // global but shift off the required pieces for usage
+            array_shift($GLOBALS['argv']);
+            array_shift($GLOBALS['argv']);
+            array_shift($GLOBALS['argv']);
+            $this->safeCLI = getopt('', $this->validArgs) + array('args' => $GLOBALS['argv']);
+        }
         // stupid session less handling thing
         $_POST = (array) json_decode(file_get_contents('php://input'));
         // handle sanitization on request data, drop security things
-        $this->safePost = filter_var_array($_POST, FILTER_SANITIZE_STRING);
+        $this->safePost = $this->object_to_array($this->sanitizeArrayValues($_POST));
         if (isset($this->safePost['jwt'])) {
           $this->sessionJwt = $this->safePost['jwt'];
         }
@@ -65,7 +87,7 @@ class HAXCMS
           $this->sessionToken = $this->safePost['token'];
         }
         unset($this->safePost['token']);
-        $this->safeGet = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+        $this->safeGet = $this->object_to_array($this->sanitizeArrayValues($_GET));
         // Get HTTP/HTTPS (the possible values for this vary from server to server)
         $this->protocol =
             isset($_SERVER['HTTPS']) &&
@@ -73,7 +95,10 @@ class HAXCMS
             !in_array(strtolower($_SERVER['HTTPS']), array('off', 'no'))
                 ? 'https'
                 : 'http';
-        $this->domain = $_SERVER['HTTP_HOST'];
+        // CLIs dont have a domain argument
+        if (isset($_SERVER['HTTP_HOST'])) {
+          $this->domain = $_SERVER['HTTP_HOST'];
+        }
         $this->siteListing = new stdClass();
         $this->siteListing->attr = '';
         $this->siteListing->slot = '';
@@ -88,8 +113,9 @@ class HAXCMS
         $this->user->name = null;
         $this->user->password = null;
         $this->outlineSchema = new JSONOutlineSchema();
+        $this->systemRequestBase = 'system/request?op=';
         // end point to get the sites data
-        $this->sitesJSON = 'system/listSites.php';
+        $this->sitesJSON = $this->systemRequestBase . 'listSites';
         // sites directory
         if (is_dir(HAXCMS_ROOT . '/_sites')) {
             $this->sitesDirectory = '_sites';
@@ -116,7 +142,7 @@ class HAXCMS
         if (is_dir(HAXCMS_ROOT . '/_config')) {
             $this->configDirectory = HAXCMS_ROOT . '/_config';
             // add in the auto-generated app store file
-            $this->appStoreFile = 'system/generateAppStore.php';
+            $this->appStoreFile = $this->systemRequestBase . 'generateAppStore';
             // ensure appstore file is there, then make salt size of this file
             if (file_exists($this->configDirectory . '/SALT.txt')) {
                 $this->salt = file_get_contents(
@@ -148,8 +174,10 @@ class HAXCMS
                     $this->config->themes->{$name} = $data;
                 }
                 // dynamicImporter
-                if (!isset($this->config->dynamicElementLoader)) {
-                    $this->config->dynamicElementLoader = new stdClass();
+                if (!isset($this->config->node)) {
+                    $this->config->node = new stdClass();
+                    $this->config->node->dynamicElementLoader = new stdClass();
+                    $this->config->node->fields = new stdClass();
                 }
                 // load in core dynamicElementLoader data
                 $dynamicElementLoader = json_decode(
@@ -158,24 +186,30 @@ class HAXCMS
                     )
                 );
                 foreach ($dynamicElementLoader as $name => $data) {
-                    $this->config->dynamicElementLoader->{$name} = $data;
+                    $this->config->node->dynamicElementLoader->{$name} = $data;
                 }
                 // publishing endpoints
-                if (!isset($this->config->publishing)) {
-                    $this->config->publishing = new stdClass();
+                if (!isset($this->config->site)) {
+                    $this->config->site = new stdClass();
+                    $this->config->site->settings = new stdClass();
+                    $this->config->site->git = new stdClass();
+                    $this->config->site->static = new stdClass();
+                }
+                if (!isset($this->config->site->publishers)) {
+                  $this->config->site->publishers = new stdClass();
                 }
                 // load in core publishing data
                 $publishingData = json_decode(
                     file_get_contents(
-                        HAXCMS_ROOT . '/system/coreConfig/publishing.json'
+                        HAXCMS_ROOT . '/system/coreConfig/publishers.json'
                     )
                 );
                 foreach ($publishingData as $name => $data) {
-                    $this->config->publishing->{$name} = $data;
+                    $this->config->site->publishers->{$name} = $data;
                 }
                 // importer formats to ingest
-                if (!isset($this->config->importers)) {
-                    $this->config->importers = new stdClass();
+                if (!isset($this->config->site->importers)) {
+                    $this->config->site->importers = new stdClass();
                 }
                 // load in core importers data
                 $importersData = json_decode(
@@ -184,11 +218,322 @@ class HAXCMS
                     )
                 );
                 foreach ($importersData as $name => $data) {
-                    $this->config->importers->{$name} = $data;
+                    $this->config->site->importers->{$name} = $data;
+                }
+                // site fields in HAXschema format
+                if (!isset($this->config->site->fields)) {
+                    $this->config->site->fields = array(new stdClass());
+                }
+                // load in core importers data
+                $fieldsData = json_decode(
+                    file_get_contents(
+                        HAXCMS_ROOT . '/system/coreConfig/siteFields.json'
+                    )
+                );
+                foreach ($fieldsData as $name => $data) {
+                    $this->config->site->fields[0]->{$name} = $data;
+                }
+                $themeSelect = array();
+                // ensure field schema has correct theme options
+                foreach ($this->config->themes as $name => $data) {
+                  $themeSelect[$name] = $data->name;
+                }
+                // @todo this is pretty hacky specific placement of the theme options
+                $this->config->site->fields[0]->properties[2]->properties[0]->options = $themeSelect;
+                // userData object
+                // load in core dynamicElementLoader data
+                if (
+                !($this->userData = json_decode(
+                    file_get_contents($this->configDirectory . '/userData.json')
+                ))) {
+                  $this->userData = new stdClass();
                 }
             }
             $this->dispatchEvent('haxcms-init', $this);
         }
+    }
+    /**
+     * recursively convert an object to an array, deeply
+     */
+    private function object_to_array($obj) {
+        //only process if it's an object or array being passed to the function
+        if(is_object($obj) || is_array($obj)) {
+            $ret = (array) $obj;
+            foreach($ret as &$item) {
+                //recursively process EACH element regardless of type
+                $item = $this->object_to_array($item);
+            }
+            return $ret;
+        }
+        //otherwise (i.e. for scalar values) return without modification
+        else {
+            return $obj;
+        }
+    }
+    /**
+     * Deep sanitize array values
+     */
+    public function sanitizeArrayValues($values) {
+        foreach ($values as $key => $value) {
+            if (is_array($value)) {
+                if (is_array($values)) {
+                    $values[$key] = $this->sanitizeArrayValues($value);
+                }
+                else if (is_object($values)) {
+                    $values->{$key} = $this->sanitizeArrayValues($value);
+                }
+            }
+            else if (is_object($value)) {
+                if (is_array($values)) {
+                    $values[$key] = $this->sanitizeArrayValues($value);
+                }
+                else if (is_object($values)) {
+                    $values->{$key} = $this->sanitizeArrayValues($value);
+                }
+            }
+            else {
+                if (is_array($values)) {
+                    $values[$key] = filter_var($value);
+                }
+                else if (is_object($values)) {
+                    $values->{$key} = filter_var($value);
+                }
+            }
+        }
+        return $values;
+    }
+    /**
+     * If we are a cli
+     */
+    private function isCLI() {
+        return !isset($_SERVER['SERVER_SOFTWARE']) && (php_sapi_name() == 'cli' || is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0);
+    }
+    public function executeRequest($op = null) {
+      $usedGet = FALSE;
+      // calculate the correct params to use
+      if ($this->isCLI()) {
+        $params = $this->safeCLI;
+      }
+      else if (is_array($this->safePost) && count($this->safePost)) {
+        $params = $this->safePost;
+      }
+      else if (is_array($this->safeGet) && count($this->safeGet)) {
+        $usedGet = TRUE;
+        $params = $this->safeGet;
+      }
+      else {
+        $params = array();
+      }
+      // raw params too incase the request needs them
+      if ($this->isCLI()) {
+        $rawParams = $this->safeCLI;
+      }
+      else if (is_array($_POST) && count($_POST)) {
+        $rawParams = $_POST;
+      }
+      else if (is_array($_GET) && count($_GET)) {
+        $rawParams = $_GET;
+      }
+      else {
+        $rawParams = array();
+      }
+      // support parameters setting the operation
+      if ($op == null) {
+        if (isset($params['op'])) {
+          $op = $params['op'];
+        }
+        else if (isset($_GET['op'])) {
+          $op = $this->safeGet['op'];
+        }
+      }
+      // loop through other potential GET based args so long as they aren't set yet
+      // this ensures that post has priority for security but allowing us to develop
+      // faster when it comes to pulling across other arguments like form_id
+      if (!$usedGet) {
+        foreach ($this->safeGet as $key => $arg) {
+          if (!isset($params[$key])) {
+            $params[$key] = $arg;
+          }
+        }
+      }
+      // execute the request with contextual params mixed in
+      // based on how the request was formulated
+      $request = new Request();
+      // this will output the response headers and everything
+      $request->execute($op, $params, $rawParams);
+    }
+    /**
+     * load form and spitting out HAXschema + values in our standard transmission method
+     */
+    public function loadForm($form_id, $context = array()) {
+      $fields = array();
+      $value = new stdClass();
+      // @todo add future support for dependency injection as far as allowed forms
+      if (method_exists($this, $form_id . "Form")) {
+        $fields = $this->{$form_id . "Form"}($context);
+        // reserved so we know what form is being submitted
+        $fields['haxcms_form_id'] = json_decode(
+          '{
+            "property": "haxcms_form_id",
+            "title": "haxcms_form_id",
+            "description": "",
+            "inputMethod": "textfield",
+            "hidden": true
+          }'
+        );
+        // reserved so we know what form is being submitted
+        $fields['haxcms_form_token'] = json_decode(
+          '{
+            "property": "haxcms_form_token",
+            "title": "haxcms_form_token",
+            "description": "",
+            "inputMethod": "textfield",
+            "hidden": true
+          }'
+        );
+      }
+      else {
+        $fields = array(
+          '__failed' => array(
+            'status' => 500,
+            'message' => $form_id . ' does not exist',
+          )
+        );
+      }
+      if (method_exists($this, $form_id . "Value")) {
+        $value = $this->{$form_id . "Value"}($context);
+      }
+      // ensure values are set for the hidden internal fields
+      $value->haxcms_form_id = $form_id;
+      $value->haxcms_form_token = $this->getRequestToken($form_id);
+      return array(
+        'fields' => $fields,
+        'value' => $value,
+      );
+    }
+    /**
+     * Process the form submission data
+     */
+    public function processForm($form_id, $params, $context = array()) {
+      // make sure we have the original value / key pairs for the form
+      if (method_exists($this, $form_id . "Value")) {
+        $value = $this->{$form_id . "Value"}($context);
+
+      }
+      else {
+        $fields = array(
+          '__failed' => array(
+            'status' => 500,
+            'message' => $form_id . ' does not exist',
+          )
+        );
+      }
+    }
+    /**
+     * Magic function that will convert foo.bar.zzz into $obj->foo->bar->zzz with look up.
+     */
+    private function deepObjectLookUp($obj, $path) {
+      return array_reduce(explode('-', $path), function ($o, $p) { return is_numeric($p) ? ($o[$p] ?? null) : ($o->$p ?? null); }, $obj);
+    }
+
+    /**
+     * Return the form for the siteSettings
+     */
+    private function siteSettingsForm($context) {
+      return $this->config->site->fields;
+    }
+    /**
+     * Return the form for the siteSettings
+     */
+    private function siteSettingsValue($context) {
+      $site = $this->loadSite($context['site']['name']);
+      // passing in as JSON for sanity
+      $jsonResponse = json_decode('{
+        "manifest": {
+          "site": {
+            "manifest-title": null,
+            "manifest-description": null,
+            "manifest-metadata-site-domain": null,
+            "manifest-metadata-site-logo": null
+          },
+          "author": {
+            "manifest-license": null,
+            "manifest-metadata-author-image": null,
+            "manifest-metadata-author-name": null,
+            "manifest-metadata-author-email": null,
+            "manifest-metadata-author-socialLink": null
+          },
+          "theme": {
+            "manifest-metadata-theme-element": null,
+            "manifest-metadata-theme-variables-image": null,
+            "manifest-metadata-theme-variables-hexCode": null,
+            "manifest-metadata-theme-variables-cssVariable": null,
+            "manifest-metadata-theme-variables-icon": null
+          },
+         "fields": {
+            "manifest-metadata-node-fields": []
+          },
+          "seo": {
+            "manifest-metadata-site-settings-pathauto": null,
+            "manifest-metadata-site-settings-publishPagesOn": null
+          },
+          "static": {
+            "manifest-metadata-site-static-cdn": null,
+            "manifest-metadata-site-static-offline": null,
+            "publishacopy": "<h2>Publish a copy</h2><div style=\"border: solid 1px #cb2431; padding:16px;\"><p>This will publish your site, overwriting the previous copy living in your \"published\" storage location.</p><user-action track=\"click\" every eventname=\"haxcms-publish-site\"><paper-button style=\"color:#cb2431;\" class=\"full warning\" raised role=\"button\" tabindex=\"0\" animated elevation=\"1\" aria-disabled=\"false\"><iron-icon icon=\"icons:cloud-upload\"></iron-icon> Publish</paper-button></user-action></div>"
+          },
+          "git": {
+            "manifest-metadata-site-git-vendor": null,
+            "manifest-metadata-site-git-branch": null,
+            "manifest-metadata-site-git-staticBranch": null,
+            "manifest-metadata-site-git-autoPush": null,
+            "manifest-metadata-site-git-url": null,
+            "manifest-metadata-site-git-publicRepoUrl": null,
+            "dangerzone": "<h2>Danger zone</h2><div style=\"border: solid 1px #cb2431; padding:16px;\"><p>This will sync the local copy of the site with the git repository is backing it</p><user-action track=\"click\" every eventname=\"haxcms-sync-site\"><paper-button style=\"color:#cb2431;\" class=\"full warning\" raised role=\"button\" tabindex=\"0\" animated elevation=\"1\" aria-disabled=\"false\"><iron-icon icon=\"notification:sync\"></iron-icon> Sync git origin</paper-button></user-action><p>This wil revert the git history powering the site by 1 commit. This is a destructive command, only use this if you just saved something you didn\'t mean to.</p><user-action track=\"click\" every eventname=\"haxcms-git-revert-last-commit\"><paper-button style=\"color:#cb2431;\" class=\"full warning\" raised role=\"button\" tabindex=\"0\" animated elevation=\"1\" aria-disabled=\"false\"><iron-icon icon=\"icons:cloud-upload\"></iron-icon> Revert last commit</paper-button></user-action></div>"
+          }
+        }
+      }');
+      // this will process the form values and engineer them out of
+      // the manifest based on key location to value found there (if any)
+      return $this->populateManifestValues($site, $jsonResponse);
+    }
+    /**
+     * Populate values based on the structure of the form schema values
+     * established previously. This REQUIRES that the key in the end
+     * is a string in the form of "manifest-what-ever-value-this-needs"
+     * which it then takes ANY structure and recursively populates it
+     * with the appropriate values to match
+     */
+    private function populateManifestValues($site, $manifestKeys) {
+      foreach ($manifestKeys as $key => $value) {
+        // cascade of our methodology for building out forms
+        // which peg to the internal workings of JSON outline schema
+        // while still being presented in a visually agnostic manner
+        // this is some crazy S..
+        // test if we have deeper items to traverse at this level
+        if (!is_string($value) && count((array)$value) > 0) {
+          $manifestKeys->{$key} = $this->populateManifestValues($site, $value);
+        }
+        else if (is_string($key) && $lookup = $this->deepObjectLookUp($site, $key)) {
+          $manifestKeys->{$key} = $lookup;
+        }
+      }
+      // @todo needs to not be a hack :p
+      if (isset($manifestKeys->{"manifest-metadata-theme-variables-cssVariable"})) {
+        $manifestKeys->{"manifest-metadata-theme-variables-cssVariable"} = str_replace("-7", "", str_replace("--simple-colors-default-theme-", "", $manifestKeys->{"manifest-metadata-theme-variables-cssVariable"}));
+      }
+      return $manifestKeys;
+    }
+    /**
+     * Get the current version number
+     */
+    public function getHAXCMSVersion()
+    {
+      // sanity
+      $vFile = HAXCMS_ROOT . '/VERSION.txt';
+      if (file_exists($vFile)) {
+        return filter_var(file_get_contents($vFile));
+      }
     }
     /**
      * Load theme location data as mix of config and system
@@ -262,8 +607,8 @@ class HAXCMS
             $props = new stdClass();
             $props->title = $value['name'];
             $props->type = 'string';
-            if (isset($this->config->publishing->git->{$key})) {
-                $props->value = $this->config->publishing->git->{$key};
+            if (isset($this->config->site->git->{$key})) {
+                $props->value = $this->config->site->git->{$key};
             } else {
                 $props->value = $value['value'];
             }
@@ -276,7 +621,7 @@ class HAXCMS
                 $props->component->attributes = new stdClass();
                 $props->component->attributes->type = 'password';
             }
-            if ($key == 'pass' && isset($this->config->publishing->git->user)) {
+            if ($key == 'pass' && isset($this->config->site->git->user)) {
                 // keep moving but if we already have a user name we don't need this
                 // we only ask for a password on the very first run through
                 $schema->properties->publishing->properties->user->component->slot =
@@ -324,44 +669,55 @@ class HAXCMS
     /**
      * Set and validate config
      */
+    public function setUserData($values)
+    {
+      // only support user picture for the moment
+      if (isset($values->userPicture)) {
+        $this->userData->userPicture = $values->userPicture;
+      }
+      $this->saveUserDataFile();
+    }
+    /**
+     * Set and validate config
+     */
     public function setConfig($values)
     {
         if (isset($values->apis)) {
-            foreach ($values->apis as $key => $val) {
-                $this->config->appStore->apiKeys->{$key} = $val;
-            }
+          foreach ($values->apis as $key => $val) {
+            $this->config->appStore->apiKeys->{$key} = $val;
+          }
         }
-        if (!isset($this->config->publishing)) {
-            $this->config->publishing = new stdClass();
+        if (!isset($this->config->site)) {
+          $this->config->site = new stdClass();
         }
-        if (!isset($this->config->publishing->git)) {
-            $this->config->publishing->git = new stdClass();
+        if (!isset($this->config->site->git)) {
+          $this->config->site->git = new stdClass();
         }
         if ($values->publishing) {
-            foreach ($values->publishing as $key => $val) {
-                $this->config->publishing->git->{$key} = $val;
-            }
+          foreach ($values->publishing as $key => $val) {
+            $this->config->site->git->{$key} = $val;
+          }
         }
         // test for a password in order to do the git hook up this one time
         if (
-            isset($this->config->publishing->git->email) &&
-            isset($this->config->publishing->git->pass)
+          isset($this->config->site->git->email) &&
+          isset($this->config->site->git->pass)
         ) {
-            $email = $this->config->publishing->git->email;
-            $pass = $this->config->publishing->git->pass;
-            // ensure we never save the password, this is just a 1 time pass through
-            unset($this->config->publishing->git->pass);
+          $email = $this->config->site->git->email;
+          $pass = $this->config->site->git->pass;
+          // ensure we never save the password, this is just a 1 time pass through
+          unset($this->config->site->git->pass);
         }
         // save config to the file
         $this->saveConfigFile();
         // see if we need to set a github key for publishing
         // this is a one time thing that helps with the workflow
         if (
-            $email &&
-            $pass &&
-            !isset($this->config->publishing->git->keySet) &&
-            isset($this->config->publishing->git->vendor) &&
-            $this->config->publishing->git->vendor == 'github'
+          isset($email) &&
+          isset($pass) &&
+          !isset($this->config->site->git->keySet) &&
+          isset($this->config->site->git->vendor) &&
+          $this->config->site->git->vendor == 'github'
         ) {
             $json = new stdClass();
             $json->title = 'HAXCMS Publishing key';
@@ -378,18 +734,18 @@ class HAXCMS
             );
             // we did it, now store that it worked so we can skip all this setup in the future
             if ($response->getStatusCode() == 201) {
-                $this->config->publishing->git->keySet = true;
+                $this->config->site->git->keySet = true;
                 $this->saveConfigFile();
                 // set global config for username / email if we can
                 $gitRepo = new GitRepo();
                 $gitRepo->run(
                     'config --global user.name "' .
-                        $this->config->publishing->git->user .
+                        $this->config->site->git->user .
                         '"'
                 );
                 $gitRepo->run(
                     'config --global user.email "' .
-                        $this->config->publishing->git->email .
+                        $this->config->site->git->email .
                         '"'
                 );
             }
@@ -397,6 +753,16 @@ class HAXCMS
             return $response->getStatusCode();
         }
         return 'saved';
+    }
+    /**
+     * Write configuration to the config file
+     */
+    private function saveUserDataFile()
+    {
+        return @file_put_contents(
+            $this->configDirectory . '/userData.json',
+            json_encode($this->userData, JSON_PRETTY_PRINT)
+        );
     }
     /**
      * Write configuration to the config file
@@ -423,7 +789,7 @@ class HAXCMS
                 'ssh-keygen -f ' .
                     $this->configDirectory .
                     '/.ssh/haxyourweb -t rsa -N "" -C "' .
-                    $this->config->publishing->git->email .
+                    $this->config->site->git->email .
                     '"'
             );
             // check if it exists now
@@ -467,7 +833,7 @@ class HAXCMS
         "operations": {
           "browse": {
             "method": "GET",
-            "endPoint": "system/loadFiles.php",
+            "endPoint": "system/loadFiles",
             "pagination": {
               "style": "link",
               "props": {
@@ -500,7 +866,7 @@ class HAXCMS
           },
           "add": {
             "method": "POST",
-            "endPoint": "system/saveFile.php",
+            "endPoint": "system/saveFile",
             "acceptsGizmoTypes": [
               "image",
               "video",
@@ -533,9 +899,17 @@ class HAXCMS
         $connection->url =
             $this->basePath .
             $this->appStoreFile .
-            '?app-store-token=' .
+            '&app-store-token=' .
             $this->getRequestToken('appstore');
         return $connection;
+    }
+    /**
+     * Return the active URI if it exists
+     */
+    public function getURI() {
+      if (isset($_SERVER['SCRIPT_URI'])) {
+        return $_SERVER['SCRIPT_URI'];
+      }
     }
     /**
      * Load a site off the file system with option to create
@@ -552,15 +926,44 @@ class HAXCMS
             !$create
         ) {
             $site = new HAXCMSSite();
-            $site->load(
-                HAXCMS_ROOT . '/' . $this->sitesDirectory,
+            $site->load(HAXCMS_ROOT . '/' . $this->sitesDirectory,
                 $this->basePath . $this->sitesDirectory . '/',
-                $tmpname
-            );
+                $tmpname);
+            $siteDirectoryPath = $site->directory . '/' . $site->manifest->metadata->site->name;
+            // sanity checks to ensure we'll actually deliver a site
+            if (!is_link($siteDirectoryPath . '/build')) {
+              if (is_dir($siteDirectoryPath . '/build')) {
+                $GLOBALS['fileSystem']->remove([$siteDirectoryPath . '/build']);
+              }
+              @symlink('../../build', $siteDirectoryPath . '/build');
+              if (!is_link($siteDirectoryPath . '/dist')) {
+                  @symlink('../../dist', $siteDirectoryPath . '/dist');
+              }
+              if (!is_link($siteDirectoryPath . '/node_modules')) {
+                @symlink(
+                    '../../node_modules',
+                    $siteDirectoryPath . '/node_modules'
+                );
+              }
+              if (!is_link($siteDirectoryPath . '/assets/babel-top.js')) {
+                @unlink($siteDirectoryPath . '/assets/babel-top.js');
+                @symlink(
+                  '../../../babel/babel-top.js',
+                    $siteDirectoryPath . '/assets/babel-top.js'
+                );
+              }
+              if (!is_link($siteDirectoryPath . '/assets/babel-bottom.js')) {
+                @unlink($siteDirectoryPath . '/assets/babel-bottom.js');
+                @symlink(
+                    '../../../babel/babel-bottom.js',
+                    $siteDirectoryPath . '/assets/babel-bottom.js'
+                );
+              }
+            }
             return $site;
         } elseif ($create) {
             // attempt to create site
-            return $this->createNewSite($name, $domain);
+            return $this->createSite($name, $domain);
         }
         return false;
     }
@@ -573,13 +976,13 @@ class HAXCMS
      *
      * @return boolean true for success, false for failed
      */
-    private function createNewSite($name, $domain = null, $git = null)
+    private function createSite($name, $domain = null, $git = null)
     {
         // try and make the folder
         $site = new HAXCMSSite();
         // see if we can get a remote setup on the fly
-        if (!isset($git->url) && isset($this->config->publishing->git)) {
-            $git = $this->config->publishing->git;
+        if (!isset($git->url) && isset($this->config->site->git)) {
+            $git = $this->config->site->git;
             // getting really into fallback mode here
             if (isset($git->url)) {
                 $git->url .= '/' . $name . '.git';
@@ -604,16 +1007,30 @@ class HAXCMS
      */
     public function validateRequestToken($token = null, $value = '')
     {
+        if ($this->isCLI()) {
+            return TRUE;
+        }
         // default token is POST
         if ($token == null && isset($_POST['token'])) {
           $token = $_POST['token'];
         }
         if ($token != null) {
           if ($token == $this->getRequestToken($value)) {
-            return true;
+            return TRUE;
           }
         }
-        return false;
+        return TRUE;
+    }
+    /**
+     * Generate machine name
+     */
+    public function generateMachineName($name) {
+        return strtolower(preg_replace(array(
+        '/[^a-zA-Z0-9]+/',
+        '/-+/',
+        '/^-+/',
+        '/-+$/',
+        ), array('-', '-', '', ''), $name));
     }
     /**
      * Clean up a title / sanitize the input string for file system usage
@@ -736,31 +1153,33 @@ class HAXCMS
      */
     public function appJWTConnectionSettings()
     {
+        $path = $this->basePath . $this->systemRequestBase;
         $settings = new stdClass();
-        $settings->login = $this->basePath . 'system/login.php';
-        $settings->logout = $this->basePath . 'system/logout.php';
+        $settings->login = $this->basePath . 'system/login';
+        $settings->logout = $this->basePath . 'system/logout';
         $settings->themes = $this->getThemes();
-        $settings->saveNodePath = $this->basePath . 'system/saveNode.php';
-        $settings->saveManifestPath =
-            $this->basePath . 'system/saveManifest.php';
-        $settings->saveOutlinePath = $this->basePath . 'system/saveOutline.php';
-        $settings->publishSitePath = $this->basePath . 'system/publishSite.php';
-        $settings->setConfigPath = $this->basePath . 'system/setConfig.php';
-        $settings->getConfigPath = $this->basePath . 'system/getConfig.php';
-        $settings->getNodeFieldsPath =
-            $this->basePath . 'system/getNodeFields.php';
-        $settings->getSiteFieldsPath =
-            $this->basePath . 'system/getSiteFields.php';
-            $settings->revertSitePath =
-            $this->basePath . 'system/revertCommit.php';
-        $settings->getFieldsToken = $this->getRequestToken('fields');
-        $settings->createNodePath = $this->basePath . 'system/createNode.php';
-        $settings->deleteNodePath = $this->basePath . 'system/deleteNode.php';
-        $settings->createNewSitePath = $this->basePath . 'system/createNewSite.php';
-        $settings->downloadSitePath = $this->basePath . 'system/downloadSite.php';
-        $settings->archiveSitePath = $this->basePath . 'system/archiveSite.php';
-        $settings->cloneSitePath = $this->basePath . 'system/cloneSite.php';
-        $settings->deleteSitePath = $this->basePath . 'system/deleteSite.php';
+        $settings->saveNodePath = $path . 'saveNode';
+        $settings->saveManifestPath = $path . 'saveManifest';
+        $settings->saveOutlinePath = $path . 'saveOutline';
+        $settings->publishSitePath = $path . 'publishSite';
+        $settings->syncSitePath = $path . 'syncSite';
+        $settings->setConfigPath = $path . 'setConfig';
+        $settings->getConfigPath = $path . 'getConfig';
+        $settings->getNodeFieldsPath = $path . 'getNodeFields';
+        $settings->getSiteFieldsPath = $path . 'formLoad&haxcms_form_id=siteSettings';
+        $settings->revertSitePath = $path . 'revertCommit';
+        // form token to validate form submissions as unique to the session
+        $settings->getFormToken = $this->getRequestToken('form');
+        $settings->createNodePath = $path . 'createNode';
+        $settings->getUserDataPath = $path . 'getUserData';
+        $settings->setUserPhotoPath = $path . 'setUserPhoto';
+        $settings->deleteNodePath = $path . 'deleteNode';
+        $settings->createNewSitePath = $path . 'createSite';
+        $settings->gitImportSitePath = $path . 'gitImportSite';
+        $settings->downloadSitePath = $path . 'downloadSite';
+        $settings->archiveSitePath = $path . 'archiveSite';
+        $settings->cloneSitePath = $path . 'cloneSite';
+        $settings->deleteSitePath = $path . 'deleteSite';
         $settings->appStore = $this->appStoreConnection();
         // allow for overrides in config.php
         if (isset($this->config->appJWTConnectionSettings)) {
@@ -777,9 +1196,9 @@ class HAXCMS
     /**
      * Test and ensure the name being returned is a location currently unused
      */
-    public function getUniqueName($siteName)
+    public function getUniqueName($name)
     {
-        $location = $siteName;
+        $location = $name;
         $loop = 0;
         $original = $location;
         while (
@@ -795,6 +1214,9 @@ class HAXCMS
      */
     public function validateJWT($endOnInvalid = TRUE)
     {
+      if ($this->isCLI()) {
+        return TRUE;
+      }
       $post = FALSE;
       if (isset($this->sessionJwt) && $this->sessionJwt != null && $post = $this->decodeJWT($this->sessionJwt)) {
       }

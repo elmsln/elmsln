@@ -1403,11 +1403,11 @@ function foundation_access_menu_local_task(&$variables) {
 function foundation_access_preprocess_book_export_html(&$variables) {
   global $base_url, $language;
   $var = array();
-  @module_invoke_all('page_init');
+  @module_invoke_all('page_init', $var);
   @drupal_alter('page_init', $var);
-  @module_invoke_all('page_build');
+  @module_invoke_all('page_build', $var);
   @drupal_alter('page_build', $var);
-  @module_invoke_all('preprocess_html');
+  @module_invoke_all('preprocess_html', $var);
   $js = drupal_get_js() . drupal_get_js('footer');
   $variables['title'] = check_plain($variables['title']);
   $variables['base_url'] = $base_url;

@@ -84,9 +84,9 @@ class Git
      * @param   string  directory to source
      * @return  GitRepo
      */
-    public static function &create($repo_path, $source = null)
+    public static function &create($repo_path, $source = null, $remote = false, $reference = null)
     {
-        return GitRepo::create_new($repo_path, $source);
+        return GitRepo::create_new($repo_path, $source, $remote, $reference);
     }
 
     /**

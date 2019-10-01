@@ -13,14 +13,14 @@ if ($HAXCMS->validateJWT()) {
             HAXCMS_ROOT .
             '/' .
             $HAXCMS->sitesDirectory .
-            strtolower($params['siteName']);
+            strtolower($params['site']['name']);
         @$gitRepo->create_new($path, $params['gitRepo'], $path);
         // validate the repo is a legit json outline schema backed haxcms site
         // @todo should do additional validation but this is smell test for now
         if (is_dir($path) && file_exists($path . '/site.json')) {
             header('Status: 200');
             // now the git repo should exist
-            $site = $HAXCMS->loadSite(strtolower($params['siteName']));
+            $site = $HAXCMS->loadSite(strtolower($params['site']['name']));
             $schema = $site->manifest;
             unset($schema->items);
             // main site schema doesn't care about publishing settings

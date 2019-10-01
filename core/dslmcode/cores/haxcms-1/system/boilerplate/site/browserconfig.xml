@@ -2,9 +2,9 @@
 <browserconfig>
 	<msapplication>
 		<tile>
-			<square70x70logo src="assets/ms-icon-70x70.png"/>
-			<square150x150logo src="assets/ms-icon-150x150.png"/>
-			<square310x310logo src="assets/ms-icon-310x310.png"/>
+			<square70x70logo src="{{ logo70x70 }}"/>
+			<square150x150logo src="{{ logo150x150 }}"/>
+			<square310x310logo src="{{ logo310x310 }}"/>
 			<TileColor>{{ hexCode }}</TileColor>
 		</tile>
 	</msapplication>

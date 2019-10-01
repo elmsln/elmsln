@@ -166,7 +166,9 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'file_entity',
   );
@@ -748,6 +750,18 @@ function cle_perms_user_default_permissions() {
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'comment',
+  );
+
+  // Exported permission: 'see download link'.
+  $permissions['see download link'] = array(
+    'name' => 'see download link',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'download',
   );
 
   // Exported permission: 'skip comment approval'.

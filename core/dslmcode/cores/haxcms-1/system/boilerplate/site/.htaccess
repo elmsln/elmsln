@@ -12,7 +12,7 @@ Options -Indexes
 # Follow symbolic links in this directory.
 Options +FollowSymLinks
 # Set the default handler.
-DirectoryIndex index.html
+DirectoryIndex index.php index.html
 # Override PHP settings that cannot be changed at runtime. See
 <IfModule mod_php5.c>
   php_flag magic_quotes_gpc                 off
@@ -48,7 +48,8 @@ DirectoryIndex index.html
   # Pass all requests not referring directly to files in the filesystem to
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^ index.html [L]
+  RewriteRule ^ . [L]
+
   # Rules to correctly serve gzip compressed CSS and JS files.
   # Requires both mod_rewrite and mod_headers to be enabled.
   <IfModule mod_headers.c>

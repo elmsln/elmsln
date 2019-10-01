@@ -1,6 +1,7 @@
 // the base line build that's used to setup everything in a production environment
 import "./build.js";
 import "./build-home.js";
+import "./build-install.js";
 import "./build-legacy.js";
 // we build elmsln dependency trees from here since there's so much overlap.
 import "./elmsln-build.js";
@@ -51,6 +52,8 @@ import "@lrnwebcomponents/learn-two-theme/learn-two-theme.js";
 import "@lrnwebcomponents/haxor-slevin/haxor-slevin.js";
 
 // these should all be dynamically imported as well
+import "@lrnwebcomponents/h5p-element/h5p-element.js";
+import "@lrnwebcomponents/hax-logo/hax-logo.js";
 import "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js";
 import "@lrnwebcomponents/citation-element/citation-element.js";
 import "@lrnwebcomponents/hero-banner/hero-banner.js";

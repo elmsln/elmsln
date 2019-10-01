@@ -12,3 +12,6 @@ _archived
 !build/es6/node_modules
 !build/es6/node_modules/**
 yarn.lock
+build/es6/node_modules/@polymer/.DS_Store
+arth111
+ubuntu-bionic-18.04-cloudimg-console.log

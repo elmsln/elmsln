@@ -317,3 +317,10 @@ function cle__2_update_7026(&$sandbox) {
 function cle__2_update_7027(&$sandbox) {
   features_revert_module('cle_perms');
 }
+
+/**
+ * Fix instructor being able to see the work in a download
+ */
+function cle__2_update_7028(&$sandbox) {
+  features_revert_module('cle_perms');
+}
