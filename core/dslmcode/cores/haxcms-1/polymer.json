@@ -4,11 +4,15 @@
     "manifest.json",
     "node_modules/@lrnwebcomponents/*/*.js",
     "node_modules/@lrnwebcomponents/*/lib/*",
+    "node_modules/@lrnwebcomponents/*/lib/*/*.js",
     "node_modules/@lrnwebcomponents/*/lib/*/*",
+    "node_modules/@lrnwebcomponents/*/lib/*/*/*.js",
     "node_modules/lit-html/*.*.map",
     "node_modules/lit-html/lib/*.*.map",
     "node_modules/lit-element/lit-element.js",
     "node_modules/lit-element/lib/*.*.map",
+    "node_modules/lit-element/node_modules/lit-html/*.*.map",
+    "node_modules/lit-element/node_modules/lit-html/lib/*.*.map",
     "node_modules/lit-element/*.*.map",
     "node_modules/@polymer/app-layout/*/*.js",
     "node_modules/@vaadin/**",
@@ -33,7 +37,10 @@
     "!node_modules/@lrnwebcomponents/*/*.story.js",
     "node_modules/msr/MediaStreamRecorder.min.js",
     "node_modules/@lrnwebcomponents/chartist-render/lib/chartist/dist/chartist.min.js",
-    "!node_modules/@webcomponents/webcomponentsjs/gulpfile.js"
+    "!node_modules/@webcomponents/webcomponentsjs/gulpfile.js",
+    "!node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/*.js",
+    "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/javascript.js",
+    "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/xml.js"
   ],
   "sources": [],
   "builds": [
@@ -76,10 +83,10 @@
         "transformModulesToAmd": true
       },
       "css": {
-        "minify": false
+        "minify": true
       },
       "html": {
-        "minify": false
+        "minify": true
       },
       "bundle": false
     }

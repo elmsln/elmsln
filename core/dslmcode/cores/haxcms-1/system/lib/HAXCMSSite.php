@@ -1,7 +1,7 @@
 <?php
-define('HAXCMS_DEFAULT_THEME', 'simple-blog');
 // working with RSS
 include_once 'RSS.php';
+use \Gumlet\ImageResize;
 // a site object
 class HAXCMSSite
 {
@@ -95,23 +95,194 @@ class HAXCMSSite
         // start updating the schema to match this new item we got
         $this->manifest->title = $name;
         $this->manifest->location = $this->basePath . $tmpname . '/index.html';
-        $this->manifest->metadata->siteName = $tmpname;
-        $this->manifest->metadata->domain = $domain;
-        $this->manifest->metadata->created = time();
-        $this->manifest->metadata->updated = time();
+        $this->manifest->metadata = new stdClass();
+        $this->manifest->metadata->author = new stdClass();
+        $this->manifest->metadata->site = new stdClass();
+        $this->manifest->metadata->site->name = $tmpname;
+        $this->manifest->metadata->site->domain = $domain;
+        $this->manifest->metadata->site->created = time();
+        $this->manifest->metadata->site->updated = time();
+        $this->manifest->metadata->theme = new stdClass();
+        $this->manifest->metadata->theme->variables = new stdClass();
+        $this->manifest->metadata->node = new stdClass();
+        $this->manifest->metadata->node->fields = new stdClass();
+        $this->manifest->metadata->node->dynamicElementLoader = new stdClass();
         // create an initial page to make sense of what's there
         // this will double as saving our location and other updated data
-        $this->addPage();
+        $this->addPage(null, 'Welcome to a new HAXcms site!', 'init');
         // put this in version control :) :) :)
         $git = new Git();
         $repo = $git->create($directory . '/' . $tmpname);
         if (
-            !isset($this->manifest->metadata->git->url) &&
+            !isset($this->manifest->metadata->site->git->url) &&
             isset($gitDetails->url)
         ) {
             $this->gitSetRemote($gitDetails);
         }
         return $this;
+    }
+    /**
+     * Refresh a site's base files without removing anything existing
+     * @todo needs actual testing and debug
+     */
+    public function refreshSiteFiles() {
+        $this->recurseCopy(
+            HAXCMS_ROOT . '/system/boilerplate/site',
+            HAXCMS_ROOT . '/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $this->manifest->metadata->site->name,
+            array('pages', 'files', 'custom')
+        );
+    }
+    /**
+     * Reprocess the files that twig helps set in their static
+     * form that the user is not in control of.
+     */
+    public function rebuildManagedFiles() {
+      $templates = array(
+        'sw' => 'service-worker.js',
+        'index' => 'index.html',
+        'manifest' => 'manifest.json',
+        '404' => '404.html',
+        'msbc' => 'browserconfig.xml',
+        'dat' => 'dat.json',
+      );
+      $siteDirectoryPath = $this->directory . '/' . $this->manifest->metadata->site->name;
+      $boilerPath = HAXCMS_ROOT . '/system/boilerplate/site/';
+      foreach ($templates as $file) {
+        copy($boilerPath . $file, $siteDirectoryPath . '/' . $file);
+      }
+      $licenseData = $this->getLicenseData('all');
+      $licenseLink = '';
+      $licenseName = '';
+      if (isset($this->manifest->license) && isset($licenseData[$this->manifest->license])) {
+        $licenseLink = $licenseData[$this->manifest->license]['link'];
+        $licenseName = 'License: ' . $licenseData[$this->manifest->license]['name'];
+      }
+      
+      $templateVars = array(
+          'hexCode' => HAXCMS_FALLBACK_HEX,
+          'basePath' =>
+              $this->basePath . $this->manifest->metadata->site->name . '/',
+          'title' => $this->manifest->title,
+          'short' => $this->manifest->metadata->site->name,
+          'description' => $this->manifest->description,
+          'swhash' => array(),
+          'segmentCount' => 2,
+          'licenseLink' => $licenseLink,
+          'licenseName' => $licenseName,
+          'serviceWorkerScript' => $this->getServiceWorkerScript($this->basePath . $this->manifest->metadata->site->name . '/'),
+          'bodyAttrs' => $this->getSitePageAttributes(),
+          'metadata' => $this->getSiteMetadata(),
+          'logo512x512' => $this->getLogoSize('512','512'),
+          'logo310x310' => $this->getLogoSize('310','310'),
+          'logo192x192' => $this->getLogoSize('192','192'),
+          'logo150x150' => $this->getLogoSize('150','150'),
+          'logo144x144' => $this->getLogoSize('144','144'),
+          'logo96x96' => $this->getLogoSize('96','96'),
+          'logo72x72' => $this->getLogoSize('72','72'),
+          'logo70x70' => $this->getLogoSize('70','70'),
+          'logo48x48' => $this->getLogoSize('48','48'),
+          'logo36x36' => $this->getLogoSize('36','36'),
+          'favicon' => $this->getLogoSize('16','16'),
+      );
+      $swItems = $this->manifest->items;
+      // the core files you need in every SW manifest
+      $coreFiles = array(
+          'index.html',
+          $this->getLogoSize('512','512'),
+          $this->getLogoSize('310','310'),
+          $this->getLogoSize('192','192'),
+          $this->getLogoSize('150','150'),
+          $this->getLogoSize('144','144'),
+          $this->getLogoSize('96','96'),
+          $this->getLogoSize('72','72'),
+          $this->getLogoSize('70','70'),
+          $this->getLogoSize('48','48'),
+          $this->getLogoSize('36','36'),
+          $this->getLogoSize('16','16'),
+          'manifest.json',
+          'site.json',
+          '404.html',
+      );
+      // loop through files directory so we can cache those things too
+      if ($handle = opendir($siteDirectoryPath . '/files')) {
+          while (false !== ($file = readdir($handle))) {
+              if (
+                  $file != "." &&
+                  $file != ".." &&
+                  $file != '.gitkeep' &&
+                  $file != '.DS_Store'
+              ) {
+                  // ensure this is a file
+                  if (
+                      is_file($siteDirectoryPath . '/files/' . $file)
+                  ) {
+                      $coreFiles[] = 'files/' . $file;
+                  } else {
+                      // @todo maybe step into directories?
+                  }
+              }
+          }
+          closedir($handle);
+      }
+      foreach ($coreFiles as $itemLocation) {
+          $coreItem = new stdClass();
+          $coreItem->location = $itemLocation;
+          $swItems[] = $coreItem;
+      }
+      // generate a legit hash value that's the same for each file name + file size
+      foreach ($swItems as $item) {
+          if (
+              $item->location === '' ||
+              $item->location === $templateVars['basePath']
+          ) {
+              $filesize = filesize(
+                  $siteDirectoryPath . '/index.html'
+              );
+          } elseif (
+              file_exists($siteDirectoryPath . '/' . $item->location)
+          ) {
+              $filesize = filesize(
+                  $siteDirectoryPath . '/' . $item->location
+              );
+          } else {
+              // ?? file referenced but doesn't exist
+              $filesize = 0;
+          }
+          if ($filesize !== 0) {
+              $templateVars['swhash'][] = array(
+                  $item->location,
+                  strtr(
+                      base64_encode(
+                          hash_hmac(
+                              'md5',
+                              (string) $item->location . $filesize,
+                              (string) 'haxcmsswhash',
+                              true
+                          )
+                      ),
+                      array(
+                          '+' => '',
+                          '/' => '',
+                          '=' => '',
+                          '-' => ''
+                      )
+                  )
+              );
+          }
+      }
+      if (isset($this->manifest->metadata->theme->variables->hexCode)) {
+          $templateVars['hexCode'] =
+              $this->manifest->metadata->theme->variables->hexCode;
+      }
+      // put the twig written output into the file
+      $loader = new \Twig\Loader\FilesystemLoader($siteDirectoryPath);
+      $twig = new \Twig\Environment($loader);
+      foreach ($templates as $location) {
+          @file_put_contents(
+              $siteDirectoryPath . '/' . $location,
+              $twig->render($location, $templateVars)
+          );
+      }
     }
     /**
      * Rename a page from one location to another
@@ -122,7 +293,7 @@ class HAXCMSSite
     public function renamePageLocation($old, $new)
     {
         $siteDirectory =
-            $this->directory . '/' . $this->manifest->metadata->siteName;
+            $this->directory . '/' . $this->manifest->metadata->site->name;
         $old = str_replace('./', '', str_replace('../', '', $old));
         $new = str_replace('./', '', str_replace('../', '', $new));
         global $fileSystem;
@@ -141,10 +312,14 @@ class HAXCMSSite
         $git = new Git();
         // commit, true flag will attempt to make this a git repo if it currently isn't
         $repo = $git->open(
-            $this->directory . '/' . $this->manifest->metadata->siteName, true
+            $this->directory . '/' . $this->manifest->metadata->site->name, true
         );
         $repo->add('.');
         $repo->commit($msg);
+        // commit should execute the automatic push flag if it's on
+        if (isset($this->manifest->metadata->site->git->autoPush) && $this->manifest->metadata->site->git->autoPush && isset($this->manifest->metadata->site->git->branch)) {
+            $repo->push('origin', $this->manifest->metadata->site->git->branch);
+        }
         return true;
     }
     /**
@@ -154,7 +329,7 @@ class HAXCMSSite
     {
         $git = new Git();
         $repo = $git->open(
-            $this->directory . '/' . $this->manifest->metadata->siteName, true
+            $this->directory . '/' . $this->manifest->metadata->site->name, true
         );
         $repo->revert($count);
         return true;
@@ -166,7 +341,7 @@ class HAXCMSSite
     {
         $git = new Git();
         $repo = $git->open(
-            $this->directory . '/' . $this->manifest->metadata->siteName, true
+            $this->directory . '/' . $this->manifest->metadata->site->name, true
         );
         $repo->add('.');
         $repo->commit($msg);
@@ -182,7 +357,7 @@ class HAXCMSSite
     {
         $git = new Git();
         $repo = $git->open(
-            $this->directory . '/' . $this->manifest->metadata->siteName, true
+            $this->directory . '/' . $this->manifest->metadata->site->name, true
         );
         $repo->set_remote("origin", $gitDetails->url);
         return true;
@@ -191,15 +366,17 @@ class HAXCMSSite
      * Add a page to the site's file system and reflect it in the outine schema.
      *
      * @var $parent JSONOutlineSchemaItem representing a parent to add this page under
+     * @var $title title of the new page to create
+     * @var $template string which boilerplate page template / directory to load
      *
      * @return $page repesented as JSONOutlineSchemaItem
      */
-    public function addPage($parent = null)
+    public function addPage($parent = null, $title = 'New page', $template = "default")
     {
         // draft an outline schema item
         $page = new JSONOutlineSchemaItem();
         // set a crappy default title
-        $page->title = 'New page';
+        $page->title = $title;
         if ($parent == null) {
             $page->parent = null;
             $page->indent = 0;
@@ -212,20 +389,26 @@ class HAXCMSSite
         // set order to the page's count for default add to end ordering
         $page->order = count($this->manifest->items);
         // location is the html file we just copied and renamed
-        $page->location = 'pages/' . $page->id . '/index.html';
+        $page->location = 'pages/welcome/index.html';
         $page->metadata->created = time();
         $page->metadata->updated = time();
         $location =
             $this->directory .
             '/' .
-            $this->manifest->metadata->siteName .
-            '/pages/' .
-            $page->id;
+            $this->manifest->metadata->site->name .
+            '/pages/welcome';
         // copy the page we use for simplicity (or later complexity if we want)
-        $this->recurseCopy(HAXCMS_ROOT . '/system/boilerplate/page', $location);
+        switch ($template) {
+            case 'init':
+                $this->recurseCopy(HAXCMS_ROOT . '/system/boilerplate/page/init', $location);
+            break;
+            default:
+                $this->recurseCopy(HAXCMS_ROOT . '/system/boilerplate/page/default', $location);
+            break;
+        }
         $this->manifest->addItem($page);
         $this->manifest->save();
-        $this->updateStaticVersions();
+        $this->updateAlternateFormats();
         return $page;
     }
     /**
@@ -235,77 +418,94 @@ class HAXCMSSite
       $this->manifest->save();
     }
     /**
-     * Update RSS / Atom feeds which are physical files
+     * Update RSS, Atom feeds, site map, legacy outline, search index
+     * which are physical files and need rebuilt on chnages to data structure
      */
-    public function updateStaticVersions()
+    public function updateAlternateFormats($format = NULL)
     {
-        // rip changes to feed urls
-        $rss = new FeedMe();
-        $siteDirectory =
-            $this->directory . '/' . $this->manifest->metadata->siteName . '/';
-        @file_put_contents($siteDirectory . 'rss.xml', $rss->getRSSFeed($this));
-        @file_put_contents(
-            $siteDirectory . 'atom.xml',
-            $rss->getAtomFeed($this)
-        );
-        // build a sitemap if we have a domain, kinda required...
-        if (isset($this->manifest->metadata->domain)) {
-            $domain = $this->manifest->metadata->domain;
-            $generator = new \Icamys\SitemapGenerator\SitemapGenerator(
-                $domain,
-                $siteDirectory
+        $siteDirectory = $this->directory . '/' . $this->manifest->metadata->site->name . '/';
+        if (is_null($format) || $format == 'rss') {
+            // rip changes to feed urls
+            $rss = new FeedMe();
+            $siteDirectory =
+                $this->directory . '/' . $this->manifest->metadata->site->name . '/';
+            @file_put_contents($siteDirectory . 'rss.xml', $rss->getRSSFeed($this));
+            @file_put_contents(
+                $siteDirectory . 'atom.xml',
+                $rss->getAtomFeed($this)
             );
-            // will create also compressed (gzipped) sitemap
-            $generator->createGZipFile = true;
-            // determine how many urls should be put into one file
-            // according to standard protocol 50000 is maximum value (see http://www.sitemaps.org/protocol.html)
-            $generator->maxURLsPerSitemap = 50000;
-            // sitemap file name
-            $generator->sitemapFileName = "sitemap.xml";
-            // sitemap index file name
-            $generator->sitemapIndexFileName = "sitemap-index.xml";
-            // adding url `loc`, `lastmodified`, `changefreq`, `priority`
-            foreach ($this->manifest->items as $key => $item) {
-                if ($item->parent == null) {
-                    $priority = '1.0';
-                } elseif ($item->indent == 2) {
-                    $priority = '0.7';
-                } else {
-                    $priority = '0.5';
-                }
-                $updatedTime = new DateTime();
-                $updatedTime->setTimestamp($item->metadata->updated);
-                $updatedTime->format(DateTime::ATOM);
-                $generator->addUrl(
-                    $domain .
-                        '/' .
-                        str_replace(
-                            'pages/',
-                            '',
-                            str_replace('/index.html', '', $item->location)
-                        ),
-                    $updatedTime,
-                    'daily',
-                    $priority
-                );
-            }
-            // generating internally a sitemap
-            $generator->createSitemap();
-            // writing early generated sitemap to file
-            $generator->writeSitemap();
         }
-        // now generate a static list of links. This is so we can have legacy fail-back iframe mode in tact
-        @file_put_contents(
-            $siteDirectory . 'legacy-outline.html',
-            '<!DOCTYPE html><html lang="en"><head></head><body>' .
-                $this->treeToNodes($this->manifest->items) .
-                '</body></html>'
-        );
-        // now generate the search index
-        @file_put_contents(
-            $siteDirectory . 'lunrSearchIndex.json',
-                json_encode($this->lunrSearchIndex($this->manifest->items))
-        );
+        // build a sitemap if we have a domain, kinda required...
+        if (is_null($format) || $format == 'sitemap') {
+            if (isset($this->manifest->metadata->site->domain)) {
+                $domain = $this->manifest->metadata->site->domain;
+                $generator = new \Icamys\SitemapGenerator\SitemapGenerator(
+                    $domain,
+                    $siteDirectory
+                );
+                // will create also compressed (gzipped) sitemap
+                $generator->createGZipFile = true;
+                // determine how many urls should be put into one file
+                // according to standard protocol 50000 is maximum value (see http://www.sitemaps.org/protocol.html)
+                $generator->maxURLsPerSitemap = 50000;
+                // sitemap file name
+                $generator->sitemapFileName = "sitemap.xml";
+                // sitemap index file name
+                $generator->sitemapIndexFileName = "sitemap-index.xml";
+                // adding url `loc`, `lastmodified`, `changefreq`, `priority`
+                foreach ($this->manifest->items as $key => $item) {
+                    if ($item->parent == null) {
+                        $priority = '1.0';
+                    } elseif ($item->indent == 2) {
+                        $priority = '0.7';
+                    } else {
+                        $priority = '0.5';
+                    }
+                    $updatedTime = new DateTime();
+                    $updatedTime->setTimestamp($item->metadata->updated);
+                    $updatedTime->format(DateTime::ATOM);
+                    $generator->addUrl(
+                        $domain .
+                            '/' .
+                            str_replace(
+                                'pages/',
+                                '',
+                                str_replace('/index.html', '', $item->location)
+                            ),
+                        $updatedTime,
+                        'daily',
+                        $priority
+                    );
+                }
+                // generating internally a sitemap
+                $generator->createSitemap();
+                // writing early generated sitemap to file
+                $generator->writeSitemap();
+            }
+        }
+        if (is_null($format) || $format == 'legacy') {
+            // now generate a static list of links. This is so we can have legacy fail-back iframe mode in tact
+            @file_put_contents(
+                $siteDirectory . 'legacy-outline.html',
+                '<!DOCTYPE html>
+                <html lang="en">
+                    <head>
+                        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+                        <meta content="utf-8" http-equiv="encoding">
+                    </head>
+                    <body>' .
+                    $this->treeToNodes($this->manifest->items) .
+                    '</body>
+                </html>'
+            );
+        }
+        if (is_null($format) || $format == 'search') {
+            // now generate the search index
+            @file_put_contents(
+                $siteDirectory . 'lunrSearchIndex.json',
+                    json_encode($this->lunrSearchIndex($this->manifest->items))
+            );
+        }
     }
     /**
      * Create Lunr.js style search index
@@ -324,7 +524,7 @@ class HAXCMSSite
           "created" => $created,
           "location" => str_replace('pages/', '', str_replace('/index.html', '', $item->location)),
           "description" => $item->description,
-          "text" => $this->cleanSearchData(@file_get_contents($this->directory . '/' . $this->manifest->metadata->siteName . '/' . $item->location)),
+          "text" => $this->cleanSearchData(@file_get_contents($this->directory . '/' . $this->manifest->metadata->site->name . '/' . $item->location)),
         );
       }
       return $data;
@@ -432,7 +632,7 @@ class HAXCMSSite
         return $html . $loc;
     }
     /**
-     * Load page by unique id
+     * Load node by unique id
      */
     public function loadNode($uuid)
     {
@@ -442,6 +642,264 @@ class HAXCMSSite
             }
         }
         return false;
+    }
+    /**
+     * Get a social sharing image based on context of page or site having media
+     * @var string $page page to mine the image from or attempt to
+     * @return string full URL to an image
+     */
+    public function getSocialShareImage($page = null) {
+        if (is_null($page)) {
+            $page = $this->loadNodeByLocation();
+        }
+        if (isset($page->metadata->files)) {
+            foreach ($page->metadata->files as $file) {
+                if ($file->type == 'image/jpeg') {
+                    return $file->fullUrl;
+                }
+            }
+        }
+        // look for the theme banner
+        if (isset($this->manifest->metadata->theme->variables->image)) {
+            return $this->manifest->metadata->theme->variables->image;
+        }
+    }
+    /**
+     * Return attributes for the site
+     * @todo make this mirror the drupal get attributes method
+     * @return string eventually, array of data keyed by type of information
+     */
+    public function getSitePageAttributes() {
+      return 'vocab="http://schema.org/" prefix="oer:http://oerschema.org cc:http://creativecommons.org/ns dc:http://purl.org/dc/terms/"';
+    }
+    /**
+     * Return the base tag accurately which helps with the PWA / SW side of things
+     * @return string HTML blob for hte <base> tag
+     */
+    public function getBaseTag() {
+      return '<base href="' . $this->basePath . $this->name . '/" />';
+    }
+    /**
+     * Return a standard service worker that takes into account
+     * the context of the page it's been placed on.
+     * @todo this will need additional vetting based on the context applied
+     * @return string <script> tag that will be a rather standard service worker
+     */
+    public function getServiceWorkerScript($basePath = null, $ignoreDevMode = FALSE) {
+      // because this can screw with caching, let's make sure we
+      // can throttle it locally for developers as needed
+      if (($GLOBALS["HAXCMS"]->developerMode) && !$ignoreDevMode) {
+        return '// SW disabled via developerMode';
+      }
+      // support dynamic calculation
+      if (is_null($basePath)) {
+        $basePath = $this->basePath . $this->name . '/';
+      }
+      return "
+  <script>
+    if ('serviceWorker' in navigator) {
+      var sitePath = '" . $basePath . "';
+      // discover this path downstream of the root of the domain
+      var swScope = window.location.pathname.substring(0, window.location.pathname.indexOf(sitePath)) + sitePath;
+      if (swScope != document.head.getElementsByTagName('base')[0].href) {
+        document.head.getElementsByTagName('base')[0].href = swScope;
+      }
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('service-worker.js', {
+          scope: swScope
+        }).then(function (registration) {
+          registration.onupdatefound = function () {
+            // The updatefound event implies that registration.installing is set; see
+            // https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-container-updatefound-event
+            var installingWorker = registration.installing;
+            installingWorker.onstatechange = function () {
+              switch (installingWorker.state) {
+                case 'installed':
+                  if (!navigator.serviceWorker.controller) {
+                    window.dispatchEvent(new CustomEvent('simple-toast-show', {
+                      bubbles: true,
+                      cancelable: false,
+                      detail: {
+                        text: 'Pages you view are cached for offline use.',
+                        duration: 8000
+                      }
+                    }));
+                  }
+                break;
+                case 'redundant':
+                  throw Error('The installing service worker became redundant.');
+                break;
+              }
+            };
+          };
+        }).catch(function (e) {
+          console.warn('Service worker registration failed:', e);
+        });
+        // Check to see if the service worker controlling the page at initial load
+        // has become redundant, since this implies there's a new service worker with fresh content.
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.onstatechange = function(event) {
+            if (event.target.state === 'redundant') {
+              var b = document.createElement('paper-button');
+              b.appendChild(document.createTextNode('Reload'));
+              b.raised = true;
+              b.addEventListener('click', function(e){ window.location.reload(true); });
+              window.dispatchEvent(new CustomEvent('simple-toast-show', {
+                bubbles: true,
+                cancelable: false,
+                detail: {
+                  text: 'A site update is available. Reload for latest content.',
+                  duration: 12000,
+                  slot: b,
+                  clone: false
+                }
+              }));
+            }
+          };
+        }
+      });
+    }
+  </script>";
+    }
+    /**
+     * Load content of this page
+     * @var JSONOutlineSchemaItem $page - a loaded page object
+     * @return string HTML / contents of the page object
+     */
+    public function getPageContent($page) {
+      if (isset($page->location) && $page->location != '') {
+        return filter_var(file_get_contents(HAXCMS_ROOT . '/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $this->name . '/' . $page->location));
+      }
+    }
+    /**
+     * Return accurate, rendered site metadata
+     * @var JSONOutlineSchemaItem $page - a loaded page object, most likely whats active
+     * @return string an html chunk of tags for the head section
+     * @todo move this to a render function / section / engine
+     */
+    public function getSiteMetadata($page = NULL, $domain = NULL, $cdn = '') {
+      if (is_null($page)) {
+        $page = new JSONOutlineSchemaItem();
+      }
+      // domain's need to inject their own full path for OG metadata (which is edge case)
+      // most of the time this is the actual usecase so use the active path
+      if (is_null($domain)) {
+        $domain = $GLOBALS['HAXCMS']->getURI();
+      }
+      // support preconnecting CDNs, sets us up for dynamic CDN switching too
+      if ($cdn != '') {
+        $cdn = '<link rel="preconnect" crossorigin href="' . $cdn . '">';
+      }
+      $title = $page->title;
+      $siteTitle = $this->manifest->title . ' | ' . $page->title;
+      $description = $page->description;
+      $hexCode = HAXCMS_FALLBACK_HEX;
+      if ($description == '') {
+        $description = $this->manifest->description;
+      }
+      if ($title == '' || $title == 'New item') {
+        $title = $this->manifest->title;
+        $siteTitle = $this->manifest->title;
+      }
+      if (isset($this->manifest->metadata->theme->variables->hexCode)) {
+          $hexCode = $this->manifest->metadata->theme->variables->hexCode;
+      }
+      $metadata = '<meta charset="utf-8">
+  <link rel="preconnect" crossorigin href="https://fonts.googleapis.com">
+  ' . $cdn . '
+  <link rel="preconnect" crossorigin href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" crossorigin href="https://i.creativecommons.org">
+  <link rel="preconnect" crossorigin href="https://licensebuttons.net">
+  <meta name="generator" content="HAXcms">
+  <link rel="manifest" href="manifest.json">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <title>' . $siteTitle . '</title>
+  <link rel="icon" href="' . $this->getLogoSize('16', '16') . '">
+  <meta name="theme-color" content="' . $hexCode . '">
+  <meta name="robots" content="index, follow">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="' . $title . '">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="' . $title . '">
+
+  <link rel="apple-touch-icon" sizes="48x48" href="' . $this->getLogoSize('48', '48') . '">
+  <link rel="apple-touch-icon" sizes="72x72" href="' . $this->getLogoSize('72', '72') . '">
+  <link rel="apple-touch-icon" sizes="96x96" href="' . $this->getLogoSize('96', '96') . '">
+  <link rel="apple-touch-icon" sizes="144x144" href="' . $this->getLogoSize('144', '144') . '">
+  <link rel="apple-touch-icon" sizes="192x192" href="' . $this->getLogoSize('192', '192') . '">
+
+  <meta name="msapplication-TileImage" content="' . $this->getLogoSize('144', '144') . '">
+  <meta name="msapplication-TileColor" content="' . $hexCode . '">
+  <meta name="msapplication-tap-highlight" content="no">
+        
+  <meta name="description" content="' . $description . '" />
+  <meta name="og:sitename" property="og:sitename" content="' . $this->manifest->title . '" />
+  <meta name="og:title" property="og:title" content="' . $title . '" />
+  <meta name="og:type" property="og:type" content="article" />
+  <meta name="og:url" property="og:url" content="' . $domain . '" />
+  <meta name="og:description" property="og:description" content="' . $description . '" />
+  <meta name="og:image" property="og:image" content="' . $this->getSocialShareImage($page) . '" />
+  <meta name="twitter:card" property="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" property="twitter:site" content="' . $domain . '" />
+  <meta name="twitter:title" property="twitter:title" content="' . $title . '" />
+  <meta name="twitter:description" property="twitter:description" content="' . $description . '" />
+  <meta name="twitter:image" property="twitter:image" content="' . $this->getSocialShareImage($page) . '" />';  
+      // mix in license metadata if we have it
+      $licenseData = $this->getLicenseData('all');
+      if (isset($this->manifest->license) && isset($licenseData[$this->manifest->license])) {
+          $metadata .= "\n" . '  <meta rel="cc:license" href="' . $licenseData[$this->manifest->license]['link'] . '" content="License: ' . $licenseData[$this->manifest->license]['name'] . '"/>' . "\n";
+      }
+      // add in twitter link if they provided one
+      if (isset($this->manifest->metadata->author->socialLink) && strpos($this->manifest->metadata->author->socialLink, 'https://twitter.com/') === 0) {
+          $metadata .= "\n" . '  <meta name="twitter:creator" content="' . str_replace('https://twitter.com/', '@', $this->manifest->metadata->author->socialLink) . '" />';
+      }
+      $GLOBALS['HAXCMS']->dispatchEvent('haxcms-site-metadata', $metadata);
+      return $metadata;
+    }
+    /**
+     * Load a node based on a path
+     * @var $path the path to try loading based on or search for the active from address
+     * @return new JSONOutlineSchemaItem() a blank JOS item
+     */
+    public function loadNodeByLocation($path = NULL) {
+        // load from the active address if we have one
+        if (is_null($path) && isset($_SERVER['SCRIPT_URL'])) {
+          $path = str_replace('/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $this->name . '/', '', $_SERVER['SCRIPT_URL']);
+        }
+        $path .= "/index.html";
+        // failsafe in case someone had closing /
+        $path = 'pages/' . str_replace('//', '/', $path);
+        foreach ($this->manifest->items as $item) {
+            if ($item->location == $path) {
+                return $item;
+            }
+        }
+       return new JSONOutlineSchemaItem();
+    }
+    /**
+     * Generate or load the path to variations on the logo
+     * @var string $height height of the icon as a string
+     * @var string $width width of the icon as a string
+     * @return string path to the image (web visible) that was created or pulled together
+     */
+    public function getLogoSize($height, $width) {
+      // if no logo, just bail with an easy standard one
+      if (!isset($this->manifest->metadata->site->logo)) {
+        return 'assets/icon-' . $height . 'x' . $width . '.png';
+      }
+      // ensure this path exists otherwise let's create it on the fly
+      $path = HAXCMS_ROOT . '/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $this->name . '/';
+      $newName = str_replace('files/', 'files/haxcms-managed/' . $height . 'x' . $width . '-', $this->manifest->metadata->site->logo);
+      if (!file_exists($path . $newName)) {
+        global $fileSystem;
+        $fileSystem->mkdir($path . 'files/haxcms-managed');
+        $image = new ImageResize($path . $this->manifest->metadata->site->logo);
+        $image->crop($height, $width)
+          ->save($path . $newName);
+      }
+      return $newName;
     }
     /**
      * Load field schema for a page
@@ -477,7 +935,7 @@ class HAXCMSSite
             if (isset($coreFields->configure)) {
                 foreach ($coreFields->configure as $item) {
                     // edge case for pathauto
-                    if ($item->property == 'location' && isset($this->manifest->metadata->pathauto) && $this->manifest->metadata->pathauto) {
+                    if ($item->property == 'location' && isset($this->manifest->metadata->site->settings->pathauto) && $this->manifest->metadata->site->settings->pathauto) {
                         // skip this core field if we have pathauto on
                         $item->required = false;
                         $item->disabled = true;
@@ -492,18 +950,18 @@ class HAXCMSSite
             }
         }
         // fields can live globally in config
-        if (isset($GLOBALS['HAXCMS']->config->fields)) {
-            if (isset($GLOBALS['HAXCMS']->config->fields->configure)) {
+        if (isset($GLOBALS['HAXCMS']->config->node->fields)) {
+            if (isset($GLOBALS['HAXCMS']->config->node->fields->configure)) {
                 foreach (
-                    $GLOBALS['HAXCMS']->config->fields->configure
+                    $GLOBALS['HAXCMS']->config->node->fields->configure
                     as $item
                 ) {
                     $fields['configure'][] = $item;
                 }
             }
-            if (isset($GLOBALS['HAXCMS']->config->fields->advanced)) {
+            if (isset($GLOBALS['HAXCMS']->config->node->fields->advanced)) {
                 foreach (
-                    $GLOBALS['HAXCMS']->config->fields->advanced
+                    $GLOBALS['HAXCMS']->config->node->fields->advanced
                     as $item
                 ) {
                     $fields['advanced'][] = $item;
@@ -519,7 +977,7 @@ class HAXCMSSite
                     $this->manifest->metadata->theme->fields
             )
         ) {
-            // @todo thik of how to make this less brittle
+            // @todo think of how to make this less brittle
             // not a fan of pegging loading this definition to our file system's publishing structure
             $themeFields = json_decode(
                 file_get_contents(
@@ -540,17 +998,17 @@ class HAXCMSSite
             }
         }
         // fields can live in the site itself
-        if (isset($this->manifest->metadata->fields)) {
-            if (isset($this->manifest->metadata->fields->configure)) {
+        if (isset($this->manifest->metadata->node->fields)) {
+            if (isset($this->manifest->metadata->node->fields->configure)) {
                 foreach (
-                    $this->manifest->metadata->fields->configure
+                    $this->manifest->metadata->node->fields->configure
                     as $item
                 ) {
                     $fields['configure'][] = $item;
                 }
             }
-            if (isset($this->manifest->metadata->fields->advanced)) {
-                foreach ($this->manifest->metadata->fields->advanced as $item) {
+            if (isset($this->manifest->metadata->node->fields->advanced)) {
+                foreach ($this->manifest->metadata->node->fields->advanced as $item) {
                     $fields['advanced'][] = $item;
                 }
             }
@@ -569,157 +1027,6 @@ class HAXCMSSite
         // now get the field data from the page
         if (isset($page->metadata->fields)) {
             foreach ($page->metadata->fields as $key => $item) {
-                if ($key == 'theme') {
-                    $values[$key] = $item['key'];
-                } else {
-                    $values[$key] = $item;
-                }
-            }
-        }
-        // response as schema and values
-        $response = new stdClass();
-        $response->haxSchema = $fields;
-        $response->values = $values;
-        return $response;
-    }
-    /**
-     * Load field schema for a page
-     * Field cascade always follows Core -> Deploy -> Theme -> Site
-     * Anything downstream can always override upstream but no one can remove fields
-     */
-    public function loadSiteFieldSchema()
-    {
-        $fields = array(
-            'configure' => array(),
-            'advanced' => array()
-        );
-        $nodeFields = array();
-        // load core fields
-        // it may seem silly but we seek to not brick any usecase so if this file is gone.. don't die
-        if (file_exists(HAXCMS_ROOT . '/system/coreConfig/siteFields.json')) {
-            $coreFields = json_decode(
-                file_get_contents(
-                    HAXCMS_ROOT . '/system/coreConfig/siteFields.json'
-                )
-            );
-            $themes = array();
-            foreach ($GLOBALS['HAXCMS']->getThemes() as $key => $item) {
-                $themes[$key] = $item->name;
-                $themes['key'] = $key;
-            }
-            // this needs to be set dynamically
-            foreach ($coreFields->configure as $key => $item) {
-                if ($item->property === 'theme') {
-                    $coreFields->configure[$key]->options = $themes;
-                }
-            }
-            foreach ($coreFields->advanced as $key => $item) {
-                if ($item->property === 'license') {
-                    $coreFields->advanced[
-                        $key
-                    ]->options = $this->getLicenseData();
-                }
-            }
-            // CORE fields
-            if (isset($coreFields->configure)) {
-                foreach ($coreFields->configure as $item) {
-                    $fields['configure'][] = $item;
-                }
-            }
-            if (isset($coreFields->advanced)) {
-                foreach ($coreFields->advanced as $item) {
-                    $fields['advanced'][] = $item;
-                }
-            }
-        }
-        // fields can live globally in config
-        if (isset($GLOBALS['HAXCMS']->config->siteFields)) {
-            if (isset($GLOBALS['HAXCMS']->config->siteFields->configure)) {
-                foreach (
-                    $GLOBALS['HAXCMS']->config->siteFields->configure
-                    as $item
-                ) {
-                    $fields['configure'][] = $item;
-                }
-            }
-            if (isset($GLOBALS['HAXCMS']->config->siteFields->advanced)) {
-                foreach (
-                    $GLOBALS['HAXCMS']->config->siteFields->advanced
-                    as $item
-                ) {
-                    $fields['advanced'][] = $item;
-                }
-            }
-        }
-        // fields can live in the theme
-        if (
-            isset($this->manifest->metadata->theme->siteFields) &&
-            file_exists(
-                HAXCMS_ROOT .
-                    '/build/es6/node_modules/' .
-                    $this->manifest->metadata->theme->siteFields
-            )
-        ) {
-            // @todo thik of how to make this less brittle
-            // not a fan of pegging loading this definition to our file system's publishing structure
-            $themeFields = json_decode(
-                file_get_contents(
-                    HAXCMS_ROOT .
-                        '/build/es6/node_modules/' .
-                        $this->manifest->metadata->theme->siteFields
-                )
-            );
-            if (isset($themeFields->configure)) {
-                foreach ($themeFields->configure as $item) {
-                    $fields['configure'][] = $item;
-                }
-            }
-            if (isset($themeFields->advanced)) {
-                foreach ($themeFields->advanced as $item) {
-                    $fields['advanced'][] = $item;
-                }
-            }
-        }
-        // fields can live in the site itself
-        // @todo this needs to give you data differently
-        if (isset($this->manifest->metadata->fields)) {
-            if (isset($this->manifest->metadata->fields->configure)) {
-                foreach (
-                    $this->manifest->metadata->fields->configure
-                    as $item
-                ) {
-                    $item->formgroup = 'configure';
-                    $nodeFields[] = $item;
-                }
-            }
-            if (isset($this->manifest->metadata->fields->advanced)) {
-                foreach ($this->manifest->metadata->fields->advanced as $item) {
-                    $item->formgroup = 'advanced';
-                    $nodeFields[] = $item;
-                }
-            }
-        }
-        // icon wasn't required at one point
-        if (!isset($this->manifest->metadata->icon)) {
-            $this->manifest->metadata->icon = '';
-        }
-        // core values that live outside of the fields area
-        $values = array(
-            'title' => $this->manifest->title,
-            'author' => $this->manifest->author,
-            'license' => $this->manifest->license,
-            'description' => $this->manifest->description,
-            'icon' => $this->manifest->metadata->icon,
-            'theme' => $this->manifest->metadata->theme,
-            'domain' => (isset($this->manifest->metadata->domain) ? $this->manifest->metadata->domain : ''),
-            'pathauto' => (isset($this->manifest->metadata->pathauto) ? $this->manifest->metadata->pathauto : false),
-            'image' => $this->manifest->metadata->image,
-            'cssVariable' => $this->manifest->metadata->cssVariable,
-            'fields' => $nodeFields
-        );
-        // now get the field data from the page
-        if (isset($this->manifest->metadata->fields)) {
-            foreach ($this->manifest->metadata->fields as $key => $item) {
                 if ($key == 'theme') {
                     $values[$key] = $item['key'];
                 } else {
@@ -780,6 +1087,9 @@ class HAXCMSSite
                 $data[$key] = $item['name'];
             }
         }
+        else {
+            $data = $list;
+        }
         return $data;
     }
     /**
@@ -793,7 +1103,7 @@ class HAXCMSSite
             if ($item->id === $page->id) {
                 $this->manifest->items[$key] = $page;
                 $this->manifest->save(false);
-                $this->updateStaticVersions();
+                $this->updateAlternateFormats();
                 return $page;
             }
         }
@@ -809,7 +1119,7 @@ class HAXCMSSite
             if ($item->id === $page->id) {
                 unset($this->manifest->items[$key]);
                 $this->manifest->save(false);
-                $this->updateStaticVersions();
+                $this->updateAlternateFormats();
                 return true;
             }
         }
@@ -822,9 +1132,9 @@ class HAXCMSSite
     {
         $new = str_replace('./', '', str_replace('../', '', $new));
         // attempt to shift it on the file system
-        if ($new != $this->manifest->metadata->siteName) {
-            $this->manifest->metadata->siteName = $new;
-            return @rename($this->manifest->metadata->siteName, $new);
+        if ($new != $this->manifest->metadata->site->name) {
+            $this->manifest->metadata->site->name = $new;
+            return @rename($this->manifest->metadata->site->name, $new);
         }
     }
     /**
@@ -833,7 +1143,7 @@ class HAXCMSSite
     public function getUniqueLocationName($location, $page = null)
     {
         $siteDirectory =
-            $this->directory . '/' . $this->manifest->metadata->siteName;
+            $this->directory . '/' . $this->manifest->metadata->site->name;
         $loop = 0;
         $original = $location;
         if ($page != null && $page->parent != null && $page->parent != '') {
@@ -859,14 +1169,14 @@ class HAXCMSSite
     /**
      * Recursive copy to rename high level but copy all files
      */
-    public function recurseCopy($src, $dst)
+    public function recurseCopy($src, $dst, $skip = array())
     {
         $dir = opendir($src);
         // see if we can make the directory to start off
-        if (!is_dir($dst) && @mkdir($dst, 0777, true)) {
+        if (!is_dir($dst) && array_search($dst, $skip) === FALSE && @mkdir($dst, 0777, true)) {
             while (false !== ($file = readdir($dir))) {
                 if ($file != '.' && $file != '..') {
-                    if (is_dir($src . '/' . $file)) {
+                    if (is_dir($src . '/' . $file) && array_search($file, $skip) === FALSE) {
                         $this->recurseCopy(
                             $src . '/' . $file,
                             $dst . '/' . $file

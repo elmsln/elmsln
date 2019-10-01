@@ -1,14 +1,14 @@
 {
-    "title": "My website",
-    "description": "A simple website built with HAXCMS",
+    "title": "{{ title }}",
+    "description": "{{ description }}",
     "type": [
-        "website"
+        "website", "HAXcms"
     ],
     "links": {
         "license": [
             {
-                "href": "http://creativecommons.org/licenses/by-nc/2.5/",
-                "title": "CC BY-NC 2.5"
+                "href": "{{ licenseLink }}",
+                "title": "{{ licenseName }}"
             }
         ]
     }

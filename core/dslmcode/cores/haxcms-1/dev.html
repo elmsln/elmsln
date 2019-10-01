@@ -14,7 +14,7 @@
 
     <link rel="manifest" href="manifest.json" />
 
-    <meta name="theme-color" content="#3f51b5" />
+    <meta name="theme-color" content="#37474f" />
 
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="application-name" content="My site" />
@@ -41,7 +41,7 @@
     />
 
     <meta name="msapplication-TileImage" content="assets/icon-144x144.png" />
-    <meta name="msapplication-TileColor" content="#3f51b5" />
+    <meta name="msapplication-TileColor" content="#37474f" />
     <meta name="msapplication-tap-highlight" content="no" />
 
     <meta name="twitter:card" content="summary" />
@@ -52,24 +52,35 @@
 
     <link rel="preconnect" crossorigin href="https://fonts.googleapis.com" />
     <link rel="preconnect" crossorigin href="https://cdnjs.cloudflare.com" />
+    
     <style>
       body {
         margin: 0;
         min-height: 100vh;
       }
-
+      body[data-logged-in] {
+        background-color: #EEEEEE;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        transition: .6s linear background;
+        background-color: var(--haxcms-system-bg);
+      }
       haxcms-site-listing {
         transition: all 1s linear;
+        --haxcms-site-listing-color-dark: var(--haxcms-system-bg, --simple-colors-default-theme-blue-11);
+        --haxcms-site-listing-color-light: #FFFFFF;
+        --haxcms-site-listing-color-hover: var(--haxcms-system-action-color);
+        outline-color: var(--haxcms-site-listing-color-hover);
       }
-
       haxcms-site-listing:not(:defined) {
         width: 100vw;
         display: block;
         position: fixed;
         height: 100vh;
-        background: #23d5ab;
+        background: #37474f;
       }
-
       haxcms-site-listing:not(:defined) div {
         font-size: 6vw;
         line-height: 1;
@@ -77,12 +88,15 @@
         top: calc(50vh - 8vw);
         width: 100%;
         justify-content: center;
-        display: grid;
+        display: block;
         text-align: center;
         padding: 0;
         position: relative;
         font-family: "Courier New", Courier, monospace;
         color: black;
+      }
+      body[no-js] haxcms-site-listing {
+        display: none !important;
       }
     </style>
   </head>
@@ -100,6 +114,8 @@
         getConfigPath: "dist\/dev\/getConfigPath.json",
         saveManifestPath: "dist\/dev\/saveNode.json",
         setConfigPath: "dist\/dev\/saveNode.json",
+        getUserDataPath: "dist\/dev\/userData.json",
+        setUserPhotoPath: "dist\/dev\/setUserPhotoPath.json",
         downloadSitePath: "dist\/dev\/saveNode.json",
         createNodePath: "dist\/dev\/saveNode.json",
         createNewSitePath: "dist\/dev\/saveNode.json",
@@ -132,6 +148,7 @@
           themeCoreJson = myJson;
           return myJson;
         });
+      // fake an async
       setTimeout(() => {
         // combine so they are there for review just like a real backend would present
         window.appSettings.themes = Object.assign(
@@ -139,7 +156,7 @@
           themeCoreJson,
           configJson.themes
         );
-      }, 50);
+      }, 100);
       // append global base styles
       var link = document.createElement("link");
       link.rel = "stylesheet";

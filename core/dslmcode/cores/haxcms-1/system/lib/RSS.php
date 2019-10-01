@@ -8,8 +8,8 @@ class FeedMe
     public function getRSSFeed($site)
     {
         $domain = "";
-        if (isset($site->manifest->metadata->domain)) {
-            $domain = $site->manifest->metadata->domain;
+        if (isset($site->manifest->metadata->site->domain)) {
+            $domain = $site->manifest->metadata->site->domain;
         }
         return '<?xml version="1.0" encoding="utf-8"?>
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
@@ -32,7 +32,7 @@ class FeedMe
             $site->language .
             '</language>
     <lastBuildDate>' .
-            date(\DateTime::RSS, $site->manifest->metadata->updated) .
+            date(\DateTime::RSS, $site->manifest->metadata->site->updated) .
             '</lastBuildDate>
     <atom:link href="' .
             $domain .
@@ -50,11 +50,11 @@ class FeedMe
         $output = '';
         $domain = "";
         $count = 0;
-        if (isset($site->manifest->metadata->domain)) {
-            $domain = $site->manifest->metadata->domain;
+        if (isset($site->manifest->metadata->site->domain)) {
+            $domain = $site->manifest->metadata->site->domain;
         }
         $items = $site->sortItems('created');
-        $siteDirectory = $site->directory . '/' . $site->manifest->metadata->siteName;
+        $siteDirectory = $site->directory . '/' . $site->manifest->metadata->site->name;
         foreach ($items as $key => $item) {
             $tags = '';
             // beyond edge but don't want this to erorr on write
@@ -116,8 +116,8 @@ class FeedMe
     public function getAtomFeed($site)
     {
         $domain = "";
-        if (isset($site->manifest->metadata->domain)) {
-            $domain = $site->manifest->metadata->domain;
+        if (isset($site->manifest->metadata->site->domain)) {
+            $domain = $site->manifest->metadata->site->domain;
         }
         return '<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
@@ -131,7 +131,7 @@ class FeedMe
             $site->manifest->description .
             '</subtitle>
   <updated>' .
-            date(\DateTime::ATOM, $site->manifest->metadata->updated) .
+            date(\DateTime::ATOM, $site->manifest->metadata->site->updated) .
             '</updated>
   <author>
       <name>' .
@@ -153,11 +153,11 @@ class FeedMe
         $output = '';
         $domain = "";
         $count = 0;
-        if (isset($site->manifest->metadata->domain)) {
-            $domain = $site->manifest->metadata->domain;
+        if (isset($site->manifest->metadata->site->domain)) {
+            $domain = $site->manifest->metadata->site->domain;
         }
         $items = $site->sortItems('created');
-        $siteDirectory = $site->directory . '/' . $site->manifest->metadata->siteName;
+        $siteDirectory = $site->directory . '/' . $site->manifest->metadata->site->name;
         foreach ($items as $key => $item) {
             $tags = '';
             // beyond edge but don't want this to erorr on write

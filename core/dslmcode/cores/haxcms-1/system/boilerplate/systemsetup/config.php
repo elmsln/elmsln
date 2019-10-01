@@ -7,6 +7,13 @@ $HAXCMS->superUser->name = 'jeff';
 $HAXCMS->superUser->password = 'jimmerson';
 // set basePath to be the haxCMS location we've got this placed at
 $HAXCMS->basePath = '/';
+// this ensures certain things are disabled in order to more effectively
+// do development on the platform itself. Useful for testing output and
+// what not. this applies to ALL REQUESTS asking for it.
+//$HAXCMS->developerMode = TRUE;
+// use this flag for things that want annonymous page loads to work as they should
+// but yet be able to debug things as an admin/authenticated user efficiently
+//$HAXCMS->developerModeAdminOnly = TRUE;
 // see system/lib/HAXCMS.php for additional deeper options
 // including $HAXCMS->user and $HAXCMS->password which can be used
 // to allow for lower permissioned users to login to specific sites

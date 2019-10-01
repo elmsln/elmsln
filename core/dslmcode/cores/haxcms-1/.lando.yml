@@ -1,5 +1,5 @@
 name: haxcms
-recipe: lemp
+recipe: lamp
 config:
   php: "7.2"
   webroot: .
