@@ -9,7 +9,7 @@ Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
 | Version | PHP | Includes | Status |
 | ------- | --- | -------- | ------ |
-[0.11.0](https://github.com/elmsln/elmsln/archive/0.11.0.zip)  | 5.4+ & 7.1+ | Polymer 3.x.x, Drupal 7.x, HAXcms 0.x.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln)
+[0.12.0](https://github.com/elmsln/elmsln/archive/0.12.0.zip)  | 7.2+ | Polymer 3.x.x, Drupal 7.x, HAXcms 0.12.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln)
 
 Contributing
 ==============
