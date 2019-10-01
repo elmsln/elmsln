@@ -1,3 +1,9 @@
+## 0.12.0 - 2019-10-01 - HAX impovements
+We'll be able to roll updates faster. This sees HAXcms 0.12.0 release aligning with ELMSLN
+as we'll continue to do that from now on as best we can. This includes lots of improvements to HAX and the databinding / interplay with Drupal's input filters as well as bug fixes that were reported as part of development in between. There's improvements in the studio around permissions, minor doc updates from students, PHP version compatibility and support for Ubuntu 18 LTS. HAXcms core has been updated as well though its planned to start tests at Headless Drupal as backend toward the end of the year at the earliest. The outlining tools and UX feedback from HAXcms will feed directly into having course outline options built on top of Drupal as a backend, allowing ELMSLN sites to remain in place, yet progressively be upgraded to leverage the latest and greatest of HAXcms in place. HAXcms scope is on singular site / publishing flows so the theme engine and UX improvements in HAXcms can help inform ELMS:LN without there being a conflict in use-case.
+
+To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/19?closed=1
+To read about changes to HAXcms included in this release: https://github.com/elmsln/HAXcms/milestone/2?closed=1
 ## ELMS:LN 0.11.0 - 2019-08-02 - Headless by default
 Over a year in the making, this moves us onto V1 spec webcomponents and increasingly more headless.
 HAXcms is now actually included under the hood and it's build routine powers the ELMS:LN universe.
