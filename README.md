@@ -15,6 +15,13 @@ Contributing
 ==============
 You can learn more about contributing to ELMS:LN in our [CONTRIBUTING.md](CONTRIBUTING.md) guide. Vagrant is the fastest way to get up and running quickly. See the [Vagrant installation documentation](https://btopro.gitbooks.io/elmsln-documentation/content/developer-guide/vagrant-setup.html) on how to get up and running now! elmsln.org also has some sponsored demos of the technology but the real deal is always best!
 
+### Ubuntu notice
+Until update channels are updated to 2.2.4 please use this to get Vagrant working in Ubuntu 18+
+```
+wget -c https://releases.hashicorp.com/vagrant/2.2.4/vagrant_2.2.4_x86_64.deb
+sudo dpkg -i vagrant_2.2.4_x86_64.deb
+```
+
 Issues
 ==============
 If you notice an issue or have a question please file it in our [issue queue](https://github.com/elmsln/elmsln/issues).
