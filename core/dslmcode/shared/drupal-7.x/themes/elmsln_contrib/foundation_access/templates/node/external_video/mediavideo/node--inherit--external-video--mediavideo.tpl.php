@@ -1,7 +1,7 @@
 <?php
   $track = '';
   if (isset($node->field_caption['und'][0]['uri'])) {
-    $track = file_create_url($node->field_caption['und'][0]['uri']);
+    $track = file_create_url(str_replace('.xml', '.vtt', $node->field_caption['und'][0]['uri']));
   }
 ?>
 <figure id="node-<?php print $node->nid; ?>" class="mediavideo <?php print $classes; ?>"<?php print $attributes; ?>>
