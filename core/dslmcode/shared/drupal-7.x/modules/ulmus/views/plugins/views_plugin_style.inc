@@ -71,7 +71,7 @@ class views_plugin_style extends views_plugin {
   public function destroy() {
     parent::destroy();
 
-    if (isset($this->row_plugin)) {
+    if ($this->row_plugin) {
       $this->row_plugin->destroy();
     }
   }
@@ -625,7 +625,7 @@ class views_plugin_style extends views_plugin {
    */
   public function query() {
     parent::query();
-    if (isset($this->row_plugin)) {
+    if ($this->row_plugin) {
       $this->row_plugin->query();
     }
   }

@@ -1,0 +1,135 @@
+diff --git a/includes/view.inc b/includes/view.inc
+index 4f26650b..4541f80b 100644
+--- a/includes/view.inc
++++ b/includes/view.inc
+@@ -1000,6 +1000,7 @@ class view extends views_db_object {
+     // Let the handlers interact with each other if they really want.
+     $this->_pre_query();
+ 
++    $exposed_form = FALSE;
+     if ($this->display_handler->uses_exposed()) {
+       $exposed_form = $this->display_handler->get_plugin('exposed_form');
+       // (1) Record the errors before rendering the exposed form widgets.
+@@ -1080,7 +1081,7 @@ class view extends views_db_object {
+     $this->style_plugin->query($this->display_handler->use_group_by());
+ 
+     // Allow exposed form to affect the query.
+-    if (isset($exposed_form)) {
++    if ($exposed_form) {
+       $exposed_form->query();
+     }
+ 
+diff --git a/plugins/views_plugin_display.inc b/plugins/views_plugin_display.inc
+index 7383ac98..80caf703 100644
+--- a/plugins/views_plugin_display.inc
++++ b/plugins/views_plugin_display.inc
+@@ -314,7 +314,7 @@ class views_plugin_display extends views_plugin {
+         }
+       }
+       $pager = $this->get_plugin('pager');
+-      if (isset($pager) && $pager->uses_exposed()) {
++      if ($pager && $pager->uses_exposed()) {
+         $this->has_exposed = TRUE;
+         return TRUE;
+       }
+diff --git a/plugins/views_plugin_display_page.inc b/plugins/views_plugin_display_page.inc
+index 9b9e900b..d743836d 100644
+--- a/plugins/views_plugin_display_page.inc
++++ b/plugins/views_plugin_display_page.inc
+@@ -87,7 +87,7 @@ class views_plugin_display_page extends views_plugin_display {
+     $path = implode('/', $bits);
+ 
+     $access_plugin = $this->get_plugin('access');
+-    if (!isset($access_plugin)) {
++    if (!$access_plugin) {
+       $access_plugin = views_get_plugin('access', 'none');
+     }
+ 
+diff --git a/plugins/views_plugin_style.inc b/plugins/views_plugin_style.inc
+index 1433f319..ed5d3c02 100644
+--- a/plugins/views_plugin_style.inc
++++ b/plugins/views_plugin_style.inc
+@@ -71,7 +71,7 @@ class views_plugin_style extends views_plugin {
+   public function destroy() {
+     parent::destroy();
+ 
+-    if (isset($this->row_plugin)) {
++    if ($this->row_plugin) {
+       $this->row_plugin->destroy();
+     }
+   }
+@@ -625,7 +625,7 @@ class views_plugin_style extends views_plugin {
+    */
+   public function query() {
+     parent::query();
+-    if (isset($this->row_plugin)) {
++    if ($this->row_plugin) {
+       $this->row_plugin->query();
+     }
+   }
+diff --git a/tests/views_access.test b/tests/views_access.test
+index 73b23efa..b7ee80b4 100644
+--- a/tests/views_access.test
++++ b/tests/views_access.test
+@@ -161,6 +161,26 @@ class ViewsAccessTest extends ViewsSqlTest {
+     $this->assertTrue(views_access($expected_hook_menu, $argument1, $argument2));
+   }
+ 
++  /**
++   * Tests access for a view with a missing access plugin.
++   */
++  public function testMissingAccessPlugin() {
++    $view = $this->getMissingAccessPluginTestView();
++
++    $view->set_display('default');
++    $access_plugin = $view->display_handler->get_plugin('access');
++    $this->assertFalse($access_plugin);
++
++    $this->assertTrue($view->display_handler->access($this->admin_user), t('Admin-Account should be able to access the view everytime'));
++    $this->assertTrue($view->display_handler->access($this->web_user));
++    $this->assertTrue($view->display_handler->access($this->normal_user));
++
++    $hook_menu = $view->execute_hook_menu('page_1');
++    $this->assertTrue($hook_menu['test_access_missing']['access arguments'][0]);
++
++    $this->assertTrue(views_access(TRUE));
++  }
++
+   function view_access_none() {
+     $view = new view;
+     $view->name = 'test_access_none';
+@@ -285,4 +305,34 @@ class ViewsAccessTest extends ViewsSqlTest {
+ 
+     return $view;
+   }
++
++  /**
++   * Generates a view with an access plugin that doesn't exist.
++   */
++  protected function getMissingAccessPluginTestView() {
++    $view = new view();
++    $view->name = 'test_access_missing';
++    $view->description = '';
++    $view->tag = '';
++    $view->view_php = '';
++    $view->base_table = 'node';
++    $view->is_cacheable = FALSE;
++    $view->api_version = 2;
++    $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
++
++    /* Display: Master */
++    $handler = $view->new_display('default', 'Master', 'default');
++    $handler->display->display_options['access']['type'] = 'does_not_exist';
++    $handler->display->display_options['cache']['type'] = 'none';
++    $handler->display->display_options['exposed_form']['type'] = 'basic';
++    $handler->display->display_options['pager']['type'] = 'full';
++    $handler->display->display_options['style_plugin'] = 'default';
++    $handler->display->display_options['row_plugin'] = 'fields';
++
++    $handler = $view->new_display('page', 'Page', 'page_1');
++    $handler->display->display_options['path'] = 'test_access_missing';
++
++    return $view;
++  }
++
+ }
