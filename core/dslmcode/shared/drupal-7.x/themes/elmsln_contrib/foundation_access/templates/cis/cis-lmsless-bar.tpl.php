@@ -128,7 +128,7 @@
         <?php endif; ?>
         <?php print $label; ?>
       </lrnsys-button>
-      <paper-tooltip for="lmsless-<?php print $service['machine_name'];?>" animation-delay="0"><?php print $stitle; ?></paper-tooltip>
+      <simple-tooltip for="lmsless-<?php print $service['machine_name'];?>" animation-delay="0"><?php print $stitle; ?></simple-tooltip>
       </li>
     <?php endforeach ?>
   <?php endif; ?>
