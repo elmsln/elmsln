@@ -1,10 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="preload" href="./dist/build.js" as="script" crossorigin="anonymous">
+  <link rel="preload" href="./custom/src/custom.js" as="script" crossorigin="anonymous">
+  <link rel="preload" href="./node_modules/@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-builder.js"
+    as="script" crossorigin="anonymous">
+  <link rel="preload" href="./dist/my-custom-elements.js" as="script" crossorigin="anonymous">
+  <link rel="preload" href="./node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css" as="style">
+  <link rel="preload" href="./theme/theme.css" as="style">
+  <base href="/" />
   <meta charset="utf-8">
-  <meta name="generator" content="HAXCMS">
-  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-  <title>HAXCMS</title>
+  <link rel="preconnect" crossorigin href="https://fonts.googleapis.com">
+  <link rel="preconnect" crossorigin href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" crossorigin href="https://i.creativecommons.org">
+  <link rel="preconnect" crossorigin href="https://licensebuttons.net">
+  <meta name="generator" content="HAXcms">
+  <link rel="manifest" href="manifest.json">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes"><title>HAXCMS</title>
   <meta name="description" content="My HAXCMS site description">
   <base href="../" />
   
@@ -46,7 +58,6 @@
       min-height: 100vh;
     }
     haxcms-site-builder {
-      transition: all 1s linear;
       display: block;
     }
     haxcms-site-builder:not(:defined) div.loading {
@@ -88,13 +99,33 @@
         view our website correctly. <a href="http://outdatedbrowser.com/">Update my browser now</a></div>
     </div>
   </div>
-  <script>document.body.removeAttribute('no-js');</script>
-  <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+  <script>document.body.removeAttribute('no-js'); var cdn = ""; var forceUpgrade = false; var old = false; var ancient = false;
+    if (!old) {
+      // kill fallback methods if we aren't old
+      document.body.removeChild(
+        document.getElementById("haxcmsoutdatedfallback")
+      );
+    }
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = cdn + 'node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css';
+    link.type = 'text/css';
+    var def = document.getElementsByTagName('link')[0];
+    def.parentNode.insertBefore(link, def);
+    var link2 = document.createElement('link');
+    link2.rel = 'stylesheet';
+    link2.href = './theme/theme.css';
+    link2.type = 'text/css';
+    def.parentNode.insertBefore(link2, def);
+  </script>
+  <script>if (old) document.write('<!--');</script>
   <script type="module">
     import "./dist/build.js";
     import "./custom/src/custom.js";
   </script>
-  <script async src="node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
+  <script async src="node_modules/web-animations-js/web-animations-next-lite.min.js">
+    //<!--! do not remove -->
+  </script>
   <!-- use this to test the legacy build
     <script type="module" src="dist/build-legacy.js"></script>
   -->
@@ -106,6 +137,7 @@
     window.__haxCMSContextDemo = true;
     window.appSettings = {
       "login": "dist\/dev\/login.json",
+      "refreshUrl": "dist\/dev\/refreshUrl.json",
       "logout": "dist\/dev\/logout.json",
       "saveNodePath": "dist\/dev\/saveNode.json",
       "getUserDataPath": "dist\/dev\/userData.json",
@@ -131,14 +163,6 @@
         }
       }
     };
-    // append global base styles
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css';
-    link.type = 'text/css';
-    var def = document.getElementsByTagName('link')[0];
-    def.parentNode.insertBefore(link, def);
   </script>
 </body>
-
 </html>

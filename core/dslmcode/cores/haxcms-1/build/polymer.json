@@ -30,7 +30,6 @@
     "node_modules/@lrnwebcomponents/a11y-media-player/lib/screenfull/dist/screenfull.js",
     "node_modules/@lrnwebcomponents/img-pan-zoom/lib/openseadragon/build/openseadragon/openseadragon.min.js",
     "node_modules/@lrnwebcomponents/elmsln-apps/lib/*/*.js",
-    "node_modules/@lrnwebcomponents/lrn-calendar/lib/ical.js/build/ical.js",
     "node_modules/@lrnwebcomponents/wave-player/lib/wavesurfer.js/dist/wavesurfer.js",
     "node_modules/@webcomponents/webcomponentsjs/*.js",
     "node_modules/@webcomponents/webcomponentsjs/bundles/*.js",
@@ -56,7 +55,8 @@
         "modules"
       ],
       "js": {
-        "minify": false
+        "minify": false,
+        "transformImportMeta": true
       },
       "css": {
         "minify": false
@@ -73,7 +73,8 @@
       ],
       "js": {
         "minify": false,
-        "transformModulesToAmd": true
+        "transformModulesToAmd": true,
+        "transformImportMeta": true
       },
       "css": {
         "minify": false
@@ -88,7 +89,8 @@
       "js": {
         "compile": true,
         "minify": false,
-        "transformModulesToAmd": true
+        "transformModulesToAmd": true,
+        "transformImportMeta": true
       },
       "css": {
         "minify": true

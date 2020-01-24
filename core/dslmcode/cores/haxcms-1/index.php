@@ -2,7 +2,7 @@
 if (!is_dir('_config') || !is_dir('_sites') || !is_dir('_archived') || !is_dir('_published')) {
     header("Location: install.php");
 }
-include_once dirname(__FILE__) . '/system/lib/bootstrapHAX.php';
+include_once dirname(__FILE__) . '/system/backend/php/bootstrapHAX.php';
 include_once $HAXCMS->configDirectory . '/config.php';
 $appSettings = $HAXCMS->appJWTConnectionSettings();
 ?>

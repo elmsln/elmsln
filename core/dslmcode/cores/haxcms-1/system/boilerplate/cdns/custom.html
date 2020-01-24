@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="preload" href="./build/es6/dist/build.js" as="script" crossorigin="anonymous">
-  <link rel="preload" href="./custom/build/custom.es6.js" as="script" crossorigin="anonymous">
-  <link rel="preload" href="./build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/core/haxcms-site-builder.js"
-    as="script" crossorigin="anonymous">
-  <link rel="preload" href="./build/es6/dist/my-custom-elements.js" as="script" crossorigin="anonymous">
-  <link rel="preload" href="./build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css" as="style">
-  <link rel="preload" href="./theme/theme.css" as="style">
   <base href="{{ basePath }}" />
   {{ metadata|raw }}
   <!-- Start Single Page Apps for GitHub Pages -->
@@ -48,7 +41,6 @@
       min-height: 100vh;
     }
     haxcms-site-builder {
-      transition: all 1s linear;
       display: block;
     }
     haxcms-site-builder:not(:defined) div.loading {
@@ -89,7 +81,7 @@
         view our website correctly. <a href="http://outdatedbrowser.com/">Update my browser now</a></div>
     </div>
   </div>
-  <script>document.body.removeAttribute('no-js');var cdn="";var old=false;var ancient=false;window.__haxCMSContextPublished=true;
+  <script>document.body.removeAttribute('no-js');var cdn="";var old=false;var forceUpgrade={{ forceUpgrade }};var ancient=false;window.__haxCMSContextPublished=true;
     if (typeof Symbol == "undefined") { // IE 11, at least try to serve a watered down site
       ancient = true;
     }
@@ -141,6 +133,9 @@
     }
     else {
       old=true;
+      if (forceUpgrade) {
+        window.location = "upgrade-browser.html";
+      }
       // we bombed somewhere above, this implies that it's some odd between version
       // most likely Safari 9ish, IE pre 11 and anything uber old. Serve no JS variation
       document.getElementById('site').style.display = 'none';
@@ -149,6 +144,12 @@
       if (path) {
         document.getElementById('content').src = 'pages/' + path + '/index.html';
       }
+    }
+    if (!old) {
+      // kill fallback methods if we aren't old
+      document.body.removeChild(
+        document.getElementById("haxcmsoutdatedfallback")
+      );
     }
     var link = document.createElement('link');
     link.rel = 'stylesheet';

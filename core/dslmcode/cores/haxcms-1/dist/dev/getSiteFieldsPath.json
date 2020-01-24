@@ -228,8 +228,8 @@
             },
             {
               "property": "manifest.metadata.site.settings.publishPagesOn",
-              "title": "Show unpublished pages",
-              "description": "Whether to hide unpublished pages or not",
+              "title": "Hide unpublished pages",
+              "description": "Check the box to hide unpublished pages",
               "inputMethod": "boolean",
               "icon": "icons:link"
             }

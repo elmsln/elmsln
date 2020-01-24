@@ -16,5 +16,6 @@ for project in */ ; do
     cd ../
 done
 echo 'you are now hooked up as a developer of HAXCMS'
-echo 'to do local development, cd into any _sites/whatever directory and run polymer serve --open'
-echo 'then add dev.html to the path to start local development'
+echo 'to do local development, cd into any sites/SITENAME directory and run yarn start to begin local development'
+echo 'to do custom theme development, go into the custom folder and run yarn start as well'
+echo 'these two commands work together to ensure that you can update the files of your custom theme appropriately'

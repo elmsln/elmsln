@@ -54,7 +54,6 @@ import "@lrnwebcomponents/hero-banner/hero-banner.js";
 import "@lrnwebcomponents/image-compare-slider/image-compare-slider.js";
 import "@lrnwebcomponents/license-element/license-element.js";
 import "@lrnwebcomponents/lrn-aside/lrn-aside.js";
-import "@lrnwebcomponents/lrn-calendar/lrn-calendar.js";
 import "@lrnwebcomponents/lrn-math/lrn-math.js";
 import "@lrnwebcomponents/lrn-table/lrn-table.js";
 import "@lrnwebcomponents/lrn-vocab/lrn-vocab.js";

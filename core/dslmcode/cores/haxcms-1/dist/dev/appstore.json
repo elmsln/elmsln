@@ -957,7 +957,7 @@
         "operations": {
           "browse": {
             "method": "GET",
-            "endPoint": "system/loadFiles.php",
+            "endPoint": "system/loadFiles",
             "pagination": {
               "style": "link",
               "props": {
@@ -988,7 +988,7 @@
           },
           "add": {
             "method": "POST",
-            "endPoint": "system/saveFile.php",
+            "endPoint": "system/saveFile",
             "acceptsGizmoTypes": [
               "image",
               "video",
