@@ -1,6 +1,0 @@
-name = API Router Helper
-description = Makes the API router system function
-core = 7.x
-package = API
-dependencies[] = cis_connector
-dependencies[] = oauth2_client
