@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Inbox UX feature.
- */
-
-include_once 'inbox_ux.features.inc';

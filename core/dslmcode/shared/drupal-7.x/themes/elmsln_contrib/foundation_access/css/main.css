@@ -7949,7 +7949,7 @@ ul.pagination paper-button {
     padding: 0;
     min-width: 2em;
 }
-paper-button paper-tooltip {
+paper-button simple-tooltip {
   text-transform: unset;
 }
 lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {

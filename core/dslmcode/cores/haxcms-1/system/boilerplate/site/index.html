@@ -48,7 +48,6 @@
       min-height: 100vh;
     }
     haxcms-site-builder {
-      transition: all 1s linear;
       display: block;
     }
     haxcms-site-builder:not(:defined) div.loading {
@@ -134,7 +133,6 @@
             NODE_ENV: 'production'
           }
         };
-        
         define(defs, function () { "use strict" });
         old=true;
       }
@@ -152,6 +150,12 @@
       if (path) {
         document.getElementById('content').src = 'pages/' + path + '/index.html';
       }
+    }
+    if (!old) {
+      // kill fallback methods if we aren't old
+      document.body.removeChild(
+        document.getElementById("haxcmsoutdatedfallback")
+      );
     }
     var link = document.createElement('link');
     link.rel = 'stylesheet';

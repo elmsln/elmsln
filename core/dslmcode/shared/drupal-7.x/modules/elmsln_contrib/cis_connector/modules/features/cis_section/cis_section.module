@@ -583,6 +583,8 @@ function _cis_section_load_users_by_gid($gid, $rid = NULL) {
   $query->condition('ogm.field_name', 'og_user_node');
   // and group is the one requested
   $query->condition('ogm.gid', $gid);
+  // only show users that are active
+  $query->condition('u.status', 1);
   // limit to a certain role if set
   if (!is_null($rid)) {
     $query->condition('ur.rid', $rid);

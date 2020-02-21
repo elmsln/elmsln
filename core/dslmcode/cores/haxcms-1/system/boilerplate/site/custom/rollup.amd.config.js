@@ -1,6 +1,4 @@
 // @ts-nocheck
-const path = require('path');
-const autoExternal = require('rollup-plugin-auto-external');
 const rewriteImports = require('rollup-plugin-rewrite-imports');
 const production = true;
 module.exports = function() {
@@ -13,12 +11,6 @@ module.exports = function() {
       sourcemap: false,
     },
     plugins: [
-      autoExternal({
-        builtins: false,
-        dependencies: true,
-        packagePath: path.resolve('../../../package.json'),
-        peerDependencies: false,
-      }),
       rewriteImports(`../../build/es6-amd/node_modules/`),
     ],
   };

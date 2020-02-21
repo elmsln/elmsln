@@ -1,0 +1,2 @@
+RewriteCond %{REQUEST_URI} system/api*
+RewriteRule ^(.*)$ api.php?op=$1 [L,QSA]

@@ -1,7 +1,7 @@
 {
-  "name": "haxcms",
-  "version": "0.0.1",
-  "description": "HAXcms microsite dependencies for developer usage",
+  "name": "{{ short }}",
+  "version": "{{ version }}",
+  "description": "{{ description }}",
   "main": "index.html",
   "repository": {
     "type": "git",
@@ -92,7 +92,7 @@
     "@polymer/paper-tabs": "^3.0.0",
     "@polymer/paper-toast": "^3.0.0",
     "@polymer/paper-toggle-button": "^3.0.0",
-    "@polymer/paper-tooltip": "^3.0.0",
+    "@lrnwebcomponents/simple-tooltip": "2.4.0",
     "@polymer/polymer": "^3.1.0",
     "@vaadin/vaadin-split-layout": "^4.1.0",
     "@vaadin/vaadin-upload": "^4.2.1",
@@ -128,9 +128,9 @@
   "scripts": {
     "lint": "prettier --check 'system/**/*.php' '*.{html,js,php,yml}'",
     "format": "prettier --write 'system/**/*.php' '*.{html,js,php,yml}'",
-    "build": "polymer build && yarn run terser",
     "terser": "gulp",
-    "dev": "polymer serve --open --entrypoint dist/dev.html",
+    "start": "yarn run dev",
+    "dev": "polymer serve --open --entrypoint dist/dev.html --allow-origin --open-path=/",
     "dev-theme": "cd custom && yarn start"
   }
 }

@@ -68,8 +68,12 @@ class LRNAppOpenStudioProjectService {
     }
     $items = _cis_connector_assemble_entity_list('node', 'cle_project', 'nid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit);
     $items = $this->encodeProjects($items);
-    foreach ($items as $key => $data) {
-      $return['project-' . $key] = $data;
+    // loop through the section projects in the order they are in
+    $section_node = node_load($section);
+    foreach ($section_node->field_section_projects['und'] as $key => $data) {
+      if (isset($items[$data['target_id']])) {
+        $return['project-' . $data['target_id']] = $items[$data['target_id']];
+      }
     }
     return $return;
   }
