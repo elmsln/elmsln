@@ -213,7 +213,7 @@ function _hax_node_form($node) {
   );
   // write content to screen, wrapped in tag to do all the work
   $attributes = array(
-    'align' => variable_get('hax_align', 'left'),
+    'element-align' => variable_get('hax_align', 'left'),
     'end-point' => base_path() . 'hax-node-save/' . $node->nid . '/' . drupal_get_token('hax'),
     'app-store-connection' => json_encode($appStoreConnection),
     'redirect-location' => base_path() . 'node/' . $node->nid,
