@@ -1,4 +1,4 @@
-var entry = "dist/app.js";
+var entry = "dist/elmsln-build.js";
 window.process = {env: {NODE_ENV: 'production'}};
 var cdn = "./";
 if (window.__appCDN) {

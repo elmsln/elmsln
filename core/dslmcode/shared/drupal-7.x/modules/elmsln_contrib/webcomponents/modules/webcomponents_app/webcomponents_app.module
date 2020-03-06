@@ -10,6 +10,8 @@ define('WEBCOMPONENTS_APP_PATH', 'apps');
  * Implements hook_webcomponents_build_file_location_alter().
  */
 function webcomponents_app_webcomponents_build_file_location_alter(&$locations) {
+  // @todo this needs a convention to allow it to work
+  // idea is reasonable but we need a way of adding these in
   // figure out the app that should also be autoloaded into the build
   if (arg(0) == WEBCOMPONENTS_APP_PATH && arg(1) != '' && _webcomponents_app_access(arg(1))) {
     $apps = webcomponents_app_load_app_definitions(NULL);
