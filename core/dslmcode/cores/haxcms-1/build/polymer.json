@@ -30,7 +30,8 @@
     "node_modules/@lrnwebcomponents/a11y-media-player/lib/screenfull/dist/screenfull.js",
     "node_modules/@lrnwebcomponents/img-pan-zoom/lib/openseadragon/build/openseadragon/openseadragon.min.js",
     "node_modules/@lrnwebcomponents/elmsln-apps/lib/*/*.js",
-    "node_modules/@lrnwebcomponents/wave-player/lib/wavesurfer.js/dist/wavesurfer.js",
+    "node_modules/@lrnwebcomponents/wave-player/lib/wavesurferjs/dist/wavesurfer.js",
+    "!node_modules/@lrnwebcomponents/wave-player/lib/wavesurferjs/src/*",
     "node_modules/@webcomponents/webcomponentsjs/*.js",
     "node_modules/@webcomponents/webcomponentsjs/bundles/*.js",
     "node_modules/monaco-editor/min/**",
@@ -45,6 +46,8 @@
     "!node_modules/@webcomponents/webcomponentsjs/gulpfile.js",
     "!node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/*.js",
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/javascript.js",
+    "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/yaml.js",
+    "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/json.js",
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/xml.js"
   ],
   "builds": [
@@ -88,7 +91,7 @@
       "name": "es5-amd",
       "js": {
         "compile": true,
-        "minify": false,
+        "minify": true,
         "transformModulesToAmd": true,
         "transformImportMeta": true
       },

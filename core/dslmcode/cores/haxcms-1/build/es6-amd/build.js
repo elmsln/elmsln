@@ -1,1 +1,1 @@
-define(["./dist/build-cms.js"],(function(_buildCms){}));
+define(["./dist/app.js"],(function(i){}));
