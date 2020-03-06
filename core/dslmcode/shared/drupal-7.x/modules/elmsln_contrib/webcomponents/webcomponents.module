@@ -60,13 +60,13 @@ function webcomponents_process_html(&$variables) {
   if (strpos($location, 'http') === FALSE) {
     $location = base_path() . $location;
   }
-  $files = array('build.js');
-  drupal_alter('webcomponents_build_file_location', $files);
-  // load webcomponentsjs polyfill library if it exists
   $wc = new WebComponentsService();
+  $markup = $wc->applyWebcomponents($location);
+  drupal_alter('webcomponents_build_integration_markup', $markup);
+  // load webcomponentsjs polyfill library if it exists
   $element = array(
     '#type' => 'markup',
-    '#markup' => $wc->applyWebcomponents($location, $files),
+    '#markup' => $markup,
   );
   $variables['page_bottom'] .= drupal_render($element);
 }
