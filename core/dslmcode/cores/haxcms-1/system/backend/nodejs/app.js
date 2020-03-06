@@ -1,16 +1,18 @@
 // lib dependencies
 const express = require('express');
 const bodyParser = require('body-parser');
-const app = express();
+const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
-const server = require('http').Server(app);
 const helmet = require('helmet');
+const app = express();
+const server = require('http').Server(app);
 // HAXcms core settings
 const HAXCMS = require('./lib/HAXCMS.js');
 // app settings
 const port = 3000;
 app.use(helmet());
 app.use(cookieParser());
+app.use(fileUpload());
 app.use(express.static("public"))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,15 +31,41 @@ app.options('*', function(req, res) {
 const routes = {
   post: {
     login: require('./routes/login.js'),
-    logout: require('./routes/logout.js'),
+    revertCommit: require('./routes/revertCommit.js'),
+
+    formLoad: require('./routes/formLoad.js'),
+    formProcess: require('./routes/formProcess.js'),
+    getConfig: require('./routes/getConfig.js'),
+    setConfig: require('./routes/setConfig.js'),
+    getNodeFields: require('./routes/getNodeFields.js'),
+    setUserPhoto: require('./routes/setUserPhoto.js'),
+    siteUpdateAlternateFormats: require('./routes/siteUpdateAlternateFormats.js'),
     getUserData: require('./routes/getUserData.js'),
-    refreshAccessToken: require('./routes/refreshAccessToken.js'),
+    gitImportSite: require('./routes/gitImportSite.js'),
+    loadFiles: require('./routes/loadFiles.js'),
+    saveFile: require('./routes/saveFile.js'),
+    saveOutline: require('./routes/saveOutline.js'),
+    openapi: require('./routes/openapi.js'),
+
+    createSite: require('./routes/createSite.js'),
+    syncSite: require('./routes/syncSite.js'),
+    publishSite: require('./routes/publishSite.js'),
+    cloneSite: require('./routes/cloneSite.js'),
+    archiveSite: require('./routes/archiveSite.js'),
+    deleteSite: require('./routes/deleteSite.js'),
+    downloadSite: require('./routes/downloadSite.js'),
+
+    createNode: require('./routes/createNode.js'),
+    saveNode: require('./routes/saveNode.js'),
+    deleteNode: require('./routes/deleteNode.js'),
   },
   get: {
+    logout: require('./routes/logout.js'),
+    refreshAccessToken: require('./routes/refreshAccessToken.js'),
     listSites: require('./routes/listSites.js'),
     connectionSettings: require('./routes/connectionSettings.js'),
     generateAppStore: require('./routes/generateAppStore.js'),
-  }
+  },
 };
 // these routes need to return a response without a JWT validation
 const openRoutes = [

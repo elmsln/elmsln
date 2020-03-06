@@ -130,6 +130,40 @@ class Operations {
     if (isset($this->params['args']) && $this->params['args'][1] == 'json') {
       return json_decode($openapi->toJson());
     }
+    else if (isset($this->params['args']) && $this->params['args'][1] == 'haxSchema') {
+      $haxSchema = array('configure' => array());
+      $target = null; 
+      // support a specific endpoint that a form is desired for
+      if (isset($this->params['args'][2]) && !is_null($this->params['args'][2])) {
+        $target = $this->params['args'][2];
+        $haxSchema = array();
+      }
+      foreach ($openapi->paths as $obj) {
+        if (!is_null($target) && str_replace('/','', $obj->path) != $target) {
+          continue;
+        }
+        $haxSchema[$obj->path] = array();
+        $params = array();
+        if (isset($obj->post) && isset($obj->post->parameters)) {
+          $params = $obj->post->parameters;
+        }
+        else if (isset($obj->get) && isset($obj->get->parameters)) {
+          $params = $obj->get->parameters;
+        }
+        if (is_array($params)) {
+          foreach ($params as $param) {
+            $haxSchema[$obj->path][] = json_decode('{
+              "property": "' . $param->name . '",
+              "title": "' . ucfirst($param->name) . '",
+              "description": "' . $param->description . '",
+              "inputMethod": "' . $GLOBALS['HAXCMS']->getInputMethod($param->schema->type) . '",
+              "required": ' . (isset($param->required) ? (bool) $param->required : 'false') . '
+            }');
+          }
+        }
+      }
+      return $haxSchema;
+    }
     else {
       echo $openapi->toYaml();
       exit;
@@ -202,6 +236,9 @@ class Operations {
       );
       if (!isset($site->manifest->metadata->site->static)) {
         $site->manifest->metadata->site->static = new stdClass();
+      }
+      if (!isset($site->manifest->metadata->site->settings)) {
+        $site->manifest->metadata->site->settings = new stdClass();
       }
       $site->manifest->metadata->site->static->cdn = filter_var(
           $this->params['manifest']['static']['manifest-metadata-site-static-cdn'],
@@ -1528,10 +1565,12 @@ class Operations {
         if ($item != "." && $item != ".." && is_dir(HAXCMS_ROOT . '/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $item) && file_exists(HAXCMS_ROOT . '/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $item . '/site.json')) {
           $json = file_get_contents(HAXCMS_ROOT . '/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $item . '/site.json');
           $site = json_decode($json);
-          $site->location = $GLOBALS['HAXCMS']->basePath . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $item . '/';
-          $site->metadata->pageCount = count($site->items);
-          unset($site->items);
-          $return['items'][] = $site;
+          if (isset($site->title)) {
+            $site->location = $GLOBALS['HAXCMS']->basePath . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $item . '/';
+            $site->metadata->pageCount = count($site->items);
+            unset($site->items);
+            $return['items'][] = $site;
+          }
         }
       }
       closedir($handle);
@@ -2168,6 +2207,9 @@ class Operations {
                   // special fallback for HAXtheWeb since it cheats in order to demo the solution
                   if ($cdn == 'haxtheweb.org') {
                     $templateVars['cdn'] = 'cdn.waxam.io';
+                  }
+                  else if ($cdn == 'webcomponents.psu.edu') {
+                    $templateVars['cdn'] = $cdn . 'cdn/';
                   }
                   else {
                     $templateVars['cdn'] = $cdn;

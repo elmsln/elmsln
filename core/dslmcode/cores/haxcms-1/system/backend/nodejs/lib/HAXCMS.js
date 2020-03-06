@@ -4,13 +4,17 @@ const crypto = require('crypto');
 const url = require('url');
 const JWT = require('jsonwebtoken');
 const HAXCMS_ROOT = process.env.HAXCMS_ROOT || __dirname + "/../../../../";
+const HAXCMS_DEFAULT_THEME = 'learn-two-theme';
+const HAXCMS_FALLBACK_HEX = '#3f51b5';
 // HAXcms core
 const HAXCMS = new class HAXCMS {
   constructor() {
     this.HAXCMS_ROOT = HAXCMS_ROOT;
-    this.configDirectory = HAXCMS_ROOT + '_config/';
+    this.HAXCMS_DEFAULT_THEME = HAXCMS_DEFAULT_THEME;
+    this.HAXCMS_FALLBACK_HEX = HAXCMS_FALLBACK_HEX;
+    this.configDirectory = this.HAXCMS_ROOT + '_config/';
     this.apiBase = 'system/api/';
-    this.coreConfigPath = HAXCMS_ROOT + 'system/coreConfig/';
+    this.coreConfigPath = this.HAXCMS_ROOT + 'system/coreConfig/';
     this.sitesDirectory = 'sites';
     this.archivedDirectory = 'archived';
     this.publishedDirectory = 'published';
@@ -31,13 +35,108 @@ const HAXCMS = new class HAXCMS {
 
     this.config = JSON.parse(fs.readFileSync(path.join(this.configDirectory, "config.json"), 'utf8'));
     this.userData = JSON.parse(fs.readFileSync(path.join(this.configDirectory, "userData.json"), 'utf8'));
-    this.salt = fs.readFileSync(path.join(this.configDirectory, "SALT.txt"), 'utf8');    
+    this.salt = fs.readFileSync(path.join(this.configDirectory, "SALT.txt"), 'utf8');
   }
+  /**
+   * Load a site off the file system with option to create
+   */
+  loadSite(name, create = false, domain = null)
+    {
+        let tmpname = decodeURIComponent(name);
+        tmpname = this.cleanTitle(tmpname, false);
+        // check if this exists, load but fallback for creating on the fly
+        if (fs.existsSync(this.HAXCMS_ROOT + '/' + this.sitesDirectory + '/' + tmpname) && 
+          fs.lstat(this.HAXCMS_ROOT + '/' + this.sitesDirectory + '/' + tmpname).isDirectory() && !create
+        ) {
+            let site = new HAXCMSSite();
+            site.load(this.HAXCMS_ROOT + '/' + this.sitesDirectory,
+                this.basePath + this.sitesDirectory + '/',
+                tmpname);
+            let siteDirectoryPath = site.directory + '/' + site.manifest.metadata.site.name;
+            // sanity checks to ensure we'll actually deliver a site
+            if (!fs.lstat(siteDirectoryPath + '/build').isSymbolicLink()) {
+              if (fs.lstat(siteDirectoryPath + '/build').isDirectory()
+              ) {
+                fs.unlink(siteDirectoryPath + '/build');
+              }
+              fs.symlink('../../build', siteDirectoryPath + '/build');
+              if (!fs.lstat(siteDirectoryPath + '/dist').isSymbolicLink()) {
+                fs.symlink('../../dist', siteDirectoryPath + '/dist');
+              }
+              if (!fs.lstat(siteDirectoryPath + '/node_modules').isSymbolicLink()) {
+                fs.symlink(
+                    '../../node_modules',
+                    siteDirectoryPath + '/node_modules'
+                );
+              }
+              if (!fs.lstat(siteDirectoryPath + '/assets/babel-top.js').isSymbolicLink()) {
+                fs.unlink(siteDirectoryPath + '/assets/babel-top.js');
+                fs.symlink(
+                  '../../../babel/babel-top.js',
+                    siteDirectoryPath + '/assets/babel-top.js'
+                );
+              }
+              if (!fs.lstat(siteDirectoryPath + '/assets/babel-bottom.js').isSymbolicLink()) {
+                fs.unlink(siteDirectoryPath + '/assets/babel-bottom.js');
+                fs.symlink(
+                    '../../../babel/babel-bottom.js',
+                    siteDirectoryPath + '/assets/babel-bottom.js'
+                );
+              }
+            }
+            return site;
+        }
+        else if (create) {
+            // attempt to create site
+            return this.createSite(name, domain);
+        }
+        return false;
+    }
   /**
    * @todo Need to support CLI
    */
   isCLI() {
     return false;
+  }
+  /**
+   * Load theme location data as mix of config and system
+   */
+  getThemes()
+  {
+      return this.config.themes;
+  }
+  /**
+   * Generate machine name
+   */
+  generateMachineName(name) {
+      return name.replace([
+      '/[^a-zA-Z0-9]+/',
+      '/-+/',
+      '/^-+/',
+      '/-+$/',
+      ], ['-', '-', '', '']).toLowerCase();
+  }
+  /**
+   * Clean up a title / sanitize the input string for file system usage
+   */
+  cleanTitle(value, stripPage = true)
+  {
+      let cleanTitle = value.trim();
+      // strips off the identifies for a page on the file system
+      if (stripPage) {
+          cleanTitle = cleanTitle.replace(
+              'pages/',
+              '')
+              .replace('/index.html', '');
+      }
+      cleanTitle = cleanTitle.replace(' ', '-').toLowerCase();
+      cleanTitle = cleanTitle.replace('/[^\w\-\/]+/u', '-');
+      cleanTitle = cleanTitle.replace('/--+/u', '-');
+      // ensure we don't return an empty title or it could break downstream things
+      if (cleanTitle == '') {
+          cleanTitle = 'blank';
+      }
+      return cleanTitle;
   }
   /**
    * Validate that a request token is accurate
@@ -47,7 +146,6 @@ const HAXCMS = new class HAXCMS {
         if (this.isCLI()) {
             return true;
         }
-        console.log(token);
         // default token is POST
         if (token == null && query['token']) {
           token = query['token'];
@@ -161,7 +259,7 @@ const HAXCMS = new class HAXCMS {
       if (request == false && req.body['jwt'] && req.body['jwt'] != null) {
         request = this.decodeJWT(req.body['jwt'])
       }
-      if (request == false && req.query['jwt'] && req.query['jwt'] != null) {
+      if (request == false && req.body['jwt'] && req.body['jwt'] != null) {
         request = this.decodeJWT(req.body['jwt'])
       }
       // if we were able to find a valid JWT in that mess, try and validate it
@@ -236,17 +334,17 @@ const HAXCMS = new class HAXCMS {
         return true;
       }
       // get the refresh token from cookie
-      refreshToken = req.cookies['haxcms_refresh_token'];
+      let refreshToken = req.cookies['haxcms_refresh_token'];
       // if there isn't one then we have to bail hard
       if (!refreshToken) {
        res.send(401);
       }
       // if there is a refresh token then decode it
-      refreshTokenDecoded = this.decodeRefreshToken(refreshToken);
+      let refreshTokenDecoded = this.decodeRefreshToken(refreshToken);
       let n = Math.floor(Date.now() / 1000);
       // validate the token
       // make sure token has issued and expiration dates
-      if (isset(refreshTokenDecoded.iat) && isset(refreshTokenDecoded.exp)) {
+      if ((refreshTokenDecoded.iat) && (refreshTokenDecoded.exp)) {
         // issued at date is less than or equal to now
         if (refreshTokenDecoded.iat <= n) {
           // expiration date is greater than now
@@ -281,7 +379,7 @@ const HAXCMS = new class HAXCMS {
             return true;
         }
         else {
-            usr = new stdClass();
+            usr = {};
             usr.name = name;
             usr.grantAccess = false;
             // fire custom event for things to respond to as needed
@@ -312,7 +410,7 @@ const HAXCMS = new class HAXCMS {
             return true;
         }
         else {
-            usr = new stdClass();
+            usr = {};
             usr.name = name;
             usr.password = pass;
             usr.adminFallback = adminFallback;

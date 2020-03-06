@@ -800,7 +800,7 @@ const HAXService = new class HAXService
                 "data": {},
                 "resultMap": {
                   "image": "https://en.wikipedia.org/static/images/project-logos/enwiki.png",
-                  "defaultGizmoType": "content",
+                  "defaultGizmoType": "wikipedia",
                   "items": "query.search",
                   "preview": {
                     "title": "title",

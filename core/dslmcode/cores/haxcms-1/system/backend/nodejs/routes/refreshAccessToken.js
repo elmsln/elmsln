@@ -1,6 +1,6 @@
 const HAXCMS = require('../lib/HAXCMS.js');
 /**
- * @OA\Post(
+ * @OA\Get(
  *    path="/refreshAccessToken",
  *    tags={"cms","user"},
  *    @OA\Response(
@@ -14,12 +14,10 @@ function refreshAccessToken(req, res) {
   const validRefresh = HAXCMS.validateRefreshToken(false, req);
   // if we have a valid refresh token then issue a new access token
   if (validRefresh) {
-    return HAXCMS.getJWT(validRefresh.user);
+    res.send(HAXCMS.getJWT(validRefresh.user));
   }
   else {
-    res.cookie('haxcms_refresh_token', '', { 
-      expires: 1,
-    });
+    res.cookie('haxcms_refresh_token', '');
     res.send(401);
   }
 }

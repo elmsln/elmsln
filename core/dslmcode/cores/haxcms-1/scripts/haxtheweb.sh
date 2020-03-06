@@ -46,6 +46,9 @@ fi
 if [ ! -d "_config/tmp" ]; then
   mkdir _config/tmp
 fi
+if [ ! -d "_config/cache" ]; then
+  mkdir _config/cache
+fi
 if [ ! -d "_config/node_modules" ]; then
   mkdir _config/node_modules
 fi
@@ -77,6 +80,7 @@ fi
 # may need to revisit this at some point
 chmod 775 _config
 chmod 777 _config/tmp
+chmod 777 _config/cache
 chmod 777 _config/user/files
 chmod 777 _config/config.json
 chmod 777 _config/userData.json

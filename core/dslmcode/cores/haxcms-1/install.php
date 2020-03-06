@@ -106,6 +106,7 @@ if (is_dir('_sites') && is_dir('_config') && is_dir('_published') && is_dir('_ar
     mkdir('_config/.ssh');
     // tmp directory for uploads and other file management
     mkdir('_config/tmp');
+    mkdir('_config/cache');
     mkdir('_config/user');
     mkdir('_config/user/files');
     // node modules for local theme development if desired
