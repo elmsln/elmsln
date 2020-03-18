@@ -15,7 +15,9 @@ function mooc_hax_user_default_permissions() {
     'name' => 'use hax',
     'roles' => array(
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'hax',
   );
