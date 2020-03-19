@@ -5,6 +5,8 @@
 
 // hide webcomponents messaging about cache rebuilds
 $conf['webcomponents_hide_messages'] = TRUE;
+// default is PSU's CDN but we want these to come from ELMS for versioning purposes
+$conf['webcomponents_project_location'] = 'sites/all/libraries/webcomponents/';
 // fix for core change in 7.50+
 $conf['x_frame_options'] = '';
 // allow image cache derivatives without itok token
