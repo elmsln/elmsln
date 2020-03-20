@@ -1,5 +1,7 @@
-name = Update test admin theme
-description = Test theme which is used as admin theme.
+name = "User module session tests"
+description = "Support module for user session testing."
+package = Testing
+version = VERSION
 core = 7.x
 hidden = TRUE
 

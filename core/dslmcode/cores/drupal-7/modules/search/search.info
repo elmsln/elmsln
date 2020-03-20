@@ -8,7 +8,7 @@ files[] = search.test
 configure = admin/config/search/settings
 stylesheets[all][] = search.css
 
-; Information added by Drupal.org packaging script on 2019-05-08
-version = "7.67"
+; Information added by Drupal.org packaging script on 2019-12-18
+version = "7.69"
 project = "drupal"
-datestamp = "1557336079"
+datestamp = "1576696221"
