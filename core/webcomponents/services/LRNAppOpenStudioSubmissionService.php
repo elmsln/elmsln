@@ -446,7 +446,7 @@ class LRNAppOpenStudioSubmissionService {
       $encoded_submission->attributes->body = $submission->field_submission_text[LANGUAGE_NONE][0]['safe_value'];
       // front end NEEDs a non-null response or it choaks on repaint
       if (is_null($encoded_submission->attributes->body)) {
-        $encoded_submission->attributes->body = "no text in this submission";
+        $encoded_submission->attributes->body = "*no submission text*";
       }
       $encoded_submission->attributes->state = $submission->field_submission_state[LANGUAGE_NONE][0]['value'];
       $encoded_submission->attributes->relatedSubmission = $submission->field_related_submission[LANGUAGE_NONE][0]['target_id'];
