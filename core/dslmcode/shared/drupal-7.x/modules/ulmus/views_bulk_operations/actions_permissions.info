@@ -3,9 +3,8 @@ description = Provides permission-based access control for actions. Used by View
 package = Administration
 core = 7.x
 
-; Information added by Drupal.org packaging script on 2017-02-21
-version = "7.x-3.4"
+; Information added by Drupal.org packaging script on 2018-05-08
+version = "7.x-3.5"
 core = "7.x"
 project = "views_bulk_operations"
-datestamp = "1487698687"
-
+datestamp = "1525821486"

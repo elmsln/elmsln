@@ -20,39 +20,44 @@ function _wysiwyg_theme_check_active($theme) {
 /**
  * A simple page delivery dummy implementation.
  *
- * Acts like a normal HTML delivery mechanism but only "renders" a dummy string
- * and prints a short string telling if the page callback result was "true".
- *
- * Useful for returning the results of an access check, performed by the page
- * callback. The actual page callback return value is never printed.
+ * Renders a dummy string on a page so a pre_render callback on the style tag
+ * can collect all stylesheets, then grabs them from the cache and prints
+ * import rules for each file in the cache.
  *
  * Success:
  * - Status header: "200 OK"
- * - Content: "OK"
+ * - Content: One import rule per stylesheet from the theme.
  *
  * Failure:
  * - Status header: "403 Forbidden"
- * - Content: "Forbidden"
+ * - Content: Empty
  *
  * @see _wysiwyg_theme_check_active()
  */
 function _wysiwyg_delivery_dummy($page_callback_result) {
   global $theme_key;
   drupal_add_http_header('Content-Language', 'en');
-  drupal_add_http_header('Content-Type', 'text/html; charset=utf-8');
+  drupal_add_http_header('Content-Type', 'text/css; charset=utf-8');
+  // Make sure the theme is always initialized.
+  drupal_theme_initialize();
+  // Render a completely themed empty page to catch as many stylesheets as
+  // possible, but don't actually return anything because we only need the CSS.
+  drupal_render_page('Dummy');
   if ($page_callback_result) {
     drupal_add_http_header('Status', '200 OK');
+    // Make the client get the actual stylesheets.
+    $css = [];
+    $cached = cache_get('wysiwyg_css');
+    if ($cached && !empty($cached->data[$theme_key])) {
+      $css = $cached->data[$theme_key]['files'];
+    }
+    foreach ($css as $file) {
+      print '@import url("' . $file . '");' . "\n";
+    }
   }
   else {
     drupal_add_http_header('Status', '403 Forbidden');
   }
-  // Make sure the theme is always initialized.
-  drupal_theme_initialize();
-  // Render a completely themed empty page to catch as many stylesheets as
-  // possible, but don't actually return anything to speed up the response.
-  $rendered = drupal_render_page('Dummy');
-  // In case headers aren't enough, put the status in the response body.
-  print ($page_callback_result ? 'OK' : 'Forbidden');
   // Cleanup and session handling.
   drupal_page_footer();
 }
@@ -77,8 +82,14 @@ function _wysiwyg_filter_editor_styles(&$elements) {
   if (strpos(current_path(), 'wysiwyg_theme/') !== 0) {
     return $elements;
   }
+  // Remove any styles that aren't CSS_THEME before processing.
+  foreach ($elements['#items'] as $key => $css) {
+    if ($css['media'] === 'print' || (isset($css['group']) && $css['group'] !== CSS_THEME)) {
+      unset($elements['#items'][$key]);
+    }
+  }
   $context = array('theme' => $theme_key);
-  drupal_alter('wysiwyg_editor_styles', $elements, $context); $css = array();
+  drupal_alter('wysiwyg_editor_styles', $elements, $context);
   return $elements;
 }
 
@@ -97,14 +108,12 @@ function _wysiwyg_filter_editor_styles(&$elements) {
  */
 function _wysiwyg_pre_render_styles($elements) {
   global $theme_key;
+  $css = array();
   if (strpos(current_path(), 'wysiwyg_theme/') !== 0) {
     return $elements;
   }
   $cached = cache_get('wysiwyg_css');
   foreach (element_children($elements) as $child) {
-    if (isset($elements['#groups'][$child]['group']) && $elements['#groups'][$child]['group'] != CSS_THEME) {
-      continue;
-    }
     switch ($elements[$child]['#tag']) {
       case 'link':
         $css[] = $elements[$child]['#attributes']['href'];

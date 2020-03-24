@@ -175,6 +175,23 @@ function hook_INCLUDE_plugin() {
 }
 
 /**
+ * Alter plugin definitions before loading and further processing.
+ *
+ * @param array $info
+ *   The plugin definitions to alter.
+ * @param string $hook
+ *   The plugin type being loaded. Can be 'editor' or 'plugin'.
+ */
+function hook_wysiwyg_load_includes_alter(&$info, $hook) {
+  if ($hook == 'editor' && isset($info['ckeditor'])) {
+    $info['ckeditor']['version callback'] = 'my_own_version_callback';
+  }
+  elseif ($hook == 'plugin' && isset($info['break'])) {
+    $info['break']['title'] = t('Summary delimiter');
+  }
+}
+
+/**
  * Define a Wysiwyg editor library.
  *
  * @todo Complete this documentation.

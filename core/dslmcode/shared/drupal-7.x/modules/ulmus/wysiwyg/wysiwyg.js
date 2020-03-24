@@ -390,13 +390,59 @@ function WysiwygInstance(internalInstance) {
 function WysiwygInternalInstance(params) {
   $.extend(true, this, Drupal.wysiwyg.editor.instance[params.editor]);
   $.extend(true, this, params);
+  this.$field = $('#' + this.field);
   this.pluginInfo = {
     'global': getPluginInfo('global:' + params.editor),
     'instances': getPluginInfo(params.format)
   };
   // Keep track of the public face to keep it synced.
   this.publicInstance = new WysiwygInstance(this);
+  // Internal list of active element watchers.
+  var watchers = [];
+
+  /**
+   * Watch an element and notify Wysiwyg when it changes.
+   *
+   * @param $element
+   *   A jQuery object with the element to watch.
+   * @param watchContext
+   *   An optional only argument for the condition callback on change events.
+   * @param watchCondition
+   *   An optional callback returning TRUE if to notify Wysiwyg, else FALSE.
+   *
+   * @see ElementWatcher
+   */
+  this.startWatching = function ($element, watchContext, watchCondition) {
+    var watcher = new ElementWatcher();
+    var instance = this;
+    watcher.addCallback(function () {
+      instance.contentsChanged();
+    });
+    watcher.start($element, watchContext, watchCondition);
+    watchers.push(watcher);
+  };
+
+  /**
+   * Stop watching all element for changes.
+   */
+  this.stopWatching = function () {
+    while (watchers.length) {
+      var watcher = watchers.pop();
+      watcher.stop();
+    }
+  };
 }
+
+/**
+ * Notify Wysiwyg that the editor contents for this instance have changed.
+ */
+WysiwygInternalInstance.prototype.contentsChanged = function () {
+  // Only need to flip changed status once.
+  if (this.$field.attr('data-wysiwyg-value-is-changed') === 'false') {
+    this.$field.attr('data-wysiwyg-value-is-changed', 'true');
+  }
+  this.$field.trigger('drupal-wysiwyg-changed', this.publicInstance);
+};
 
 /**
  * Updates internal settings and state caches with new information.
@@ -651,6 +697,7 @@ function detachFromField(mainFieldId, context, trigger, params) {
   params = params || {};
   var fieldInfo = getFieldInfo(mainFieldId);
   var fieldId = (params.summary ? fieldInfo.summary : mainFieldId);
+  var $field = $('#' + fieldId);
   var enabled = false;
   var editor = 'none';
   if (_internalInstances[fieldId]) {
@@ -667,7 +714,12 @@ function detachFromField(mainFieldId, context, trigger, params) {
   if (jQuery.isFunction(Drupal.wysiwyg.editor.detach[editor])) {
     Drupal.wysiwyg.editor.detach[editor].call(_internalInstances[fieldId], context, stateParams, trigger);
   }
-  if (trigger == 'unload') {
+  // Restore the original value of the user didn't make any changes yet.
+  if (enabled && $field.attr('data-wysiwyg-value-is-changed') === 'false') {
+    $field.val($field.attr('data-wysiwyg-value-original'));
+  }
+  if (trigger == 'unload' && _internalInstances[fieldId]) {
+    _internalInstances[fieldId].stopWatching();
     delete Drupal.wysiwyg.instances[fieldId];
     delete _internalInstances[fieldId];
   }
@@ -718,6 +770,7 @@ Drupal.wysiwyg.toggleWysiwyg = function (event) {
   var context = event.data.context,
       fieldId = event.data.fieldId,
       fieldInfo = getFieldInfo(fieldId);
+  delete fieldInfo.previousFormat;
   // Toggling the enabled state indirectly toggles use of the 'none' editor.
   if (fieldInfo.enabled) {
     fieldInfo.enabled = false;
@@ -736,8 +789,10 @@ Drupal.wysiwyg.toggleWysiwyg = function (event) {
  */
 function formatChanged(event) {
   var fieldId = _selectToField[this.id.replace(/--\d+$/, '')];
-  var context = $(this).closest('form');
-  var newFormat = 'format' + $(this).val();
+  var $field = $('#' + fieldId);
+  var $select = $(this);
+  var context = $select.closest('form');
+  var newFormat = 'format' + $select.val();
   // Field state is fetched by reference.
   var currentField = getFieldInfo(fieldId);
   // Prevent double-attaching if change event is triggered manually.
@@ -748,7 +803,26 @@ function formatChanged(event) {
   if (currentField.formats[currentField.activeFormat]) {
     currentField.formats[currentField.activeFormat].enabled = currentField.enabled;
   }
+  // When changing to a text format that has an editor associated with it, then
+  // first ask for confirmation, because switching text formats might cause
+  // certain markup to be stripped away.
+  if ($field.val().length > 0 && currentField.formats[newFormat] && currentField.formats[newFormat].editor !== 'none') {
+    var message = Drupal.t('Are you sure you want to change the text format?\n\nChanging the text format to @text_format and enabling the associated editor will permanently remove content that is not allowed in both text formats.\n\nCancel and save your changes before switching the text format to avoid losing data.', {
+      '@text_format': $select.find('option:selected').text()
+    });
+    if (!window.confirm(message)) {
+      // Restore the active format. We cannot simply call event.preventDefault()
+      // because jQuery's change event is only triggered after the change has
+      // already been accepted.
+      // The substr() removes the Wysiwyg-only 'format' prefix.
+      $select.val(currentField.activeFormat.substr(6));
+      // Trick core into showing the correct text format description.
+      $select.trigger('change');
+      return;
+    }
+  }
   // Switch format/profile.
+  currentField.previousFormat = currentField.activeFormat;
   currentField.activeFormat = newFormat;
   // Load the state from the new format.
   if (currentField.formats[currentField.activeFormat]) {
@@ -906,5 +980,130 @@ $(document).unbind('CToolsDetachBehaviors.wysiwyg').bind('CToolsDetachBehaviors.
     delete _fieldInfoStorage[baseFieldId];
   });
 });
+
+
+/**
+ * Helper to detect changes in elements.
+ */
+function ElementWatcher() {
+  var timer;
+  var el;
+  var callbacks = [];
+  var originalContent;
+  var condition;
+  var context;
+
+  /**
+   * Invoke all registered callbacks.
+   */
+  function changed() {
+    for (var i = 0; i < callbacks.length; i++) {
+      callbacks[i][0].apply(callbacks[i][1]);
+    }
+  }
+
+  /**
+   * Start tracking changes in an element.
+   *
+   * Tracks markup changes by listening to input events or polling elements.
+   *
+   * @param element
+   *   A jQuery-wrapped element to track changes for.
+   * @param watchContext
+   *   An optional object to pass as argument to the watchCondition callback.
+   * @param watchCondition
+   *   A callback which can return TRUE or FALSE to dynamically allow or block
+   *   the added change callbacks. Useful when running multiple watchers in
+   *   parallel and only one should react depending on some condition.
+   */
+  this.start = function (element, watchContext, watchCondition) {
+    el = element;
+    context = watchContext;
+    condition = watchCondition;
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    if (el.is(':input')) {
+      originalContent = el.val();
+      el.bind('input.wysiwyg-watch selectionchange.wysiwyg-watch propertychange.wysiwyg-watch change.wysiwyg-watch', function (ev) {
+        if (!condition || condition(context)) {
+          var currentContent = el.val();
+          if (currentContent !== originalContent) {
+            if (originalContent != undefined) {
+              changed();
+            }
+            originalContent = currentContent;
+          }
+        }
+      });
+    }
+    else if (!timer) {
+      originalContent = el.html();
+      timer = setInterval(function () {
+        if (!condition || condition(context)) {
+          var currentContent = el.html();
+          if (currentContent !== originalContent) {
+            changed();
+            originalContent = currentContent;
+          }
+        }
+      }, 100);
+    }
+  };
+
+  /**
+   * Stop tracking changes.
+   *
+   * Unbinds any event handlers and stops polling.
+   */
+  this.stop = function () {
+    if (el.is(':input')) {
+      el.unbind('input.wysiwyg-watch selectionchange.wysiwyg-watch propertychange.wysiwyg-watch change.wysiwyg-watch');
+    }
+    else if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    el = null;
+    context = null;
+    condition = null;
+  };
+
+  /**
+   * Add a function to be called when "something" has changed.
+   *
+   * @param callback
+   *   The function to call.
+   */
+  this.addCallback = function (callback, context) {
+    if (!context) {
+      context = window;
+    }
+    callbacks.push([callback, context]);
+  };
+}
+
+Drupal.wysiwyg.utilities = {
+
+  /**
+   * Perform any actions needed to make editors work in fullscreen mode.
+   *
+   * @see Drupal.wysiwyg.utilities.onFullscreenExit()
+   */
+  onFullscreenEnter: function () {
+    $('#toolbar, #admin-menu', Drupal.overlayChild ? window.parent.document : document).hide();
+  },
+
+  /**
+   * Undo any actions performed when going to fullscreen mode.
+   *
+   * @see Drupal.wysiwyg.utilities.onFullscreenEnter()
+   */
+  onFullscreenExit: function () {
+    $('#toolbar, #admin-menu', Drupal.overlayChild ? window.parent.document : document).show();
+  }
+
+}
 
 })(jQuery);

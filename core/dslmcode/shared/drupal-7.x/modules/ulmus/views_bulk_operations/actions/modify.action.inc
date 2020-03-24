@@ -55,7 +55,7 @@ function views_bulk_operations_modify_action($entity, $context) {
         }
       }
 
-      if (in_array($key, $context['append']['bundle_' . $bundle_name]) && !empty($entity->$key)) {
+      if (in_array($key, $context['append']['bundle_' . $bundle_name]) && !empty($entity->{$key})) {
         $entity->{$key}[$language] = array_merge($entity->{$key}[$language], $pseudo_entity->{$key}[$language]);
 
         // Check if we breached cardinality, and notify the user.
@@ -96,24 +96,24 @@ function views_bulk_operations_modify_action($entity, $context) {
 
   if (!empty($context['selected']['properties'])) {
     foreach ($context['selected']['properties'] as $key) {
-      if (!$wrapper->$key->access('update')) {
+      if (!$wrapper->{$key}->access('update')) {
         // No access.
         continue;
       }
 
       if (in_array($key, $context['append']['properties'])) {
-        $old_values = $wrapper->$key->value();
-        $wrapper->$key->set($context['properties'][$key]);
+        $old_values = $wrapper->{$key}->value();
+        $wrapper->{$key}->set($context['properties'][$key]);
         $new_values = $wrapper->{$key}->value();
         $all_values = array_merge($old_values, $new_values);
-        $wrapper->$key->set($all_values);
+        $wrapper->{$key}->set($all_values);
       }
       else {
         $value = $context['properties'][$key];
         if (is_string($value)) {
           $value = token_replace($value, array($context['entity_type'] => $entity), array('sanitize' => FALSE));
         }
-        $wrapper->$key->set($value);
+        $wrapper->{$key}->set($value);
       }
     }
   }
@@ -193,9 +193,9 @@ function views_bulk_operations_modify_action_form($context, &$form_state) {
         $form['properties'][$key]['#maxlength'] = 255;
       }
 
-      if (!empty($property['options list'])) {
+      if (!empty($property['options list']) && is_callable($property['options list'])) {
         $form['properties'][$key]['#type'] = 'select';
-        $form['properties'][$key]['#options'] = $property['options list']($key, array());
+        $form['properties'][$key]['#options'] = call_user_func_array($property['options list'], array($key, array()));
 
         if ($property['type'] == 'list') {
           $form['properties'][$key]['#type'] = 'checkboxes';
@@ -405,7 +405,7 @@ function views_bulk_operations_modify_action_validate($form, &$form_state) {
     $properties = _views_bulk_operations_modify_action_get_properties($form_state['entity_type']);
     foreach ($form_state['selected']['properties'] as $key) {
       $value = $form_state['values']['properties'][$key];
-      if (!$wrapper->$key->validate($value)) {
+      if (!$wrapper->{$key}->validate($value)) {
         $label = $properties[$key]['label'];
         form_set_error('properties][' . $key, t('%label contains an invalid value.', array('%label' => $label)));
       }

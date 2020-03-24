@@ -292,6 +292,21 @@ function wysiwyg_pre_render_text_format($element) {
       wysiwyg_add_editor_settings($profile, $theme);
     }
   }
+
+  // Store the unaltered content so it can be restored if no changes
+  // intentionally made by the user were detected, such as those caused by
+  // WYSIWYG editors when initially parsing and loading content.
+  if (!empty($element['value']['#value'])) {
+    $original = $element['value']['#value'];
+    $element['value']['#attributes']['data-wysiwyg-value-original'] = $original;
+    $element['value']['#attributes']['data-wysiwyg-value-is-changed'] = 'false';
+  }
+  if (!empty($element['summary']['#value']) && $element['summary']['#type'] === 'textarea') {
+    $original = $element['summary']['#value'];
+    $element['summary']['#attributes']['data-wysiwyg-value-original'] = $original;
+    $element['summary']['#attributes']['data-wysiwyg-value-is-changed'] = 'false';
+  }
+
   $element['value']['#attributes']['class'][] = 'wysiwyg';
   $element['#attached']['js'][] = array(
     'data' => array(
@@ -710,8 +725,9 @@ function wysiwyg_get_editor_config($profile, $theme) {
  * This assumes that the content editing area only needs stylesheets defined
  * for the scope 'theme'.
  *
- * Performs a background request of a dummy page to cache as many of a theme's
- * stylesheets as possible before returning the cached list.
+ * When the stylesheets a theme uses are not yet known it will return a single
+ * URL pointing to a page which will gather the stylesheets so they can be
+ * loaded indirectly via import rules.
  *
  * Note: if set to explicitly use the current admin theme by name, no access
  * check on the 'view the administration theme' permission is performed.
@@ -750,15 +766,11 @@ function wysiwyg_get_css($theme = NULL) {
   $update_cache = strpos(current_path(), 'wysiwyg_theme/') === FALSE && (
     !$cached || (
       empty($cached->data[$theme])
-      || $cached->data[$theme]['aggregated'] != variable_get('preprocess_css', FALSE))
-      || $cached->data['_css_js_query_string'] != variable_get('css_js_query_string'));
+      || $cached->data[$theme]['aggregated'] !== variable_get('preprocess_css', FALSE))
+      || $cached->data['_css_js_query_string'] !== variable_get('css_js_query_string'));
   if ($update_cache) {
-    $url = url('wysiwyg_theme/' . $theme, array('absolute' => TRUE, 'max_redirects' => 0));
-    $response = drupal_http_request($url);;
-    $cached = cache_get('wysiwyg_css');
-    if ($cached && !empty($cached->data[$theme])) {
-      $css = $cached->data[$theme]['files'];
-    }
+    // Make the client perform another request to update css caches.
+    $css[] = url('wysiwyg_theme/' . $theme, array('absolute' => TRUE));
   }
   elseif (!empty($cached->data[$theme])) {
     $css = $cached->data[$theme]['files'];
@@ -1087,6 +1099,7 @@ function wysiwyg_get_all_editors() {
       'editor path' => wysiwyg_get_path($editors[$editor]['name']),
       'library path' => wysiwyg_get_path($editors[$editor]['name']),
       'libraries' => array(),
+      'installed' => FALSE,
       'version callback' => NULL,
       'themes callback' => NULL,
       'settings form callback' => NULL,
@@ -1098,7 +1111,7 @@ function wysiwyg_get_all_editors() {
       'css path' => $editors[$editor]['path'] . '/css',
     );
     // Check whether library is present.
-    if (!($editors[$editor]['installed'] = file_exists($editors[$editor]['library path']))) {
+    if (!$editors[$editor]['installed'] && !($editors[$editor]['installed'] = file_exists($editors[$editor]['library path']))) {
       // Find the latest supported version.
       ksort($editors[$editor]['versions']);
       $version = key($editors[$editor]['versions']);
@@ -1146,9 +1159,7 @@ function wysiwyg_get_all_editors() {
     $editors[$editor] = array_merge($editors[$editor], $editors[$editor]['versions'][$version]);
     unset($editors[$editor]['versions']);
   }
-
   drupal_alter('wysiwyg_editor', $editors);
-
   return $editors;
 }
 
@@ -1224,6 +1235,7 @@ function wysiwyg_load_includes($type = 'editors', $hook = 'editor', $file = NULL
       }
     }
   }
+  drupal_alter('wysiwyg_load_includes', $info, $hook);
   return $info;
 }
 

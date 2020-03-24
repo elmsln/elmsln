@@ -62,6 +62,7 @@ Drupal.wysiwyg.editor.attach.yui = function(context, params, settings) {
   // Reload the editor contents to give Drupal plugins a chance to act.
   editor.on('editorContentLoaded', function (e) {
     e.target.setEditorHTML(oldGetEditorHTML.call(e.target));
+    wysiwygInstance.startWatching($('#' + params.field + '_editor').contents().find('body'));
   });
 
   editor.on('afterNodeChange', function (e) {

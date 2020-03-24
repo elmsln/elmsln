@@ -11,8 +11,8 @@
 function wysiwyg_jwysiwyg_editor() {
   $editor['jwysiwyg'] = array(
     'title' => 'jWYSIWYG',
-    'vendor url' => 'http://github.com/akzhan/jwysiwyg',
-    'download url' => 'http://github.com/akzhan/jwysiwyg/tags',
+    'vendor url' => 'https://github.com/jwysiwyg/jwysiwyg',
+    'download url' => 'https://github.com/jwysiwyg/jwysiwyg/releases',
     'libraries' => array(
       '' => array(
         'title' => 'Source',
@@ -26,7 +26,7 @@ function wysiwyg_jwysiwyg_editor() {
     // @todo Wrong property; add separate properties for editor requisites.
     'css path' => wysiwyg_get_path('jwysiwyg'),
     'versions' => array(
-      '0.97' => array(
+      '0.5' => array(
         'js files' => array('jwysiwyg.js'),
         'css files' => array('jquery.wysiwyg.css'),
       ),
@@ -74,15 +74,20 @@ function wysiwyg_jwysiwyg_settings($editor, $config, $theme) {
  * @return
  *   The installed editor version.
  */
-function wysiwyg_jwysiwyg_version($editor) {
+function wysiwyg_jwysiwyg_version(&$editor) {
   $script = $editor['library path'] . '/jquery.wysiwyg.js';
   if (!file_exists($script)) {
-    return;
+    $script = $editor['library path'] . '/jwysiwyg/jquery.wysiwyg.js';
+    if (!file_exists($script)) {
+      return;
+    }
+    $editor['library path'] .= '/jwysiwyg';
+    $editor['editor path'] .= '/jwysiwyg';
   }
   $script = fopen($script, 'r');
   fgets($script);
   $line = fgets($script);
-  if (preg_match('@([0-9\.]+)$@', $line, $version)) {
+  if (preg_match('@([0-9\.]+)\D*$@', $line, $version)) {
     fclose($script);
     return $version[1];
   }

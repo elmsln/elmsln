@@ -11,8 +11,8 @@
 function wysiwyg_fckeditor_editor() {
   $editor['fckeditor'] = array(
     'title' => 'FCKeditor',
-    'vendor url' => 'http://www.fckeditor.net',
-    'download url' => 'http://www.fckeditor.net/download',
+    'vendor url' => 'https://www.fckeditor.net',
+    'download url' => 'https://www.fckeditor.net/download',
     'libraries' => array(
       '' => array(
         'title' => 'Default',
