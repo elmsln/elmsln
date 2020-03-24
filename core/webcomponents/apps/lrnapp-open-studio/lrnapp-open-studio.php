@@ -23,6 +23,7 @@ function _cle_open_studio_app_data($machine_name, $app_route, $params, $args) {
   // only show things marked ready for feedback
   $options->filter['state'] = array('submission_ready', '=');
   $options->truncate = array(
+    'images' => 'images',
     'comments' => 'comments',
     'relatedSubmissions' => 'relatedSubmissions',
   );
