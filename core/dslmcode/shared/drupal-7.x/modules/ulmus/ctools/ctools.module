@@ -22,6 +22,9 @@ define('CTOOLS_API_VERSION', '2.0.9');
  * simply include a dependency line in that module's info file, e.g.:
  *   ; Requires CTools v7.x-1.4 or newer.
  *   dependencies[] = ctools (>=1.4)
+ *
+ * @deprecated in CTools 1.15 and will be removed before CTools 2.0.0.
+ *   Use the version provided by the drupal.org packaging system.
  */
 define('CTOOLS_MODULE_VERSION', '7.x-1.13');
 

@@ -2,9 +2,8 @@
 name = Example info file
 
 
-; Information added by Drupal.org packaging script on 2016-05-12
-version = "7.x-2.3"
+; Information added by Drupal.org packaging script on 2018-10-05
+version = "7.x-2.5"
 core = "7.x"
 project = "libraries"
-datestamp = "1463077450"
-
+datestamp = "1538770685"

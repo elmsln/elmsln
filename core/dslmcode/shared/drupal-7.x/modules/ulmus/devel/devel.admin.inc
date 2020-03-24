@@ -1,6 +1,18 @@
 <?php
 
+/**
+ * @file
+ * Functions for Devel administrative pages.
+ */
+
+/**
+ * Form constructor for the settings form.
+ *
+ * @ingroup forms
+ */
 function devel_admin_settings() {
+  _devel_display_block_help_message();
+
   $form['queries'] = array('#type' => 'fieldset', '#title' => t('Query log'));
 
   $description = t('Display a log of the database queries needed to generate the current page, and the execution time for each. Also, queries which are repeated during a single page view are summed in the # column, and printed in red since they are candidates for caching.');
@@ -22,6 +34,12 @@ function devel_admin_settings() {
         ),
       ),
   );
+  $form['queries']['settings']['devel_show_query_args_first'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show query arguments'),
+    '#default_value' => variable_get('devel_show_query_args_first', FALSE),
+    '#description' => t('Show arguments rather than the query placeholders in the logged query.'),
+  );
   $form['queries']['settings']['devel_query_sort'] = array('#type' => 'radios',
     '#title' => t('Sort query log'),
     '#default_value' =>   variable_get('devel_query_sort', DEVEL_QUERY_SORT_BY_SOURCE),
@@ -36,57 +54,13 @@ function devel_admin_settings() {
     '#description' => t('Enter an integer in milliseconds. Any query which takes longer than this many milliseconds will be highlighted in the query log. This indicates a possibly inefficient query, or a candidate for caching.'),
   );
 
-  $form['xhprof'] = array(
-    '#type' => 'fieldset',
-    '#title' => 'XHProf',
-    '#description' => t('XHProf is a php extension which is essential for profiling your Drupal site. It pinpoints slow functions, and also memory hogging functions.'),
-  );
-  $description = extension_loaded('xhprof') ? t('Profile requests with the xhprof php extension.') : '<span class="warning">' . t('You must enable the <a href="!url">xhprof php extension</a> to use this feature.', array('!url' => url('http://techportal.ibuildings.com/2009/12/01/profiling-with-xhprof/'))) . '</span>';
-  $form['xhprof']['devel_xhprof_enabled'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable profiling of all page views and <a href="!drush">drush</a> requests.', array('!drush' => url('http://drush.ws'))),
-    '#default_value' => variable_get('devel_xhprof_enabled', FALSE),
-    '#description' => $description,
-    '#disabled' => !extension_loaded('xhprof'),
-  );
-  $form['xhprof']['settings'] = array(
-    '#type' => 'container',
-    '#states' => array(
-      'invisible' => array(
-        'input[name="devel_xhprof_enabled"]' => array('checked' => FALSE),
-      ),
-    ),
-  );
-  $form['xhprof']['settings']['devel_xhprof_directory'] = array(
-    '#type' => 'textfield',
-    '#title' => 'xhprof directory',
-    '#description' => t('Location of the xhprof source code on your system, where the directory "xhprof_lib" can be found, usually somewhere in /usr/local/share or /usr/share, include the leading forward slash.'),
-    '#default_value' => variable_get('devel_xhprof_directory', ''),
-    '#states' => array(
-      'invisible' => array(
-        'input[name="devel_xhprof_enabled"]' => array('checked' => FALSE),
-      ),
-    ),
-  );
-  $form['xhprof']['settings']['devel_xhprof_url'] = array(
-    '#type' => 'textfield',
-    '#title' => 'XHProf URL',
-    '#description' => t('Path to the publically accessible xhprof_html - required to display profiler reports. You will need to set this up outside Drupal, for example at http://xhprof.localhost/xhprof_html'),
-    '#default_value' => variable_get('devel_xhprof_url', ''),
-    '#states' => array(
-      'invisible' => array(
-        'input[name="devel_xhprof_enabled"]' => array('checked' => FALSE),
-      ),
-    ),
-  );
-
   $form['devel_api_url'] = array('#type' => 'textfield',
     '#title' => t('API Site'),
     '#default_value' => variable_get('devel_api_url', 'api.drupal.org'),
     '#description' => t('The base URL for your developer documentation links. You might change this if you run <a href="!url">api.module</a> locally.', array('!url' => url('http://drupal.org/project/api'))));
-  $form['dev_timer'] = array('#type' => 'checkbox',
+  $form['devel_timer'] = array('#type' => 'checkbox',
     '#title' => t('Display page timer'),
-    '#default_value' => variable_get('dev_timer', 0),
+    '#default_value' => variable_get('devel_timer', 0),
     '#description' => t('Display page execution time in the query log box.'),
   );
 
@@ -161,6 +135,45 @@ function devel_admin_settings() {
   return system_settings_form($form);
 }
 
+/**
+ * Displays a helpful message if Menu module is not installed.
+ */
+function _devel_display_block_help_message() {
+  if (!module_exists('menu')) {
+    $devel_block_alert = t('Devel block alert: The Devel block requires the Core Menu module. The Devel block will become available once you <a href="!url">enable Menu</a>.',
+      array('!url' => url('admin/modules'))
+    );
+    $variables = array(
+      '!admin_menu_url' => url('https://drupal.org/project/admin_menu', array('external' => TRUE)),
+      '!admin_menu_name' => 'Administration Menu',
+      '!admin_menu_config_url' => url('admin/config/administration/admin_menu'),
+      '!icon_menu' => t('Icon menu'),
+    );
+    if (!module_exists('admin_menu')) {
+      $devel_block_alert .= '<br />' . t('Alternatively, you can install <a href="!admin_menu_url">!admin_menu_name</a> which supports displaying the Devel menu items in its !icon_menu.', $variables);
+    }
+    else {
+      $admin_menu_components = variable_get('admin_menu_components', array());
+      if (empty($admin_menu_components['admin_menu.icon']) || !user_access('access administration menu')) {
+        $devel_block_alert .= '<br />' . t("Alternatively, if you <a href='!admin_menu_config_url'>enable !admin_menu_name's !icon_menu</a> you will find the Devel menu items there.", $variables);
+      } else {
+        // Don't bother with a message in the 'normal' case.
+        return;
+      }
+    }
+    drupal_set_message($devel_block_alert, 'warning');
+  }
+}
+
+/**
+ * Demonstrates the active error handler.
+ *
+ * Generates some warnings or errors so that the reaction of the current error
+ * handler can be observed.
+ *
+ * @param $severity
+ *   The severity level that the error handler should demonstrate.
+ */
 function devel_demonstrate_error_handlers($severity) {
   switch ($severity) {
     case 'warning':

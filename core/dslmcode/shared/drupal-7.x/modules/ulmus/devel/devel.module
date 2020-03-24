@@ -3,6 +3,7 @@
 /**
  * @file
  * This module holds functions useful for Drupal development.
+ *
  * Please contribute!
  */
 
@@ -212,7 +213,7 @@ function devel_menu() {
   // Duplicate path in 2 different menus. See http://drupal.org/node/601788.
   $items['devel/settings'] = array(
     'title' => 'Devel settings',
-    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="' . url('admin/structure/block') . '">block administration</a> page.',
+    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="/admin/structure/block">block administration</a> page.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('devel_admin_settings'),
     'access arguments' => array('administer site configuration'),
@@ -221,7 +222,7 @@ function devel_menu() {
   );
   $items['admin/config/development/devel'] = array(
     'title' => 'Devel settings',
-    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="' . url('admin/structure/block') . '">block administration</a> page.',
+    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="/admin/structure/block">block administration</a> page.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('devel_admin_settings'),
     'file' => 'devel.admin.inc',
@@ -321,11 +322,11 @@ function devel_menu() {
 }
 
 /**
- * Menu item access callback - check permission and token for Switch User.
+ * Menu item access callback: checks permission and token for Switch User.
  */
 function _devel_switch_user_access($name) {
   // Suppress notices when on other pages when menu system still checks access.
-  return user_access('switch users') && drupal_valid_token(@$_GET['token'], "devel/switch/$name|" . @$_GET['destination'], TRUE);
+  return user_access('switch users') && drupal_valid_token(@$_GET['token'], "devel/switch/$name", TRUE);
 }
 
 /**
@@ -347,7 +348,7 @@ function devel_admin_paths() {
 }
 
 /**
- * Returns destinations.
+ * Returns paths that need a destination.
  */
 function devel_menu_need_destination() {
   return array('devel/cache/clear', 'devel/reinstall', 'devel/menu/reset',
@@ -355,15 +356,30 @@ function devel_menu_need_destination() {
 }
 
 /**
+ * Returns list of paths which need CSRF token protection.
+ *
+ * @return array
+ *   An associative array in which every item is composed in the following way:
+ *   - key: path which need token protection.
+ *   - value: additional value used for generate the token.
+ */
+function devel_menu_need_token_protection() {
+  return array(
+    'devel/cache/clear' => 'devel-cache-clear',
+    'devel/run-cron' => 'run-cron',
+  );
+}
+
+/**
  * Implements hook_menu_link_alter().
  *
  * Flag this link as needing alter at display time.
  * This is more robust than setting alter in hook_menu().
- * @see devel_translated_menu_link_alter()
  *
- **/
+ * @see devel_translated_menu_link_alter()
+ */
 function devel_menu_link_alter(&$item) {
-  if (in_array($item['link_path'], devel_menu_need_destination()) || $item['link_path'] == 'devel/menu/item') {
+  if (in_array($item['link_path'], devel_menu_need_destination()) || array_key_exists($item['link_path'], devel_menu_need_token_protection()) || $item['link_path'] == 'devel/menu/item') {
     $item['options']['alter'] = TRUE;
   }
 }
@@ -371,11 +387,22 @@ function devel_menu_link_alter(&$item) {
 /**
  * Implements hook_translated_menu_item_alter().
  *
- * Append dynamic querystring 'destination' to several of our own menu items.
- **/
+ * Append dynamic querystring 'destination' or 'token' (csfr protection) to
+ * several of our own menu items.
+ */
 function devel_translated_menu_link_alter(&$item) {
-  if (in_array($item['href'], devel_menu_need_destination())) {
-    $item['localized_options']['query'] = drupal_get_destination();
+  $need_destination = in_array($item['href'], devel_menu_need_destination());
+
+  $token_protection = devel_menu_need_token_protection();
+  $need_token = array_key_exists($item['href'], $token_protection);
+
+  if ($need_destination || $need_token) {
+    if ($need_destination) {
+      $item['localized_options']['query'] = drupal_get_destination();
+    }
+    if ($need_token) {
+      $item['localized_options']['query']['token'] = drupal_get_token($token_protection[$item['href']]);
+    }
   }
   elseif ($item['href'] == 'devel/menu/item') {
     $item['localized_options']['query'] = array('path' => $_GET['q']);
@@ -447,27 +474,41 @@ function devel_init() {
     if (flood_is_allowed('devel_rebuild_registry_warning', 1)) {
       flood_register_event('devel_rebuild_registry_warning');
       if (!devel_silent() && user_access('access devel information')) {
-        drupal_set_message(t('The theme registry is being rebuilt on every request. Remember to <a href="!url">turn off</a> this feature on production websites.', array("!url" => url('admin/config/development/devel'))));
+        drupal_set_message(t('The theme registry is being rebuilt on every request. Remember to <a href="!url">turn off</a> this feature on production websites.', array(
+          "!url" => url('admin/config/development/devel', array(
+            'fragment' => 'edit-devel-rebuild-theme-registry',
+          )),
+        )));
       }
     }
   }
 }
 
 /**
- * Sets message.
+ * Sets a message.
  */
 function devel_set_message($msg, $type = NULL) {
   $function  = function_exists('drush_log') ? 'drush_log' : 'drupal_set_message';
   $function($msg, $type);
-  }
+}
 
 /**
- * Returns boolean. No need for cache here.
+ * Determines if Krumo is available.
+ *
+ * No need for cache here.
+ *
+ * @return boolean
+ *   TRUE if Krumo is available, FALSE otherwise.
  */
 function has_krumo() {
   @include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'devel') . '/krumo/class.krumo.php';
   if (function_exists('krumo') && !drupal_is_cli()) {
-    drupal_add_js(drupal_get_path('module', 'devel') . '/devel_krumo_path.js');
+    drupal_add_js(drupal_get_path('module', 'devel') . '/devel_krumo.js');
+    drupal_add_css(drupal_get_path('module', 'devel') . '/devel_krumo.css');
+    // If dpm() is called after status messages have been rendered they will
+    // instead appear on the next page load, so ensure the krumo CSS and
+    // Javascript files are included.
+    krumo::addCssJs();
     return TRUE;
   }
   return FALSE;
@@ -480,13 +521,17 @@ function has_krumo() {
  *   The value to check.
  *
  * @return boolean
+ *   TRUE if the input complex enough and Krumo is available and not disabled,
+ *   FALSE otherwise.
  */
 function merits_krumo($input) {
   return (is_object($input) || is_array($input)) && has_krumo() && variable_get('devel_krumo_skin', '') != 'disabled';
 }
 
 /**
- * Calls the http://www.firephp.org/ fb() function if it is found.
+ * Calls the fb() function if it is found.
+ *
+ * @see http://www.firephp.org/
  */
 function dfb() {
   if (function_exists('fb') && user_access('access devel information') && !headers_sent()) {
@@ -555,6 +600,8 @@ function devel_watchdog(array $log_entry) {
 
 /**
  * Gets error handlers.
+ *
+ * @return array
  */
 function devel_get_handlers() {
   $error_handlers = variable_get('devel_error_handlers', array(DEVEL_ERROR_HANDLER_STANDARD => DEVEL_ERROR_HANDLER_STANDARD));
@@ -566,6 +613,10 @@ function devel_get_handlers() {
 
 /**
  * Sets a new error handler or restores the prior one.
+ *
+ * @param array $handlers
+ *   An array of error handlers to set.  Use an empty array to restore the
+ *   previous one.
  */
 function devel_set_handler($handlers) {
   if (empty($handlers)) {
@@ -583,6 +634,8 @@ function devel_set_handler($handlers) {
 
 /**
  * Checks whether Devel may be active.
+ *
+ * @return boolean
  */
 function devel_silent() {
   // isset($_GET['q']) is needed when calling the front page. q is not set.
@@ -602,35 +655,11 @@ function devel_silent() {
 }
 
 /**
- * Enables xhprof.
- */
-function devel_xhprof_enable() {
-  if (devel_xhprof_is_enabled()) {
-    if ($path = variable_get('devel_xhprof_directory', '')) {
-      include_once $path . '/xhprof_lib/utils/xhprof_lib.php';
-      include_once $path . '/xhprof_lib/utils/xhprof_runs.php';
-      // @todo: consider a variable per-flag instead.
-      xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
-    }
-  }
-}
-
-/**
- * Checks if xhprof is enabled.
- */
-function devel_xhprof_is_enabled() {
-  return extension_loaded('xhprof') && variable_get('devel_xhprof_enabled', FALSE);
-}
-
-/**
  * Implements hook_boot().
  *
  * Runs even for cached pages.
  */
 function devel_boot() {
-  // Initialize XHProf.
-  devel_xhprof_enable();
-
   if (!devel_silent()) {
     if (variable_get('devel_memory', 0)) {
       global $memory_init;
@@ -847,6 +876,9 @@ function devel_block_view($delta) {
 
 /**
  * Provides the Switch user block.
+ *
+ * @return array
+ *   A render array containing the Switch user block.
  */
 function devel_block_switch_user() {
   $links = devel_switch_user_list();
@@ -864,6 +896,9 @@ function devel_block_switch_user() {
 
 /**
  * Provides the Switch user list.
+ *
+ * @return array
+ *   An array of links, each of which can be used to switch to a user.
  */
 function devel_switch_user_list() {
   global $user;
@@ -905,7 +940,7 @@ function devel_switch_user_list() {
       $links[$account->uid] = array(
         'title' => drupal_placeholder(format_username($account)),
         'href' => $path,
-        'query' => $dest + array('token' => drupal_get_token($path . '|' . $dest['destination'])),
+        'query' => $dest + array('token' => drupal_get_token($path)),
         'attributes' => array('title' => t('This user can switch back.')),
         'html' => TRUE,
         'last_access' => $account->access,
@@ -921,7 +956,7 @@ function devel_switch_user_list() {
         $links[$account->uid] = array(
           'title' => format_username($account),
           'href' => $path,
-          'query' => $dest + array('token' => drupal_get_token($path . '|' . $dest['destination'])),
+          'query' => array('token' => drupal_get_token($path)),
           'attributes' => array('title' => t('Caution: this user will be unable to switch back.')),
           'last_access' => $account->access,
         );
@@ -933,7 +968,7 @@ function devel_switch_user_list() {
       $link = array(
         'title' => format_username(drupal_anonymous_user()),
         'href' => $path,
-        'query' => $dest + array('token' => drupal_get_token($path . '/|' . $dest['destination'])),
+        'query' => $dest + array('token' => drupal_get_token($path)),
         'attributes' => array('title' => t('Caution: the anonymous user will be unable to switch back.')),
       );
       if (user_access('switch users', drupal_anonymous_user())) {
@@ -970,7 +1005,8 @@ function devel_switch_user_form() {
     '#maxlength' => USERNAME_MAX_LENGTH,
     '#size' => 16,
   );
-  $form['submit'] = array(
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Switch'),
   );
@@ -990,7 +1026,8 @@ function devel_doc_function_form() {
     '#maxlength' => 255,
   );
   $form['version'] = array('#type' => 'value', '#value' => $version);
-  $form['submit_button'] = array(
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit'),
   );
@@ -1026,8 +1063,10 @@ function devel_switch_user_form_submit($form, &$form_state) {
     array(
       'query' => array(
         'destination' => '',
-        'token' => drupal_get_token($path . '|'),
-    )));
+        'token' => drupal_get_token($path),
+      ),
+    ),
+  );
 }
 
 /**
@@ -1085,12 +1124,6 @@ function devel_shutdown() {
   // Register the real shutdown function so it runs after other shutdown
   // functions.
   drupal_register_shutdown_function('devel_shutdown_real');
-
-  global $devel_run_id;
-  $devel_run_id = devel_xhprof_is_enabled() ? devel_shutdown_xhprof() : NULL;
-  if ($devel_run_id && function_exists('drush_log')) {
-    drush_log('xhprof link: ' . devel_xhprof_link($devel_run_id, 'url'), 'notice');
-  }
 }
 
 /**
@@ -1126,7 +1159,7 @@ function devel_shutdown_real() {
   // Set $GLOBALS['devel_shutdown'] = FALSE in order to supress the
   // devel footer for a page.  Not necessary if your page outputs any
   // of the Content-type http headers tested below (e.g. text/xml,
-  // text/javascript, etc).  This is is advised where applicable.
+  // text/javascript, etc).  This is advised where applicable.
   if (!devel_silent() && !isset($GLOBALS['devel_shutdown']) && !isset($GLOBALS['devel_redirecting'])) {
     // Try not to break non html pages.
     if (function_exists('drupal_get_http_header')) {
@@ -1144,6 +1177,12 @@ function devel_shutdown_real() {
 
     if (isset($user) && user_access('access devel information')) {
       $queries = (devel_query_enabled() ? Database::getLog('devel', 'default') : NULL);
+      if (!empty($queries)) {
+        // Remove caller args to avoid recursion.
+        foreach ($queries as &$query) {
+          unset($query['caller']['args']);
+        }
+      }
       $output .= devel_shutdown_summary($queries);
       $output .= devel_shutdown_query($queries);
     }
@@ -1160,6 +1199,8 @@ function devel_shutdown_real() {
 
 /**
  * Returns the rendered shutdown summary.
+ *
+ * @return string
  */
 function devel_shutdown_summary($queries) {
   $sum = 0;
@@ -1172,12 +1213,8 @@ function devel_shutdown_summary($queries) {
     $output .= t_safe(' Queries exceeding @threshold ms are <span class="marker">highlighted</span>.', array('@threshold' => variable_get('devel_execution', 5)));
   }
 
-  if (variable_get('dev_timer', 0)) {
+  if (variable_get('devel_timer', 0)) {
     $output .= devel_timer();
-  }
-
-  if (devel_xhprof_is_enabled()) {
-    $output .= ' ' . devel_xhprof_link($GLOBALS['devel_run_id']);
   }
 
   $output .= devel_shutdown_memory();
@@ -1188,32 +1225,9 @@ function devel_shutdown_summary($queries) {
 }
 
 /**
- * Returns the XHProf run ID.
- */
-function devel_shutdown_xhprof() {
-  // Namespace for your application.
-  $namespace = variable_get('site_name', '');
-  $xhprof_data = xhprof_disable();
-  $xhprof_runs = new XHProfRuns_Default();
-  return $xhprof_runs->save_run($xhprof_data, $namespace);
-}
-
-/**
- * Returns the XHProf link.
- */
-function devel_xhprof_link($run_id, $type = 'link') {
-  // @todo: render results from within Drupal.
-  $xhprof_url = variable_get('devel_xhprof_url', '');
-  // Namespace for your application.
-  $namespace = variable_get('site_name', '');
-  if ($xhprof_url) {
-    $url = $xhprof_url . '/index.php?run=' . urlencode($run_id) . '&source=' . urlencode($namespace);
-    return $type == 'url' ? $url : t('<a href="@xhprof">XHProf output</a>. ', array('@xhprof' => $url));
-  }
-}
-
-/**
  * Returns the rendered memory usage.
+ *
+ * @return string
  */
 function devel_shutdown_memory() {
   global $memory_init;
@@ -1233,6 +1247,8 @@ function devel_shutdown_memory() {
 
 /**
  * Returns the rendered query log.
+ *
+ * @return string
  */
 function devel_shutdown_query($queries) {
   if (!empty($queries)) {
@@ -1282,6 +1298,9 @@ function devel_query_put_contents($queries) {
 
 /**
  * Returns whether query logging is enabled.
+ *
+ * @return boolean
+ *   TRUE if the query log is enabled, FALSE otherwise.
  */
 function devel_query_enabled() {
   return method_exists('Database', 'getLog') && variable_get('devel_query_display', FALSE);
@@ -1289,6 +1308,14 @@ function devel_query_enabled() {
 
 /**
  * Returns the query summary.
+ *
+ * @return array
+ *   An index array containing:
+ *   0: The an associative array where the keys are the queries and the values
+ *      are number of times that query was executes.
+ *   1: The summary.
+ *   2: An associative array of substitution variables to be applied in the
+ *      previous element.
  */
 function devel_query_summary($queries) {
   if (variable_get('devel_query_display', FALSE) && is_array($queries)) {
@@ -1307,7 +1334,7 @@ function devel_query_summary($queries) {
 }
 
 /**
- * Devel's t_safe() function.
+ * Gets the t() function if available, uses strtr() as a fallback.
  */
 function t_safe($string, $args) {
   // get_t() caused problems here with the theme registry after changing on
@@ -1317,12 +1344,18 @@ function t_safe($string, $args) {
     return t($string, $args);
   }
   else {
-    strtr($string, $args);
+    return strtr($string, $args);
   }
 }
 
 /**
  * Returns the core version.
+ *
+ * @param string
+ *   The version string to parse.
+ *
+ * @return string
+ *   MAJOR.MINOR for versions before 5, MAJOR for subsequent versions.
  */
 function devel_get_core_version($version) {
   $version_parts = explode('.', $version);
@@ -1338,6 +1371,9 @@ function devel_get_core_version($version) {
 
 /**
  * Returns whether the optimizer is compatible.
+ *
+ * @return boolean
+ *   TRUE if compatible, FALSE otherwise.
  */
 function devel_is_compatible_optimizer() {
   // See http://drupal.org/node/126098.
@@ -1399,7 +1435,11 @@ function devel_execute_form() {
     '#default_value' => (isset($_SESSION['devel_execute_code']) ? $_SESSION['devel_execute_code'] : ''),
     '#rows' => 20,
   );
-  $form['execute']['op'] = array('#type' => 'submit', '#value' => t('Execute'));
+  $form['execute']['actions'] = array('#type' => 'actions');
+  $form['execute']['actions']['op'] = array(
+    '#type' => 'submit',
+    '#value' => t('Execute'),
+  );
   $form['#redirect'] = FALSE;
   if (isset($_SESSION['devel_execute_code'])) {
     unset($_SESSION['devel_execute_code']);
@@ -1456,6 +1496,9 @@ function devel_switch_user($name = NULL) {
  *   An array or object to print.
  * @param string $prefix
  *   Prefix for output items.
+ *
+ * @return
+ *   The results from krumo_ob() or devel_print_object().
  */
 function kdevel_print_object($object, $prefix = NULL) {
   return has_krumo() ? krumo_ob($object) : devel_print_object($object, $prefix);
@@ -1481,6 +1524,8 @@ function krumo_ob($object) {
  *   Prefix for the output items (example "$node->", "$user->", "$").
  * @param boolean $header
  *   Set to FALSE to suppress the output of the h3 tag.
+ *
+ * @return string
  */
 function devel_print_object($object, $prefix = NULL, $header = TRUE) {
   drupal_add_css(drupal_get_path('module', 'devel') . '/devel.css');
@@ -1516,7 +1561,7 @@ function devel_print_object($object, $prefix = NULL, $header = TRUE) {
  *   Formatted html.
  *
  * @todo
- *   currently there are problems sending an array with a varname
+ *   Currently there are problems sending an array with a varname.
  */
 function _devel_print_object($obj, $prefix = NULL, $parents = NULL, $object = FALSE) {
   static $root_type, $out_format;
@@ -1623,12 +1668,16 @@ function _devel_print_object($obj, $prefix = NULL, $parents = NULL, $object = FA
  *
  * Adds a table at the bottom of the page cataloguing data on all the database
  * queries that were made to generate the page.
+ *
+ * @return string
+ *   Queries themed using devel_querylog.
  */
 function devel_query_table($queries, $counts) {
   $version = devel_get_core_version(VERSION);
   $header = array('ms', '#', 'where', 'ops', 'query', 'target');
   $i = 0;
   $api = variable_get('devel_api_url', 'api.drupal.org');
+  $conn = Database::getconnection();
   foreach ($queries as $query) {
     $function = !empty($query['caller']['class']) ? $query['caller']['class'] . '::' : '';
     $function .= $query['caller']['function'];
@@ -1666,8 +1715,19 @@ function devel_query_table($queries, $counts) {
     }
     $cell[$i][] = implode(' ', $ops);
     // 3 divs for each variation of the query. Last 2 are hidden by default.
-    $placeholders = '<div class="dev-placeholders">' . check_plain($query['query']) . "</div>\n";
-    $args = '<div class="dev-arguments" style="display: none;"></div>' . "\n";
+    if (variable_get('devel_show_query_args_first', FALSE)) {
+      $placeholders = '<div class="dev-placeholders" style="display: none;">' . check_plain($query['query']) . "</div>\n";
+      $quoted = array();
+      foreach ($query['args'] as $key => $val) {
+        $quoted[$key] = $conn->quote($val);
+      }
+      $output = strtr($query['query'], $quoted);
+      $args = '<div class="dev-arguments">' . $output . '</div>' . "\n";
+    }
+    else {
+      $placeholders = '<div class="dev-placeholders">' . check_plain($query['query']) . "</div>\n";
+      $args = '<div class="dev-arguments" style="display: none;"></div>' . "\n";
+    }
     $explain = '<div class="dev-explain" style="display: none;"></div>' . "\n";
     $cell[$i][] = array(
       'id' => "devel-query-$i",
@@ -1684,7 +1744,16 @@ function devel_query_table($queries, $counts) {
 }
 
 /**
- * Themes devel's querylog row.
+ * Returns HTML for a  Devel querylog row.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - row: An array of cells in which each cell is either a string or an
+ *     associative array containing:
+ *     - data: The data to render.
+ *     - Any attributes to be applied to the cell.
+ *
+ * @ingroup themeable
  */
 function theme_devel_querylog_row($variables) {
   $row = $variables['row'];
@@ -1717,7 +1786,14 @@ function theme_devel_querylog_row($variables) {
 }
 
 /**
- * Themes devel's querylog.
+ * Returns HTML for the Devel querylog.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - header: An array suitable for rendering with devel_querylog_row.
+ *   - rows: An array of rows suitable for rendering with devel_querylog_row.
+ *
+ * @ingroup themeable
  */
 function theme_devel_querylog($variables) {
   $header = $variables['header'];
@@ -1758,17 +1834,24 @@ function _devel_table_sort($a, $b) {
 
 /**
  * Displays page execution time at the bottom of the page.
+ *
+ * @return string
+ *   A message indicating how long it took to execute the page.
  */
 function devel_timer() {
   $time = timer_read('page');
   return t_safe(' Page execution time was @time ms.', array('@time' => $time));
 }
 
-/**
- * An alias for drupal_debug().
- */
-function dd($data, $label = NULL) {
-  return drupal_debug($data, $label);
+if (!function_exists('dd')) {
+  /**
+   * An alias for drupal_debug().
+   *
+   * @see drupal_debug()
+   */
+  function dd($data, $label = NULL) {
+    return drupal_debug($data, $label);
+  }
 }
 
 /**
@@ -1809,7 +1892,7 @@ function dargs($always = TRUE) {
 }
 
 /**
- * Prints a SQL string from a DBTNG Select object. Includes quoted arguments.
+ * Prints a SQL string from a DBTNG Select object.
  *
  * Includes quoted arguments.
  *
@@ -1820,6 +1903,7 @@ function dargs($always = TRUE) {
  *   and return $query instead.
  * @param string $name
  *   Optional name for identifying the output.
+ *
  * @return object|string
  *   The $query object, or the query string if $return was TRUE.
  */
@@ -1857,6 +1941,8 @@ function dpq($query, $return = FALSE, $name = NULL) {
  *
  * @return input
  *   The unaltered input value.
+ *
+ * @see drupal_set_message()
  */
 function dpm($input, $name = NULL, $type = 'status') {
   if (user_access('access devel information')) {
@@ -1878,6 +1964,9 @@ function dpm($input, $name = NULL, $type = 'status') {
  *
  * @return input
  *   The unaltered input value.
+ *
+ * @see drupal_set_message()
+ * @see drupal_var_export()
  */
 function dvm($input, $name = NULL) {
   if (user_access('access devel information')) {
@@ -1890,21 +1979,31 @@ function dvm($input, $name = NULL) {
 /**
  * Legacy function that was poorly named.
  *
- * Use dpm() instead, since the 'p' maps to 'print_r'.
+ * @deprecated Use dpm() instead, since the 'p' maps to 'print_r'.
+ *
+ * @see dpm()
  */
 function dsm($input, $name = NULL) {
   return dpm($input, $name);
 }
 
 /**
- * An alias for dprint_r(). Saves carpal tunnel syndrome.
+ * An alias for dprint_r().
+ *
+ * Saves carpal tunnel syndrome.
+ *
+ * @see dprint_r()
  */
 function dpr($input, $return = FALSE, $name = NULL) {
   return dprint_r($input, $return, $name);
 }
 
 /**
- * An alias for kprint_r(). Saves carpal tunnel syndrome.
+ * An alias for kprint_r().
+ *
+ * Saves carpal tunnel syndrome.
+ *
+ * @see kprint_r()
  */
 function kpr($input, $return = FALSE, $name = NULL) {
   return kprint_r($input, $return, $name);
@@ -1912,13 +2011,32 @@ function kpr($input, $return = FALSE, $name = NULL) {
 
 /**
  * Like dpr(), but uses drupal_var_export() instead.
+ *
+ * @see dprint_r()
+ * @see drupal_var_export()
  */
 function dvr($input, $return = FALSE, $name = NULL) {
   return dprint_r($input, $return, $name, 'drupal_var_export', FALSE);
 }
 
 /**
- * Krumo print.
+ * Returns a message using Krumo.
+ *
+ * Uses dprint_r() as a fallback.
+ *
+ * @param mixed $input
+ *   The thing to print.
+ * @param boolean $return
+ *   (optional) Indicates if the output should be returned.  The default is
+ *   FALSE.
+ * @param string $name
+ *   (optional) The label to apply.
+ * @param string $function
+ *   (optional) The function to use for output in the case where dprint_r() is
+ *   used.  The defualt is print_r().
+ *
+ * @return
+ *   The output if $return is TRUE.
  */
 function kprint_r($input, $return = FALSE, $name = NULL, $function = 'print_r') {
   // We do not want to krumo() strings and integers and such.
@@ -1935,10 +2053,26 @@ function kprint_r($input, $return = FALSE, $name = NULL, $function = 'print_r') 
 /**
  * Pretty-print a variable to the browser (no krumo).
  *
- * Displays only for users with proper permissions. If
- * you want a string returned instead of a print, use the 2nd param.
+ * Displays only for users with proper permissions. If you want a string
+ * returned instead of a print, use the 2nd param.
+ *
+ * @param mixed $input
+ *   The input that should be printed or returned.
+ * @param boolean $return
+ *   (optional) Indicates of the result should be returned instead of printed.
+ *   The default is to print it.
+ * @param string $name
+ *   (optional) The label to apply.
+ * @param string $function
+ *   (optional) The function to use for output.  The defualt is print_r().
+ * @param boolean $check
+ *   (optional) Indicates if the output should be run through check_plain().
+ *   The default is TRUE.
+ *
+ * @return
+ *   The formatted output if $return is TRUE.
  */
-function dprint_r($input, $return = FALSE, $name = NULL, $function = 'print_r', $check= TRUE) {
+function dprint_r($input, $return = FALSE, $name = NULL, $function = 'print_r', $check = TRUE) {
   if (user_access('access devel information')) {
     if ($name) {
       $name .= ' => ';
@@ -1956,7 +2090,7 @@ function dprint_r($input, $return = FALSE, $name = NULL, $function = 'print_r', 
     if ($check) {
       $output = check_plain($output);
     }
-    if (count($input, COUNT_RECURSIVE) > DEVEL_MIN_TEXTAREA) {
+    if (is_array($input) && count($input, COUNT_RECURSIVE) > DEVEL_MIN_TEXTAREA) {
       // Don't use fapi here because sometimes fapi will not be loaded.
       $printed_value = "<textarea rows=30 style=\"width: 100%;\">\n" . $name . $output . '</textarea>';
     }
@@ -2014,9 +2148,11 @@ function ddebug_backtrace($return = FALSE, $pop = 0, $options = TRUE) {
       array_shift($backtrace);
     }
     $counter = count($backtrace);
-    $path = $backtrace[$counter - 1]['file'];
-    $path = substr($path, 0, strlen($path) - 10);
-    $paths[$path] = strlen($path) + 1;
+    if (!empty($backtrace[$counter - 1]['file'])) {
+      $path = $backtrace[$counter - 1]['file'];
+      $path = substr($path, 0, strlen($path) - 10);
+      $paths[$path] = strlen($path) + 1;
+    }
     $paths[DRUPAL_ROOT] = strlen(DRUPAL_ROOT) + 1;
     $nbsp = "\xC2\xA0";
 
@@ -2078,9 +2214,8 @@ function devel_empty_dir($dir) {
 
 /**
  * Regenerates the data in node_comment_statistics table.
- * Technique - http://www.artfulsoftware.com/infotree/queries.php?&bw=1280#101
  *
- * @return void
+ * Technique - http://www.artfulsoftware.com/infotree/queries.php?&bw=1280#101
  */
 function devel_rebuild_node_comment_statistics() {
   // Empty table.
@@ -2115,8 +2250,8 @@ function devel_rebuild_node_comment_statistics() {
 /**
  * Implements hook_form_alter().
  *
- * Adds mouse-over hints on the Permissions page to display
- * language-independent machine names and module base names.
+ * Adds mouse-over hints on the Permissions page to display language-independent
+ * machine names and module base names.
  */
 function devel_form_user_admin_permissions_alter(&$form, &$form_state) {
   if (user_access('access devel information') && variable_get('devel_raw_names', FALSE)) {
@@ -2150,5 +2285,27 @@ function devel_form_system_modules_alter(&$form, &$form_state) {
         }
       }
     }
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter() for the devel tag.
+ *
+ * Makes debugging EntityFieldQuery much easier.
+ *
+ * Example usage:
+ * @code
+ *   $q = new EntityFieldQuery;
+ *   $q->entityCondition('entity_type', 'node')
+ *     ->addTag('debug')
+ *     ->execute();
+ * @endcode
+ *
+ * @param QueryAlterableInterface $query
+ */
+function devel_query_debug_alter(QueryAlterableInterface $query) {
+  if (!$query->hasTag('debug-semaphore')) {
+    $query->addTag('debug-semaphore');
+    dpq($query);
   }
 }

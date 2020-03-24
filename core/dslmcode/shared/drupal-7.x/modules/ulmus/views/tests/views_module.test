@@ -17,8 +17,12 @@ class ViewsModuleTest extends ViewsSqlTest {
     );
   }
 
-  public function setUp() {
-    parent::setUp();
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
+
     drupal_theme_rebuild();
   }
 

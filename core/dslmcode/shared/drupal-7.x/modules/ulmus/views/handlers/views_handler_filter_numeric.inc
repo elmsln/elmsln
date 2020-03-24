@@ -379,6 +379,13 @@ class views_handler_filter_numeric extends views_handler_filter {
           'value' => $value,
         );
       }
+      if (!empty($this->options['expose']['use_operator']) && !empty($this->options['expose']['operator_id']) && isset($input[$this->options['expose']['operator_id']])) {
+        if ($input[$this->options['expose']['operator_id']] === 'empty' || $input[$this->options['expose']['operator_id']] === 'not empty') {
+          // Parent method will expect a boolean value. We don't ask for a value
+          // so we'll force "Yes".
+          $value['value'] = 1;
+        }
+      }
     }
 
     $rc = parent::accept_exposed_input($input);

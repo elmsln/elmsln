@@ -420,8 +420,12 @@ function features_menu_link_load($identifier) {
  * Returns a lowercase clean string with only letters, numbers and dashes
  */
 function features_clean_title($str) {
-  return strtolower(preg_replace_callback('/(\s)|([^a-zA-Z\-0-9])/i', create_function(
-          '$matches',
-          'return $matches[1]?"-":"";'
-      ), $str));
+  return strtolower(preg_replace_callback('/(\s)|([^a-zA-Z\-0-9])/i', '_features_clean_title', $str));
+}
+
+/**
+ * Callback function for preg_replace_callback() to clean a string.
+ */
+function _features_clean_title($matches) {
+  return $matches[1] ? '-' : '';
 }

@@ -25,10 +25,12 @@ class LinkContentCrudTest extends DrupalWebTestCase {
   }
 
   /**
-   * Setup.
+   * {@inheritdoc}
    */
-  public function setUp() {
-    parent::setUp('field_ui', 'link');
+  public function setUp(array $modules = array()) {
+    $modules[] = 'field_ui';
+    $modules[] = 'link';
+    parent::setUp($modules);
   }
 
   /**
@@ -36,11 +38,8 @@ class LinkContentCrudTest extends DrupalWebTestCase {
    *
    * All we're doing here is creating a content type, creating a simple link
    * field on that content type.
-   *
-   * @codingStandardsIgnoreStart
    */
-  public function testLinkCreateFieldAPI() {
-    // @codingStandardsIgnoreEnd
+  public function testLinkCreateFieldApi() {
     $content_type_friendly = $this->randomName(20);
     $content_type_machine = strtolower($this->randomName(10));
 

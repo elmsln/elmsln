@@ -152,8 +152,10 @@ class views_handler_filter_term_node_tid extends views_handler_filter_many_to_on
       }
     }
     else {
+      $options = array();
       if (!empty($this->options['hierarchy']) && $this->options['limit']) {
         $tree = taxonomy_get_tree($vocabulary->vid, 0, NULL, TRUE);
+        $options = array();
         if (!empty($tree)) {
           if (!empty($this->options['optgroups'])) {
             foreach ($tree as $term) {
@@ -174,7 +176,6 @@ class views_handler_filter_term_node_tid extends views_handler_filter_many_to_on
         }
       }
       else {
-        $options = array();
         $query = db_select('taxonomy_term_data', 'td');
         $query->innerJoin('taxonomy_vocabulary', 'tv', 'td.vid = tv.vid');
         $query->fields('td');

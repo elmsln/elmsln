@@ -64,7 +64,9 @@ function devel_drush_command() {
 }
 
 /**
- * A command callback. This is faster than 3 separate bootstraps.
+ * A command callback for reinstalling one or more projects.
+ *
+ * This is faster than 3 separate bootstraps.
  */
 function drush_devel_reinstall() {
   $projects = func_get_args();
@@ -80,7 +82,7 @@ function drush_devel_reinstall() {
 }
 
 /**
- * A command callback.
+ * A command callback for downloading a project.
  */
 function drush_devel_download($path = NULL) {
   // If no path is provided by the user, set our default path.
@@ -112,7 +114,7 @@ function drush_devel_download($path = NULL) {
 }
 
 /**
- * Command handler. Show hook implementations.
+ * A command handler for showing hook implementations.
  */
 function drush_devel_fn_hook($hook) {
   // Get implementations in the .install files as well.
@@ -130,7 +132,7 @@ function drush_devel_fn_hook($hook) {
 }
 
 /**
- * Command handler.  Show source code of specified function or method.
+ * A command handler for showing source code of a function or method.
  */
 function drush_devel_fn_view($function_name) {
   // Get implementations in the .install files as well.
@@ -159,7 +161,7 @@ function drush_devel_fn_view($function_name) {
 }
 
 /**
- * Command callback. List available tokens.
+ * A command callback for listing available tokens.
  */
 function drush_devel_token() {
   $rows[] = array(dt('Group'), dt('Token'), dt('Name'));
@@ -174,8 +176,7 @@ function drush_devel_token() {
 
 
 /**
- * Print the specified function, including any
- * doxygen-style comments that come before it.
+ * Prints a function including any Doxygen-style comments preceding it.
  */
 function _drush_devel_print_function($file, $start_line, $end_line) {
   $line_num = 0;

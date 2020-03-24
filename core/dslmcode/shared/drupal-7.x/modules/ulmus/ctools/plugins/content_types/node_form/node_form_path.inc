@@ -21,7 +21,7 @@ if (module_exists('path')) {
 
 function ctools_node_form_path_content_type_render($subtype, $conf, $panel_args, &$context) {
   $block = new stdClass();
-  $block->module = t('node_form');
+  $block->module = 'node_form';
 
   $block->title = t('URL path options');
   $block->delta = 'url-path-options';

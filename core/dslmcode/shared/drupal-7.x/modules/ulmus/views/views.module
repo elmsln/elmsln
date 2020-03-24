@@ -2197,6 +2197,97 @@ function views_form_views_exposed_form_alter(&$form, &$form_state) {
   $form['form_build_id']['#access'] = FALSE;
   $form['form_token']['#access'] = FALSE;
   $form['form_id']['#access'] = FALSE;
+
+  // AJAX behaviors need these data, so we add it back in #after_build.
+  $form['#after_build'][] = 'views_exposed_form_ajax_enable';
+}
+
+/**
+ * Checks whether the exposed form will use AJAX.
+ *
+ * Passes required form information removed in
+ * views_form_views_exposed_form_alter().
+ *
+ * @param array $form
+ *   The form being processed.
+ * @param array $form_state
+ *   The form state.
+ *
+ * @return array
+ *   The form being processed.
+ */
+function views_exposed_form_ajax_enable(array &$form, array &$form_state) {
+  // In order for AJAX to work the form build info is needed. Here check if
+  // #ajax has been added to any form elements, and if so, pass this info as
+  // settings via JavaScript, which get attached to the submitted form on AJAX
+  // form submissions. #ajax property can be set not only for the first level of
+  // the form, so look for it in the whole form.
+  $ajax_info = array();
+  $ajax_elements = views_exposed_form_ajax_lookup_recursive($form);
+  // Determine if form is being processed.
+  $triggering_element_name = '';
+  if (!empty($form_state['input']['_triggering_element_name'])) {
+    $triggering_element_name = $form_state['input']['_triggering_element_name'];
+  }
+
+  // When there are multiple elements with #ajax set on exposed form, pass only
+  // triggering element name to JavaScript, otherwise #ajax will work only for
+  // the first element.
+  if (!empty($triggering_element_name) && !empty($ajax_elements)) {
+    // Check if element has #ajax property set.
+    if (in_array($triggering_element_name, $ajax_elements)) {
+      $ajax_elements = array(
+        $triggering_element_name => $triggering_element_name,
+      );
+    }
+    else {
+      $ajax_elements = array();
+    }
+  }
+
+  if (!empty($ajax_elements)) {
+    $form_info = array(
+      'form_id' => $form['#form_id'],
+      'form_build_id' => $form['#build_id'],
+    );
+    // Anonymous users don't get a token.
+    if (!empty($form['#token'])) {
+      $form_info['form_token'] = drupal_get_token($form['#token']);
+    }
+    foreach ($ajax_elements as $element_name) {
+      $ajax_info[$element_name] = $form_info;
+    }
+    drupal_add_js(array('ViewsExposedFormInfo' => $ajax_info), 'setting');
+
+    // Add the javascript behavior that will handle this data.
+    $form['#attached']['js'][] = array(
+      'weight' => 100,
+      'data' => drupal_get_path('module', 'views') . '/js/exposed-form-ajax.js',
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Recursively looks for the #ajax property for every form elemet.
+ *
+ * @param array $elements
+ *   The element array to look for #ajax property.
+ *
+ * @return array
+ *   Array of the elements names where #ajax was found.
+ */
+function views_exposed_form_ajax_lookup_recursive(array $elements) {
+  $ajax_elements = array();
+  foreach (element_children($elements) as $key) {
+    if (!empty($elements[$key]['#name']) && !empty($elements[$key]['#ajax'])) {
+      $ajax_elements[$elements[$key]['#name']] = $elements[$key]['#name'];
+    }
+    // Recursive call to look for #ajax in element's childrens.
+    $ajax_elements += views_exposed_form_ajax_lookup_recursive($elements[$key]);
+  }
+  return $ajax_elements;
 }
 
 /**

@@ -14,6 +14,7 @@ class FeaturesUserTestCase extends DrupalWebTestCase {
       'name' => t('Component tests'),
       'description' => t('Run tests for components of Features.') ,
       'group' => t('Features'),
+      'dependencies' => array('views', 'strongarm'),
     );
   }
 
@@ -182,6 +183,7 @@ class FeaturesEnableTestCase extends DrupalWebTestCase {
       'name' => t('Features enable tests'),
       'description' => t('Run tests for enabling of features.') ,
       'group' => t('Features'),
+      'dependencies' => array('views', 'strongarm'),
     );
   }
 
@@ -231,6 +233,7 @@ class FeaturesCtoolsIntegrationTest extends DrupalWebTestCase {
       'name' => t('Features Chaos Tools integration'),
       'description' => t('Run tests for ctool integration of features.') ,
       'group' => t('Features'),
+      'dependencies' => array('views', 'strongarm'),
     );
   }
 

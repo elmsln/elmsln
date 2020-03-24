@@ -48,7 +48,7 @@ function image_styles_admin_menu() {
     'description' => 'Import an image style.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('image_styles_admin_import_form'),
-    'access callback' => array('image_styles_admin_access'),
+    'access callback' => 'image_styles_admin_access',
     'type' => MENU_LOCAL_ACTION,
     'weight' => 3,
     'file' => 'image_styles_admin.inc',

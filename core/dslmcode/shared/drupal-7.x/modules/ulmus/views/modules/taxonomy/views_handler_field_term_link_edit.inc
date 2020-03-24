@@ -76,6 +76,7 @@ class views_handler_field_term_link_edit extends views_handler_field {
     $term->vocabulary_machine_name = $values->{$this->aliases['vocabulary_machine_name']};
     if ($data && taxonomy_term_edit_access($term)) {
       $text = !empty($this->options['text']) ? $this->options['text'] : t('edit');
+      $this->options['alter']['make_link'] = TRUE;
       $this->options['alter']['path'] = "taxonomy/term/$data/edit";
       $this->options['alter']['query'] = drupal_get_destination();
       return $text;

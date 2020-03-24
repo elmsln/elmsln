@@ -19,8 +19,36 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     );
   }
 
-  function setUp() {
-    parent::setUp();
+  /**
+   * {@inheritdoc}
+   */
+  protected function dataSet() {
+    $data_set = parent::dataSet();
+    $data_set[] = array(
+      'name' => 'Charles',
+      'age' => NULL,
+      'job' => 'Bassist',
+        'created' => gmmktime(6, 30, 10, 1, 1, 2001),
+    );
+    return $data_set;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function schemaDefinition() {
+    $schema = parent::schemaDefinition();
+    $schema['views_test']['fields']['age']['not null'] = FALSE;
+    $schema['views_test']['indexes'] = array();
+    return $schema;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
+
     $this->column_map = array(
       'views_test_name' => 'name',
       'views_test_age' => 'age',
@@ -114,7 +142,7 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     );
     $this->assertIdenticalResultset($view, $resultset, $this->column_map);
 
-    // test not between.
+    // Test not between.
     $view->delete();
     $view = $this->getBasicView();
 
@@ -182,7 +210,7 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     $filters = $this->getGroupedExposedFilters();
     $view = $this->getBasicPageView();
 
-    // Filter: Age, Operator: between, Value: 26 and 29
+    // Filter: Age, Operator: not between, Value: 26 and 29
     $filters['age']['group_info']['default_group'] = 3;
     $view->set_display('page_1');
     $view->display['page_1']->handler->override_option('filters', $filters);
@@ -221,7 +249,12 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     ));
 
     $this->executeView($view);
-    $resultset = array();
+    $resultset = array(
+      array(
+        'name' => 'Charles',
+        'age' => NULL,
+      ),
+    );
     $this->assertIdenticalResultset($view, $resultset, $this->column_map);
 
     $view->delete();
@@ -275,7 +308,12 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     $view->display['page_1']->handler->override_option('filters', $filters);
 
     $this->executeView($view);
-    $resultset = array();
+    $resultset = array(
+      array(
+        'name' => 'Charles',
+        'age' => NULL,
+      ),
+    );
     $this->assertIdenticalResultset($view, $resultset, $this->column_map);
   }
 
@@ -346,6 +384,238 @@ class ViewsHandlerFilterNumericTest extends ViewsSqlTest {
     }
   }
 
+  /**
+   * Tests exposed numeric filter with exposed operator.
+   */
+  public function testFilterNumericExposedOperator() {
+    $this->applyFilterNumericExposedOperator('=', array('value' => '27'), array(
+      array(
+        'name' => 'George',
+        'age' => 27,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('<', array('value' => '27'), array(
+      array(
+        'name' => 'John',
+        'age' => 25,
+      ),
+      array(
+        'name' => 'Paul',
+        'age' => 26,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('<=', array(
+      'value' => '27',
+    ), array(
+      array(
+        'name' => 'John',
+        'age' => 25,
+      ),
+      array(
+        'name' => 'George',
+        'age' => 27,
+      ),
+      array(
+        'name' => 'Paul',
+        'age' => 26,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('!=', array(
+      'value' => '27',
+    ), array(
+      array(
+        'name' => 'John',
+        'age' => 25,
+      ),
+      array(
+        'name' => 'Ringo',
+        'age' => 28,
+      ),
+      array(
+        'name' => 'Paul',
+        'age' => 26,
+      ),
+      array(
+        'name' => 'Meredith',
+        'age' => 30,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('>=', array(
+      'value' => '27',
+    ), array(
+      array(
+        'name' => 'George',
+        'age' => 27,
+      ),
+      array(
+        'name' => 'Ringo',
+        'age' => 28,
+      ),
+      array(
+        'name' => 'Meredith',
+        'age' => 30,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('>', array('value' => '27'), array(
+      array(
+        'name' => 'Ringo',
+        'age' => 28,
+      ),
+      array(
+        'name' => 'Meredith',
+        'age' => 30,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('between', array(
+      'min' => '28',
+      'max' => '31',
+    ), array(
+      array(
+        'name' => 'Ringo',
+        'age' => 28,
+      ),
+      array(
+        'name' => 'Meredith',
+        'age' => 30,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('not between', array(
+      'min' => '28',
+      'max' => '31',
+    ), array(
+      array(
+        'name' => 'John',
+        'age' => 25,
+      ),
+      array(
+        'name' => 'George',
+        'age' => 27,
+      ),
+      array(
+        'name' => 'Ringo',
+        'age' => 28,
+      ),
+      array(
+        'name' => 'Paul',
+        'age' => 26,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('empty', array(), array(
+      array(
+        'name' => 'Charles',
+        'age' => NULL,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('not empty', array(), array(
+      array(
+        'name' => 'John',
+        'age' => 25,
+      ),
+      array(
+        'name' => 'George',
+        'age' => 27,
+      ),
+      array(
+        'name' => 'Ringo',
+        'age' => 28,
+      ),
+      array(
+        'name' => 'Paul',
+        'age' => 26,
+      ),
+      array(
+        'name' => 'Meredith',
+        'age' => 30,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('regular_expression', array(
+      'value' => '^(0|[1-9][0-9]*)$',
+    ), array(
+      array(
+        'name' => 'John',
+        'age' => 25,
+      ),
+      array(
+        'name' => 'George',
+        'age' => 27,
+      ),
+      array(
+        'name' => 'Ringo',
+        'age' => 28,
+      ),
+      array(
+        'name' => 'Paul',
+        'age' => 26,
+      ),
+      array(
+        'name' => 'Meredith',
+        'age' => 30,
+      ),
+    ));
+    $this->applyFilterNumericExposedOperator('not_regular_expression', array(
+      'value' => '^(0|[1-9][0-9]*)$',
+    ), array());
+  }
+
+  /**
+   * Tests exposed numeric filter with an individual exposed operator.
+   *
+   * @param string $operator
+   *   Operator to test.
+   * @param array $value
+   *   Filter value to use in exposed input. Keys might be 'value', 'min' or
+   *   'max'. If one of those keys doesn't exist, an empty string is used as the
+   *   key's value.
+   * @param array $resultset
+   *   The expected result set.
+   */
+  protected function applyFilterNumericExposedOperator($operator, array $value, array $resultset) {
+    $exposed_input = array(
+      'age' => ($value += array(
+        'value' => '',
+        'min' => '',
+        'max' => '',
+      )),
+      'age_op' => $operator,
+    );
+    $filters = array(
+      'age' => array(
+        'id' => 'age',
+        'table' => 'views_test',
+        'field' => 'age',
+        'relationship' => 'none',
+        'exposed' => TRUE,
+        'expose' => array(
+          'operator' => 'age_op',
+          'label' => 'age',
+          'identifier' => 'age',
+          'use_operator' => TRUE,
+        ),
+      ),
+    );
+    $view = $this->getBasicPageView();
+    $view->set_display('page_1');
+    $view->display['page_1']->handler->override_option('filters', $filters);
+    $view->set_exposed_input($exposed_input);
+    $this->executeView($view);
+    $this->assertIdenticalResultset($view, $resultset, $this->column_map, 'Identical result set for ' . $operator . ' with untouched values.');
+    $view->destroy();
+
+    // Min, max and value fields are shown/hidden only via JS, so they might
+    // still be set from a previous operation. Assert that this doesn't change
+    // the expected result set.
+    $exposed_input['age'] += array(
+      'value' => '25',
+      'min' => '28',
+      'max' => '30',
+    );
+    $view = $this->getBasicPageView();
+    $view->set_display('page_1');
+    $view->display['page_1']->handler->override_option('filters', $filters);
+    $view->set_exposed_input($exposed_input);
+    $this->executeView($view);
+    $this->assertIdenticalResultset($view, $resultset, $this->column_map, 'Identical result set for ' . $operator . ' with leftover values from previous operation.');
+  }
 
   public function testAllowEmpty() {
     $view = $this->getBasicView();

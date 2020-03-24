@@ -33,7 +33,7 @@ function views_content_node_from_view_context($context, $conf, $placeholder = FA
   views_content_context_get_output($context);
 
   $row = intval($conf['row']) - 1;
-  if (isset($view->result[$row])) {
+  if (isset($view->result[$row]) && isset($view->base_field) && isset($view->result[$row]->{$view->base_field})) {
     $nid = $view->result[$row]->{$view->base_field};
     if ($nid) {
       $node = node_load($nid);

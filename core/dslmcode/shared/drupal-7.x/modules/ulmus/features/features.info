@@ -10,9 +10,8 @@ test_dependencies[] = views
 
 configure = admin/structure/features/settings
 
-; Information added by Drupal.org packaging script on 2016-04-18
-version = "7.x-2.10"
+; Information added by Drupal.org packaging script on 2018-11-01
+version = "7.x-2.11"
 core = "7.x"
 project = "features"
-datestamp = "1461011641"
-
+datestamp = "1541050686"

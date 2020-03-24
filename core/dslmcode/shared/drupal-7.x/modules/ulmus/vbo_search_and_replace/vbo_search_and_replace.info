@@ -5,9 +5,8 @@ package = Views
 core = 7.x
 
 
-; Information added by drupal.org packaging script on 2013-10-24
-version = "7.x-1.0"
+; Information added by Drupal.org packaging script on 2019-06-11
+version = "7.x-1.1"
 core = "7.x"
 project = "vbo_search_and_replace"
-datestamp = "1382638828"
-
+datestamp = "1560290288"

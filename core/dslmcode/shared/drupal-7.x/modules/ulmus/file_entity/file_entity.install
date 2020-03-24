@@ -167,7 +167,6 @@ function file_entity_schema_alter(&$schema) {
   $schema['file_managed']['indexes']['file_type'] = array('type');
 }
 
-
 /**
  * Implements hook_install().
  */
@@ -239,15 +238,20 @@ function file_entity_uninstall() {
   // Remove variables.
   variable_del('file_entity_max_filesize');
   variable_del('file_entity_default_allowed_extensions');
+  variable_del('file_entity_default_file_directory');
   variable_del('file_entity_alt');
   variable_del('file_entity_title');
   variable_del('file_entity_allow_insecure_download');
   variable_del('file_entity_file_upload_wizard_skip_file_type');
   variable_del('file_entity_file_upload_wizard_skip_scheme');
   variable_del('file_entity_file_upload_wizard_skip_fields');
+  variable_del('file_entity_protect_repeated_render');
 
   // Remove any items from the file type queue if still there.
   DrupalQueue::get('file_entity_type_determine')->deleteQueue();
+
+  cache_clear_all('entity_info', 'cache', TRUE);
+  cache_clear_all('schema', 'cache', TRUE);
 }
 
 /**
@@ -311,7 +315,11 @@ function file_entity_update_7001() {
               if (!empty($display)) {
                 db_merge('file_display')
                   ->key(array(
-                    'name' => implode('__', array($file_type, $view_mode, $formatter_name)),
+                    'name' => implode('__', array(
+                      $file_type,
+                      $view_mode,
+                      $formatter_name,
+                    )),
                   ))
                   ->fields(array(
                     'status' => isset($display['status']) ? $display['status'] : 0,
@@ -332,7 +340,8 @@ function file_entity_update_7001() {
 /**
  * Empty update function to trigger a theme registry rebuild.
  */
-function file_entity_update_7100() { }
+function file_entity_update_7100() {
+}
 
 /**
  * Update all files with empty types to use the first part of filemime.
@@ -540,7 +549,6 @@ function file_entity_update_7203() {
       ->execute();
   }
 }
-
 
 /**
  * Add title and alt text to image file types.
@@ -818,7 +826,11 @@ function file_entity_update_7207() {
  * Add expanded file type permissions to roles with existing file permissions.
  */
 function file_entity_update_7208() {
-  foreach (array('edit own files', 'edit any files', 'delete own files', 'delete any files', 'download own files', 'download any files') as $old_permission) {
+  foreach (array(
+    'edit own files', 'edit any files',
+    'delete own files', 'delete any files',
+    'download own files', 'download any files',
+  ) as $old_permission) {
     $roles = user_roles(FALSE, $old_permission);
 
     foreach ($roles as $rid => $name) {
@@ -1000,9 +1012,10 @@ function file_entity_update_7212(&$sandbox) {
         'value' => serialize((int) $result->{$key}),
       );
     }
-    $sandbox['progress'] += count($results);
     $sandbox['current_fid'] = $result->fid;
   }
+
+  $sandbox['progress'] += count($results);
 
   if (!empty($values)) {
     $query = db_insert('file_metadata');
@@ -1082,3 +1095,26 @@ function file_entity_update_7216() {
   // database. It has been removed due to reported problems and is better
   // addressed by adding support for ctools default content to features.
 }
+
+/**
+ * Remove deprecated views_plugin_access_menu plugin.
+ */
+function file_entity_update_7227() {
+  $result = db_query("SELECT vid, id, display_options FROM {views_display}");
+  foreach ($result as $record) {
+    $options = unserialize($record->display_options);
+    if (isset($options['access']) && is_array($options['access']) && isset($options['access']['type']) && $options['access']['type'] === 'menu') {
+      $options['access'] = array(
+        'type' => 'perm',
+        'perm' => 'access administration pages',
+      );
+
+      db_query("UPDATE {views_display} SET display_options = :options WHERE vid = :vid AND id = :id", array(
+        'vid' => $record->vid,
+        'id' => $record->id,
+        'options' => serialize($options),
+      ));
+    }
+  }
+}
+

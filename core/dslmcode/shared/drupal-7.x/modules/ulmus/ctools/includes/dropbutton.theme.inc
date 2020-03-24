@@ -104,10 +104,10 @@ function theme_links__ctools_dropbutton($vars) {
 
       $output .= '<div class="ctools-link">';
       if ($vars['image']) {
-        $output .= '<a href="#" class="ctools-twisty ctools-image">' . $vars['title'] . '</a>';
+        $output .= '<a href="#" class="ctools-twisty ctools-image"><span class="element-invisible">' . $vars['title'] . '</span></a>';
       }
       else {
-        $output .= '<a href="#" class="ctools-twisty ctools-text">' . $vars['title'] . '</a>';
+        $output .= '<a href="#" class="ctools-twisty ctools-text"><span class="element-invisible">' . $vars['title'] . '</span></a>';
       }
       // ctools-link.
       $output .= '</div>';

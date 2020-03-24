@@ -26,11 +26,11 @@ class ViewsUpgradeTestCase extends ViewsSqlTest {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
+
     // To import a view the user needs use PHP for settings rights, so enable
     // PHP module.
-    parent::setUp();
-
     module_enable(array('php'));
     $this->resetAll();
   }

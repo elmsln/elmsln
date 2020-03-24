@@ -378,7 +378,7 @@
       }
     }
 
-    if (!speed) {
+    if (!speed && 0 !== speed) {
       speed = 'fast';
     }
 
@@ -555,7 +555,7 @@
     // Create our content div, get the dimensions, and hide it
     var modalContent = $('#modalContent').css('top','-1000px');
     var $modalHeader = modalContent.find('.modal-header');
-    var mdcTop = wt + ( winHeight / 2 ) - (  modalContent.outerHeight() / 2);
+    var mdcTop = wt + Math.max((winHeight / 2) - (modalContent.outerHeight() / 2), 0);
     var mdcLeft = ( winWidth / 2 ) - ( modalContent.outerWidth() / 2);
     $('#modalBackdrop').css(css).css('top', 0).css('height', docHeight + 'px').css('width', docWidth + 'px').show();
     modalContent.css({top: mdcTop + 'px', left: mdcLeft + 'px'}).hide()[animation](speed);
@@ -588,35 +588,43 @@
       $('body').unbind( 'keypress', modalEventHandler );
       $('body').unbind( 'keydown', modalTabTrapHandler );
       $('.close', $modalHeader).unbind('click', modalContentClose);
-      $('body').unbind('keypress', modalEventEscapeCloseHandler);
+      $(document).unbind('keydown', modalEventEscapeCloseHandler);
       $(document).trigger('CToolsDetachBehaviors', $('#modalContent'));
 
-      // Set our animation parameters and use them
-      if ( animation == 'fadeIn' ) animation = 'fadeOut';
-      if ( animation == 'slideDown' ) animation = 'slideUp';
-      if ( animation == 'show' ) animation = 'hide';
+      // Closing animation.
+      switch (animation) {
+        case 'fadeIn':
+          modalContent.fadeOut(speed, modalContentRemove);
+          break;
 
-      // Close the content
-      modalContent.hide()[animation](speed);
+        case 'slideDown':
+          modalContent.slideUp(speed, modalContentRemove);
+          break;
 
-      // Remove the content
+        case 'show':
+          modalContent.hide(speed, modalContentRemove);
+          break;
+      }
+    }
+
+    // Remove the content.
+    modalContentRemove = function () {
       $('#modalContent').remove();
       $('#modalBackdrop').remove();
 
-      // Restore focus to where it was before opening the dialog
+      // Restore focus to where it was before opening the dialog.
       $(oldFocus).focus();
     };
 
     // Move and resize the modalBackdrop and modalContent on window resize.
-    modalContentResize = function(){
-
+    modalContentResize = function () {
       // Reset the backdrop height/width to get accurate document size.
       $('#modalBackdrop').css('height', '').css('width', '');
 
       // Position code lifted from:
       // http://www.quirksmode.org/viewport/compatibility.html
       if (self.pageYOffset) { // all except Explorer
-      var wt = self.pageYOffset;
+        var wt = self.pageYOffset;
       } else if (document.documentElement && document.documentElement.scrollTop) { // Explorer 6 Strict
         var wt = document.documentElement.scrollTop;
       } else if (document.body) { // all other Explorers
@@ -632,7 +640,7 @@
 
       // Get where we should move content to
       var modalContent = $('#modalContent');
-      var mdcTop = wt + ( winHeight / 2 ) - ( modalContent.outerHeight() / 2);
+      var mdcTop = wt + Math.max((winHeight / 2) - (modalContent.outerHeight() / 2), 0);
       var mdcLeft = ( winWidth / 2 ) - ( modalContent.outerWidth() / 2);
 
       // Apply the changes

@@ -17,7 +17,7 @@ $plugin = array(
 
 function ctools_node_form_language_content_type_render($subtype, $conf, $panel_args, &$context) {
   $block = new stdClass();
-  $block->module = t('node_form');
+  $block->module = 'node_form';
 
   $block->delta = 'language-options';
 

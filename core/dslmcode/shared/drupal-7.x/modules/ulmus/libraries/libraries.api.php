@@ -47,6 +47,8 @@
  *     Unless 'version' is declared or libraries_get_version() is being used as
  *     a version callback, 'version callback' must be declared. In the latter
  *     case, however, 'version arguments' must be declared in the specified way.
+ *     For libraries that provide a package.json file, use
+ *     'libraries_get_package_json_version' as the version callback.
  *   - version arguments: (optional) A list of arguments to pass to the version
  *     callback. Version arguments can be declared either as an associative
  *     array whose keys are the argument names or as an indexed array without

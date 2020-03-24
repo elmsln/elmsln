@@ -1,11 +1,12 @@
 /**
- * @file devel_node_access.js.
+ * @file
+ * Behavior for Devel node access.
  */
 
 (function ($) {
 
   /**
-   * Perform the access by user ajax request.
+   * Performs the access by user ajax request.
    */
   function devel_node_access_user_ajax(context, settings) {
     // Get the cell ID for the first .dna-permission that isn't processed.
@@ -53,6 +54,8 @@
 
   /**
    * Attach the access by user behavior which initiates ajax.
+   *
+   * @type {Drupal~behavior}
    */
   Drupal.behaviors.develNodeAccessUserAjax = {
     attach: function(context, settings) {

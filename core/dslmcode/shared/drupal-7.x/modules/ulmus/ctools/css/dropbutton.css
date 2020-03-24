@@ -19,7 +19,6 @@
   height: auto;
   position: absolute;
   right: 0;
-  text-indent: -9999px; /* LTR */
   top: 0;
   width: 17px;
 }
@@ -50,6 +49,7 @@
   right: 6px;
   position: absolute;
   top: 0.75em;
+  white-space: nowrap;
 }
 
 .ctools-dropbutton-processed.open .ctools-twisty {

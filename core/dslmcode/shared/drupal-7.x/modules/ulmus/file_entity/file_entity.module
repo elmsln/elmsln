@@ -894,6 +894,10 @@ function file_entity_theme() {
       'variables' => array(
         'files' => array(),
         'controls' => TRUE,
+        'controls_list' => array(
+          'download' => 'download',
+          'remote_playback' => 'remote_playback',
+        ),
         'autoplay' => FALSE,
         'loop' => FALSE,
         'preload' => NULL,
@@ -904,7 +908,13 @@ function file_entity_theme() {
       'variables' => array(
         'files' => array(),
         'controls' => TRUE,
+        'controls_list' => array(
+          'fullscreen' => 'fullscreen',
+          'download' => 'download',
+          'remote_playback' => 'remote_playback',
+        ),
         'autoplay' => FALSE,
+        'playsinline' => FALSE,
         'loop' => FALSE,
         'muted' => FALSE,
         'width' => NULL,
@@ -1141,8 +1151,8 @@ function file_entity_file_formatter_info() {
       'label' => t('Image'),
       'default settings' => array(
         'image_style' => '',
-        'alt' => '[file:field_file_image_alt_text]',
-        'title' => '[file:field_file_image_title_text]'
+        'alt' => '[file:field-file-image-alt-text]',
+        'title' => '[file:field-file-image-title-text]'
       ),
       'view callback' => 'file_entity_file_formatter_file_image_view',
       'settings callback' => 'file_entity_file_formatter_file_image_settings',
@@ -1677,7 +1687,19 @@ function file_entity_access($op, $file = NULL, $account = NULL) {
 
   // $file may be either an object or a file type. Since file types cannot be
   // an integer, use either fid or type as the static cache id.
-  $cache_id = is_object($file) ? $file->fid : $file;
+  $cache_id = NULL;
+  if (is_object($file) && !empty($file->fid)) {
+    $cache_id = $file->fid;
+  }
+  elseif ($op == 'create' && is_string($file)) {
+    $cache_id = $file;
+  }
+  elseif ($op == 'create' && is_object($file) && !empty($file->type)) {
+    $cache_id = $file->type;
+  }
+  else {
+    $cache_id = drupal_hash_base64(serialize($file));
+  }
 
   // If we've already checked access for this file, user and op, return from
   // cache.
@@ -1737,15 +1759,18 @@ function file_entity_access($op, $file = NULL, $account = NULL) {
  * Implements hook_file_entity_access().
  */
 function file_entity_file_entity_access($op, $file, $account) {
-  // If the file URI is invalid, deny access.
-  if (is_object($file) && !file_valid_uri($file->uri)) {
-    return FILE_ENTITY_ACCESS_DENY;
-  }
-
+  // If the op is "create," all that's needed is to check the create permission.
   if ($op == 'create') {
     if (user_access('create files')) {
       return FILE_ENTITY_ACCESS_ALLOW;
     }
+  }
+  // If the file URI is invalid, deny access.
+  if (is_object($file) && isset($file->uri) && !file_valid_uri($file->uri)) {
+    if(isset($file->is_new) && $file->is_new == true && user_access('create files')) {
+      return FILE_ENTITY_ACCESS_ALLOW;
+    }
+    return FILE_ENTITY_ACCESS_DENY;
   }
 
   if (!empty($file)) {
@@ -1820,13 +1845,23 @@ function _file_entity_query_file_entity_access_alter($query, $type) {
     return;
   }
 
+  // A conflict with og_query_og_membership_alter() causes a fatal error
+  // if both hooks alter the query.
+  if (module_exists('og') && $query->hasTag('og_membership')) {
+    foreach($query->getMetaData('entity_field_query')->fields as $field) {
+      if (og_is_group_audience_field($field['field_name'])) {
+        return;
+      }
+    }
+  }
+
   $tables = $query->getTables();
   $base_table = $query->getMetaData('base_table');
   // If no base table is specified explicitly, search for one.
   if (!$base_table) {
     $fallback = '';
     foreach ($tables as $alias => $table_info) {
-      if (!($table_info instanceof SelectQueryInterface)) {
+      if (!($table_info instanceof SelectQueryInterface || $table_info['table'] instanceof SelectQueryInterface)) {
         $table = $table_info['table'];
         // If the file_managed table is in the query, it wins immediately.
         if ($table == 'file_managed') {
@@ -2102,7 +2137,9 @@ function file_entity_file_default_types() {
     'label' => t('Document'),
     'description' => t('A <em>Document</em> file is written information.'),
     'mimetypes' => array(
+      'text/html',
       'text/plain',
+      'application/acad',
       'application/msword',
       'application/vnd.ms-excel',
       'application/pdf',
@@ -2113,6 +2150,10 @@ function file_entity_file_default_types() {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/zip',
+      'application/x-7z-compressed',
+      'application/x-tar',
+      'application/gzip',
     ),
   );
 
@@ -2291,6 +2332,11 @@ function pathauto_file_update_alias(stdClass $file, $op, array $options = array(
 
   // Skip processing if the file has no pattern.
   if (!pathauto_pattern_load_by_entity('file', $file->type, $options['language'])) {
+    return;
+  }
+
+  // Skip processing if pathauto_entity module is enabled.
+  if (module_exists('pathauto_entity')) {
     return;
   }
 
@@ -2479,6 +2525,9 @@ function file_entity_download_uri($file) {
 }
 
 function file_entity_file_get_mimetype_type($file) {
+  if (is_array($file)) {
+    $file = (object) $file;
+  }
   list($type, $subtype) = explode('/', $file->filemime, 2);
   return $type;
 }
@@ -2599,4 +2648,16 @@ function file_entity_features_pipe_file_type_alter(&$pipe, $data, $export) {
   foreach ($data as $file_type) {
     $pipe['variable'][] = "pathauto_file_{$file_type}_pattern";
   }
+}
+
+/**
+ * Implements hook_FORM_ID_alter().
+ */
+function file_entity_form_system_performance_settings_alter(&$form, &$form_state) {
+  $form['bandwidth_optimization']['file_entity_total_count_optimization'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Optimize the calculation of the total usage count of files in the files overview.'),
+    '#default_value' => variable_get('file_entity_total_count_optimization', FALSE),
+    '#description' => t('Recommended if the files admin page loads too slowly due to a high number of files.'),
+  );
 }

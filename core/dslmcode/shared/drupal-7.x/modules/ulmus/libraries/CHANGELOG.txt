@@ -1,4 +1,21 @@
 
+Libraries 7.x-2.5, 2018-10-5
+-----------------------------
+#2815965 by plach, Manav, tstoeckler, Proteo: Base theme is not loaded when checking for theme library info
+#2999116 by Anghelu, joshbrown81: Finds no library after update
+
+Libraries 7.x-2.4, 2018-09-10
+-----------------------------
+#2779591 by mark_fullmer, cglauren, improved PHP 7.x.x support.
+#2699799 by flaviovs, hanoii: Support reading version from package.json.
+#2816781 by joelstein: Add a 'access library reports' permission.
+#2823735 by amanaplan, tstoeckler: Add admin_menu cache clear integration.
+#2745763 by Albert Volkman, tstoeckler: Allow downloading all libraries at once.
+#2310753 by tstoeckler: Avoid libraries_get_libraries() scanning the root.
+#2341955 by sadashiv, tstoeckler: Clear library cache on library report.
+#819610 by tstoeckler: Show variants and dependencies in the UI.
+#2724925 by ron_s, tstoeckler: Separate installed from uninstalled libraries.
+
 Libraries 7.x-2.3, 2016-05-12
 -----------------------------
 #1884246 by BR0kEN, tstoeckler et al: Allow downloading libraries via Drush.
@@ -94,16 +111,10 @@ by sun: Fixed testbot breaks upon .info file without .module file.
 #719896 by tstoeckler, sun: Added starting point for hook_libraries_info().
 
 
-Libraries 7.x-1.x, xxxx-xx-xx
------------------------------
-
 Libraries 7.x-1.0, 2010-01-27
 -----------------------------
 #743522 by sun: Ported to D7.
 
-
-Libraries 6.x-1.x, xxxx-xx-xx
------------------------------
 
 Libraries 6.x-1.0, 2010-01-27
 -----------------------------

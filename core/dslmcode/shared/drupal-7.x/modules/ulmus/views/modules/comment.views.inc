@@ -419,20 +419,6 @@ function comment_views_data() {
     ),
   );
 
-  $data['comment']['cid'] = array(
-    'title' => t('Comment id'),
-    'help' => t('Unique identifier for the comment.'),
-    'filter' => array(
-      'handler' => 'views_handler_filter_numeric',
-    ),
-    'argument' => array(
-      'handler' => 'views_handler_argument_numeric',
-    ),
-    'field' => array(
-      'handler' => 'views_handler_field_numeric',
-    ),
-  );
-
   $data['comment']['uid'] = array(
     'title' => t('Author uid'),
     'help' => t('If you need more fields than the uid add the comment: author relationship'),

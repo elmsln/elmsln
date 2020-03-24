@@ -5,6 +5,11 @@ Imagecache Actions 7.x-1.x-dev
 ------------------------------
 - ...
 
+Imagecache Actions 7.x-1.11
+---------------------------
+- [#3072639]: PDOException: SQLSTATE[HY000]: General error: 25 bind or column
+  index out of range: INSERT INTO {menu_router}.
+
 Imagecache Actions 7.x-1.10
 ---------------------------
 - Use json for exporting image styles.

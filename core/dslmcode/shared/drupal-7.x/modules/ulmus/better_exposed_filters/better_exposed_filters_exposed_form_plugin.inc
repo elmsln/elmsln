@@ -1,9 +1,13 @@
 <?php
+
 /**
  * @file
  * Provides an Better Exposed Filters exposed form plugin for View 3.x.
  */
 
+/**
+ * Better exposed filter form plugin class.
+ */
 class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_form_basic {
 
   function init(&$view, &$display, $options = array()) {
@@ -13,7 +17,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
     $this->localization_keys = $this->unpack_translatable_keys();
 
     $this->unpack_options($this->options, $options);
-    //$this->unpack_options($this->options, $options, NULL, FALSE);
+    // $this->unpack_options($this->options, $options, NULL, FALSE);.
   }
 
   function summary_title() {
@@ -48,7 +52,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
       '#type' => 'checkbox',
       '#default_value' => $existing['general']['input_required'],
       '#title' => t('Require input before results are shown'),
-      '#description' => t("Emulates the built in <em>Input Required</em> exposed filter handler")
+      '#description' => t("Emulates the built in <em>Input Required</em> exposed filter handler"),
     );
 
     $bef_options['general']['text_input_required'] = array(
@@ -104,7 +108,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
       '#default_value' => $existing['general']['secondary_collapse_override'],
       '#description' => t(
         'This setting overrides the secondary options fieldset collapsed value. By default the fieldset renders opened if a value within is selected and closed otherwise.'
-        ),
+      ),
       '#options' => array(
         0 => t('Default'),
         1 => t('Always open'),
@@ -167,7 +171,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         '#suffix' => '</div>',
         '#states' => array(
           'visible' => array(
-            'input[name="exposed_form_options[bef][sort][advanced][collapsible]"]' => array('checked' => TRUE)
+            'input[name="exposed_form_options[bef][sort][advanced][collapsible]"]' => array('checked' => TRUE),
           ),
         ),
       );
@@ -178,7 +182,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         '#description' => t('Combines the sort by options and order (ascending or decending) into a single list.  Use this to display "Option1 Desc", "Option1 Asc", "Option2 Desc", "Option2 Asc" in a single form element. "Expose sort order" must be checked to enable this option.'),
         '#states' => array(
           'disabled' => array(
-            'input[name="exposed_form_options[expose_sort_order]"]' => array('checked' => FALSE)
+            'input[name="exposed_form_options[expose_sort_order]"]' => array('checked' => FALSE),
           ),
         ),
       );
@@ -232,7 +236,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         '#suffix' => '</div>',
         '#states' => array(
           'required' => array(
-              'input[name="exposed_form_options[bef][sort][advanced][reset]"]' => array('checked' => TRUE),
+            'input[name="exposed_form_options[bef][sort][advanced][reset]"]' => array('checked' => TRUE),
           ),
           'visible' => array(
             'input[name="exposed_form_options[bef][sort][advanced][reset]"]' => array('checked' => TRUE),
@@ -432,8 +436,8 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
           $bef_hidden = TRUE;
         }
       }
-      // Search API numeric filters support
-      elseif ($filter instanceof SearchApiViewsHandlerFilter && !($filter instanceof SearchApiViewsHandlerFilterFulltext))  {
+      // Search API numeric filters support.
+      elseif ($filter instanceof SearchApiViewsHandlerFilter && !($filter instanceof SearchApiViewsHandlerFilterFulltext)) {
         $bef_slider = TRUE;
       }
       elseif ($filter instanceof SearchApiViewsHandlerFilterBoolean) {
@@ -478,7 +482,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
       $filter_key = $filter->options['is_grouped'] ? 'group_info' : 'expose';
       $identifier = '"' . $filter->options[$filter_key]['identifier'] . '"';
       if (!empty($filter->options[$filter_key]['label'])) {
-        $identifier .= t(' (Filter label: "@fl")', array('@fl' => $filter->options[$filter_key]['label']));
+        $identifier .= ' ' . t('(Filter label: "@fl")', array('@fl' => $filter->options[$filter_key]['label']));
       }
       $bef_options[$label]['bef_format'] = array(
         '#type' => 'select',
@@ -512,7 +516,11 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
             ),
           ),
           '#description' => t('The minimum allowed value for the jQuery range slider. It can be positive, negative, or zero and have up to 11 decimal places.'),
-          '#element_validate' => array('element_validate_number', 'better_exposed_filters_element_validate_slider_required', 'better_exposed_filters_element_validate_slider_min_max'),
+          '#element_validate' => array(
+            'element_validate_number',
+            'better_exposed_filters_element_validate_slider_required',
+            'better_exposed_filters_element_validate_slider_min_max',
+          ),
         );
         $bef_options[$label]['slider_options']['bef_slider_max'] = array(
           '#type' => 'textfield',
@@ -525,7 +533,11 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
             ),
           ),
           '#description' => t('The maximum allowed value for the jQuery range slider. It can be positive, negative, or zero and have up to 11 decimal places.'),
-          '#element_validate' => array('element_validate_number', 'better_exposed_filters_element_validate_slider_required', 'better_exposed_filters_element_validate_slider_min_max'),
+          '#element_validate' => array(
+            'element_validate_number',
+            'better_exposed_filters_element_validate_slider_required',
+            'better_exposed_filters_element_validate_slider_min_max',
+          ),
         );
         $bef_options[$label]['slider_options']['bef_slider_step'] = array(
           '#type' => 'textfield',
@@ -538,9 +550,13 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
             ),
           ),
           '#description' => t('Determines the size or amount of each interval or step the slider takes between the min and max.') . '<br />' .
-                            t('The full specified value range of the slider (Range maximum - Range minimum) must be evenly divisible by the step.') . '<br />' .
-                            t('The step must be a positive number of up to 5 decimal places.'),
-          '#element_validate' => array('element_validate_number', 'better_exposed_filters_element_validate_slider_required', 'better_exposed_filters_element_validate_slider_step'),
+          t('The full specified value range of the slider (Range maximum - Range minimum) must be evenly divisible by the step.') . '<br />' .
+          t('The step must be a positive number of up to 5 decimal places.'),
+          '#element_validate' => array(
+            'element_validate_number',
+            'better_exposed_filters_element_validate_slider_required',
+            'better_exposed_filters_element_validate_slider_step',
+          ),
         );
         $bef_options[$label]['slider_options']['bef_slider_animate'] = array(
           '#type' => 'textfield',
@@ -664,7 +680,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         '#type' => 'textfield',
         '#title' => t('Override "Any" option label'),
         '#default_value' => $existing[$label]['more_options']['any_label'],
-        '#description' => t('Leave blank to use Views\' default value.'),
+        '#description' => t('Leave blank to use Views default value.'),
       );
 
       // Build a description option form element -- available to all exposed
@@ -707,7 +723,6 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         }
         else {
           $bef_options[$label]['more_options']['tokens']['list'] = array(
-            //'#title' => t('Filter-specific tokens'),
             '#theme' => 'token_tree',
             '#token_types' => $filter_specific,
             '#global_types' => FALSE,
@@ -785,9 +800,9 @@ dateFormat: "dd-mm-yy"
    * Tweak the exposed filter form to show Better Exposed Filter options.
    *
    * @param array $form
-   *   Exposed form array
+   *   Exposed form array.
    * @param array $form_state
-   *   Current state of form variables
+   *   Current state of form variables.
    */
   function exposed_form_alter(&$form, &$form_state) {
     parent::exposed_form_alter($form, $form_state);
@@ -903,16 +918,16 @@ dateFormat: "dd-mm-yy"
               // will be the first one if there are multiple sort criteria.
               $selected = "$by_key $order_key";
             }
-           if ($settings['sort']['bef_format'] == 'bef_toggle_links') {
-             if (isset($used_sort_keys[$by_key])
+            if ($settings['sort']['bef_format'] == 'bef_toggle_links') {
+              if (isset($used_sort_keys[$by_key])
                || (!empty($form_state['input'][$settings['sort']['advanced']['combine_param']]) && $form_state['input'][$settings['sort']['advanced']['combine_param']] == "$by_key $order_key")
                || (empty($form_state['input'][$settings['sort']['advanced']['combine_param']]) && $selected == "$by_key $order_key")
-             ) {
+              ) {
                 $hidden_options["$by_key $order_key"] = "$by_val $order_val";
-             }
-             else {
+              }
+              else {
                 $used_sort_keys[$by_key] = $order_key;
-             }
+              }
             }
           }
         }
@@ -950,7 +965,7 @@ dateFormat: "dd-mm-yy"
           '#settings' => array(
             'toggle_links' => ($settings['sort']['bef_format'] == 'bef_toggle_links'),
             'combine_param' => $settings['sort']['advanced']['combine_param'],
-           ),
+          ),
           '#default_value' => $selected,
           // Already sanitized by Views.
           '#title' => $form['sort_by']['#title'],
@@ -1198,10 +1213,10 @@ dateFormat: "dd-mm-yy"
             }
             else {
               if ($is_object) {
-                // dsm($form[$filter_id]['#options'][$index]->option, "$filter_id at $index");
                 // Taxonomy term filters are stored as objects. Use str_replace
                 // to ensure that keep hyphens for hierarchical filters.
-                list($tid, $original) = each($form[$filter_id]['#options'][$index]->option);
+                $tid = key($form[$filter_id]['#options'][$index]->option);
+                $original = current($form[$filter_id]['#options'][$index]->option);
                 $form[$filter_id]['#options'][$index]->option[$tid] = str_replace($option, $rewrite[$option], $original);
               }
               else {
@@ -1341,7 +1356,7 @@ dateFormat: "dd-mm-yy"
               // Seconds, with leading zeros 00 through 59.
               // 's' => ' ',
               // Microseconds (added in PHP 5.2.2) Example: 654321.
-              // 'u' => ' ',
+              // 'u' => ' ',.
             );
 
             $format = '';
@@ -1487,7 +1502,6 @@ dateFormat: "dd-mm-yy"
           // element to see whether the form is submitted or not and then we
           // need to look at $_GET directly to see whether the checkbox is
           // there. For security reasons, we must not copy the $_GET value.
-
           // First, let's figure out a short name for the signal element and
           // then add it.
           if (empty($signal)) {
@@ -1520,7 +1534,7 @@ dateFormat: "dd-mm-yy"
             }
             array_unshift($form[$filter_id]['#process'], 'form_process_radios');
 
-            // Add description
+            // Add description.
             if (!empty($form[$filter_id]['#bef_description'])) {
               $form[$filter_id]['#description'] = $form[$filter_id]['#bef_description'];
             }
@@ -1532,7 +1546,8 @@ dateFormat: "dd-mm-yy"
             foreach ($opts as $index => $opt) {
               if (is_object($opt)) {
                 reset($opt->option);
-                list($key, $val) = each($opt->option);
+                $key = key($opt->option);
+                $val = current($opt->option);
                 $form[$filter_id]['#options'][$key] = $val;
               }
               else {
@@ -1575,7 +1590,7 @@ dateFormat: "dd-mm-yy"
               if ($filters[$label]->options['expose']['use_operator']) {
                 $operator_id = $filters[$label]->options['expose']['operator_id'];
                 $form[$filter_id]['#bef_operator'] = $form[$operator_id];
-                unset ($form[$operator_id]);
+                unset($form[$operator_id]);
               }
 
               // Add collapse/expand Javascript and BEF CSS to prevent collapsed
@@ -1624,7 +1639,7 @@ dateFormat: "dd-mm-yy"
               if ($filters[$label]->options['expose']['use_operator']) {
                 $operator_id = $filters[$label]->options['expose']['operator_id'];
                 $form[$filter_id]['#bef_operator'] = $form[$operator_id];
-                unset ($form[$operator_id]);
+                unset($form[$operator_id]);
               }
 
               // Add collapse/expand Javascript and BEF CSS to prevent collapsed
@@ -1667,7 +1682,7 @@ dateFormat: "dd-mm-yy"
             foreach ($form[$filter_id]['#options'] as $tid => $option) {
               if (is_object($option)) {
                 reset($option->option);
-                list ($tid, ) = each($option->option);
+                $tid = key($option->option);
               }
               $tids[] = $tid;
             }
@@ -1753,11 +1768,11 @@ dateFormat: "dd-mm-yy"
           // along to the theme function for rendering. Multiply existing
           // position by 2 so that we have room to stick the exposed operator
           // before the filter.
-          if (isset($filters[$identifier]->position)) {
-            $secondary[$identifier]['#bef_position'] = $filters[$identifier]->position * 2;
+          if (isset($filters[$label]->position)) {
+            $secondary[$identifier]['#bef_position'] = $filters[$label]->position * 2;
           }
 
-          // Move exposed operators with exposed filters
+          // Move exposed operators with exposed filters.
           if (!empty($filters[$label]->options['expose']['use_operator'])) {
             $op_id = $filters[$label]->options['expose']['operator_id'];
             $secondary[$op_id] = $form[$op_id];
@@ -1765,8 +1780,8 @@ dateFormat: "dd-mm-yy"
 
             // Make sure operators appear just before the filter they are
             // associated with.
-            if (isset($filters[$identifier]->position)) {
-              $secondary[$op_id]['#bef_position'] = ($filters[$identifier]->position * 2) - 1;
+            if (isset($filters[$label]->position)) {
+              $secondary[$op_id]['#bef_position'] = ($filters[$label]->position * 2) - 1;
             }
           }
         }
@@ -1913,7 +1928,7 @@ dateFormat: "dd-mm-yy"
   /**
    * Returns an array of default or current existing values for BEF settings.
    *
-   * This helps us as we add new options and prevents a lot of
+   * This helps us as we add new options and prevents a lot of.
    * @code
    *    if (isset($settings['new_settings'])) { ... }
    * @endcode
@@ -2012,7 +2027,7 @@ dateFormat: "dd-mm-yy"
 
   /**
    * Utility function to determine if any filters have been applied.
-   * Borrowed from views_plugin_exposed_form_input_required
+   * Borrowed from views_plugin_exposed_form_input_required.
    */
   function exposed_filter_applied() {
     static $cache = NULL;
@@ -2098,11 +2113,27 @@ dateFormat: "dd-mm-yy"
     $keys = array(
       // @TODO: Do we need to give this a better key so it makes more sense in
       // the localization UI?
-      'value' => array('bef', 'general', 'text_input_required', 'text_input_required', 'value'),
+      'value' => array(
+        'bef',
+        'general',
+        'text_input_required',
+        'text_input_required',
+        'value',
+      ),
 
       'general_secondary_label' => array('bef', 'general', 'secondary_label'),
-      'sort_collapsible_label' => array('bef', 'sort', 'advanced', 'collapsible_label'),
-      'sort_combine_rewrite' => array('bef', 'sort', 'advanced', 'combine_rewrite'),
+      'sort_collapsible_label' => array(
+        'bef',
+        'sort',
+        'advanced',
+        'collapsible_label',
+      ),
+      'sort_combine_rewrite' => array(
+        'bef',
+        'sort',
+        'advanced',
+        'combine_rewrite',
+      ),
       'sort_reset_label' => array('bef', 'sort', 'advanced', 'reset_label'),
     );
 
@@ -2111,10 +2142,31 @@ dateFormat: "dd-mm-yy"
       if (!$filter->options['exposed']) {
         continue;
       }
-      $keys[$label . '_filter_description'] = array('bef', $label, 'more_options', 'bef_filter_description');
-      $keys[$label . '_any_label'] = array('bef', $label, 'more_options', 'any_label');
-      $keys[$label . '_rewrite_values'] = array('bef', $label, 'more_options', 'rewrite', 'filter_rewrite_values');
-      $keys[$label . '_datepicker_options'] = array('bef', $label, 'more_options', 'datepicker_options');
+      $keys[$label . '_filter_description'] = array(
+        'bef',
+        $label,
+        'more_options',
+        'bef_filter_description',
+      );
+      $keys[$label . '_any_label'] = array(
+        'bef',
+        $label,
+        'more_options',
+        'any_label',
+      );
+      $keys[$label . '_rewrite_values'] = array(
+        'bef',
+        $label,
+        'more_options',
+        'rewrite',
+        'filter_rewrite_values',
+      );
+      $keys[$label . '_datepicker_options'] = array(
+        'bef',
+        $label,
+        'more_options',
+        'datepicker_options',
+      );
     }
 
     return $keys;
@@ -2128,8 +2180,8 @@ dateFormat: "dd-mm-yy"
       $parent = end($parents);
       $value = isset($options[$parent]) ? $options[$parent] : NULL;
 
-      // Don't localize strings during editing. When editing, we need to work with
-      // the original data, not the translated version.
+      // Don't localize strings during editing. When editing, we need to work
+      // with the original data, not the translated version.
       if (empty($this->view->editing) && !empty($value)) {
         if (!empty($this->view) && $this->view->is_translatable()) {
           // Allow other modules to make changes to the string before it's
@@ -2148,9 +2200,10 @@ dateFormat: "dd-mm-yy"
           $storage[$parent] = t($value);
         }
       }
-      else if (!empty($value)) {
+      elseif (!empty($value)) {
         $storage[$parent] = $value;
       }
     }
   }
+
 }

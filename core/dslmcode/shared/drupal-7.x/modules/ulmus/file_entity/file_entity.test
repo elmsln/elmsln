@@ -1205,7 +1205,7 @@ class FileEntityTypeTestCase extends FileEntityTestHelper {
     $this->drupalGet('admin/structure/file-types');
     $this->assertResponse(403, 'File types UI page is not accessible to unauthorized users.');
 
-    $user = $this->drupalCreateUser(array('administer file types'));
+    $user = $this->drupalCreateUser(array('administer file types', 'administer fields'));
     $this->drupalLogin($user);
 
     $this->drupalGet('admin/structure/file-types');

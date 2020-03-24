@@ -17,8 +17,12 @@ class ViewsAjaxTest extends ViewsSqlTest {
     );
   }
 
-  public function setUp() {
-    parent::setUp('views', 'views_test');
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
+
     // Create a second node.
     $this->drupalCreateNode(array('type' => 'article', 'status' => NODE_PUBLISHED));
   }

@@ -871,7 +871,7 @@ function features_export_build_form_submit($form, &$form_state) {
   $feature = $form['#feature'];
   $export = _features_export_build($feature, $form_state);
   $export = _features_export_generate($export, $form_state, $feature);
-  $generate = ($form_state['values']['op'] == $form_state['values']['generate']);
+  $generate = isset($form_state['values']['generate']) && ($form_state['values']['op'] == $form_state['values']['generate']);
   $module_name = $form_state['values']['module_name'];
 
   if ($generate && !user_access('generate features')) {
@@ -1628,9 +1628,9 @@ function _features_get_features_list() {
 
   $cache = cache_get('features:features_list');
   if ($cache) {
-    $features = $cache->data;  
+    $features = $cache->data;
   }
-  
+
   if (empty($features)) {
     // Clear & rebuild key caches
     features_get_info(NULL, NULL, TRUE);

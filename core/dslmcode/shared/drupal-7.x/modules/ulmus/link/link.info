@@ -13,13 +13,14 @@ files[] = tests/link.crud_browser.test
 files[] = tests/link.token.test
 files[] = tests/link.entity_token.test
 files[] = tests/link.validate.test
+files[] = tests/link.multilingual.test
 
 ; Views Handlers
 files[] = views/link_views_handler_argument_target.inc
 files[] = views/link_views_handler_filter_protocol.inc
 
-; Information added by Drupal.org packaging script on 2019-02-20
-version = "7.x-1.6"
+; Information added by Drupal.org packaging script on 2019-11-14
+version = "7.x-1.7"
 core = "7.x"
 project = "link"
-datestamp = "1550680687"
+datestamp = "1573731676"

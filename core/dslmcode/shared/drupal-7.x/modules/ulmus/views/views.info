@@ -268,7 +268,6 @@ files[] = plugins/views_plugin_style_table.inc
 files[] = tests/handlers/views_handlers.test
 files[] = tests/handlers/views_handler_area_text.test
 files[] = tests/handlers/views_handler_argument_null.test
-files[] = tests/handlers/views_handler_argument_string.test
 files[] = tests/handlers/views_handler_field.test
 files[] = tests/handlers/views_handler_field_boolean.test
 files[] = tests/handlers/views_handler_field_custom.test
@@ -331,8 +330,8 @@ files[] = tests/views_clone.test
 files[] = tests/views_view.test
 files[] = tests/views_ui.test
 
-; Information added by Drupal.org packaging script on 2019-05-10
-version = "7.x-3.23"
+; Information added by Drupal.org packaging script on 2020-03-07
+version = "7.x-3.24"
 core = "7.x"
 project = "views"
-datestamp = "1557505389"
+datestamp = "1583615732"

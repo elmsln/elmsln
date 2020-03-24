@@ -274,7 +274,7 @@ function field_base_features_rebuild($module) {
       // Create or update field.
       if (isset($existing_fields[$field['field_name']])) {
         $existing_field = $existing_fields[$field['field_name']];
-        $array_diff_result = drupal_array_diff_assoc_recursive($field + $existing_field, $existing_field);
+        $array_diff_result = features_array_diff_assoc_recursive($field + $existing_field, $existing_field);
         if (!empty($array_diff_result)) {
           try {
             field_update_field($field);
@@ -319,7 +319,7 @@ function field_instance_features_rebuild($module) {
       // Create or update field instance.
       if (isset($existing_instances[$field_instance['entity_type']][$field_instance['bundle']][$field_instance['field_name']])) {
         $existing_instance = $existing_instances[$field_instance['entity_type']][$field_instance['bundle']][$field_instance['field_name']];
-        if ($field_instance + $existing_instance !== $existing_instance) {
+        if ($field_instance + $existing_instance != $existing_instance) {
           try {
             field_update_instance($field_instance);
           }
@@ -494,7 +494,7 @@ function field_features_rebuild($module) {
       $field_config = $field['field_config'];
       if (isset($existing_fields[$field_config['field_name']])) {
         $existing_field = $existing_fields[$field_config['field_name']];
-        $array_diff_result = drupal_array_diff_assoc_recursive($field_config + $existing_field, $existing_field);
+        $array_diff_result = features_array_diff_assoc_recursive($field_config + $existing_field, $existing_field);
         if (!empty($array_diff_result)) {
           try {
             field_update_field($field_config);
@@ -518,7 +518,7 @@ function field_features_rebuild($module) {
       $field_instance = $field['field_instance'];
       if (isset($existing_instances[$field_instance['entity_type']][$field_instance['bundle']][$field_instance['field_name']])) {
         $existing_instance = $existing_instances[$field_instance['entity_type']][$field_instance['bundle']][$field_instance['field_name']];
-        if ($field_instance + $existing_instance !== $existing_instance) {
+        if ($field_instance + $existing_instance != $existing_instance) {
           field_update_instance($field_instance);
         }
       }

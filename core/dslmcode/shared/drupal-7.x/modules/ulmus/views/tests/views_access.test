@@ -20,8 +20,8 @@ class ViewsAccessTest extends ViewsSqlTest {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
-    parent::setUp();
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
 
     $this->admin_user = $this->drupalCreateUser(array('access all views'));
     $this->web_user = $this->drupalCreateUser();

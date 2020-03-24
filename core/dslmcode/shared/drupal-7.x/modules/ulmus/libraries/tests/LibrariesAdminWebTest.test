@@ -40,8 +40,20 @@ class LibrariesAdminWebTest extends LibrariesWebTestBase {
    * Tests the libraries report at /admin/reports/libraries.
    */
   public function testLibrariesReportOverview() {
-    $this->getWithPermissions(array('access site reports'), 'admin/reports/libraries');
-    $this->assertRaw('Libraries');
+    $this->getWithPermissions(array('access library reports'), 'admin/reports/libraries');
+    // Assert the page title and table titles show up.
+    $this->assertText('Libraries');
+    $this->assertRaw('<h2>Installed</h2>');
+    $this->assertRaw('<h2>Uninstalled</h2>');
+
+    // Make sure the table headings show up.
+    $this->assertText('Name');
+    $this->assertText('Status');
+    $this->assertText('Version');
+    $this->assertText('Variants');
+    $this->assertText('Dependencies');
+    $this->assertText('Provider');
+    $this->assertText('Links');
 
     // Make sure that all the libraries are listed.
     $libraries = libraries_info();
@@ -51,8 +63,7 @@ class LibrariesAdminWebTest extends LibrariesWebTestBase {
       $this->assertLinkByHref('admin/reports/libraries/' . $library['machine name']);
     }
 
-    // Make sure that all possible statuses are displayed.
-    $this->assertText('OK');
+    // Make sure that all possible error statuses are displayed.
     $this->assertText('Not found');
     $this->assertText('Not detected');
     $this->assertText('Not supported');
@@ -73,7 +84,7 @@ class LibrariesAdminWebTest extends LibrariesWebTestBase {
    * Tests the libraries report for an installed library.
    */
   public function testLibrariesReportInstalled() {
-    $this->getWithPermissions(array('access site reports'), 'admin/reports/libraries/example_files');
+    $this->getWithPermissions(array('access library reports'), 'admin/reports/libraries/example_files');
     $this->assertRaw('Status report for library <em class="placeholder">Example files</em>');
     $this->assertRaw('The <em class="placeholder">Example files</em> library is installed correctly.');
     // Check that the information in the status report is displayed.
@@ -88,7 +99,7 @@ class LibrariesAdminWebTest extends LibrariesWebTestBase {
    * Tests the libraries report for a missing library.
    */
   public function testLibrariesReportMissing() {
-    $this->getWithPermissions(array('access site reports'), 'admin/reports/libraries/example_missing');
+    $this->getWithPermissions(array('access library reports'), 'admin/reports/libraries/example_missing');
     $this->assertRaw('Status report for library <em class="placeholder">Example missing</em>');
     $this->assertRaw('The <em class="placeholder">Example missing</em> library could not be found.');
     // Check that the download link is being displayed.
@@ -100,7 +111,7 @@ class LibrariesAdminWebTest extends LibrariesWebTestBase {
    * Tests the libraries report for a missing library.
    */
   public function testLibrariesReportNotDetected() {
-    $this->getWithPermissions(array('access site reports'), 'admin/reports/libraries/example_undetected_version');
+    $this->getWithPermissions(array('access library reports'), 'admin/reports/libraries/example_undetected_version');
     $this->assertRaw('Status report for library <em class="placeholder">Example undetected version</em>');
     $this->assertRaw('The version of the <em class="placeholder">Example undetected version</em> library could not be detected.');
   }
@@ -109,7 +120,7 @@ class LibrariesAdminWebTest extends LibrariesWebTestBase {
    * Tests the libraries report for a missing library.
    */
   public function testLibrariesReportNotSupported() {
-    $this->getWithPermissions(array('access site reports'), 'admin/reports/libraries/example_unsupported_version');
+    $this->getWithPermissions(array('access library reports'), 'admin/reports/libraries/example_unsupported_version');
     $this->assertRaw('Status report for library <em class="placeholder">Example unsupported version</em>');
     $this->assertRaw('The installed version <em class="placeholder">1</em> of the <em class="placeholder">Example unsupported version</em> library is not supported.');
     // Check that the download link is being displayed.

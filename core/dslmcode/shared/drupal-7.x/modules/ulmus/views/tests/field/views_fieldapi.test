@@ -119,8 +119,11 @@ class viewsFieldApiDataTest extends ViewsFieldApiTestHelper {
     );
   }
 
-  function setUp() {
-    parent::setUp();
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
 
     $langcode = LANGUAGE_NONE;
 
@@ -285,8 +288,11 @@ class viewsHandlerFieldFieldTest extends ViewsFieldApiTestHelper {
     );
   }
 
-  protected function setUp() {
-    parent::setUp();
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
 
     // Setup basic fields.
     $this->setUpFields(3);

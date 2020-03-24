@@ -14,10 +14,9 @@ class link_views_handler_filter_protocol extends views_handler_filter_string {
 
   /**
    * Set defaults for the filter options.
-   *
-   * @codingStandardsIgnoreEnd
    */
-  function option_definition() {
+  public function option_definition() {
+    // @codingStandardsIgnoreEnd
     $options = parent::option_definition();
 
     $options['operator'] = 'OR';

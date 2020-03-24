@@ -22,13 +22,6 @@ class ViewsPagerTest extends ViewsSqlTest {
   }
 
   /**
-   *
-   */
-  public function setUp() {
-    parent::setUp('views', 'views_ui', 'views_test');
-  }
-
-  /**
    * Pagers was sometimes not stored.
    *
    * @see http://drupal.org/node/652712

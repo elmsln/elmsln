@@ -152,6 +152,7 @@ function ctools_context_user_settings_form_submit($form, &$form_state) {
  */
 function ctools_context_user_convert_list() {
   $tokens = token_info();
+  $list = array();
   foreach ($tokens['tokens']['user'] as $id => $info) {
     if (!isset($list[$id])) {
       $list[$id] = $info['name'];

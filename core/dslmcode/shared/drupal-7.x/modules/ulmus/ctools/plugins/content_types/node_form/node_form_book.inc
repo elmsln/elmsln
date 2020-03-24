@@ -21,7 +21,7 @@ if (module_exists('book')) {
 
 function ctools_node_form_book_content_type_render($subtype, $conf, $panel_args, &$context) {
   $block = new stdClass();
-  $block->module = t('node_form');
+  $block->module = 'node_form';
 
   $block->title = t('Book outline');
   $block->delta = 'book-outline';

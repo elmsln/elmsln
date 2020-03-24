@@ -1,14 +1,8 @@
 <?php
-// $Id: admin_theme.api.php,v 1.1.2.1 2008/12/13 09:47:29 davyvandenbremt Exp $
 
 /**
  * @file
  * Hooks provided by the Administration theme module.
- */
-
-/**
- * @addtogroup hooks
- * @{
  */
 
 /**
@@ -17,7 +11,7 @@
  * This hook allows modules to add more options to the administration theme 
  * settings page.
  *
- * @return
+ * @return array
  *   A linear array of associative arrays. The keys of the linear array are 
  *   the identifiers for the "options" that will be check for in 
  *   hook_admin_theme_check. The associative arrays have keys:
@@ -65,26 +59,27 @@ function hook_admin_theme_info() {
  * This hook allows modules to check for each option defined in 
  * hook_admin_theme_info if the option is "on".
  *
- * @param
- *   $option. The option to check.
- * @return
+ * @param string $option
+ *   The option to check.
+ *
+ * @return bool
  *   TRUE or FALSE indicating if the administration theme should be used.
  */
 function hook_admin_theme_check($option = NULL) {
   switch ($option) {
     case 'coder':
       return arg(0) == 'coder';
+
     case 'batch':
       return arg(0) == 'batch';
+
     case 'service_attachments':
       return arg(0) == 'node' && arg(2) == 'service_attachments';
+
     case 'webform_results':
       return arg(0) == 'node' && arg(2) == 'webform-results';
+
     case 'statistics':
       return (arg(0) == 'node' || arg(0) == 'user') && arg(2) == 'track';
   }
 }
-
-/**
- * @} End of "addtogroup hooks".
- */

@@ -23,10 +23,11 @@ class LinkTokenTest extends LinkBaseTestClass {
   }
 
   /**
-   * Setup.
+   * {@inheritdoc}
    */
-  public function setUp($modules = array()) {
-    parent::setUp(array('token'));
+  public function setUp(array $modules = array()) {
+    $modules[] = 'token';
+    parent::setUp($modules);
   }
 
   /**
@@ -77,7 +78,6 @@ class LinkTokenTest extends LinkBaseTestClass {
    * Creates a node with a link and checks the title value.
    */
   public function testStaticTokenLinkCreate() {
-
     // Create field.
     $name = $this->randomName();
     $settings = array(
@@ -122,7 +122,6 @@ class LinkTokenTest extends LinkBaseTestClass {
    * same.
    */
   public function testStaticTokenLinkCreate2() {
-
     // Create field.
     $name = $this->randomName();
     $settings = array(
@@ -162,8 +161,7 @@ class LinkTokenTest extends LinkBaseTestClass {
    *
    * @codingStandardsIgnoreStart
    */
-  public function _test_Link_With_Title_Attribute_token_url_form() {
-    // @codingStandardsIgnoreEnd
+  public function xTestLinkWithTitleAttributeTokenUrlForm() {
     /* $this->loginWithPermissions($this->permissions);
     $this->acquireContentTypes(1);
     $field_settings = array(
@@ -190,6 +188,7 @@ class LinkTokenTest extends LinkBaseTestClass {
     $this->drupalPost('admin/content/node-type/'. $url_type .'/fields/'. $field['field_name'],
     $edit, t('Save field settings'));
     $this->assertText(t('Saved field @field_name', array('@field_name' => $field['field_name'])));*/
+    // @codingStandardsIgnoreEnd
     $name = $this->randomName();
     $settings = array(
       'instance[settings][attributes][rel]' => 'nofollow',
@@ -232,7 +231,7 @@ class LinkTokenTest extends LinkBaseTestClass {
    *
    * @codingStandardsIgnoreStart
    */
-  public function _test_Link_With_Title_Attribute_token_title_form() {
+  public function xTestLinkWithTitleAttributeTokenTitleForm() {
     // @codingStandardsIgnoreEnd
     $this->loginWithPermissions($this->permissions);
     $this->acquireContentTypes(1);
@@ -290,12 +289,8 @@ class LinkTokenTest extends LinkBaseTestClass {
 
   /**
    * Trying to set the url to contain a token.
-   *
-   * @codingStandardsIgnoreStart
    */
-  public function _testUserTokenLinkCreateInURL() {
-    //@codingStandardsIgnoreEnd
-
+  public function xTestUserTokenLinkCreateInUrl() {
     $this->web_user = $this->drupalCreateUser(array(
       'administer content types',
       'administer fields',
@@ -353,12 +348,8 @@ class LinkTokenTest extends LinkBaseTestClass {
 
   /**
    * Trying to set the url to contain a token.
-   *
-   * @codingStandardsIgnoreStart
    */
-  public function _testUserTokenLinkCreateInURL2() {
-    // @codingStandardsIgnoreEnd
-
+  public function xTestUserTokenLinkCreateInUrl2() {
     $this->web_user = $this->drupalCreateUser(array(
       'administer content types',
       'administer fields',

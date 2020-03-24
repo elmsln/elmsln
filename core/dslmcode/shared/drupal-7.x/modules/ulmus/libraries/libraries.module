@@ -26,6 +26,29 @@ function libraries_flush_caches() {
 }
 
 /**
+ * Implements hook_admin_menu_cache_info().
+ */
+function libraries_admin_menu_cache_info() {
+  $caches['libraries'] = array(
+    'title' => t('Libraries'),
+    'callback' => 'libraries_cache_clear',
+  );
+  return $caches;
+}
+
+/**
+ * Clears the cached library information.
+ */
+function libraries_cache_clear() {
+  foreach (libraries_flush_caches() as $bin) {
+    // Using the wildcard argument leads to DrupalDatabaseCache::clear()
+    // truncating the libraries cache table which is more performant that
+    // deleting the rows.
+    cache_clear_all('*', $bin, TRUE);
+  }
+}
+
+/**
  * Gets the path of a library.
  *
  * @param $name
@@ -57,6 +80,52 @@ function libraries_get_path($name, $base_path = FALSE) {
 }
 
 /**
+ * Returns all enabled themes.
+ *
+ * Themes are sorted so that base themes always precede their child themes.
+ *
+ * @return array
+ *   An associative array of theme objects keyed by theme name.
+ */
+function libraries_get_enabled_themes() {
+  $themes = array();
+  foreach (list_themes() as $name => $theme) {
+    if ($theme->status) {
+      $themes[$name] = $theme;
+    }
+  }
+
+  return libraries_sort_themes($themes);
+}
+
+/**
+ * Sort a themes array.
+ *
+ * @param array $themes
+ *   Array of themes as objects, keyed by theme name.
+ * @param string $base
+ *   A base theme (internal use only).
+ *
+ * @return array
+ *   A similar array to $themes, but sorted in such a way that subthemes are
+ *   always located after its base theme.
+ */
+function libraries_sort_themes($themes, $base = '') {
+  $output = array();
+  foreach ($themes as $name => $theme) {
+    if (!isset($theme->base_theme) || $theme->base_theme == $base) {
+      $output[$name] = $theme;
+      unset($themes[$name]);
+      $subthemes = libraries_sort_themes($themes, $name);
+      foreach ($subthemes as $sub_name => $subtheme) {
+        $output[$sub_name] = $subtheme;
+      }
+    }
+  }
+  return $output;
+}
+
+/**
  * Returns an array of library directories.
  *
  * Returns an array of library directories from the all-sites directory
@@ -76,6 +145,13 @@ function libraries_get_libraries() {
   $searchdir = array();
   $profile = drupal_get_path('profile', drupal_get_profile());
   $config = conf_path();
+
+  // $config and $profile should never be empty in a proper Drupal setup.
+  // However, we should never search into the root filesystem under any
+  // circumstances, so just bail out in that case.
+  if (!$profile && !$config) {
+    return array();
+  }
 
   // Similar to 'modules' and 'themes' directories in the root directory,
   // certain distributions may want to place libraries into a 'libraries'
@@ -358,10 +434,12 @@ function &libraries_info($name = NULL) {
       }
     }
 
-    // Gather information from hook_libraries_info() in enabled themes.
+    // Gather information from hook_libraries_info() in enabled themes. Themes
+    // are sorted to ensure that a base theme's template.php is included before
+    // its children's ones.
     $themes = array();
-    foreach (list_themes() as $theme_name => $theme_info) {
-      if ($theme_info->status && file_exists(drupal_get_path('theme', $theme_name) . '/template.php')) {
+    foreach (libraries_get_enabled_themes() as $theme_name => $theme_info) {
+      if (file_exists(drupal_get_path('theme', $theme_name) . '/template.php')) {
         // Collect a list of viable themes for re-use when calling the alter
         // hook.
         $themes[] = $theme_name;
@@ -546,7 +624,7 @@ function libraries_detect($name = NULL) {
       $library['version'] = call_user_func_array($library['version callback'], array_merge(array($library), $library['version arguments']));
     }
     else {
-      $library['version'] = call_user_func($library['version callback'], $library, $library['version arguments']);
+      $library['version'] = call_user_func_array($library['version callback'], array(&$library, $library['version arguments']));
     }
     if (empty($library['version'])) {
       $library['error'] = 'not detected';
@@ -888,13 +966,53 @@ function libraries_get_version($library, $options) {
 }
 
 /**
+ * Gets the version information from a library's package.json file.
+ *
+ * @param $library
+ *   An associative array containing all information about the library.
+ * @param $options
+ *   This callback expects no option.
+ * @return
+ *   A string containing the version of the library.
+ *
+ * @see libraries_get_path()
+ */
+function libraries_get_package_json_version($library, $options) {
+  $file = DRUPAL_ROOT . '/' . $library['library path'] . '/package.json';
+  if (!file_exists($file)) {
+    return;
+  }
+
+  $content = file_get_contents($file);
+  if (!$content) {
+    return;
+  }
+
+  $data = drupal_json_decode($content);
+  if (isset($data['version'])) {
+    return $data['version'];
+  }
+}
+
+/**
  * Implements hook_help().
  */
 function libraries_help($path, $arg) {
   switch ($path) {
     case 'admin/reports/libraries':
-      return t('Click on a library for a status report or detailed installation instructions in case the library is not installed correctly.');
+      return t('Click on a library for a status report or detailed installation instructions.');
   }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function libraries_permission() {
+  return array(
+    'access library reports' => array(
+      'title' => t('View library reports'),
+    ),
+  );
 }
 
 /**
@@ -907,7 +1025,7 @@ function libraries_menu() {
     'description' => 'An overview of libraries installed on this site.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('libraries_admin_overview'),
-    'access arguments' => array('access site reports'),
+    'access arguments' => array('access library reports'),
     'file' => 'libraries.admin.inc'
   );
   $items['admin/reports/libraries/%libraries_ui'] = array(
@@ -915,7 +1033,7 @@ function libraries_menu() {
     'description' => 'Status overview for a single library',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('libraries_admin_library_status_form', 3),
-    'access arguments' => array('access site reports'),
+    'access arguments' => array('access library reports'),
     'file' => 'libraries.admin.inc'
   );
   return $items;
@@ -943,4 +1061,20 @@ function libraries_menu() {
  */
 function libraries_ui_load($name) {
   return libraries_detect($name);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function libraries_theme($existing, $type, $theme, $path) {
+  // Because we extend the 'table' theme function, fetch the respective
+  // variables dynamically.
+  $common_theme = drupal_common_theme();
+  $variables = $common_theme['table']['variables'] + array('title' => '', 'description' => '');
+  return array(
+    'libraries_table_with_title' => array(
+      'variables' => $variables,
+      'file' => 'libraries.theme.inc',
+    ),
+  );
 }

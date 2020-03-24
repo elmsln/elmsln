@@ -1,0 +1,198 @@
+<?php
+
+/**
+ * @file
+ * Tests that exercise the relative / absolute output of the link module.
+ */
+
+/**
+ * Testing that absolute / relative outputs match the expected format.
+ */
+class LinkMultilingualTestCase extends LinkBaseTestClass {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    $this->permissions = array_merge($this->permissions, array(
+      'administer site configuration',
+      'administer languages',
+    ));
+    $modules[] = 'locale';
+    $modules[] = 'locale_test';
+    $modules[] = 'translation';
+    parent::setUp($modules);
+  }
+
+  /**
+   * Enables and configured language related stuff.
+   */
+  public function setUpLanguage() {
+    global $language_url;
+    $this->drupalGet('admin/config/regional/language');
+    // Enable the path prefix for the default language: this way any un-prefixed
+    // URL must have a valid fallback value.
+    $edit = array('prefix' => 'en');
+    $this->drupalPost('admin/config/regional/language/edit/en', $edit, t('Save language'));
+    $language_url->prefix = $language_url->language;
+
+    // Add custom language - as we need more than 1 language to be multilingual.
+    // Code for the language.
+    $langcode = 'xx';
+    // The English name for the language.
+    $name = $this->randomName(16);
+    // The native name for the language.
+    $native = $this->randomName(16);
+    $edit = array(
+      'langcode' => $langcode,
+      'name' => $name,
+      'native' => $native,
+      'prefix' => $langcode,
+      'direction' => '0',
+    );
+    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add custom language'));
+    variable_set('locale_language_negotiation_url_part', LOCALE_LANGUAGE_NEGOTIATION_URL_PREFIX);
+
+    // Enable URL language detection and selection.
+    $edit = array('language[enabled][locale-url]' => 1);
+    $this->drupalPost('admin/config/regional/language/configure', $edit, t('Save settings'));
+    language_negotiation_set(LANGUAGE_TYPE_INTERFACE, array(LOCALE_LANGUAGE_NEGOTIATION_URL));
+
+    // Reset static caching.
+    drupal_static_reset('language_list');
+    drupal_static_reset('locale_url_outbound_alter');
+    drupal_static_reset('locale_language_url_rewrite_url');
+  }
+
+}
+/**
+ *
+ */
+class LinkMultilingualPathTest extends LinkMultilingualTestCase {
+
+  /**
+   *
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Link language path prefix',
+      'description' => 'Tests that path properly work with language path prefixes.',
+      'group' => 'Link',
+    );
+  }
+
+  /**
+   * Creates a link field, fills it, then uses a loaded node to test paths.
+   */
+  public function testLanguagePrefixedPaths() {
+    $this->setUpLanguage();
+
+    // Create fields.
+    // Field for absolute urls.
+    $field_name_absolute = $this->createLinkField('page');
+
+    // Field for relative urls.
+    $settings = array(
+      'instance[settings][absolute_url]' => FALSE,
+    );
+    $field_name_relative = $this->createLinkField('page', $settings);
+
+    // Check the node edit form.
+    $this->drupalGet('node/add/page');
+    $this->assertField($field_name_absolute . '[und][0][title]', 'Title absolute found');
+    $this->assertField($field_name_absolute . '[und][0][url]', 'URL absolute found');
+    $this->assertField($field_name_relative . '[und][0][title]', 'Title relative found');
+    $this->assertField($field_name_relative . '[und][0][url]', 'URL relative found');
+
+    // Create test content.
+    $url_tests = array(
+      1 => array(
+        'href' => 'http://dummy.com/' . $this->randomName(),
+        'label' => $this->randomName(),
+      ),
+      2 => array(
+        'href' => 'node/1',
+        'label' => $this->randomName(),
+      ),
+      3 => array(
+        'href' => 'node/1?property=value',
+        'label' => $this->randomName(),
+        'query' => array('property' => 'value'),
+      ),
+      4 => array(
+        'href' => 'node/1#position',
+        'label' => $this->randomName(),
+        'fragment' => 'position',
+      ),
+      5 => array(
+        'href' => 'node/1?property=value2#lower',
+        'label' => $this->randomName(),
+        'fragment' => 'lower',
+        'query' => array('property' => 'value2'),
+      ),
+    );
+    foreach ($url_tests as $index => &$input) {
+      $this->drupalGet('node/add/page');
+
+      $edit = array(
+        'title' => $input['label'],
+        $field_name_absolute . '[und][0][title]' => $input['label'],
+        $field_name_absolute . '[und][0][url]' => $input['href'],
+        $field_name_relative . '[und][0][title]' => $input['label'],
+        $field_name_relative . '[und][0][url]' => $input['href'],
+      );
+      $this->drupalPost(NULL, $edit, t('Save'));
+      $url = $this->getUrl();
+      $input['url'] = $url;
+    }
+
+    // Change to anonymous user.
+    $this->drupalLogout();
+
+    foreach (array_slice($url_tests, 1, NULL, TRUE) as $index => $input2) {
+      $node = node_load($index);
+      $this->assertNotEqual(NULL, $node, "Do we have a node?");
+      $this->assertEqual($node->nid, $index, "Test that we have a node.");
+      $this->drupalGet('node/' . $index);
+
+      $relative_expected = url('node/1', array('absolute' => FALSE) + $input2);
+      $absolute_expected = url('node/1', array('absolute' => TRUE) + $input2);
+
+      $absolute_result = $this->xpath('//*[contains(@class, "field-name-' . drupal_clean_css_identifier($field_name_absolute) . '")]/div/div/a/@href');
+      $absolute_result = (string) reset($absolute_result);
+      $this->assertEqual($absolute_result, $absolute_expected, "Absolute url output ('" . $absolute_result . "') looks as expected ('" . $absolute_expected . "')");
+
+      $relative_result = $this->xpath('//*[contains(@class, "field-name-' . drupal_clean_css_identifier($field_name_relative) . '")]/div/div/a/@href');
+      $relative_result = (string) reset($relative_result);
+      $this->assertEqual($relative_result, $relative_expected, "Relative url output ('" . $relative_result . "') looks as expected ('" . $relative_expected . "')");
+    }
+
+    // Check if this works with the alias too.
+    // Add a path alias for node 1.
+    $path = array(
+      'source' => 'node/1',
+      'alias' => $url_tests[1]['label'],
+    );
+    path_save($path);
+    // Another iteration over the same nodes - this time they should use the
+    // path alias.
+    foreach (array_slice($url_tests, 1, NULL, TRUE) as $index => $input2) {
+      $node = node_load($index);
+      $this->assertNotEqual(NULL, $node, "Do we have a node?");
+      $this->assertEqual($node->nid, $index, "Test that we have a node.");
+      $this->drupalGet('node/' . $index);
+
+      $relative_expected = url('node/1', array('absolute' => FALSE) + $input2);
+      $absolute_expected = url('node/1', array('absolute' => TRUE) + $input2);
+
+      $absolute_result = $this->xpath('//*[contains(@class, "field-name-' . drupal_clean_css_identifier($field_name_absolute) . '")]/div/div/a/@href');
+      $absolute_result = (string) reset($absolute_result);
+      $this->assertEqual($absolute_result, $absolute_expected, "Absolute alias-url output ('" . $absolute_result . "') looks as expected ('" . $absolute_expected . "')");
+
+      $relative_result = $this->xpath('//*[contains(@class, "field-name-' . drupal_clean_css_identifier($field_name_relative) . '")]/div/div/a/@href');
+      $relative_result = (string) reset($relative_result);
+      $this->assertEqual($relative_result, $relative_expected, "Relative alias-url output ('" . $relative_result . "') looks as expected ('" . $relative_expected . "')");
+    }
+  }
+
+}

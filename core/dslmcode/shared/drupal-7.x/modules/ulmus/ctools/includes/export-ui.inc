@@ -333,7 +333,7 @@ function ctools_export_ui_process(&$plugin, $info) {
 
   $plugin['strings']['confirmation']['delete'] += array(
     'question' => t('Are you sure you want to delete %title?'),
-    'information' => t('This action will permanently remove this item from your database..'),
+    'information' => t('This action will permanently remove this item from your database.'),
     'success' => t('The item has been deleted.'),
   );
 

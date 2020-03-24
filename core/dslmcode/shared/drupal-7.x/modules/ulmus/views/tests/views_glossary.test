@@ -6,9 +6,13 @@
  */
 
 /**
- * Tests glossary view ( summary of arguments ).
+ * Tests the glossary feature.
  */
 class ViewsGlossaryTestCase extends ViewsSqlTest {
+
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Glossary Test',
@@ -17,17 +21,13 @@ class ViewsGlossaryTestCase extends ViewsSqlTest {
     );
   }
 
-  public function setUp() {
-    parent::setUp('views');
-  }
-
   /**
-   * Tests the default glossary view.
+   * Tests the glossary feature.
    */
   public function testGlossaryView() {
-    // create a contentype and add some nodes, with a non random title.
+    // Create a content type and add some nodes, with a non random title.
     $type = $this->drupalCreateContentType();
-    $nodes_per_char = array(
+    $nodes_per_character = array(
       'd' => 1,
       'r' => 4,
       'u' => 10,
@@ -35,15 +35,24 @@ class ViewsGlossaryTestCase extends ViewsSqlTest {
       'a' => 3,
       'l' => 6,
     );
-    foreach ($nodes_per_char as $char => $count) {
+    $nodes = array();
+    foreach ($nodes_per_character as $character => $count) {
       $setting = array(
         'type' => $type->type,
       );
       for ($i = 0; $i < $count; $i++) {
         $node = $setting;
-        $node['title'] = $char . $this->randomString(3);
-        $this->drupalCreateNode($node);
+        $node['title'] = $character . strtolower($this->randomName());
+        $nodes[$character][] = $this->drupalCreateNode($node);
       }
+    }
+
+    // Sort created nodes the same way the view does, so that we can assert
+    // correct node ids for each row in the result set later.
+    foreach ($nodes_per_character as $character => $count) {
+      usort($nodes[$character], function ($a, $b) {
+        return strcmp($a->title, $b->title);
+      });
     }
 
     // Execute glossary view.
@@ -51,11 +60,121 @@ class ViewsGlossaryTestCase extends ViewsSqlTest {
     $view->set_display('attachment');
     $view->execute_display('attachment');
 
-    // Check that the amount of nodes per char.
-    $result_nodes_per_char = array();
+    // Check the amount of nodes per character.
     foreach ($view->result as $item) {
-      $this->assertEqual($nodes_per_char[$item->title_truncated], $item->num_records);
+      $this->assertEqual($nodes_per_character[$item->title_truncated], $item->num_records);
     }
+    $view->destroy();
+
+    // Checks that a glossary view with an argument containing one letter
+    // returns only and all the nodes that start with that letter.
+    $view = views_get_view('glossary');
+    $view->init_display();
+    $this->executeView($view, array('a'));
+    $result_count = isset($view->result) && is_array($view->result) ? count($view->result) : 0;
+    $this->assertIdentical($result_count, 3, 'View has 3 results.');
+    foreach ($view->result as $delta => $item) {
+      $nid = isset($view->result[$delta]->nid) ? $view->result[$delta]->nid : '0';
+      $this->assertIdentical($nid, $nodes['a'][$delta]->nid, 'View result ' . (string) (int) $delta . ' has correct node id.');
+    }
+    $view->destroy();
+
+    // Checks that a glossary view with an argument containing multiple values
+    // returns only and all nodes that start with these values.
+    $view = views_get_view('glossary');
+    $view->init_display();
+    $arguments = $view->display_handler->get_option('arguments');
+    $arguments['title']['break_phrase'] = TRUE;
+    $view->display_handler->set_option('arguments', $arguments);
+    $this->executeView($view, array('d+p'));
+    $expected_result_count = $nodes_per_character['d'] + $nodes_per_character['p'];
+    $result_count = isset($view->result) && is_array($view->result) ? count($view->result) : 0;
+    $this->assertIdentical($result_count, 3, 'View has 3 results.');
+    $nid = isset($view->result[0]->nid) ? $view->result[0]->nid : '0';
+    $this->assertIdentical($nid, $nodes['d'][0]->nid, 'View result 0 has correct node id.');
+    $nid = isset($view->result[1]->nid) ? $view->result[1]->nid : '0';
+    $this->assertIdentical($nid, $nodes['p'][0]->nid, 'View result 1 has correct node id.');
+    $nid = isset($view->result[2]->nid) ? $view->result[2]->nid : '0';
+    $this->assertIdentical($nid, $nodes['p'][1]->nid, 'View result 2 has correct node id.');
+    $view->destroy();
+
+    // Checks that a glossary view with a phrase as an argument does not
+    // interpret that phrase as multiple values.
+    $view = views_get_view('glossary');
+    $view->init_display();
+    $arguments = $view->display_handler->get_option('arguments');
+    $view->display_handler->set_option('arguments', $arguments);
+    $this->executeView($view, array('d+p'));
+    $result_count = isset($view->result) && is_array($view->result) ? count($view->result) : 1;
+    $this->assertIdentical($result_count, 0, 'View has zero results.');
+    $view->destroy();
+
+    // Checks that a glossary view with an argument containing one letter
+    // excludes all nodes that start with that letter.
+    $view = views_get_view('glossary');
+    $view->init_display();
+    $arguments = $view->display_handler->get_option('arguments');
+    $arguments['title']['not'] = TRUE;
+    $view->display_handler->set_option('arguments', $arguments);
+    $this->executeView($view, array('a'));
+    $result_count = isset($view->result) && is_array($view->result) ? count($view->result) : 0;
+    $this->assertIdentical($result_count, 23, 'View has 23 results.');
+    $character = 'd';
+    $character_delta = 0;
+    foreach ($view->result as $delta => $item) {
+      if ($delta === 1) {
+        $character = 'l';
+        $character_delta = 0;
+      }
+      elseif ($delta === 7) {
+        $character = 'p';
+        $character_delta = 0;
+      }
+      elseif ($delta === 9) {
+        $character = 'r';
+        $character_delta = 0;
+      }
+      elseif ($delta === 13) {
+        $character = 'u';
+        $character_delta = 0;
+      }
+      $nid = isset($view->result[$delta]->nid) ? $view->result[$delta]->nid : '0';
+      $this->assertIdentical($nid, $nodes[$character][$character_delta]->nid, 'View result ' . (string) (int) $delta . ' has correct node id.');
+      $character_delta++;
+    }
+    $view->destroy();
+
+    // Checks that a glossary view with an argument containing multiple values
+    // excludes all nodes that start with these values.
+    $view = views_get_view('glossary');
+    $view->init_display();
+    $arguments = $view->display_handler->get_option('arguments');
+    $arguments['title']['break_phrase'] = TRUE;
+    $arguments['title']['not'] = TRUE;
+    $view->display_handler->set_option('arguments', $arguments);
+    $this->executeView($view, array('a+p'));
+    $result_count = isset($view->result) && is_array($view->result) ? count($view->result) : 0;
+    $this->assertIdentical($result_count, 21, 'View has 21 results.');
+    $character = 'd';
+    $character_delta = 0;
+    foreach ($view->result as $delta => $item) {
+      if ($delta === 1) {
+        $character = 'l';
+        $character_delta = 0;
+      }
+      elseif ($delta === 7) {
+        $character = 'r';
+        $character_delta = 0;
+      }
+      elseif ($delta === 11) {
+        $character = 'u';
+        $character_delta = 0;
+      }
+      $nid = isset($view->result[$delta]->nid) ? $view->result[$delta]->nid : '0';
+      $this->assertIdentical($nid, $nodes[$character][$character_delta]->nid, 'View result ' . (string) (int) $delta . ' has correct node id.');
+      $character_delta++;
+    }
+    $view->destroy();
   }
 
 }

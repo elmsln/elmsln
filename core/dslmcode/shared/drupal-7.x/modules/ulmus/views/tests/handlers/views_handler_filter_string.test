@@ -19,8 +19,12 @@ class ViewsHandlerFilterStringTest extends ViewsSqlTest {
     );
   }
 
-  function setUp() {
-    parent::setUp();
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
+
     $this->column_map = array(
       'views_test_name' => 'name',
     );

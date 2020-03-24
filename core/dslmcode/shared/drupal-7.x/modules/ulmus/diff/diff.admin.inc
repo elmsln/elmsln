@@ -112,7 +112,12 @@ function diff_admin_field_overview() {
     '#markup' => '<p>' . t('This table provides a summary of the field type support found on the system. It is recommended that you use global settings whenever possible to configure field comparison settings.') . '</p>',
   );
 
-  $header = array(t('Type'), t('Module'), t('Operations'));
+  $header = array(
+    t('Type'),
+    t('Machine name'),
+    t('Module'),
+    t('Operations'),
+  );
   $rows = array();
 
   // Skip field types which have no widget types.
@@ -129,10 +134,8 @@ function diff_admin_field_overview() {
   foreach ($field_types as $field_name => $field_type) {
     if (!empty($widgets[$field_name])) {
       $row = array();
-      $row[] = t('@field_label (%field_type)', array(
-        '@field_label' => $field_type['label'],
-        '%field_type' => $field_name,
-      ));
+      $row[] = $field_type['label'];
+      $row[] = $field_name;
       $row[] = $field_type['module'];
       $row[] = l(t('Global settings'), 'admin/config/content/diff/fields/' . $field_name);
       $rows[] = $row;

@@ -318,20 +318,36 @@
           // We have to prevent the page load triggered by the links.
           event.preventDefault();
           event.stopPropagation();
-          // Un select old select value.
-          $wrapper.find('select option').removeAttr('selected');
+          // Un select if previously seleted toogle is selected.
+          var link_text = $(this).text();
+          removed = '';
+          $($options).each(function(i) {
+            if ($(this).attr('selected')) {
+              if (link_text == $(this).text()) {
+                removed = $(this).text();
+                $(this).removeAttr('selected');
+              }
+            }
+          });
 
           // Set the corresponding option inside the select element as selected.
-          var link_text = $(this).text();
           $selected = $options.filter(function() {
-            return $(this).text() == link_text;
+            return $(this).text() == link_text && removed != link_text;
           });
           $selected.attr('selected', 'selected');
           $wrapper.find('.bef-new-value').val($selected.val());
-          $wrapper.find('a').removeClass('active');
+          $wrapper.find('.bef-new-value[value=""]').attr("disabled", "disabled");
           $(this).addClass('active');
           // Submit the form.
           $wrapper.parents('form').find('.views-submit-button *[type=submit]').click();
+        });
+
+        $('.bef-select-as-link').ready(function() {
+          $('.bef-select-as-link').find('a').removeClass('active');
+          $('.bef-new-value').each(function(i, val) {
+            id = $(this).parent().find('select').attr('id') + '-' + $(this).val();
+            $('#'+id).find('a').addClass('active');
+          });
         });
       });
     }

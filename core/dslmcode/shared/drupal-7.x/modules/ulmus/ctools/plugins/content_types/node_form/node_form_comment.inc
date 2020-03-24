@@ -21,7 +21,7 @@ if (module_exists('comment')) {
 
 function ctools_node_form_comment_content_type_render($subtype, $conf, $panel_args, &$context) {
   $block = new stdClass();
-  $block->module = t('node_form');
+  $block->module = 'node_form';
 
   $block->title = t('Comment options');
   $block->delta = 'comment-options';

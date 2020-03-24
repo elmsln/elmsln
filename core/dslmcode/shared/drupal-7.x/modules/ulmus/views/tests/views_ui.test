@@ -11,11 +11,11 @@
 class ViewsUIWizardHelper extends DrupalWebTestCase {
 
   /**
-   *
+   * {@inheritdoc}
    */
-  function setUp() {
-    // Enable views_ui.
-    parent::setUp('views_ui');
+  public function setUp(array $modules = array()) {
+    $modules[] = 'views_ui';
+    parent::setUp($modules);
 
     // Create and log in a user with administer views permission.
     $views_admin = $this->drupalCreateUser(array('administer views', 'administer blocks', 'bypass node access', 'access user profiles', 'view revisions'));
@@ -317,8 +317,8 @@ class ViewsUIWizardTaggedWithTestCase extends ViewsUIWizardHelper {
   /**
    * {@inheritdoc}
    */
-  function setUp() {
-    parent::setUp();
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
 
     // Create two content types. One will have an autocomplete tagging field,
     // and one won't.

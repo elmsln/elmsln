@@ -452,6 +452,7 @@ function ctools_drush_export_info() {
  * all arg handling etc in one place.
  */
 function ctools_drush_export_op_command() {
+  $args = func_get_args();
   // Get all info for the current drush command.
   $command = drush_get_command();
   $op = '';
@@ -495,7 +496,6 @@ function ctools_drush_export_op_command() {
     }
   }
   else {
-    $args = func_get_args();
     // Table name should always be first arg...
     $table_name = array_shift($args);
     // Any additional args are assumed to be exportable names.

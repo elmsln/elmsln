@@ -17,8 +17,13 @@ class ViewsUserArgumentValidate extends ViewsSqlTest {
     );
   }
 
-  function setUp() {
-    parent::setUp('views');
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    $modules[] = 'views';
+    parent::setUp($modules);
+
     $this->account = $this->drupalCreateUser();
   }
 

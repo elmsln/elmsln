@@ -22,19 +22,10 @@ attributes, target attributes, css class attribution, static repeating values,
 input conversion, and many more.
 
 
-
 REQUIREMENTS
 ------------
 
-Project in Drupal 7 requires the following modules:
-
- * Fields API (Fields API is provided already by core)
- * Panels (https://drupal.org/project/panels)
-
-Drupal 8:
-
- * Link is in core now. No installation needed. Yay! Don't forget to activate
-   it. It's deactivated by default.
+No special requirements
 
 
 INSTALLATION
@@ -99,3 +90,4 @@ Current maintainers:
  * Tom Kirkpatrick (mrfelton) - https://www.drupal.org/user/305669
  * Sumit Madan (sumitmadan) - https://www.drupal.org/user/1538790
  * Daniel Kudwien (sun) - https://www.drupal.org/user/54136
+ * Damien McKenna - https://www.drupal.org/u/damienmckenna

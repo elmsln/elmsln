@@ -1,6 +1,15 @@
+/**
+ * @file
+ * Behaviors for Devel.
+ */
+
 (function ($) {
 
-// Explain link in query log
+/**
+ * Explain link in query log.
+ *
+ * @type {Drupal~behavior}
+ */
 Drupal.behaviors.devel_explain = {
   attach: function(context, settings) {
     $('a.dev-explain').click(function () {
@@ -14,7 +23,11 @@ Drupal.behaviors.devel_explain = {
   }
 }
 
-// Arguments link in query log
+/**
+ * Arguments link in query log.
+ *
+ * @type {Drupal~behavior}
+ */
 Drupal.behaviors.devel_arguments = {
   attach: function(context, settings) {
     $('a.dev-arguments').click(function () {
@@ -28,7 +41,11 @@ Drupal.behaviors.devel_arguments = {
   }
 }
 
-// Placeholders link in query log
+/**
+ * Placeholders link in query log.
+ *
+ * @type {Drupal~behavior}
+ */
 Drupal.behaviors.devel_placeholders = {
   attach: function(context, settings) {
     $('a.dev-placeholders').click(function () {

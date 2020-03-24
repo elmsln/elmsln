@@ -21,8 +21,9 @@ function link_devel_generate($object, $field, $instance, $bundle) {
  * Callback for hook_devel_generate().
  */
 function _link_devel_generate($object, $field, $instance, $bundle) {
+  $url = 'http://example.com/' . devel_generate_word(mt_rand(6, 12));
   $link = array(
-    'url' => url('<front>', array('absolute' => TRUE)),
+    'url' => url($url, array('absolute' => TRUE)),
     'attributes' => _link_default_attributes(),
   );
   if ($instance['settings']['title'] != 'none') {

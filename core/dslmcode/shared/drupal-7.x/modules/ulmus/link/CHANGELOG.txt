@@ -1,0 +1,413 @@
+Link 7.x-1.7, 2019-11-14
+------------------------
+#3094381 by DamienMcKenna: Add a CHANGELOG.txt file.
+#3094370 by DamienMcKenna: Coding standards tidy-up.
+#3094307 by DamienMcKenna: Clean up tests a bit.
+By DamienMcKenna: Added myself to the maintainers list.
+#3041220 by Daniel Korte, nileema.jadhav, Deepak.Sharma, pifagor: False positive
+  in link_validate_url() function with relative URLs with fragments.
+#3038104 by jwilson3, cm0dit, pifagor: Support hashbang (#!) in URLs.
+By drumm: Ensure attributes are not strings.
+#2654246 by SurfinSpirit, moleCuleFFF, recrit, okapi1987@gmail.com, whthat,
+  sdstyles, rajiv.singh, ac, pifagor, dgtlmoon, Chris Matthews, Nishruu: Anchor
+  and Query urls are not supported.
+#2943127 by sean_e_dietrich, kyuubi, Chris Matthews, ShaunLaws, pifagor: Link
+  field with static title always shows even when no url entered.
+#2675568 by pianomansam, Chris Matthews, pifagor: Whether URL and Title entity
+  properties are required is incorrectly determined.
+#2718563 by makbul_khan8, jgalletta, idebr, malcomio, joekers, b.lammers,
+  pifagor: Use link field widget in custom form.
+#1475790 by idebr, quicksketch, donquixote, skessler, jcfiala, stevector, Zach,
+  bk_bigfish, balumahender, jrao, pifagor, jbitdrop, das-peter: Link should not
+  modify $item['url'] on node_view() (causes data loss when combined with
+  Workbench Moderation).
+#949604 by boazr, webadpro, zilverdistel, TheRuslan, GaëlG, barraponto,
+  jhodgdon, diqidoq, jcfiala, Gábor Hojtsy, colan, mErilainen, knalstaaf,
+  mfernea, pifagor: Static link text cannot be translated.
+#1993920 by lwalley, johnnybgoode, Dragan Eror, weri, idebr, Etroid, jcfiala,
+  jsst, alex_optim, diqidoq, dandaman: Allow tel: links.
+#2428185 by das-peter, harsha012, hgoto, recrit, eelkeblok, weseze, nironan,
+  pifagor, Alex Bukach, diqidoq: Language prefix and relative links broken.
+#2974486 by naidim: Title field assumed when it may not exist.
+#2966141 by RenatoG: Add translate in help section.
+#2574331 by RenatoG, tjhart87: Utilize link target action in rules.
+#2653852 by sassafrass, pifagor, NWOM, RenatoG: Token displayed when field is
+  empty.
+#2966082 by RenatoG: Remove unused file for structure.
+#2965798 by RenatoG: Update documentation for requirements.
+#2965735 by RenatoG: Organize style structure. Create css folder for organizer.
+#2965727 by RenatoG: Remove unused / commented code in views/link.views.inc.
+#2295071 by interX, pifagor: Recursion in field formatter with views.
+#2195699 by Dane Powell, pifagor: Generate more creative URLS with
+  devel_generate.
+#2536756 by gareth-davies, pifagor: Unless using the default field formatter,
+  classes are not transformed into an array which causes a fatal error.
+#2916152 by azinck, pifagor: Override title in field formatter.
+#2921141 by chishah92, Ambient.Impact, RenatoG: Use a real ellpsis instead of
+  three dots (...).
+#2945199 by salvis, pifagor: drupal_encode_path() is called twice.
+#2813057 by klausi, pifagor, John Cook: mailto: link with subject parameter and
+  upper case letter does not validate.
+#2952073 by pifagor: Change correct deskription.
+#2930024 by Dylan Donkersgoed, pifagor: file:// links often don't work.
+#2948578 by RenatoG: Resolve all items reported by pareview.sh.
+
+Link 7.x-1.6, 2019-02-20
+------------------------
+Ensure attributes are not strings.
+
+Link 7.x-1.5, 2018-05-13
+------------------------
+#2553705 and #2961210 by billywardrop, pifagor, vinmassaro, alex_optim,
+  alex.mazaltov: Preparation of module version 1.5.
+
+Link 7.x-1.5-beta3, 2018-02-21
+------------------------------
+By pifagor: Fixed test.
+#2945139: options(&$options) deprecated since views2.
+#2945137: Unused variables.
+#2945133: Warning: Method call uses 2 parameters, but method signature uses 1
+  parameters.
+#2945131: Fix coding standards module.
+#2945128: Fix coding standard test parts
+#2901656 and #2210297 by nightwalkr, mfernea: validates that the input on the
+  URL field actually exists as a path alias. Theme_link_formatter_link_default()
+  doesn't work with classes defined in a preprocess function.
+#2216399 by jemond: Provide Formatter to remove http:// or https:// from URL.
+#1836632 by jmart: Double HTML escaping when using plain_title formatter.
+By nileema.jadhav: Modification for bug fixes related to HTML entities in title
+  and no protocol for url display format.
+#2480723 by krystalcode, naidim, rrrob, sumitmadan, Argus, diqidoq, RenatoG,
+  jbitdrop: Avoid warning in diff integration for links without title.
+#2911860 by RenatoG: Fix tests items results.
+By RenatoG: Fix tests.
+#2244041 by alberto56, RenatoG: Undefined index: widget in link.module on line
+  1341.
+#2743401 by RenatoG, MHuebner: Use parent directory in internal url.
+#2897563 by RenatoG: Fix Coding Standards, Best Practices and Insert
+  Documentation in Comments for Tests.
+#2897348 by RenatoG: Update documentation in README file for nre template of
+  Drupal.org.
+#2897332 by RenatoG: Fix all items of Code Review for Link.
+#2166459 by j0rd, mstef: Notice: Undefined index: error_element in
+  link_field_widget_error() (line 328 of link.module).
+
+Link 7.x-1.5-beta2, 2017-07-25
+------------------------------
+#2889683 by Yago Elias, RenatoG: Protocol-less URLs should be cleaned for use.
+#2558497 by joachim, RenatoG: property type for 'url' entity metadata property
+  should not be 'url'.
+#2299657 by RenatoG, egfrith, ChuChuNaKu, idebr, jtsnow, rootwork,
+  kristiaanvandeneynde, GoddamnNoise, Leeteq, jcfiala, Remon, drumm, tobiberlin,
+  brantwynn, klonos, Vacilando, quicksketch, mikeytown2, samuel.mortenson,
+  brice_gato, katjam, kenorb, ultimike, Graber, rv0, othermachines, r0nn1ef,
+  DamienMcKenna, doraf, jmart, reptilex, Berliner-dupe, jp.stacey, JonMcL: Allow
+  any TLD because site admins can never keep up with ICANN.
+#2499165 by jcnventura, RenatoG: Validate all latin accented chars.
+#1295132 by Scyther, RenatoG: Unnecessary variables in link.install.
+#1335424 by claudiu.cristea, RenatoG: Title as a select.
+#2612176 by FluxSauce, pcambra, RenatoG: PHP Fatal error: Class
+  'MigrateFieldHandler' not found.
+#2693731 by Antonnavi, RenatoG: Tokens replaced on "Static title" when "Allow
+  user-entered tokens" not enabled.
+
+Link 7.x-1.5-beta1, 2017-01-14
+------------------------------
+#2140087 by olofjohansson, maximpodorov, mistermoper, RenatoG: Allow '0' as the
+  link title.
+#1418762 by num37, RenatoG, rvilar, jcfiala, randyhook: Provide default title
+  when title is optional.
+#2553705 by Trav84, aguilarm, michaelfavia, reshma.i, RenatoG, roopeshnaik:
+  Static Title does not show up when using 'Optional URL' + 'Static Title' with
+  an empty URL.
+#2323441 by paolomainardi, sumitmadan, SylvainM, brockfanning, rob_johnston,
+  RenatoG, mikeryan: [Patch] Migrate language argument array handling.
+#2299657 by egfrith, RenatoG, ChuChuNaKu, idebr, jtsnow, rootwork,
+  kristiaanvandeneynde, GoddamnNoise, Leeteq, jcfiala, Remon, drumm, tobiberlin,
+  brantwynn, klonos, Vacilando, quicksketch, mikeytown2, samuel.mortenson,
+  brice_gato, katjam, kenorb, ultimike, Graber, rv0, othermachines, r0nn1ef,
+  DamienMcKenna, doraf, jmart, reptilex, jp.stacey, JonMcL: Allow any TLD
+  because site admins can never keep up with ICANN.
+#1909788 by mthomas, jesss, csc4, Kpolymorphic, RenatoG: Add an entity token for
+  the display_url.
+#2650956 by loopduplicate, amitmaity, karsumit94, RenatoG: Code standards are
+  not followed for array modified in 2367069.
+#2299657 by egfrith, RenatoG, ChuChuNaKu, idebr, jtsnow, rootwork,
+  kristiaanvandeneynde, GoddamnNoise, Leeteq, jcfiala, Remon, drumm, tobiberlin,
+  brantwynn, klonos, Vacilando, quicksketch, mikeytown2, samuel.mortenson,
+  brice_gato, katjam, kenorb, ultimike, Graber, rv0, othermachines, r0nn1ef,
+  DamienMcKenna, doraf, jmart, reptilex, Berliner-dupe, jp.stacey, JonMcL,
+  peter-majmesku: Allow any TLD because site admins can never keep up with
+  ICANN.
+#2299657 by egfrith, ChuChuNaKu, RenatoG, idebr, jtsnow, rootwork, Leeteq,
+  kristiaanvandeneynde, GoddamnNoise, tobiberlin, Remon, drumm, jcfiala, klonos,
+  brantwynn, quicksketch, mikeytown2, samuel.mortenson, brice_gato, Vacilando,
+  katjam, kenorb, ultimike, Graber, rv0, DamienMcKenna, doraf, jmart, reptilex,
+  jp.stacey, JonMcL: Allow any TLD because site admins can never keep up with
+  ICANN.
+#2890057 by RenatoG: All content of file commented "link.views.inc" should be
+  use @codingStandardsIgnoreFile tag.
+#2299657 by egfrith, ChuChuNaKu, RenatoG, idebr, jtsnow, Leeteq, GoddamnNoise,
+  tobiberlin, kristiaanvandeneynde, Remon, jcfiala, rootwork, drumm, klonos,
+  brice_gato, quicksketch, brantwynn, mikeytown2, Vacilando, reptilex,
+  samuel.mortenson, DamienMcKenna, ultimike, Graber, rv0, doraf, jp.stacey,
+  kenorb, jmart, JonMcL, katjam: Allow any TLD because site admins can never
+  keep up with ICANN.
+#2890013 by RenatoG: Fix codings standards for Link.
+#2889755 by RenatoG: Fixed Best practice in Drupal.
+#2566443 by ohthehugemanatee, RenatoG: Broken description text when used through
+  Form API.
+#2888582 by RenatoG: Resolved unused variables in install file.
+#2723993 by dhruveshdtripathi, rahul.shinde, jeevanbhushetty, RenatoG: help hook
+  is not there.
+#2578521 by kala4ek, arialvix, soapboxcicero, ervit, RenatoG: Validation error.
+#2888510 by RenatoG: Create tip for token on install.
+#2888480 by RenatoG: Fixed documentation links in new window target "blank".
+#2888461 by RenatoG: Clear variable "link_extra_domains" on uninstall.
+#2843813 by idebr, klausi, michael_wojcik, clemens.tolboom: Fix failing tests
+  due to missing 'administer fields' permission.
+
+Link 7.x-1.4, 2016-01-14
+------------------------
+UPC-99: Apply patch: link-field_link_validate_overrites_langcode-2632728.patch
+#2470377 by rhclayto: Adding a class with underscores, the class gets rendered
+  with hyphens
+#609560 by Boobaa: Provide token for hostname
+#2470968: Add README.txt
+#2247261 by heddn, sumitmadan: URLs are not validated
+#2513706 by rrfegade: Spelling errors in D7
+#2055111 by joelpittet, mikeytown2: skip over re-loading entities for tokens in
+  link field attributes unless there's a token to process.
+#2367069 by jcfiala:Fixed entity_token for link after node_view was called.
+Added setup function to LinkValidateUrlLight to enable link module, which was
+  failing drupal.org qa testbot.
+#2364673 by jcfiala: Replaced drupal_html_class() with
+  drupal_clean_css_identifier() so that link field classes are not forced to
+  lower case.
+Added tests to test entity_token token with link.
+
+Link 7.x-1.3, 2014-10-21
+------------------------
+By jcfiala: Various small fixes to pass coder review.
+#2351223 by Xano: Improve field validation error message.
+#2350253 by genjohnson: Fixed Link with ! (exclamation) in URL query returns
+  "not a valid URL".
+#1483494 by vinmassaro, cord1: Notice: Undefined index: url in _link_process()
+  (line 345 of ../link.module).
+#1955976 by chOP, erikhopp, idebr, d.clarke | Jim Cutler: Added Allow relative
+  paths with validation.
+#2117099 by tim.plunkett: Expose attributes as property info.
+#1930430 by benjifisher: Fixed Migration integration misses title attribute for
+  mutiple-valued link fields.
+#97766 by tanepiper, heddn, timbrandin, droath, alanburke, Digidog: Class
+  attribute field option for each dataset in link widget.
+#1266474 by redndahead, franz, RobLoach, jcfiala, markabur: Use field label as
+  the label for the title field
+#2036645 by lex0r: restricting the explode to 2 items when breaking apart
+  querystrings helps prevent problems with unescaped = characters in the data.
+#2223571 by jcfiala: Included new tld that had been included into the 6.x-2.x
+  branch.
+#1836632 by jcfiala:Removed double-encoding of titles when url not specified in
+  link field.
+#1980736 by Cottser: Allow child elements of the link field to be rendered.
+
+Link 7.x-1.2, 2013-11-24
+------------------------
+#1866632 by mohamadaliakbari,poiu:Adding rtl support to the link field.
+#1928116 by jcfiala: Added field variable to variables for link formatter
+  functions in hook_theme.
+#2141643:Applying changes suggested by coder
+#2043001 by zhuber:Add xxx to list of top level domains.
+#2036115 by Samvel:Validation of link field was not being properly passed
+  through to hook_field_widget_error().
+#1616752 by Taran2L:Period in names of querystring items was being replaced with
+  underscores.
+#2123277 by zhuber:Link devel generate was applying titles to links with no
+  title set.
+#1936784 by jeffam, illmasterc: Ampersands were being escaped in urls.
+#1784862 by aaronbauman: Added dialog switch to code displaying available
+  tokens.
+#1914286 by facine: Fixes Title value in link_field_update_instance undefined
+  error.
+#1918850 by jsacksick: Prevents undefined variable messages in
+  link_i18n_string_list_field_alter().
+
+Link 7.x-1.1, 2013-02-09
+------------------------
+By jcfiala: Fixed broken token tests - setUp on LinkBaseTestClass was broken.
+#949604 by zilverdistel: Added i18n support for the static link text field
+  option.
+#1909314 by Simon Georges: Removing link.install from the link.info files[]
+  array.
+By jcfiala: Removed all places where #markup was being set to a theme function
+  output with #theme.
+#1674284 by sun, jcfiala: Cleaning up the code to Drupal standards, this time
+  with the tests.
+#1674284 by sun, jcfiala: Cleaning up the code to Drupal standards.
+By hass:Fixing a string in the target argument handler to be t-compatible.
+By hackwater: Fixed minor typo which spelled automatically wrong.
+#1458502 by eugene.brit:Fixing Undefined index: target in _link_sanitize()
+#1010850 by benjifisher: Update MigrateFieldHandler to work with migrate-7.x-2.4
+  and later.
+#1889918 by jcfiala,Boobaa: Changed the bad url error message to include the
+  field's label.
+#1179944 by jcfiala, mr.york: Added variable_get calls so that the list of TLD
+  that pass validation can be set by admins.
+#1766150 by jcfiala: Blank urls will no longer be treated the same as links to
+  <front>.
+#1686024 by Alan D.: Added implementation of hook_field_diff_view().
+#1715246 by Haza, jcfiala: Fixed strict warning when loading entity for token
+  use, also fixed problem with the title attribute not being handeld properly.
+#1309768 by jcfiala: Made URL label of url-only link fields invisible instead of
+  removing it, to be 508 compliant.
+#1645640 by barraponto:Fixing <front> links as well as double-printing of
+  querystring.
+By jcfiala: Fixed how possible tokens are displayed when setting up a link field
+  - had been using a variable which was not defined in that scope.
+#43870: Cleaned up and conslidated the link formatter tests so that the tests
+  can run faster.
+#438770: Fixed code to align with tests - handling the 'token type' fetching
+  better and fixing the separate link display to match previous functionality.
+#1047444 by Sweetchuck, jcfiala: Updated how tokens are handled so that the
+  proper token references are used, and not just 'node'.
+#1309658 by jcfiala: Small nudge to the views tokens fix to handle problem with
+  relative links going through url() twice.
+#472766 by mstrelan: Added new formatter to display domain as link.
+#1710578 by jcfiala: Added code to prevent unnecessary = signs in querystrings.
+#1309658 by jcfiala: Rearranged the link code so that the query and fragment are
+  not separated from the url so that views can access them in a token.
+#1290904 by gordon:Moved link processing on save from the hook_field_presave
+  link to the hook_field_insert/update hook to prevent problem with
+  field_attach_update.
+#1525668 by mikeryan: Removed type-hint of $entity in the migrate prepare
+  handler.
+#1599314 by arpieb: Adding spaces, periods, and parenthesis to internal file
+  paths.
+#1368616 by grndlvl: Fix required marker so it shows if title is not displayed.
+#1512954 by jfiala, mikeytown2: Added code to prevent error in
+  theme_link_formatter_link_plain(), improved use of $link_options array in
+  theme functions.
+#1125766 by jcfiala, David Stosik, Eric_A: Provided default value for link
+  targets when link field uses user input for target.
+#1230256 by yched: Fixed D6 migration (cck_migrate()).
+#1218428 by twistor, Digidog: Fixed - Link tests, LinkValidateUrlLight because
+  link validate_url is called but not available.
+#1409980 by luisortizramos, effulgentsia, Digidog: Fixed - Validation error
+  -Invalid URL- is not reported properly. The corresponding form_set_error()
+  calls have been fixed.
+#1441702 by Digidog: Fixed - Rel attribute should have an option to get
+  automaticly turned on/off if link is internal/external.
+#1418674 by rvilar, Digidog: Fixed - Bad variable concatenation in t() function-
+#1321482 by Liam Morland, KarlShea, Summit, Jevedor, Digidog: Fixed -Query
+  string and fragment are removed, resulting in parts of the URL being lost-
+#1066328 by Bevan, jcfiala, dkingofpa, sammys, Digidog: Formatter for use with
+  url() and Views its -output this field as a link- fields (Absolute url
+  formatter added).
+#1429684 by das-pater: Dont unserialize already unserialized attributes in
+  _link_load(). The patch contains condition before unserialize in _link_load(),
+  link_views_handler_argument_target::query() is now compatible to its parent to
+  avoid php strict notices.
+#698438 by tim.plunkett: Added support for Devel Generate
+#1010850 by jcfiala, quartsize, raman2385, Bevan, eporama, das-peter,
+  smithmilner, Digidog: Fixed MigrateFieldHandler to work with Migrate Module.
+
+Link 7.x-1.0, 2011-10-23
+------------------------
+#1318850 by Digidog: Fixed completion of special chars for function
+  link_validate_url() in line 916.
+#1199806 by ss81, jcfiala, Digidog: Fixed fatal error when the link URl is equal
+  to page URL.
+#1307788 Feature request by nmc, tars16, Digidog: Fixed Add custom maxlength to
+  link title text.
+#1217396 by WilliamB,noahb,orakili,Digidog: Fixed options multiple-value &
+  required break input/save and produces error: At least one title or URL must
+  be entered.
+#1036628 by gargoyle,jcfiala,wizonesolutions,Digidog: Fixed to allow more
+  special chars in url validation for use cases like twitter etc. (f.e.: # , ~ )
+#948658 by brenk28, Dave Reid, becw, jcfiala, iMiksu, BTMash, Digidog: Fixed
+  noticeof Undefined index: title in _link_sanitize() - hopefully, finally.
+#1079782 by fago, klausi, drunken monkey, jcfiala, Digidog: Fixed support for
+  hook_entity_property_info() including search API and Rules. @TODO: needs
+  simpletests to be submitted for rc1.
+
+Link 7.x-1.0-beta1, 2011-09-26
+-------------------------------
+#1264208 by lazysoundsystem, Digidog: Fixed recursive serialization of
+  attributes.
+#1218422 by Dave Reid, twistor, Digidog: Fixed tests files: strict warnings
+  about static getInfo and parameters for setUp(), whitespace, and file
+  structure.
+#1038444 by Dave Reid, Digidog: Fixed 3 issues plus #required on title prevents
+  submission. All issues have been fixed with patch of Dave Reid from January.
+  Patch manually retrieved for latest 7.x-1.x by Digidog.
+#1105816 by thekevinday, jcfiala, Digidog: Fixed improper use of db_type by
+  committing patch of thekevinday at comment-5028534.
+#335281 by thePanz, jcfiala, stella, Digidog: committed patch by stella
+  #comment-4929778 for title attribute support.
+#519416 by jcfiala: Added the plain text display of just the link title, which
+  was available in 6.x but had not been added to 7.x yet.
+By jcfiala: Added slight changes to how links are validated to bring them in
+  line withvalid_url().
+#1148864 by jcfiala: Re-enabled the ability to turn off url validation.
+#1063764 by bdragon,jcfiala: Renamed all field formatters to start with 'link_'
+  so they will be unique.
+#1078254 by jcfiala: added a hook_update_n call that copies settings from the
+  field to the instance.
+#1126384 by burki: Started using field_widget_instance to get link field
+  settings in link_field_process, which is more standard than hunting in the
+  for it.
+#1125384 by Rob Loach: Changed url length in link_field_schema to not use the
+  constant which is not always defined.
+#1043348 by jcfiala: Finished updating the formatting code so that querystrings
+  and fragments of urls work as in 6.x-2.x.
+#438770 by jcfiala: Adding test that makes sure the 'plain url' formatter is
+  working properly with the basic case.
+#1043348 by jcfiala: First pass at fixing problems with raw www.example.com urls
+  ending up as index.php?q=www.example.com. Need more testing/fixing with
+  fragments and querystrings - not complete.
+#1056364 by the_phi: Checking that ['settings']['enable_tokens'] exists before
+  the value is compared.
+#1078736 by jcfiala: Added empty handler for hook_link_form_settings to make
+  ield Permissions work.
+
+Link 7.x-1.0-alpha3, 2011-02-07
+-------------------------------
+bug report #1008562 by jcfiala: Looking into URL, as link error caused me to
+  realize that the _link_sanitize was being called in the wrong place - now
+  called on link_field_prepare_view.
+bug report by jcfiala: Fixed error from missing index by changing ['required']
+  to ['required'].
+bug report #1026040 by pcambra: Updated token help to use the updated token
+  module and token display.
+bug report #1033112 by Dave Reid: Removing extra lines from link.info.
+task #970392 by jcfiala: Added content_migrate_field_alter and
+  content_migrate_instance_alter hooks to link.module to help with upgrading
+  from D6 to D7.
+feature request #1012372 by jcfiala: Tried using
+  hook_field_instance_settings_form to allow per-instance settings. Also,
+  re-added a bunch of old tests from 6.x.
+
+Link 7.x-1.0-alpha2, 2010-12-13
+-------------------------------
+task #960062 by jcfiala: Added package of 'fields' to the link.info file.
+task #997270 by jcfiala: Removed content in link.views.inc, and added file
+  references to the link_views_handler files in link.info for better views
+  integration.
+By jcfiala: Added more code to attribute test.
+By jcfiala: Edited the two test files so that simpletests run without error,
+  although they don't test nearly enough.
+bug report #952656 by Dave_Reid: Moved hook_field_schema() to link.install,
+  other small tweaks to remove old references.
+bug report #948628 by brenk28, bec: Fixing setting references in and removing
+  calls to see if token is enabled.
+
+Link 7.x-1.0-alpha1, 2010-12-07
+-------------------------------
+#955214 by alex_b,jcfiala: Fixed problem where a url with a querystring caused
+  fatal errors.
+#956182 by jmiccolis, bec, Bevan: Theme fixing for the theme_link_field
+#696678 by tristanoneil: Link module now showing basic functionality - still not
+  done, but better.
+#696678 by Garrett Albright: Initial attempt at updating Link module to Drupal 7
+  - does not really work but is a start.
+By dropcube: First working copy of the 7.x version.

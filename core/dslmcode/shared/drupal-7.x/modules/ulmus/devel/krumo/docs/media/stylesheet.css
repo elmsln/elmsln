@@ -33,8 +33,8 @@ a img { border: 0px; }
 
 .description {}
 .short-description { font-weight: bold; color: #666666; }
-.tags {	padding-left: 0em; margin-left: 3em; color: #666666; list-style-type: square; }
-.parameters {	padding-left: 0em; margin-left: 3em; color: #014fbe; list-style-type: square; }
+.tags {       padding-left: 0em; margin-left: 3em; color: #666666; list-style-type: square; }
+.parameters { padding-left: 0em; margin-left: 3em; color: #014fbe; list-style-type: square; }
 .redefinitions { font-size: 8pt; padding-left: 0em; margin-left: 2em; }
 .package { font-weight: bold; }
 .package-title { font-weight: bold; font-size: 14pt; border-bottom: 1px solid black }
@@ -142,40 +142,40 @@ a img { border: 0px; }
 ------------------------------------------------------------------------------*/
 
 .webfx-tree-container {
-	margin: 0px;
-	padding: 0px;
-	white-space: nowrap;
-	font: icon;
+  margin: 0px;
+  padding: 0px;
+  white-space: nowrap;
+  font: icon;
 }
 
 .webfx-tree-item {
-	padding: 0px;
-	margin: 0px;
-	color: black;
-	white-space: nowrap;
-	font: icon;
+  padding: 0px;
+  margin: 0px;
+  color: black;
+  white-space: nowrap;
+  font: icon;
 }
 
 .webfx-tree-item a {
-	margin-left: 3px;
-	padding: 1px 2px 1px 2px;
-	color: black;
-	text-decoration: none;
+  margin-left: 3px;
+  padding: 1px 2px 1px 2px;
+  color: black;
+  text-decoration: none;
 }
 
-.webfx-tree-item a:hover, .webfx-tree-item a:active { 
-	color: highlighttext; 
-	background: highlight; 
-	text-decoration: none 
+.webfx-tree-item a:hover, .webfx-tree-item a:active {
+  color: highlighttext;
+  background: highlight;
+  text-decoration: none
 }
 
 .webfx-tree-item img {
-	vertical-align: middle;
-	border: 0px;
+  vertical-align: middle;
+  border: 0px;
 }
 
 .webfx-tree-icon {
-	width: 16px;
-	height: 16px;
+  width: 16px;
+  height: 16px;
 }
 

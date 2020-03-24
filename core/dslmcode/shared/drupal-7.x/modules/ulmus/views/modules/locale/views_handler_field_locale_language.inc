@@ -39,7 +39,7 @@ class views_handler_field_locale_language extends views_handler_field {
    * {@inheritdoc}
    */
   public function render($values) {
-    $languages = locale_language_list(empty($this->options['native_language']) ? 'name' : 'native');
+    $languages = views_language_list(empty($this->options['native_language']) ? 'name' : 'native');
     $value = $this->get_value($values);
     return isset($languages[$value]) ? $languages[$value] : '';
   }
