@@ -7,7 +7,6 @@ dependencies[] = ctools
 dependencies[] = features
 dependencies[] = imageinfo_cache
 dependencies[] = masquerade
-dependencies[] = menu
 dependencies[] = strongarm
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2

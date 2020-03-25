@@ -60,8 +60,13 @@ function webcomponents_process_html(&$variables) {
   if (strpos($location, 'http') === FALSE) {
     $location = base_path() . $location;
   }
+  $buildLocation = $location;
+  // support for build file to come local but assets via CDN
+  if (variable_get('webcomponents_project_local_build_file', false)) {
+    $buildLocation = base_path() . 'sites/all/libraries/webcomponents/';
+  }
   $wc = new WebComponentsService();
-  $markup = $wc->applyWebcomponents($location);
+  $markup = $wc->applyWebcomponents($buildLocation, $location);
   drupal_alter('webcomponents_build_integration_markup', $markup);
   // load webcomponentsjs polyfill library if it exists
   $element = array(
