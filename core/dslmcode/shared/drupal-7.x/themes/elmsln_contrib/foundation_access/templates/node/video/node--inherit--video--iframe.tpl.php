@@ -20,7 +20,7 @@
  sticky-corner="none"
  crossorigin="anonymous"
  <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>>
-  <video>
+  <video crossorigin="anonymous">
     <?php print $video; ?>
     <?php print $track;?>
   </video>

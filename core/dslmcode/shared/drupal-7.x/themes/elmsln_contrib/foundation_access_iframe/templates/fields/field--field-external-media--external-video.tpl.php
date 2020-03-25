@@ -59,7 +59,7 @@ if (isset($node->field_caption['und'][0]['uri'])) {
  crossorigin="anonymous"
  <?php print $attributes; ?>
  >
- <video>
+ <video crossorigin="anonymous">
    <?php print $track;?>
  </video>
 </video-player>

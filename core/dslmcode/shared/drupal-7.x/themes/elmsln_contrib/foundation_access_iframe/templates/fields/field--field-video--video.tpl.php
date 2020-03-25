@@ -67,7 +67,7 @@ if (isset($node->field_caption['und'][0]['uri'])) {
  <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"
  <?php endif;?>
  >
- <video>
+ <video crossorigin="anonymous">
    <?php print $video;?>
    <?php print $track;?>
  </video>

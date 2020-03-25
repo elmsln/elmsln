@@ -19,7 +19,7 @@
       accent-color="red"
       sticky-corner="none"
       <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>>
-        <video><?php print $track;?></video>
+        <video crossorigin="anonymous"><?php print $track;?></video>
     </video-player>
     <?php else: ?>
       <?php print render($content); ?>

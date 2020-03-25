@@ -15,5 +15,5 @@
  sticky-corner="none"
  crossorigin="anonymous"
  <?php print $attributes; ?>>
-  <video><?php print $track;?></video>
+  <video crossorigin="anonymous"><?php print $track;?></video>
 </video-player>
