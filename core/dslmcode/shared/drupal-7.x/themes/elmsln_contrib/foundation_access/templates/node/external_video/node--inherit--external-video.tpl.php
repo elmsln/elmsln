@@ -1,10 +1,10 @@
 <?php
-/**
- * For Media Poster, we will add put the poster within the video wrapper to accomidate intrinsic ratio.
- */
+  /**
+   * For Media Poster, we will add put the poster within the video wrapper to accomidate intrinsic ratio.
+   */
   $track = '';
   if (isset($node->field_caption['und'][0]['uri'])) {
-    $track = file_create_url(str_replace('.xml', '.vtt', $node->field_caption['und'][0]['uri']));
+    $track = '<track label="English" kind="subtitles" srclang="en" default src="' . file_create_url(str_replace('.xml', '.vtt', $node->field_caption['und'][0]['uri'])) . '"/>';
   }
 ?>
 <video-player
@@ -13,7 +13,7 @@
  class="iframe <?php print $classes; ?>"
  accent-color="red"
  sticky-corner="none"
- track="<?php print $track;?>"
  crossorigin="anonymous"
  <?php print $attributes; ?>>
+  <video><?php print $track;?></video>
 </video-player>
