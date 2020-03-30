@@ -285,6 +285,7 @@ class views_bulk_operations_handler_field_operations extends views_handler_field
           '#type' => 'radio',
           '#parents' => array($this->options['id']),
           '#return_value' => $id,
+          '#attributes' => array('class' => array('vbo-select')),
         );
       }
       else {

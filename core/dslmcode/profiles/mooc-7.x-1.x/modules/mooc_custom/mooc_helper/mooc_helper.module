@@ -772,13 +772,13 @@ function mooc_helper_tokens($type, $tokens, array $data = array(), array $option
           $replacements[$original] = $outline_node->nid;
           if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
             $replacements[$original] = '<span tabindex="0" id="' . $hash . '" class="cis_token_dynamic_value">' . $replacements[$original] . '</span>
-            <paper-tooltip
+            <simple-tooltip
               for="' . $hash . '"
               position="bottom"
               delay="0"
               offset="0">' .
               t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '
-            </paper-tooltip>';
+            </simple-tooltip>';
           }
         break;
       }

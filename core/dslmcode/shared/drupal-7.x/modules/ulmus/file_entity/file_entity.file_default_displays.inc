@@ -18,6 +18,10 @@ function file_entity_file_default_displays() {
   $file_display->status = TRUE;
   $file_display->settings = array(
     'controls' => 1,
+    'controls_list' => array(
+      'download' => 'download',
+      'remote_playback' => 'remote_playback',
+    ),
     'autoplay' => 0,
     'loop' => 0,
     'multiple_file_behavior' => 'tags',
@@ -39,6 +43,10 @@ function file_entity_file_default_displays() {
   $file_display->status = TRUE;
   $file_display->settings = array(
     'controls' => 1,
+    'controls_list' => array(
+      'download' => 'download',
+      'remote_playback' => 'remote_playback',
+    ),
     'autoplay' => 0,
     'loop' => 0,
     'multiple_file_behavior' => 'tags',
@@ -139,7 +147,13 @@ function file_entity_file_default_displays() {
   $file_display->status = TRUE;
   $file_display->settings = array(
     'controls' => 1,
+    'controls_list' => array(
+      'fullscreen' => 'fullscreen',
+      'download' => 'download',
+      'remote_playback' => 'remote_playback',
+    ),
     'autoplay' => 0,
+    'playsinline' => 0,
     'loop' => 0,
     'width' => '',
     'height' => '',
@@ -162,7 +176,13 @@ function file_entity_file_default_displays() {
   $file_display->status = TRUE;
   $file_display->settings = array(
     'controls' => 1,
+    'controls_list' => array(
+      'fullscreen' => 'fullscreen',
+      'download' => 'download',
+      'remote_playback' => 'remote_playback',
+    ),
     'autoplay' => 0,
+    'playsinline' => 0,
     'loop' => 0,
     'width' => '',
     'height' => '',

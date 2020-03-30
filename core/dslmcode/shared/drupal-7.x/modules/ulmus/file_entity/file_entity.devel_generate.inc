@@ -5,6 +5,11 @@
  * Devel generate integration for the File Entity module.
  */
 
+/**
+ * Devel generate file form.
+ *
+ * Options for Devel generate file integration.
+ */
 function file_entity_generate_file_form() {
   $form['count'] = array(
     '#type' => 'textfield',
@@ -32,12 +37,18 @@ function file_entity_generate_file_form() {
   return $form;
 }
 
+/**
+ * Implements hook_ID_form_submit().
+ */
 function file_entity_generate_file_form_submit(&$form, &$form_state) {
   $file_types = array_values(array_filter($form_state['values']['file_types']));
   $batch = file_entity_generate_file_batch_info($form_state['values']['count'], $file_types, $form_state['values']['delete']);
   batch_set($batch);
 }
 
+/**
+ * Implements hook_batch_info().
+ */
 function file_entity_generate_file_batch_info($count, array $file_types = array(), $delete = FALSE) {
   if (empty($file_types)) {
     $file_types = array_keys(file_entity_type_get_names());
@@ -56,6 +67,9 @@ function file_entity_generate_file_batch_info($count, array $file_types = array(
   );
 }
 
+/**
+ * Implements hook_batch_delete().
+ */
 function file_entity_generate_file_batch_delete(array $file_types, array &$context) {
   if (empty($context['sandbox'])) {
     $context['sandbox'] = array();
@@ -80,6 +94,9 @@ function file_entity_generate_file_batch_delete(array $file_types, array &$conte
   }
 }
 
+/**
+ * Implements hook_generate_file_batch_generate() using Devel generate api.
+ */
 function file_entity_generate_file_batch_generate(array $file_types, $num, array &$context) {
   if (empty($context['sandbox'])) {
     module_load_include('inc', 'devel_generate');
@@ -114,6 +131,9 @@ function file_entity_generate_file_batch_generate(array $file_types, $num, array
   }
 }
 
+/**
+ * When the batch is finished set a status message.
+ */
 function file_entity_generate_file_batch_finished($success, $results, $operations) {
   if ($success) {
     drupal_set_message(format_plural(count($results), 'One file created.', '@count files created.'));
@@ -126,6 +146,9 @@ function file_entity_generate_file_batch_finished($success, $results, $operation
   }
 }
 
+/**
+ * Generate file function for file_entity.
+ */
 function file_entity_generate_file($file_type) {
   $type = file_type_load($file_type);
   $possible_extensions = file_type_get_valid_extensions($type);

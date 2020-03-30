@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="preload" href="./build.js" as="script" crossorigin="anonymous">
+  <base href="./"/>
+  <title>Your App</title>
+  <style>
+    body[no-js] your-app {
+      display: none !important;
+    }
+    .somefallback {
+      display: none;
+    }
+    body[no-js] .somefallback {
+      display: block;
+    }
+  </style>
+</head>
+<body no-js>
+  <div class="somefallback"></div>
+  <your-app></your-app>
+  <script>document.body.removeAttribute('no-js');window.__appCDN="./";window.__appForceUpgrade=false;</script>
+  <script src="./build.js"></script>
+</body>
+</html>

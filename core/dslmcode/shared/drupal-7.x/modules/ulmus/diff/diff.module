@@ -475,7 +475,8 @@ function diff_node_form_build_preview_changes($form, &$form_state) {
   $node = node_form_submit_build_node($form, $form_state);
 
   // Create diff of old node and edited node.
-  $rows = _diff_body_rows($old_node, $node);
+  $state = variable_get('diff_default_state_node', 'raw');
+  $rows = _diff_body_rows($old_node, $node, $state);
 
   $header = _diff_default_header(t('Original'), t('Changes'));
   $changes = theme('table__diff__preview', array(

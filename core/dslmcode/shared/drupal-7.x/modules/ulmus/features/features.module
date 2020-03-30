@@ -503,6 +503,7 @@ function features_load_feature($name, $reset = FALSE) {
         $features[$name]->name = $name;
         $features[$name]->filename = drupal_get_path('module', $name) . '/' . $name . '.module';
         $features[$name]->type = 'module';
+        $features[$name]->status = module_exists($name);
         $features[$name]->info = $info + $defaults;
       }
     }

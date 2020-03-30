@@ -13,6 +13,7 @@ define('VBO_ACCESS_OP_DELETE',    0x08);
 
 /**
  * Implements hook_action_info().
+ *
  * Registers custom VBO actions as Drupal actions.
  */
 function views_bulk_operations_action_info() {
@@ -20,9 +21,14 @@ function views_bulk_operations_action_info() {
   $files = views_bulk_operations_load_action_includes();
   foreach ($files as $filename) {
     $action_info_fn = 'views_bulk_operations_'. str_replace('.', '_', basename($filename, '.inc')).'_info';
-    $action_info = call_user_func($action_info_fn);
-    if (is_array($action_info)) {
-      $actions += $action_info;
+    if (is_callable($action_info_fn)) {
+      $action_info = call_user_func($action_info_fn);
+      if (is_array($action_info)) {
+        $actions += $action_info;
+      }
+    }
+    else {
+      watchdog('views bulk operations', 'views_bulk_operations_action_info() expects action filenames to have a matching valid callback function named: %function', array('%function' => $action_info_fn), WATCHDOG_WARNING);
     }
   }
 
@@ -190,7 +196,7 @@ function views_bulk_operations_get_operation_info($operation_id = NULL) {
       $operations += $plugin['list callback']();
     }
 
-    uasort($operations, create_function('$a, $b', 'return strcasecmp($a["label"], $b["label"]);'));
+    uasort($operations, '_views_bulk_operations_sort_operations_by_label');
   }
 
   if (!empty($operation_id)) {
@@ -199,6 +205,16 @@ function views_bulk_operations_get_operation_info($operation_id = NULL) {
   else {
     return $operations;
   }
+}
+
+/**
+ * Sort function used by uasort in views_bulk_operations_get_operation_info().
+ *
+ * A closure would be better suited for this, but closure support was added in
+ * PHP 5.3 and D7 supports 5.2.
+ */
+function _views_bulk_operations_sort_operations_by_label($a, $b) {
+  return strcasecmp($a['label'], $b['label']);
 }
 
 /**
@@ -523,7 +539,7 @@ function views_bulk_operations_form($form, &$form_state, $vbo) {
     $enable_select_all_pages = FALSE;
     // If the view is paginated, and "select all items on all pages" is
     // enabled, tell that to the theme function.
-    if (count($vbo->view->result) != $vbo->view->total_rows && $vbo->get_vbo_option('enable_select_all_pages')) {
+    if (isset($vbo->view->total_rows) && count($vbo->view->result) != $vbo->view->total_rows && $vbo->get_vbo_option('enable_select_all_pages')) {
       $enable_select_all_pages = TRUE;
     }
     $form['select_all_markup'] = array(
@@ -842,7 +858,7 @@ function views_bulk_operations_execute($vbo, $operation, $selection, $select_all
 
   // All items on all pages should be selected, add a batch job to gather
   // and enqueue them.
-  if ($select_all_pages && $vbo->view->query->pager->has_more_records()) {
+  if ($select_all_pages && ($vbo->view->query->pager->has_more_records() || $vbo->view->query->pager->get_current_page() > 0)) {
     $total_rows = $vbo->view->total_rows;
 
     $batch['operations'][] = array(
@@ -1186,7 +1202,7 @@ function views_bulk_operations_direct_process($operation, $rows, $options) {
     $skip_permission_check = $operation->getAdminOption('skip_permission_check');
     // Filter out entities that can't be accessed.
     foreach ($entities as $id => $entity) {
-      if (!$skip_permission_check && !_views_bulk_operations_entity_access($operation, $entity_type, $entity, $account)) {
+      if (!$skip_permission_check && !_views_bulk_operations_entity_access($operation, $entity_type, $entity, $user)) {
         $context['results']['log'][] = t('Skipped %operation on @type %title due to insufficient permissions.', array(
           '%operation' => $operation->label(),
           '@type' => $entity_type,

@@ -77,6 +77,10 @@ function file_info_cache_clear() {
 function file_view_multiple($files, $view_mode = 'full', $weight = 0, $langcode = NULL) {
   $build = array();
 
+  if (empty($files)) {
+    return $build;
+  }
+
   $entities_by_view_mode = entity_view_mode_prepare('file', $files, $view_mode, $langcode);
   foreach ($entities_by_view_mode as $entity_view_mode => $entities) {
     field_attach_prepare_view('file', $entities, $entity_view_mode, $langcode);
@@ -240,6 +244,22 @@ function file_view_file($file, $displays = 'full', $langcode = NULL) {
   }
   drupal_alter('file_displays', $displays, $file, $view_mode);
   _file_sort_array_by_weight($displays);
+
+  // Since $file->alt and $file->title were set in file_entity_file_load()
+  // (which is a language-agnostic hook) they will not be in the correct
+  // language if the file is being displayed in a language other than the
+  // default one. Set them again here, using the correct language. This must
+  // run after hook_file_displays_alter() since the Media module sets
+  // $file->alt and $file->title again during that hook.
+  if ($langcode != $GLOBALS['language_content']->language) {
+    $languages = language_list();
+    if (isset($languages[$langcode])) {
+      if (!function_exists('file_entity_set_title_alt_properties')) {
+        module_load_include('file.inc', 'file_entity');
+      }
+      file_entity_set_title_alt_properties(array($file), $languages[$langcode]);
+    }
+  }
 
   // Attempt to display the file with each of the possible displays. Stop after
   // the first successful one. See file_displays() for details.

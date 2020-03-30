@@ -5,9 +5,8 @@ configure = admin/config/content/diff
 
 files[] = DiffEngine.php
 
-; Information added by Drupal.org packaging script on 2016-12-20
-version = "7.x-3.3"
+; Information added by Drupal.org packaging script on 2018-11-05
+version = "7.x-3.4"
 core = "7.x"
 project = "diff"
-datestamp = "1482211686"
-
+datestamp = "1541401388"

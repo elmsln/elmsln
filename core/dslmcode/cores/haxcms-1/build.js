@@ -3,4 +3,4 @@
 // We pushed things out NOT being in a dist directory but yet our documentation
 // for what to reference in all end-targets says this file should be outside of a dist directory
 // so it is here and hopefully no one ever reads this :)
-import "./dist/build-cms.js";
+import "./dist/app.js";

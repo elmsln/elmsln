@@ -9,6 +9,7 @@ dependencies[] = ctools
 dependencies[] = system (>=7.33)
 
 test_dependencies[] = token
+test_dependencies[] = views
 
 files[] = views/views_handler_argument_file_type.inc
 files[] = views/views_handler_field_file_rendered.inc
@@ -24,15 +25,15 @@ files[] = views/views_handler_field_file_link_usage.inc
 files[] = views/views_plugin_row_file_rss.inc
 files[] = views/views_plugin_row_file_view.inc
 files[] = file_entity.test
+files[] = file_entity_views.test
 
 configure = admin/config/media/file-settings
 
 ; We have to add a fake version so Git checkouts do not fail Media dependencies
 version = 7.x-2.x-dev
 
-; Information added by Drupal.org packaging script on 2016-05-31
-version = "7.x-2.0-beta3"
+; Information added by Drupal.org packaging script on 2019-11-20
+version = "7.x-2.27"
 core = "7.x"
 project = "file_entity"
-datestamp = "1464653173"
-
+datestamp = "1574278088"

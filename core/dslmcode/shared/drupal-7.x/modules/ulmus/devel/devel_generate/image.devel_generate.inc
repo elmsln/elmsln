@@ -29,16 +29,22 @@ function _image_devel_generate($object, $field, $instance, $bundle) {
   // Generate a max of 5 different images.
   if (!isset($images[$extension][$min_resolution][$max_resolution]) || count($images[$extension][$min_resolution][$max_resolution]) <= DEVEL_GENERATE_IMAGE_MAX) {
     if ($path = devel_generate_image($extension, $min_resolution, $max_resolution)) {
-      $source = new stdClass();
-      $source->uri = $path;
-      $source->uid = 1; // TODO: randomize? Use case specific.
-      $source->filemime = 'image/' . pathinfo($path, PATHINFO_EXTENSION);
-      $source->filename = basename($path);
       $destination_dir = $field['settings']['uri_scheme'] . '://' . $instance['settings']['file_directory'];
       file_prepare_directory($destination_dir, FILE_CREATE_DIRECTORY);
-      $destination = $destination_dir . '/' . basename($path);
-      $file = file_move($source, $destination, FILE_CREATE_DIRECTORY);
-      $images[$extension][$min_resolution][$max_resolution][$file->fid] = $file;
+      if ($uri = file_unmanaged_move($path, $destination_dir)) {
+        $file = new stdClass();
+        $file->fid = NULL;
+        $file->uri = $uri;
+        $file->filename = drupal_basename($uri);
+        $file->filemime = file_get_mimetype($file->uri);
+        // @todo Randomize file owner.
+        $file->uid = 1;
+        $file = file_save($file);
+        $images[$extension][$min_resolution][$max_resolution][$file->fid] = $file;
+      }
+      else {
+        return FALSE;
+      }
     }
     else {
       return FALSE;

@@ -91,7 +91,8 @@ function devel_generate_users_form() {
     '#default_value' => 604800,
   );
 
-  $form['submit'] = array(
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Generate'),
   );
@@ -225,7 +226,8 @@ function devel_generate_content_form() {
     '#default_value' => array(LANGUAGE_NONE),
   );
 
-  $form['submit'] = array(
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Generate'),
   );
@@ -292,7 +294,8 @@ function devel_generate_term_form() {
     '#title' => t('Delete existing terms in specified vocabularies before generating new terms.'),
     '#default_value' => FALSE,
   );
-  $form['submit'] = array(
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Generate'),
   );
@@ -320,7 +323,8 @@ function devel_generate_vocab_form() {
     '#title' => t('Delete existing vocabularies before generating new ones.'),
     '#default_value' => FALSE,
   );
-  $form['submit'] = array(
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Generate'),
   );
@@ -435,7 +439,7 @@ function devel_generate_menu_form() {
       '#size' => 10,
       '#states' => array(
         'visible' => array(
-          ':input[name=existing_menus[__new-menu__]]' => array('checked' => TRUE),
+          ':input[name="existing_menus[__new-menu__]"]' => array('checked' => TRUE),
         ),
       ),
     );
@@ -487,7 +491,8 @@ function devel_generate_menu_form() {
     '#title' => t('Delete existing custom generated menus and menu links before generating new ones.'),
     '#default_value' => FALSE,
   );
-  $form['submit'] = array(
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Generate'),
   );

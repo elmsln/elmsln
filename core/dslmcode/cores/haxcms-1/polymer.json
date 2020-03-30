@@ -16,6 +16,7 @@
     "node_modules/lit-element/*.*.map",
     "node_modules/@polymer/app-layout/*/*.js",
     "node_modules/@vaadin/**",
+    "node_modules/vmsg/*",
     "node_modules/fetch-ie8/fetch.js",
     "node_modules/promise-polyfill/dist/polyfill.min.js",
     "node_modules/web-animations-js/*.map",
@@ -24,8 +25,8 @@
     "node_modules/@lrnwebcomponents/a11y-media-player/lib/screenfull/dist/screenfull.js",
     "node_modules/@lrnwebcomponents/img-pan-zoom/lib/openseadragon/build/openseadragon/openseadragon.min.js",
     "node_modules/@lrnwebcomponents/elmsln-apps/lib/*/*.js",
-    "node_modules/@lrnwebcomponents/lrn-calendar/lib/ical.js/build/ical.js",
-    "node_modules/@lrnwebcomponents/wave-player/lib/wavesurfer.js/dist/wavesurfer.js",
+    "node_modules/@lrnwebcomponents/wave-player/lib/wavesurferjs/dist/wavesurfer.js",
+    "!node_modules/@lrnwebcomponents/wave-player/lib/wavesurferjs/src/*",
     "node_modules/@webcomponents/webcomponentsjs/*.js",
     "node_modules/@webcomponents/webcomponentsjs/bundles/*.js",
     "node_modules/monaco-editor/min/**",
@@ -40,15 +41,18 @@
     "!node_modules/@webcomponents/webcomponentsjs/gulpfile.js",
     "!node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/*.js",
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/javascript.js",
+    "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/yaml.js",
+    "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/json.js",
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/xml.js"
   ],
   "sources": [],
   "builds": [
     {
       "name": "es6",
-      "browserCapabilities": ["es2015", "modules"],
+      "browserCapabilities": ["es2017", "modules"],
       "js": {
-        "minify": false
+        "minify": false,
+        "transformImportMeta": true
       },
       "css": {
         "minify": false
@@ -65,7 +69,8 @@
       ],
       "js": {
         "minify": false,
-        "transformModulesToAmd": true
+        "transformModulesToAmd": true,
+        "transformImportMeta": true
       },
       "css": {
         "minify": false
@@ -79,8 +84,9 @@
       "name": "es5-amd",
       "js": {
         "compile": true,
-        "minify": false,
-        "transformModulesToAmd": true
+        "minify": true,
+        "transformModulesToAmd": true,
+        "transformImportMeta": true
       },
       "css": {
         "minify": true

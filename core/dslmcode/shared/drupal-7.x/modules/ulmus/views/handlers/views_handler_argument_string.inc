@@ -225,9 +225,11 @@ class views_handler_argument_string extends views_handler_argument {
     if ($formula) {
       $placeholder = $this->placeholder();
       if (count($this->value) > 1) {
-        $placeholder = "($placeholder)";
+        $field .= " $operator ($placeholder)";
       }
-      $field .= " $operator $placeholder";
+      else {
+        $field .= " $operator $placeholder";
+      }
       $placeholders = array(
         $placeholder => $argument,
       );

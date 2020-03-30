@@ -9,6 +9,7 @@
  * Basic test for pluggable argument default.
  */
 class ViewsArgumentDefaultTest extends ViewsSqlTest {
+
   public static function getInfo() {
     return array(
       'name' => 'Argument_default',
@@ -17,8 +18,11 @@ class ViewsArgumentDefaultTest extends ViewsSqlTest {
     );
   }
 
-  public function setUp() {
-    parent::setUp('views');
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
 
     $this->random = $this->randomString();
   }

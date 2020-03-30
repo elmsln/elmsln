@@ -231,7 +231,7 @@ Drupal.behaviors.viewsUiRenderAddViewButton.attach = function (context, settings
     return;
   }
   var $addDisplayDropdown = $('<li class="add"><a href="#"><span class="icon add"></span>' + Drupal.t('Add') + '</a><ul class="action-list" style="display:none;"></ul></li>');
-  var $displayButtons = $menu.nextAll('input.add-display').detach();
+  var $displayButtons = $menu.nextAll('.add-display').detach();
   $displayButtons.appendTo($addDisplayDropdown.find('.action-list')).wrap('<li>')
     .parent().first().addClass('first').end().last().addClass('last');
   // Remove the 'Add ' prefix from the button labels since they're being palced

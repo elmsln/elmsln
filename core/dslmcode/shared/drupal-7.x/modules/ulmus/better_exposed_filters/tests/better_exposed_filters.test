@@ -15,6 +15,7 @@ class BEF_TestOptions extends BEF_TestBase {
       'name' => 'BEF Options tests',
       'description' => 'Checks that BEF options appear when should.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -123,6 +124,7 @@ class BEF_TestRadios extends BEF_TestBase {
       'name' => 'BEF radio button tests',
       'description' => 'Verifies rendering filters as radio buttons.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -179,6 +181,7 @@ class BEF_TestCheckboxes extends BEF_TestBase {
       'name' => 'BEF checkbox tests',
       'description' => 'Verifies rendering filter options as checkboxes.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -247,6 +250,7 @@ class BEF_TestHidden extends BEF_TestBase {
       'name' => 'BEF hidden tests',
       'description' => 'Verifies rendering filter options as hidden elements.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -297,6 +301,7 @@ class BEF_TestTaxonomyFilters extends BEF_TestBase {
       'name' => 'BEF taxonomy filter tests',
       'description' => 'Verifies rendering of taxonomy filters.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -377,6 +382,7 @@ class BEF_TestSort extends BEF_TestBase {
       'name' => 'BEF sort tests',
       'description' => 'Verifies rendering exposed sort options.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -439,6 +445,7 @@ class BEF_TestSliders extends BEF_TestBase {
       'name' => 'BEF slider tests',
       'description' => 'Verifies rendering filters jQueryUI sliders.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -528,6 +535,7 @@ class BEF_TestDatepicker extends BEF_TestBase {
       'name' => 'BEF datepicker tests',
       'description' => 'Verifies rendering filter options as a jQueryUI Datepicker.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -609,6 +617,7 @@ class BEF_TestLinks extends BEF_TestBase {
       'name' => 'BEF links tests',
       'description' => 'Verifies rendering filter options as toggle links.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -718,6 +727,7 @@ class BEF_TestSecondaryFilters extends BEF_TestBase {
       'name' => 'BEF secondary filter tests',
       'description' => 'Verifies rendering filter options within the secondary filter fieldset.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -826,6 +836,7 @@ class BEF_TestRewrite extends BEF_TestBase {
       'name' => 'BEF rewrite tests',
       'description' => 'Verifies rewriting filter and sort options.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 
@@ -906,6 +917,7 @@ class BEF_TestMisc extends BEF_TestBase {
       'name' => 'BEF miscellaneous tests',
       'description' => 'Verifies misc BEF functional.',
       'group' => 'Better Exposed Filters',
+      'dependencies' => array('date', 'date_views', 'views', 'views_ui')
     );
   }
 

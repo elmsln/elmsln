@@ -7,22 +7,6 @@
 define('WEBCOMPONENTS_APP_PATH', 'apps');
 
 /**
- * Implements hook_webcomponents_build_file_location_alter().
- */
-function webcomponents_app_webcomponents_build_file_location_alter(&$locations) {
-  // figure out the app that should also be autoloaded into the build
-  if (arg(0) == WEBCOMPONENTS_APP_PATH && arg(1) != '' && _webcomponents_app_access(arg(1))) {
-    $apps = webcomponents_app_load_app_definitions(NULL);
-    if (isset($apps[arg(1)])) {
-      $app = $apps[arg(1)];
-      // support dynamic app file loading
-      if ($app['element']) {
-        array_push($locations, $app['element']);
-      }
-    }
-  }
-}
-/**
  * Load all apps we can find or a specific one if requested.
  * @param  string $machine_name optional name of an element to load
  * the registry for from it's manifest.json file (most likely)

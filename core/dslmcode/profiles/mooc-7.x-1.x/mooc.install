@@ -327,3 +327,9 @@ function mooc_update_7024(&$sandbox) {
 function mooc_update_7025(&$sandbox) {
   features_revert_module('mooc_hax', 'mooc_textbook', 'mooc_ux_defaults');
 }
+/**
+ * HAX to everyone
+ */
+function mooc_update_7026(&$sandbox) {
+  features_revert_module('mooc_hax');
+}

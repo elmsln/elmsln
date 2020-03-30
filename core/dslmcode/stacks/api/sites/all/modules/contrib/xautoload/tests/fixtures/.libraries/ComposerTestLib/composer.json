@@ -1,8 +1,0 @@
-{
-  "autoload": {
-    "psr-4": {
-      "ComposerTestLib\\": "psr4"
-    },
-    "classmap": ["other"]
-  }
-}

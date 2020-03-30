@@ -7,15 +7,14 @@
  */
 Drupal.wysiwyg.editor.init.tinymce = function(settings, pluginInfo) {
   // Fix Drupal toolbar obscuring editor toolbar in fullscreen mode.
-  var $drupalToolbars = $('#toolbar, #admin-menu', Drupal.overlayChild ? window.parent.document : document);
   tinyMCE.onAddEditor.add(function (mgr, ed) {
     if (ed.id == 'mce_fullscreen') {
-      $drupalToolbars.hide();
+      Drupal.wysiwyg.utilities.onFullscreenEnter();
     }
   });
   tinyMCE.onRemoveEditor.add(function (mgr, ed) {
     if (ed.id == 'mce_fullscreen') {
-      $drupalToolbars.show();
+      Drupal.wysiwyg.utilities.onFullscreenExit();
     }
     else {
       // Free our reference to the private instance to not risk memory leaks.
@@ -70,6 +69,9 @@ Drupal.wysiwyg.editor.attach.tinymce = function(context, params, settings) {
     });
     $('#' + ed.editorContainer + ' table.mceLayout td.mceToolbar').append($toolbar);
     $('#' + ed.editorContainer + ' table.mceToolbar').remove();
+    ed.onChange.add(function (ed) {
+      ed._drupalWysiwygInstance.contentsChanged();
+    });
   });
 
   // Remove TinyMCE's internal mceItem class, which was incorrectly added to
@@ -154,7 +156,8 @@ Drupal.wysiwyg.editor.instance.tinymce = {
           var editorId = (ed.id == 'mce_fullscreen' ? ed.getParam('fullscreen_editor_id') : ed.id);
           if (typeof Drupal.wysiwyg.plugins[plugin].attach == 'function') {
             data.content = Drupal.wysiwyg.plugins[plugin].attach(data.content, pluginSettings, editorId);
-            data.content = ed._drupalWysiwygInstance.prepareContent(data.content);
+            // Get the instance from the id to work around fullscreen mode.
+            data.content = tinymce.get(editorId)._drupalWysiwygInstance.prepareContent(data.content);
           }
         });
 
@@ -170,7 +173,7 @@ Drupal.wysiwyg.editor.instance.tinymce = {
         // current selection.
         ed.onNodeChange.add(function(ed, command, node) {
           if (typeof Drupal.wysiwyg.plugins[plugin].isNode == 'function') {
-            command.setActive(plugin, Drupal.wysiwyg.plugins[plugin].isNode(node));
+            command.setActive('drupal_' + plugin, Drupal.wysiwyg.plugins[plugin].isNode(node));
           }
         });
       },

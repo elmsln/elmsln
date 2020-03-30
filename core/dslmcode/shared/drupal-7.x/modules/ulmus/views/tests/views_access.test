@@ -20,8 +20,8 @@ class ViewsAccessTest extends ViewsSqlTest {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
-    parent::setUp();
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
 
     $this->admin_user = $this->drupalCreateUser(array('access all views'));
     $this->web_user = $this->drupalCreateUser();
@@ -161,6 +161,26 @@ class ViewsAccessTest extends ViewsSqlTest {
     $this->assertTrue(views_access($expected_hook_menu, $argument1, $argument2));
   }
 
+  /**
+   * Tests access for a view with a missing access plugin.
+   */
+  public function testMissingAccessPlugin() {
+    $view = $this->getMissingAccessPluginTestView();
+
+    $view->set_display('default');
+    $access_plugin = $view->display_handler->get_plugin('access');
+    $this->assertFalse($access_plugin);
+
+    $this->assertTrue($view->display_handler->access($this->admin_user), t('Admin-Account should be able to access the view everytime'));
+    $this->assertTrue($view->display_handler->access($this->web_user));
+    $this->assertTrue($view->display_handler->access($this->normal_user));
+
+    $hook_menu = $view->execute_hook_menu('page_1');
+    $this->assertTrue($hook_menu['test_access_missing']['access arguments'][0]);
+
+    $this->assertTrue(views_access(TRUE));
+  }
+
   function view_access_none() {
     $view = new view;
     $view->name = 'test_access_none';
@@ -285,4 +305,34 @@ class ViewsAccessTest extends ViewsSqlTest {
 
     return $view;
   }
+
+  /**
+   * Generates a view with an access plugin that doesn't exist.
+   */
+  protected function getMissingAccessPluginTestView() {
+    $view = new view();
+    $view->name = 'test_access_missing';
+    $view->description = '';
+    $view->tag = '';
+    $view->view_php = '';
+    $view->base_table = 'node';
+    $view->is_cacheable = FALSE;
+    $view->api_version = 2;
+    $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+    /* Display: Master */
+    $handler = $view->new_display('default', 'Master', 'default');
+    $handler->display->display_options['access']['type'] = 'does_not_exist';
+    $handler->display->display_options['cache']['type'] = 'none';
+    $handler->display->display_options['exposed_form']['type'] = 'basic';
+    $handler->display->display_options['pager']['type'] = 'full';
+    $handler->display->display_options['style_plugin'] = 'default';
+    $handler->display->display_options['row_plugin'] = 'fields';
+
+    $handler = $view->new_display('page', 'Page', 'page_1');
+    $handler->display->display_options['path'] = 'test_access_missing';
+
+    return $view;
+  }
+
 }

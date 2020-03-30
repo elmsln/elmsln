@@ -23,11 +23,9 @@ class LinkBaseTestClass extends DrupalWebTestCase {
   );
 
   /**
-   * Setup.
+   * {@inheritdoc}
    */
-  public function setUp() {
-    $modules = func_get_args();
-    $modules = (isset($modules[0]) && is_array($modules[0]) ? $modules[0] : $modules);
+  public function setUp(array $modules = array()) {
     $modules[] = 'field_ui';
     $modules[] = 'link';
     parent::setUp($modules);

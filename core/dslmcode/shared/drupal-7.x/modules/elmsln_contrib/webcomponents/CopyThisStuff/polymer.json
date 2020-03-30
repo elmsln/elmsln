@@ -1,35 +1,63 @@
 {
   "entrypoint": "dist/build.html",
   "extraDependencies": [
+    "node_modules/@lrnwebcomponents/*/*.js",
+    "node_modules/@lrnwebcomponents/*/lib/*",
+    "node_modules/@lrnwebcomponents/*/lib/*/*.js",
+    "node_modules/@lrnwebcomponents/*/lib/*/*",
+    "node_modules/@lrnwebcomponents/*/lib/*/*/*.js",
+    "node_modules/fetch-ie8/fetch.js",
+    "node_modules/promise-polyfill/dist/polyfill.min.js",
+    "node_modules/web-animations-js/*.map",
+    "node_modules/web-animations-js/*.js",
     "node_modules/@webcomponents/webcomponentsjs/*.js",
-    "!node_modules/@webcomponents/webcomponentsjs/gulpfile.js",
     "node_modules/@webcomponents/webcomponentsjs/bundles/*.js",
-    "node_modules/web-animations-js/web-animations-next-lite.min.js",
-    "node_modules/@lrnwebcomponents/haxcms-elements/lib/haxcms-backend-demo.js"
+    "node_modules/monaco-editor/min/**",
+    "node_modules/monaco-editor/min-maps/**",
+    "!node_modules/@webcomponents/webcomponentsjs/gulpfile.js"
   ],
   "sources": [],
   "builds": [
     {
       "name": "es6",
-      "browserCapabilities": ["es2015", "modules"],
+      "browserCapabilities": ["es2017", "modules"],
       "js": {
-        "minify": true
+        "minify": false,
+        "transformImportMeta": true
       },
       "css": {
-        "minify": true
+        "minify": false
       },
       "html": {
-        "minify": true
+        "minify": false
       },
-      "bundle": false,
-      "addServiceWorker": false
+      "bundle": false
+    },
+    {
+      "name": "es6-amd",
+      "browserCapabilities": [
+        "es2015"
+      ],
+      "js": {
+        "minify": false,
+        "transformModulesToAmd": true,
+        "transformImportMeta": true
+      },
+      "css": {
+        "minify": false
+      },
+      "html": {
+        "minify": false
+      },
+      "bundle": false
     },
     {
       "name": "es5-amd",
       "js": {
-        "minify": true,
         "compile": true,
-        "transformModulesToAmd": true
+        "minify": true,
+        "transformModulesToAmd": true,
+        "transformImportMeta": true
       },
       "css": {
         "minify": true
@@ -37,13 +65,12 @@
       "html": {
         "minify": true
       },
-      "bundle": false,
-      "addServiceWorker": false
+      "bundle": false
     }
   ],
   "moduleResolution": "node",
   "npm": true,
-  "lint": {
+  "lint": { 
     "rules": ["polymer-3"]
   }
 }

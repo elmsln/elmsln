@@ -70,12 +70,12 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
           if (!$raw) {
             if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
               $replacements[$original] = '<span tabindex="0" id="' . $hash . '" class="cis_token_dynamic_value">' . $replacements[$name] . '</span>
-                <paper-tooltip
+                <simple-tooltip
                   for="' . $hash . '"
                   position="bottom"
                   delay="0"
                   offset="0">' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '
-                </paper-tooltip>';
+                </simple-tooltip>';
             }
           }
         break;
@@ -85,13 +85,13 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
             if (!$raw) {
               if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
                 $replacements[$original] = '<span tabindex="0" id="' . $hash . '" class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>
-                <paper-tooltip
+                <simple-tooltip
                   for="' . $hash . '"
                   position="bottom"
                   delay="0"
                   offset="0">' .
                   t('Scope: @section', array('@section' => $section_scope[$name])) . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '
-                </paper-tooltip>';
+                </simple-tooltip>';
               }
             }
           }

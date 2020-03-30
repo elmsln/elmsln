@@ -19,9 +19,8 @@ files[] = tests/object_cache.test
 files[] = tests/object_cache_unit.test
 files[] = tests/page_tokens.test
 
-; Information added by Drupal.org packaging script on 2018-02-24
-version = "7.x-1.14"
+; Information added by Drupal.org packaging script on 2019-02-08
+version = "7.x-1.15"
 core = "7.x"
 project = "ctools"
-datestamp = "1519455788"
-
+datestamp = "1549603691"

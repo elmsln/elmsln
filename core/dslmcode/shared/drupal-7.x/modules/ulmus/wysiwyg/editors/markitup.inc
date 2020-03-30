@@ -11,8 +11,8 @@
 function wysiwyg_markitup_editor() {
   $editor['markitup'] = array(
     'title' => 'markItUp',
-    'vendor url' => 'http://markitup.jaysalvat.com',
-    'download url' => 'http://markitup.jaysalvat.com/downloads',
+    'vendor url' => 'https://markitup.jaysalvat.com',
+    'download url' => 'https://markitup.jaysalvat.com/downloads',
     'library path' => wysiwyg_get_path('markitup'),
     'libraries' => array(
       '' => array(

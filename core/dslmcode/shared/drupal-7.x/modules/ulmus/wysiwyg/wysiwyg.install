@@ -200,12 +200,32 @@ function wysiwyg_update_7200() {
     ));
   }
   else {
-    db_change_field('wysiwyg_user', 'format', 'format', array(
-      'description' => 'The {filter_format}.format of the text format.',
-      'type' => 'varchar',
-      'length' => 255,
-      'not null' => FALSE,
-    ));
+    db_drop_primary_key('wysiwyg_user');
+    db_drop_index('wysiwyg_user', 'uid');
+    db_change_field('wysiwyg_user', 'format', 'format',
+      array(
+        'description' => 'The {filter_format}.format of the text format.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      array(
+        'indexes' => array(
+          'uid' => array('uid'),
+          'format' => array('format'),
+        ),
+        'foreign keys' => array(
+          'uid' => array(
+            'table' => 'users',
+            'columns' => array('uid' => 'uid'),
+          ),
+          'format' => array(
+            'table' => 'filter_format',
+            'columns' => array('format' => 'format'),
+          ),
+        ),
+      )
+    );
   }
 }
 
@@ -359,6 +379,7 @@ function wysiwyg_update_7202() {
 function wysiwyg_update_7203() {
   db_drop_index('wysiwyg_user', 'uid');
   db_drop_index('wysiwyg_user', 'format');
+  db_drop_primary_key('wysiwyg_user');
   db_change_field('wysiwyg_user', 'format', 'format',
     array(
       'type' => 'varchar',

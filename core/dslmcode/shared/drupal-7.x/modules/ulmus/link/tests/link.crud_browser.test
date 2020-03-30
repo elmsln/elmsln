@@ -8,7 +8,7 @@
 /**
  * Testing that users can not input bad URLs or labels.
  */
-class LinkUITest extends DrupalWebTestcase {
+class LinkUiTest extends DrupalWebTestcase {
 
   /**
    * Link supposed to be good.
@@ -37,10 +37,12 @@ class LinkUITest extends DrupalWebTestcase {
   }
 
   /**
-   * Setup.
+   * {@inheritdoc}
    */
-  public function setUp() {
-    parent::setUp('field_ui', 'link');
+  public function setUp(array $modules = array()) {
+    $modules[] = 'field_ui';
+    $modules[] = 'link';
+    parent::setUp($modules);
   }
 
   /**
@@ -191,7 +193,6 @@ class LinkUITest extends DrupalWebTestcase {
    * title actually displays <strong>.
    */
   public function testStaticLinkCreate() {
-
     $this->web_user = $this->drupalCreateUser(array(
       'administer content types',
       'administer fields',
@@ -248,11 +249,8 @@ class LinkUITest extends DrupalWebTestcase {
    *
    * Testing that if you have the title but no url, the title is not sanitized
    * twice.
-   *
-   * @codingStandardsIgnoreStart
    */
-  public function testCRUDTitleOnlyTitleNoLink() {
-    // @codingStandardsIgnoreEnd
+  public function testCrudTitleOnlyTitleNoLink() {
     $this->web_user = $this->drupalCreateUser(array(
       'administer content types',
       'administer fields',
@@ -309,12 +307,8 @@ class LinkUITest extends DrupalWebTestcase {
    *
    * If we're creating a new field and just hit 'save' on the default options,
    * we want to make sure they are set to the expected results.
-   *
-   * @codingStandardsIgnoreStart
    */
-  public function testCRUDCreateFieldDefaults() {
-    // @codingStandardsIgnoreEnd
-
+  public function testCrudCreateFieldDefaults() {
     $this->web_user = $this->drupalCreateUser(array(
       'administer content types',
       'administer fields',
@@ -361,11 +355,8 @@ class LinkUITest extends DrupalWebTestcase {
    *
    * If we're creating a new field and just hit 'save' on the default options,
    * we want to make sure they are set to the expected results.
-   *
-   * @codingStandardsIgnoreStart
    */
-  public function testCRUDCreateFieldWithClass() {
-    // @codingStandardsIgnoreEnd
+  public function testCrudCreateFieldWithClass() {
     $this->web_user = $this->drupalCreateUser(array(
       'administer content types',
       'administer fields',
@@ -443,11 +434,8 @@ class LinkUITest extends DrupalWebTestcase {
    *
    * If we're creating a new field and just hit 'save' on the default options,
    * we want to make sure they are set to the expected results.
-   *
-   * @codingStandardsIgnoreStart
    */
-  public function testCRUDCreateFieldWithTwoClasses() {
-    // @codingStandardsIgnoreEnd
+  public function testCrudCreateFieldWithTwoClasses() {
     $this->web_user = $this->drupalCreateUser(array(
       'administer content types',
       'administer fields',

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Adds Views3 support.

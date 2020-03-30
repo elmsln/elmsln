@@ -2311,22 +2311,6 @@ function elmsln_core_cis_lmsless_color_alter(&$map) {
     }
   }
 }
-/**
- * Implements hook_webcomponents_build_file_location_alter().
- * Remove things on the node edit page that are lrn- prefixed
- * this ensures that assets don't unpack when rendered by CKEditor
- * which would reduce the usefulness of the components
- */
-function elmsln_core_webcomponents_build_file_location_alter(&$files) {
-  // point to the elmsln build
-  if ($files[0] == 'build.js') {
-    $files[0] = 'dist/elmsln-build.js';
-    // modify build path for node edit forms
-    if (arg(0) == 'node' && arg(2) == 'edit') {
-      $files[0] = 'dist/elmsln-build-edit.js';
-    }
-  }
-}
 
 /**
  * Implements hook_webcomponents_cmstags_schema().
@@ -2606,7 +2590,7 @@ function _elmsln_core_get_sis_user_data($uid = NULL) {
  */
 function elmsln_core_hax_cms_hax_attributes_alter(&$attributes) {
   // hide panel operations, ELMS handles saving in HAX
-  $attributes['hide-panel-ops'] = TRUE;
+  unset($attributes['hide-panel-ops']);
 }
 
 /**

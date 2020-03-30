@@ -22,11 +22,11 @@ class ViewsExposedFormTest extends ViewsSqlTest {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
-  public function setUp() {
-    parent::setUp('views_ui');
-    module_enable(array('views_ui'));
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
+
     // @todo Figure out why it's required to clear the cache here.
     views_module_include('views_default', TRUE);
     views_get_all_views(TRUE);

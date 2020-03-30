@@ -26,7 +26,9 @@ function views_ajax() {
     $commands = array();
 
     // Remove all of this stuff from $_GET so it doesn't end up in pagers and
-    // tablesort URLs.
+    // tablesort URLs; do not modify $_POST itself but make a new "clean"
+    // copy to merge it with $_GET later.
+    $cleaned_post = $_POST;
     foreach (array('view_name', 'view_display_id', 'view_args', 'view_path', 'view_dom_id', 'pager_element', 'view_base_path', 'ajax_html_ids', 'ajax_page_state') as $key) {
       if (isset($_GET[$key])) {
         unset($_GET[$key]);
@@ -34,8 +36,8 @@ function views_ajax() {
       if (isset($_REQUEST[$key])) {
         unset($_REQUEST[$key]);
       }
-      if (isset($_POST[$key])) {
-        unset($_POST[$key]);
+      if (isset($cleaned_post[$key])) {
+        unset($cleaned_post[$key]);
       }
     }
 
@@ -52,7 +54,7 @@ function views_ajax() {
       $exclude = isset($_POST['page']) ? array('page') : array();
       // Add all $_POST data to $_GET as many things, such as tablesorts,
       // exposed filters and paging assume $_GET.
-      $_GET = $_POST + drupal_get_query_parameters($_GET, $exclude);
+      $_GET = $cleaned_post + drupal_get_query_parameters($_GET, $exclude);
 
       // Overwrite the destination.
       // @see drupal_get_destination()

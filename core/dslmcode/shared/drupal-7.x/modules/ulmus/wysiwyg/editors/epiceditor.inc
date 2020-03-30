@@ -11,8 +11,8 @@
 function wysiwyg_epiceditor_editor() {
   $editor['epiceditor'] = array(
     'title' => 'EpicEditor',
-    'vendor url' => 'http://epiceditor.com',
-    'download url' => 'http://epiceditor.com',
+    'vendor url' => 'https://github.com/OscarGodson/EpicEditor',
+    'download url' => 'https://github.com/OscarGodson/EpicEditor/releases/',
     'libraries' => array(
       '' => array(
         'title' => 'Minified',
@@ -46,14 +46,19 @@ function wysiwyg_epiceditor_editor() {
  * @return
  *   The installed editor version.
  */
-function wysiwyg_epiceditor_version($editor) {
+function wysiwyg_epiceditor_version(&$editor) {
   $library = $editor['library path'] . '/js/epiceditor.js';
   if (!file_exists($library)) {
-    return;
+    $library = $editor['library path'] . '/epiceditor/js/epiceditor.js';
+    if (!file_exists($library)) {
+      return;
+    }
+    $editor['library path'] .= '/epiceditor';
+    $editor['editor path'] .= '/epiceditor';
   }
   // @todo Do not load the entire file; use fgets() instead.
   $library = file_get_contents($library, 'r');
-  $version = preg_match('%EpicEditor\.version = \'(.*)\'\;%', $library, $matches);
+  preg_match('%EpicEditor\.version = \'(.*)\'\;%', $library, $matches);
   if (!isset($matches[1])) {
     return;
   }

@@ -16,6 +16,10 @@ Drupal.wysiwyg.editor.attach.nicedit = function(context, params, settings) {
   }
   // Attach editor.
   var editor = new nicEditor(settings);
+  var wysiwygInstance = this;
+  editor.addEvent('add', function (editor) {
+    wysiwygInstance.startWatching($(editor.editorContain).find('.nicEdit-main'));
+  });
   editor.panelInstance(params.field);
   // The old addEvent() must be restored after creating a new instance, as
   // plugins with dialogs use it to bind submit handlers to their forms.

@@ -12,18 +12,37 @@
  */
 function theme_file_entity_file_link($variables) {
   $file = $variables['file'];
-  $icon_directory = $variables['icon_directory'];
+  $uri = entity_uri('file', $file);
 
-  $url = 'file/' . $file->fid;
-  $icon = theme('file_icon', array('file' => $file, 'icon_directory' => $icon_directory));
+  // Human-readable names, for use as text-alternatives to icons.
+  $mime_name = array(
+    'application/msword' => t('Microsoft Office document icon'),
+    'application/vnd.ms-excel' => t('Office spreadsheet icon'),
+    'application/vnd.ms-powerpoint' => t('Office presentation icon'),
+    'application/pdf' => t('PDF icon'),
+    'video/quicktime' => t('Movie icon'),
+    'audio/mpeg' => t('Audio icon'),
+    'audio/wav' => t('Audio icon'),
+    'image/jpeg' => t('Image icon'),
+    'image/png' => t('Image icon'),
+    'image/gif' => t('Image icon'),
+    'application/zip' => t('Package icon'),
+    'text/html' => t('HTML icon'),
+    'text/plain' => t('Plain text icon'),
+    'application/octet-stream' => t('Binary Data'),
+  );
+
+  $mimetype = file_get_mimetype($file->uri);
+
+  $icon = theme('file_icon', array(
+    'file' => $file,
+    'icon_directory' => $variables['icon_directory'],
+    'alt' => !empty($mime_name[$mimetype]) ? $mime_name[$mimetype] : t('File'),
+  ));
 
   // Set options as per anchor format described at
   // http://microformats.org/wiki/file-format-examples
-  $options = array(
-    'attributes' => array(
-      'type' => $file->filemime . '; length=' . $file->filesize,
-    ),
-  );
+  $uri['options']['attributes']['type'] = $file->filemime . '; length=' . $file->filesize;
 
   // Use the description as the link text if available.
   if (empty($file->description)) {
@@ -34,7 +53,10 @@ function theme_file_entity_file_link($variables) {
     $options['attributes']['title'] = check_plain($file->filename);
   }
 
-  return '<span class="file">' . $icon . ' ' . l($link_text, $url, $options) . '</span>';
+  $output = '<span class="file">' . $icon . ' ' . l($link_text, $uri['path'], $uri['options']);
+  $output .= ' ' . '<span class="file-size">(' . format_size($file->filesize) . ')</span>';
+  $output .= '</span>';
+  return $output;
 }
 
 /**
@@ -44,10 +66,33 @@ function theme_file_entity_file_link($variables) {
  */
 function theme_file_entity_download_link($variables) {
   $file = $variables['file'];
-  $icon_directory = $variables['icon_directory'];
-
   $uri = file_entity_download_uri($file);
-  $icon = theme('file_icon', array('file' => $file, 'icon_directory' => $icon_directory));
+
+  // Human-readable names, for use as text-alternatives to icons.
+  $mime_name = array(
+    'application/msword' => t('Microsoft Office document icon'),
+    'application/vnd.ms-excel' => t('Office spreadsheet icon'),
+    'application/vnd.ms-powerpoint' => t('Office presentation icon'),
+    'application/pdf' => t('PDF icon'),
+    'video/quicktime' => t('Movie icon'),
+    'audio/mpeg' => t('Audio icon'),
+    'audio/wav' => t('Audio icon'),
+    'image/jpeg' => t('Image icon'),
+    'image/png' => t('Image icon'),
+    'image/gif' => t('Image icon'),
+    'application/zip' => t('Package icon'),
+    'text/html' => t('HTML icon'),
+    'text/plain' => t('Plain text icon'),
+    'application/octet-stream' => t('Binary Data'),
+  );
+
+  $mimetype = file_get_mimetype($file->uri);
+
+  $icon = theme('file_icon', array(
+    'file' => $file,
+    'icon_directory' => $variables['icon_directory'],
+    'alt' => !empty($mime_name[$mimetype]) ? $mime_name[$mimetype] : t('File'),
+  ));
 
   // Set options as per anchor format described at
   // http://microformats.org/wiki/file-format-examples
@@ -89,6 +134,23 @@ function theme_file_entity_file_audio($variables) {
   $audio_attributes = array();
   if ($variables['controls']) {
     $audio_attributes['controls'] = 'controls';
+
+    if (!empty($variables['controls_list'])) {
+      $controls_list = array();
+      foreach ($variables['controls_list'] as $key => $value) {
+        if (!$value) {
+          switch ($key) {
+            case 'download':
+              $controls_list[] = 'nodownload';
+              break;
+            case 'remote_playback':
+              $controls_list[] = 'noremoteplayback';
+              break;
+          }
+        }
+      }
+      $audio_attributes['controlsList'] = implode(' ', $controls_list);
+    }
   }
   if ($variables['autoplay']) {
     $audio_attributes['autoplay'] = 'autoplay';
@@ -125,6 +187,8 @@ function theme_file_entity_file_audio($variables) {
  *   - muted: Boolean indicating whether or not the sound should be muted.
  *   - width: Width, in pixels, of the video player.
  *   - height: Height, in pixels, of the video player.
+ *   - playsinline: Boolean indicating if video should automatically play on
+ *     mobile (iOS).
  *
  * @ingroup themeable
  */
@@ -135,6 +199,26 @@ function theme_file_entity_file_video($variables) {
   $video_attributes = array();
   if ($variables['controls']) {
     $video_attributes['controls'] = 'controls';
+
+    if (!empty($variables['controls_list'])) {
+      $controls_list = array();
+      foreach ($variables['controls_list'] as $key => $value) {
+        if (!$value) {
+          switch ($key) {
+            case 'fullscreen':
+              $controls_list[] = 'nofullscreen';
+              break;
+            case 'download':
+              $controls_list[] = 'nodownload';
+              break;
+            case 'remote_playback':
+              $controls_list[] = 'noremoteplayback';
+              break;
+          }
+        }
+      }
+      $video_attributes['controlsList'] = implode(' ', $controls_list);
+    }
   }
   if ($variables['autoplay']) {
     $video_attributes['autoplay'] = 'autoplay';
@@ -153,6 +237,9 @@ function theme_file_entity_file_video($variables) {
   }
   if (!empty($variables['preload'])) {
     $video_attributes['preload'] = $variables['preload'];
+  }
+  if ($variables['playsinline']) {
+    $video_attributes['playsinline'] = 'playsinline';
   }
 
   $output .= '<video' . drupal_attributes($video_attributes) . '>';

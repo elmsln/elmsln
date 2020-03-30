@@ -1,16 +1,19 @@
 <?php
+
 /**
  * @file
  * Hooks provided by the Better Expoosed Filters module.
  */
 
 /**
+ * Alter Better Exposed filters.
+ *
  * Alters Better Exposed Filters settings before the exposed form widgets are
  * built.
  *
- * @param $settings
+ * @param array &$settings.
  *   The settings array.
- * @param $context
+ * @param array $context.
  *   The view and display to which the settings apply.
  */
 function hook_better_exposed_filters_settings_alter(&$settings, $context) {
@@ -18,7 +21,6 @@ function hook_better_exposed_filters_settings_alter(&$settings, $context) {
   $settings['field_price_value']['slider_options']['bef_slider_min'] = 500;
   $settings['field_price_value']['slider_options']['bef_slider_max'] = 5000;
 }
-
 
 /**
  * Modify the array of BEF display options for an exposed filter.

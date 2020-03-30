@@ -31,8 +31,11 @@ class ViewsHandlerRelationshipNodeTermDataTest extends ViewsSqlTest {
     return $term;
   }
 
-  function setUp() {
-    parent::setUp();
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
 
     // $web_user = $this->drupalCreateUser(array('create article content'));
     // $this->drupalLogin($web_user);

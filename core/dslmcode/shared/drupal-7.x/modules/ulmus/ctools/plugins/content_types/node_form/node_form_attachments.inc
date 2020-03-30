@@ -21,7 +21,7 @@ if (module_exists('upload')) {
 
 function ctools_node_form_attachments_content_type_render($subtype, $conf, $panel_args, &$context) {
   $block = new stdClass();
-  $block->module = t('node_form');
+  $block->module = 'node_form';
 
   $block->title = t('Attach files');
   $block->delta = 'url-path-options';

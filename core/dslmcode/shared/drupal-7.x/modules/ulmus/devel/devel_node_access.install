@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Uninstall function for Devel node access.
+ */
+
+/**
  * Implements hook_uninstall().
  */
 function devel_node_access_uninstall() {

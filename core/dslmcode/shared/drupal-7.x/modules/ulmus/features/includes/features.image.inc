@@ -73,10 +73,16 @@ function image_features_export_render($module_name, $data, $export = NULL) {
  */
 function image_features_revert($module) {
   if ($default_styles = features_get_default('image', $module)) {
-    foreach (array_keys($default_styles) as $default_style) {
-      if ($style = image_style_load($default_style)) {
+    foreach ($default_styles as $default_style_name => $default_style) {
+      if ($style = image_style_load($default_style_name)) {
         if ($style['storage'] != IMAGE_STORAGE_DEFAULT) {
           image_default_style_revert($style);
+        }
+        else {
+          // Verify that the loaded style still matches what's in code.
+          if ($default_style['effects'] !== $style['effects']) {
+            image_default_style_revert($style);
+          }
         }
       }
     }

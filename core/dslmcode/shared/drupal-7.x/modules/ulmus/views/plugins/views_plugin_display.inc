@@ -314,7 +314,7 @@ class views_plugin_display extends views_plugin {
         }
       }
       $pager = $this->get_plugin('pager');
-      if (isset($pager) && $pager->uses_exposed()) {
+      if ($pager && $pager->uses_exposed()) {
         $this->has_exposed = TRUE;
         return TRUE;
       }
@@ -1400,9 +1400,8 @@ class views_plugin_display extends views_plugin {
       '***DEFAULT_LANGUAGE***' => t("Default site language"),
       LANGUAGE_NONE => t('Language neutral'),
     );
-    if (module_exists('locale')) {
-      $languages = array_merge($languages, locale_language_list());
-    }
+    $languages = array_merge($languages, views_language_list());
+
     $field_language = array();
     $options['field_language'] = array(
       'category' => 'other',

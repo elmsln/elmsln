@@ -108,6 +108,22 @@ function hook_entity_diff($old_entity, $new_entity, $context) {
  * @see hook_entity_diff()
  */
 function hook_entity_diff_alter(&$entity_diffs, $context) {
+  if ($context['entity_type'] == 'node') {
+    $old_entity = $context['old_entity'];
+    $new_entity = $context['new_entity'];
+    $entity_diffs['custom_vid'] = array(
+      '#name' => t('Second VID'),
+      '#old' => array($old_entity->vid),
+      '#new' => array($new_entity->vid),
+      '#weight' => 5,
+    );
+    $entity_diffs['custom_log'] = array(
+      '#name' => t('Second log'),
+      '#old' => array($old_entity->log),
+      '#new' => array($new_entity->log),
+      '#weight' => 6,
+    );
+  }
 }
 
 /**

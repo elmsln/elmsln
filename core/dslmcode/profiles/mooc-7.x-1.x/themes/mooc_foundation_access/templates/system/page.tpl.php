@@ -107,7 +107,7 @@
         <?php elseif (arg(2) == 'edit'): ?>
         <div class="push-s2 s7 col" role="main">
         <?php else : ?>
-        <div class="push-s2 s8 col" role="main">
+        <div class="push-s3 s8 col" role="main">
         <?php endif; ?>
       <?php else : ?>
       <div class="elmsln-content-wrap">

@@ -32,7 +32,7 @@ function devel_enable() {
  */
 function devel_uninstall() {
   variable_del('devel_execution');
-  variable_del('dev_timer');
+  variable_del('devel_timer');
   variable_del('devel_query_display');
   variable_del('devel_redirect_page');
   variable_del('devel_api_url');
@@ -47,9 +47,6 @@ function devel_uninstall() {
   variable_del('devel_query_sort');
   variable_del('devel_rebuild_theme_registry');
   variable_del('devel_use_uncompressed_jquery');
-  variable_del('devel_xhprof_directory');
-  variable_del('devel_xhprof_enabled');
-  variable_del('devel_xhprof_url');
   variable_del('devel_debug_mail_file_format');
   variable_del('devel_debug_mail_directory');
 
@@ -62,7 +59,9 @@ function devel_uninstall() {
 }
 
 /**
- * Remove feature for storing queries. Cleanup deprecated tables and variables.
+ * Remove feature for storing queries.
+ *
+ * Cleanup deprecated tables and variables.
  */
 function devel_update_7000() {
   db_drop_table('devel_queries');
@@ -81,7 +80,7 @@ function devel_update_7001() {
 }
 
 /**
- * Remove deprecated variables - dev_query, devel_code_coverage
+ * Remove deprecated variables: dev_query, devel_code_coverage.
  */
 function devel_update_7002() {
   variable_del('dev_query'); // Sad trombone. http://drupalcode.org/viewvc/drupal/drupal/includes/database.mysql.inc?revision=1.2&view=markup
@@ -117,7 +116,9 @@ function devel_update_7004() {
 }
 
 /**
- * Delete variable 'devel_form_weights' from database as it was removed from code.
+ * Delete variable 'devel_form_weights'.
+ *
+ * 'devel_form_weights' was removed from code.
  */
 function devel_update_7005() {
   variable_del('devel_form_weights');
@@ -132,4 +133,24 @@ function devel_update_7006() {
   }
 
   variable_del('dev_mem');
+}
+
+/**
+ * Delete 'devel_xhprof_*' variables as they were removed from code.
+ */
+function devel_update_7007() {
+  variable_del('devel_xhprof_directory');
+  variable_del('devel_xhprof_enabled');
+  variable_del('devel_xhprof_url');
+}
+
+/**
+ * Change variable "dev_timer" to "devel_timer".
+ */
+function devel_update_7008() {
+  if (variable_get('dev_timer') !== NULL) {
+    variable_set('devel_timer', variable_get('dev_timer'));
+  }
+
+  variable_del('dev_timer');
 }

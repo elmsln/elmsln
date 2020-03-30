@@ -66,11 +66,35 @@ Drupal.wysiwyg.editor.instance.fckeditor = {
     var wysiwygInstance = instance.wysiwygInstance;
     var pluginInfo = wysiwygInstance.pluginInfo;
     var enabledPlugins = pluginInfo.instances.drupal;
+    // Handler for any change-related event.
+    function changed(editorInstance) {
+      if (editorInstance.Status !== FCK_STATUS_COMPLETE) {
+        return;
+      }
+      if (wysiwygInstance.oldContent === undefined) {
+        wysiwygInstance.oldContent = editorInstance.EditorDocument.body.innerHTML;
+      }
+      else if (wysiwygInstance.oldContent != editorInstance.EditorDocument.body.innerHTML) {
+        if (editorInstance.IsDirty()) {
+          wysiwygInstance.contentsChanged();
+        }
+      }
+    }
     // Track which editor instance is active.
     instance.FCK.Events.AttachEvent('OnFocus', function(editorInstance) {
       Drupal.wysiwyg.activeId = editorInstance.Name;
+      changed(editorInstance);
     });
-
+    // Track most changes to content.
+    instance.FCK.Events.AttachEvent('OnSelectionChange', function (editorInstance) {
+      changed(editorInstance);
+    });
+    instance.FCK.Events.AttachEvent('OnPaste', function (editorInstance) {
+      changed(editorInstance);
+    });
+    instance.FCK.Events.AttachEvent('OnAfterSetHTML', function (editorInstance) {
+      changed(editorInstance);
+    });
     // Create a custom data processor to wrap the default one and allow Drupal
     // plugins modify the editor contents.
     var wysiwygDataProcessor = function() {};

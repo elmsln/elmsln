@@ -149,3 +149,12 @@ function webcomponents_update_7000(&$sandbox) {
 function webcomponents_install() {
  _webcomponents_rebuild(TRUE);
 }
+
+/**
+ * PSU CDN moved so if old valid move to the new one
+ */
+function webcomponents_update_7001(&$sandbox) {
+  if (variable_get('webcomponents_project_location', 'https://cdn.webcomponents.psu.edu/cdn/') == 'https://webcomponents.psu.edu/cdn/') {
+    variable_set('webcomponents_project_location', 'https://cdn.webcomponents.psu.edu/cdn/');
+  }
+}

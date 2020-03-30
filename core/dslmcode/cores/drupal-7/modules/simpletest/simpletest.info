@@ -57,7 +57,7 @@ files[] = tests/upgrade/update.trigger.test
 files[] = tests/upgrade/update.field.test
 files[] = tests/upgrade/update.user.test
 
-; Information added by Drupal.org packaging script on 2019-05-08
-version = "7.67"
+; Information added by Drupal.org packaging script on 2019-12-18
+version = "7.69"
 project = "drupal"
-datestamp = "1557336079"
+datestamp = "1576696221"

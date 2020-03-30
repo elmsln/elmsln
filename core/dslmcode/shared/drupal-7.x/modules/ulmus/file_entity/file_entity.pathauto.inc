@@ -20,6 +20,11 @@ function file_entity_path_alias_types() {
  * Implements hook_pathauto().
  */
 function file_entity_pathauto($op) {
+  // Allow Pathauto Entity settings to override File Entity's pathauto.
+  if (module_exists('pathauto_entity')) {
+    return;
+  }
+
   switch ($op) {
     case 'settings':
       $settings = array();
@@ -27,7 +32,7 @@ function file_entity_pathauto($op) {
       $settings['token_type'] = 'file';
       $settings['groupheader'] = t('File paths');
       $settings['patterndescr'] = t('Default path pattern (applies to all file types with blank patterns below)');
-      $settings['patterndefault'] = 'files/[file:name]';
+      $settings['patterndefault'] = '';
       $settings['batch_update_callback'] = 'file_entity_pathauto_bulk_update_batch_process';
       $settings['batch_file'] = drupal_get_path('module', 'file_entity') . '/file_entity.pathauto.inc';
 

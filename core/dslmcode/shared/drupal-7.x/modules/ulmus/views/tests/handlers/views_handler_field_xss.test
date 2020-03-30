@@ -29,7 +29,6 @@ class ViewsHandlerTestXss extends ViewsSqlTest {
     return $map;
   }
 
-
   function viewsData() {
     $data = parent::viewsData();
     $data['views_test']['name']['field']['handler'] = 'views_handler_field_xss';

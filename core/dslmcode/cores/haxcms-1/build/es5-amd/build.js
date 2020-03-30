@@ -1,3 +1,1 @@
-define(["./dist/build-cms.js"], function (_buildCms) {
-  "use strict";
-});
+define(["./dist/app.js"],function(_app){"use strict"});

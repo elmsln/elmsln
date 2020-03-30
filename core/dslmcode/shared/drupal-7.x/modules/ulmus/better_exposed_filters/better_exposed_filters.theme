@@ -105,7 +105,8 @@ function theme_select_as_checkboxes($vars) {
     // Check for Taxonomy-based filters.
     if (is_object($elem)) {
       $slice = array_slice($elem->option, 0, 1, TRUE);
-      list($option, $elem) = each($slice);
+      $option = key($slice);
+      $elem = current($slice);
     }
 
     // Check for optgroups.  Put subelements in the $element_set array and add
@@ -176,7 +177,8 @@ function theme_select_as_hidden($vars) {
     // Check for Taxonomy-based filters.
     if (is_object($elem)) {
       $slice = array_slice($elem->option, 0, 1, TRUE);
-      list($option, $elem) = each($slice);
+      $option = key($slice);
+      $elem = current($slice);
     }
 
     // Check for optgroups.  Put subelements in the $element_set array and add a
@@ -331,7 +333,8 @@ function theme_select_as_tree($vars) {
     // Check for Taxonomy-based filters.
     if (is_object($option_label)) {
       $slice = array_slice($option_label->option, 0, 1, TRUE);
-      list($option_value, $option_label) = each($slice);
+      $option_value = key($slice);
+      $option_label = current($slice);
     }
 
     // Check for optgroups -- which is basically a two-level deep tree.
@@ -518,7 +521,8 @@ function theme_select_as_links($vars) {
     // Check for Taxonomy-based filters.
     if (is_object($elem)) {
       $slice = array_slice($elem->option, 0, 1, TRUE);
-      list($option, $elem) = each($slice);
+      $option = key($slice);
+      $elem = current($slice);
     }
 
     // Check for optgroups.  Put subelements in the $element_set array and add
@@ -556,8 +560,11 @@ function theme_select_as_links($vars) {
       // Add "active" class to the currently active filter link.
       if (in_array((string) $key, $selected_options)) {
         $link_options['attributes'] = array('class' => array('active'));
+        $url = bef_replace_query_string_arg($name, $key, $multiple, TRUE, $path);
       }
-      $url = bef_replace_query_string_arg($name, $key, $multiple, FALSE, $path);
+      else {
+        $url = bef_replace_query_string_arg($name, $key, $multiple, FALSE, $path);
+      }
       $elem['#children'] = l($value, $url, $link_options);
       $element_output = theme('form_element', array('element' => $elem));
 

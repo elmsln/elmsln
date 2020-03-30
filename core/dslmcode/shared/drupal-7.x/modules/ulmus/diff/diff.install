@@ -133,9 +133,14 @@ function diff_update_7306() {
 }
 
 /**
- * Grants access to the Diff "View Changes" button permission to all users.
+ * Grants access to the Diff "View Changes" button permission to all users
+ * if the Diff module is enabled. You need to manually update the permissions
+ * if the module is currently disabled.
  */
 function diff_update_7307() {
-  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('diff view changes'));
-  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('diff view changes'));
+  // The update hooks run even if disabled, and this throws an error.
+  if (module_exists('diff')) {
+    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('diff view changes'));
+    user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('diff view changes'));
+  }
 }

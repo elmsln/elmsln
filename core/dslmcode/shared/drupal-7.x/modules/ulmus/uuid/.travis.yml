@@ -5,7 +5,7 @@ php:
   - 5.5
   - 5.6
   - 7.0
-  - hhvm
+
 
 matrix:
   fast_finish: true
@@ -23,7 +23,8 @@ install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 
   # install drush globally
-  - composer global require drush/drush:7.*
+  - composer global require consolidation/cgr
+  - cgr drush/drush:8.x-dev --prefer-source
 
   # Install PHP_CodeSniffer and Drupal config
   - composer global require drupal/coder

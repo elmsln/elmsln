@@ -1,32 +1,33 @@
 # HAXcms
+The authoring experience of HAX and the ability to make fast, static file backed websites rapidly.
 Get all the details you want on [HAXTheWeb.org](https://haxtheweb.org/haxcms-1)!
 HAXcms seeks to be the smallest possible back-end CMS to make HAX work and be able to build websites with it. Leveraging JSON Outline Schema, HAX is able to author multiple pages, which it then writes onto the file system. This way a slim server layer is just for basic authentication, knowing how to save files, and placing them in version control.
 
 ## Features
-- All of HAX without a bloated CMS
+- All the UX of HAX brought to a small CMS
 - Incredibly simple, readable file structure of flat HTML files and lightning fast, high scale micro-sites
 - cdn friendly configuration
 - 0 config, 100% offline capable, PWA generation
 - clean, simple theme layer abstracted from content
-- No database (simple `.json` files help manage the data)
+- No database (simple `.json` files help manage relationships, all pages html+webcomponents)
 - Files you can reach out and touch, fork, and theme with ease!
 - Support for multiple sites
 - automatic git repo creation and management (never touch commandline again, but dive in if you really needed)
 - Built in gh-pages publishing
+- Support for PHP and Express based backends
 
 # Requirements (PHP)
 - Supports PHP 7.1+
 - Requires `zip`, `gd`, and `xml` modules be installed
 - Apache 2.4
-## Installation Guide
+# Requirements (node, still in development)
+```bash
+cd system/backend/nodejs
+yarn run dev
+```
+## Installation Guides
 - There are full installation instructions available at https://haxtheweb.org/installation which details many different install routines.
-### MAMP
-- Download [MAMP](https://www.mamp.info/)
-- Download this repo https://github.com/elmsln/HAXcms/archive/master.zip
-- Place HAXcms files in the htdocs folder of MAMP.
-- Turn MAMP on and click "My website"
-- Copy the password it gives you, click to access HAX and then HAX YOUR WEB!
-### Contaaaiiinnnneeerrrrs
+### Containers
 - Clone this repo: `git clone https://github.com/elmsln/haxcms.git`
 - Install a server container (recomnended). Here are some options (We support 'em all!):  
   - [docker](https://store.docker.com/search?type=edition&offering=community)
@@ -38,6 +39,12 @@ HAXcms seeks to be the smallest possible back-end CMS to make HAX work and be ab
 - Go to the link any of them give you in a browser.
 - Username/password is `admin`/`admin` to get building out static sites locally that you can push up anywhere!
 - Click the icon in the top-right and you're off and running!
+### MAMP
+- Download [MAMP](https://www.mamp.info/)
+- Download this repo https://github.com/elmsln/HAXcms/archive/master.zip
+- Place HAXcms files in the htdocs folder of MAMP.
+- Turn MAMP on and click "My website"
+- Copy the password it gives you, click to access HAX and then HAX YOUR WEB!
 ## Scope
 Generate `.html` files which have only "content" in them. Meaning the contents of the page in question. A simple method of adding new pages and managing the organization of those pages into a simple hierarchy (outline). Support for multiple mini web sites so that you can write a lot about different topics. HAXcms is only intended to be a micro-site generator and play nicely with the rest of the HAX ecosystem without needing a monster CMS in order to utilize it.
 
@@ -52,5 +59,15 @@ able to better interface with enterprise login systems while maintaining a clean
 HAXcms does not require HAXiam to operate but it is an alternate configuration that we support. 
 Therefore if you see anything in the docs or under the hood referencing how to change settings 
 when in that type of environment, you know why.
+
+## Windows
+[Cygwin command line](https://www.cygwin.com/) is lightly tested, but slower than true Bash environment.
+
+### Windows Install
+To properly configure git endlines for Windows, run this configuration
+```bash
+$ git config --global core.autocrlf true
+```
+
 ## License
 [Apache 2.0](LICENSE.md)

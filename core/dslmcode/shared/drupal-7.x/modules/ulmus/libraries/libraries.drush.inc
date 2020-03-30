@@ -23,7 +23,9 @@ function libraries_drush_command() {
     'arguments' => array(
       'libraries' => 'A comma delimited list of library machine names.',
     ),
-    'required-arguments' => TRUE,
+    'options' => array(
+      'all' => 'Download all registered libraries.',
+    ),
   );
 
   return $items;
@@ -42,10 +44,7 @@ function libraries_drush_cache_clear(array &$types) {
  * Clears the library cache.
  */
 function libraries_drush_invalidate_cache() {
-  // @see drupal_flush_all_caches()
-  foreach (libraries_flush_caches() as $table) {
-    cache_clear_all('*', $table, TRUE);
-  }
+  libraries_cache_clear();
 }
 
 /**
@@ -109,28 +108,61 @@ function drush_libraries_list() {
 function drush_libraries_download() {
   drush_command_include('pm-download');
 
-  $libraries = libraries_info();
+  $all_libraries = libraries_detect();
 
-  // @todo Consider supporting downloading all downloadable libraries.
-  // @todo Consider offering a selection if no library is specified.
-  foreach (pm_parse_arguments(func_get_args(), FALSE) as $machine_name) {
-    if (!isset($libraries[$machine_name])) {
-      $message = dt("The !library library is not registered with Libraries API.\n", array('!library' => $machine_name));
-      $message .= dt("Provide an info file for it or implement hook_libraries_info().\n");
-      $message .= dt("See hook_libraries_info() for more information.\n");
-      drush_set_error('DRUSH_LIBRARY_UKNOWN', $message);
-      continue;
+  // Prepare a list of names of downloadable libraries.
+  $downloadable_names = array();
+  foreach ($all_libraries as $machine_name => $library) {
+    // Skip libraries that are already installed.
+    // @todo Allow (optionally) re-downloading installing libraries.
+    if (!empty($library['download file url']) && !$library['installed']) {
+      $downloadable_names[] = $machine_name;
     }
-    $library = $libraries[$machine_name];
+  }
 
-    if (empty($library['download file url'])) {
-      $message = dt("The !library library cannot be downloaded.\n", array('!library' => $machine_name));
-      $message .= dt("Libraries need to specify a download file URL to support being downloaded via Drush.\n");
-      $message .= dt("See hook_libraries_info() for more information.\n");
-      drush_set_error('DRUSH_LIBRARY_NOT_DOWNLOADABLE', $message);
-      continue;
+  // Gather a list of libraries to download. If '--all' was specified, that
+  // takes precedence over any other arguments. Otherwise and if no arguments
+  // are specified, we present a choice of all downloadable libraries.
+  if (drush_get_option('all', FALSE) && $downloadable_names) {
+    $machine_names = $downloadable_names;
+  }
+  elseif (pm_parse_arguments(func_get_args(), FALSE)) {
+    $machine_names = array();
+    foreach (pm_parse_arguments(func_get_args(), FALSE) as $machine_name) {
+      // If there was an error with with one of the libraries, continue to try
+      // to install any remaining libraries.
+      if (!isset($all_libraries[$machine_name])) {
+        $message = dt("The !library library is not registered with Libraries API.\n", array('!library' => $machine_name));
+        $message .= dt("Provide an info file for it or implement hook_libraries_info().\n");
+        $message .= dt("See hook_libraries_info() for more information.\n");
+        drush_set_error('DRUSH_LIBRARY_UKNOWN', $message);
+        continue;
+      }
+      if (empty($all_libraries[$machine_name]['download file url'])) {
+        $message = dt("The !library library cannot be downloaded.\n", array('!library' => $machine_name));
+        $message .= dt("Libraries need to specify a download file URL to support being downloaded via Drush.\n");
+        $message .= dt("See hook_libraries_info() for more information.\n");
+        drush_set_error('DRUSH_LIBRARY_NOT_DOWNLOADABLE', $message);
+        continue;
+      }
+      $machine_names[] = $machine_name;
     }
-    $download_url = $library['download file url'];
+  }
+  elseif ($downloadable_names) {
+    $machine_names = drush_choice_multiple(drupal_map_assoc($downloadable_names), FALSE, 'Select which libraries to download.');
+    // If the operation was cancelled by the user, or if no libraries were
+    // selected, bail out without any further error message.
+    if (!$machine_names) {
+      return;
+    }
+  }
+  else {
+    drush_log(dt('There are no registered, uninstalled libraries that can be downloaded.'), 'warning');
+    return;
+  }
+
+  foreach ($machine_names as $machine_name) {
+    $download_url = $all_libraries[$machine_name]['download file url'];
 
     drush_log(dt('Downloading library !name ...', array('!name' => $machine_name)));
 
@@ -205,7 +237,7 @@ function drush_libraries_download() {
         drush_delete_dir($install_location, TRUE);
       }
       else {
-        drush_log(dt("Skip installation of !project to !dest.", array('!project' => $library['machine name'], '!dest' => $install_location)), 'warning');
+        drush_log(dt("Skip installation of !project to !dest.", array('!project' => $machine_name, '!dest' => $install_location)), 'warning');
         continue;
       }
     }

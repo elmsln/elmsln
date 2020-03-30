@@ -435,9 +435,11 @@ class ViewsUiGroupbyTestCase extends DrupalWebTestCase {
   /**
    * {@inheritdoc}
    */
-  function setUp() {
-    // Enable views_ui.
-    parent::setUp('views_ui', 'views_test');
+  public function setUp(array $modules = array()) {
+    $modules[] = 'views';
+    $modules[] = 'views_ui';
+    $modules[] = 'views_test';
+    parent::setUp($modules);
 
     // Create and log in a user with administer views permission.
     $views_admin = $this->drupalCreateUser(array('administer views', 'administer blocks', 'bypass node access', 'access user profiles', 'view revisions'));

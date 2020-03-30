@@ -95,6 +95,7 @@ function ctools_plugin_example_default_page_manager_pages() {
     'access' => array(
       'logic' => 'and',
     ),
+    'pipeline' => 'standard',
   );
   $display = new panels_display();
   $display->layout = 'threecol_33_34_33_stacked';
@@ -154,7 +155,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $pane->configuration = array(
     'title' => 'Long Arg Visibility Block',
     'body' => 'This block will be here when the argument is longer than configured arg length. It uses the \'arg_length\' access plugin to test against the length of the argument used for Simplecontext.',
-    'format' => '1',
+    'format' => 'filtered_html',
     'substitute' => 1,
   );
   $pane->cache = array();
@@ -185,7 +186,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $pane->configuration = array(
     'title' => 'Short Arg Visibility',
     'body' => 'This block appears when the simplecontext argument is <i>less than</i> the configured length.',
-    'format' => '1',
+    'format' => 'filtered_html',
     'substitute' => 1,
   );
   $pane->cache = array();
@@ -297,7 +298,7 @@ function ctools_plugin_example_default_page_manager_pages() {
     item1 is %sc:item1
     item2 is %sc:item2
     description is %sc:description',
-    'format' => '1',
+    'format' => 'filtered_html',
     'substitute' => 1,
   );
   $pane->cache = array();
@@ -363,7 +364,7 @@ function ctools_plugin_example_default_page_manager_pages() {
     'body' => 'The CTools Plugin Example module (and this panel page) are just here to demonstrate how to build CTools plugins.
 
             ',
-    'format' => '2',
+    'format' => 'full_html',
     'substitute' => 1,
   );
   $pane->cache = array();
@@ -408,6 +409,7 @@ function ctools_plugin_example_default_page_manager_pages() {
     'css' => '',
     'contexts' => array(),
     'relationships' => array(),
+    'pipeline' => 'standard',
   );
   $display = new panels_display();
   $display->layout = 'onecol';
@@ -428,7 +430,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $pane->configuration = array(
     'title' => 'Use this page with an argument',
     'body' => 'This demo page works if you use an argument, like <a href="ctools_plugin_example/xxxxx">ctools_plugin_example/xxxxx</a>.',
-    'format' => '1',
+    'format' => 'filtered_html',
     'substitute' => NULL,
   );
   $pane->cache = array();

@@ -24,10 +24,11 @@ class ViewsHandlerFieldTest extends ViewsSqlTest {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
-  protected function setUp() {
-    parent::setUp();
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
+
     $this->column_map = array(
       'views_test_name' => 'name',
     );

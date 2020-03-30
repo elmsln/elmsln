@@ -920,7 +920,7 @@
             "data": {},
             "resultMap": {
               "image": "https://en.wikipedia.org/static/images/project-logos/enwiki.png",
-              "defaultGizmoType": "content",
+              "defaultGizmoType": "wikipedia",
               "items": "query.search",
               "preview": {
                 "title": "title",
@@ -957,7 +957,7 @@
         "operations": {
           "browse": {
             "method": "GET",
-            "endPoint": "system/loadFiles.php",
+            "endPoint": "system/loadFiles",
             "pagination": {
               "style": "link",
               "props": {
@@ -988,7 +988,7 @@
           },
           "add": {
             "method": "POST",
-            "endPoint": "system/saveFile.php",
+            "endPoint": "system/saveFile",
             "acceptsGizmoTypes": [
               "image",
               "video",

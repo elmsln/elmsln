@@ -128,7 +128,12 @@ class ViewsBulkOperationsAction extends ViewsBulkOperationsBaseOperation {
     actions_list();
 
     $submit_callback = $this->operationInfo['callback'] . '_submit';
-    $this->formOptions = $submit_callback($form, $form_state);
+    // If the return value from the callback is an options array, store it for
+    // later union onto the context.
+    $options = $submit_callback($form, $form_state);
+    if ($options && is_array($options)) {
+      $this->formOptions = $options;
+    }
   }
 
   /**

@@ -15,8 +15,8 @@ define('WYSIWYG_CKEDITOR_ACF_CUSTOM', 2);
 function wysiwyg_ckeditor_editor() {
   $editor['ckeditor'] = array(
     'title' => 'CKEditor',
-    'vendor url' => 'http://ckeditor.com',
-    'download url' => 'http://ckeditor.com/download',
+    'vendor url' => 'https://ckeditor.com',
+    'download url' => 'https://ckeditor.com/download',
     'libraries' => array(
       '' => array(
         'title' => 'Default',
@@ -32,7 +32,7 @@ function wysiwyg_ckeditor_editor() {
       ),
     ),
     'install note callback' => 'wysiwyg_ckeditor_install_note',
-    'verified version range' => array('3.0', '4.6.2.20af917'),
+    'verified version range' => array('3.0', '4.12.1.64749bb245'),
     'migrate settings callback' => 'wysiwyg_ckeditor_migrate_settings',
     'version callback' => 'wysiwyg_ckeditor_version',
     'themes callback' => 'wysiwyg_ckeditor_themes',
@@ -349,14 +349,14 @@ function wysiwyg_ckeditor_settings_form(&$form, &$form_state) {
         WYSIWYG_CKEDITOR_ACF_DISABLED => t('Disabled'),
       ),
       '#default_value' => isset($profile->settings['acf_mode']) ? $profile->settings['acf_mode'] : WYSIWYG_CKEDITOR_ACF_DISABLED,
-      '#description' => t('If set to <em>Automatic</em> or <em>Custom</em>, the editor will strip out any content not explicitely allowed <strong>when the editor loads</strong>.'),
+      '#description' => t('If set to <em>Automatic</em> or <em>Custom</em>, the editor will strip out any content not explicitly allowed <strong>when the editor loads</strong>.'),
     );
 
     $form['output']['acf']['acf_allowed_content'] = array(
       '#type' => 'textarea',
       '#title' => t('Content Rules'),
       '#default_value' => isset($profile->settings['acf_allowed_content']) ? $profile->settings['acf_allowed_content'] : '',
-      '#description' => t('Rules for whitelisting content for the advanced content filter. Both string and object formats accepted. Uses the <a href="@allowed_url">allowedContent</a> setting in <em>Custom</em> mode <strong>or</strong> the <a href="@extra_allwed_url">extraAllowedContent</a> settings in <em>Automatic</em> mode internally. See <a href="@info_url">@info_url</a> for details.', array('@info_url' => url('http://docs.ckeditor.com/#!/guide/dev_allowed_content_rules'), '@allowed_url' => url('http://docs.ckeditor.com/#!/api/CKEDITOR.config-cfg-allowedContent'), '@allowed_extra_url' => url('http://docs.ckeditor.com/#!/api/CKEDITOR.config-cfg-extraAllowedContent'))),
+      '#description' => t('Rules for whitelisting content for the advanced content filter. Both string and object formats accepted. Uses the <a href="@allowed_url">allowedContent</a> setting in <em>Custom</em> mode <strong>or</strong> the <a href="@allowed_extra_url">extraAllowedContent</a> settings in <em>Automatic</em> mode internally. See <a href="@info_url">@info_url</a> for details.', array('@info_url' => url('http://docs.ckeditor.com/#!/guide/dev_allowed_content_rules'), '@allowed_url' => url('http://docs.ckeditor.com/#!/api/CKEDITOR.config-cfg-allowedContent'), '@allowed_extra_url' => url('http://docs.ckeditor.com/#!/api/CKEDITOR.config-cfg-extraAllowedContent'))),
       '#states' => array(
         'visible' => array(
           ':input[name="acf_mode"]' => array(
@@ -444,6 +444,9 @@ function wysiwyg_ckeditor_settings_form_validate_stylessets($element, &$form_sta
  *   script is loaded.
  */
 function wysiwyg_ckeditor_init($editor) {
+  // Pass Drupal's JS cache-busting string via settings along to CKEditor.
+  drupal_add_js(array('wysiwyg' => array('ckeditor' => array('timestamp' => variable_get('css_js_query_string', '0')))), 'setting');
+
   // CKEditor unconditionally searches for its library filename in SCRIPT tags
   // on the page upon loading the library in order to determine the base path to
   // itself. When JavaScript aggregation is enabled, this search fails and all

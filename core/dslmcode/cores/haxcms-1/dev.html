@@ -109,6 +109,7 @@
       window.__haxCMSContextDemo = true;
       window.appSettings = {
         login: "dist\/dev\/login.json",
+        refreshUrl: "dist\/dev\/refreshUrl.json",
         logout: "dist\/dev\/logout.json",
         saveNodePath: "dist\/dev\/saveNode.json",
         getConfigPath: "dist\/dev\/getConfigPath.json",
@@ -156,7 +157,7 @@
           themeCoreJson,
           configJson.themes
         );
-      }, 100);
+      }, 500);
       // append global base styles
       var link = document.createElement("link");
       link.rel = "stylesheet";

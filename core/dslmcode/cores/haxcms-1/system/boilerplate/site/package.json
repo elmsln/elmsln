@@ -1,7 +1,7 @@
 {
-  "name": "haxcms",
-  "version": "0.0.1",
-  "description": "HAXcms microsite dependencies for developer usage",
+  "name": "{{ short }}",
+  "version": "{{ version }}",
+  "description": "{{ description }}",
   "main": "index.html",
   "repository": {
     "type": "git",
@@ -123,14 +123,15 @@
     "@prettier/plugin-php": "^0.11.0",
     "prettier": "^1.16.4",
     "gulp": "^4.0.2",
-    "gulp-terser": "^1.2.0"
+    "gulp-terser": "^1.2.0",
+    "rollup-plugin-terser": "5.2.0"
   },
   "scripts": {
     "lint": "prettier --check 'system/**/*.php' '*.{html,js,php,yml}'",
     "format": "prettier --write 'system/**/*.php' '*.{html,js,php,yml}'",
-    "build": "polymer build && yarn run terser",
     "terser": "gulp",
-    "dev": "polymer serve --open --entrypoint dist/dev.html",
+    "start": "yarn run dev",
+    "dev": "polymer serve --open --entrypoint dist/dev.html --allow-origin --open-path=/",
     "dev-theme": "cd custom && yarn start"
   }
 }

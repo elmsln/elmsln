@@ -35,11 +35,15 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
   }
 
   /**
-   * Setup.
+   * {@inheritdoc}
    */
-  public function setup() {
-    parent::setup('field_ui', 'link');
+  public function setUp(array $modules = array()) {
+    $modules[] = 'field_ui';
+    $modules[] = 'link';
+    parent::setUp($modules);
+
     $this->zebra = 0;
+
     // Create and login user.
     $this->web_user = $this->drupalCreateUser(array(
       'administer content types',
@@ -236,7 +240,6 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
       '@content_type_friendly' => $content_type_friendly,
       '@title' => $node_title,
     )));
-
   }
 
   /**
@@ -332,11 +335,8 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
 
   /**
    * Formatter URL.
-   *
-   * @codingStandardsIgnoreStart
    */
-  public function testFormatterURL() {
-    // @codingStandardsIgnoreEnd
+  public function testFormatterUrl() {
     $content_type_friendly = $this->randomName(20);
     $content_type_machine = strtolower($this->randomName(10));
 

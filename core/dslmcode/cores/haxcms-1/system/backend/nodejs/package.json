@@ -1,0 +1,35 @@
+{
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "yarn run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra":"8.1.0",
+    "locutus": "2.0.11",
+    "helmet": "3.21.2",
+    "express-fileupload": "1.1.6",
+    "express": "4.17.1",
+    "openapi-enforcer-middleware": "1.2.2",
+    "openapi-enforcer": "1.8.2",
+    "body-parser": "1.19.0",
+    "sharp": "0.24.0",
+    "uuid": "3.4.0",
+    "twig": "1.14.0",
+    "crypto": "1.0.1",
+    "utf8": "3.0.0",
+    "mime": "2.4.4",
+    "nodegit": "0.26.4",
+    "jsonwebtoken": "8.5.1",
+    "cookie-parser": "1.4.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}

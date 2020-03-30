@@ -18,8 +18,11 @@ class ViewsPluginStyleMappingTest extends ViewsPluginStyleTestBase {
     );
   }
 
-  public function setUp() {
-    parent::setUp();
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    parent::setUp($modules);
 
     // Reset the plugin data.
     views_fetch_plugin_data(NULL, NULL, TRUE);

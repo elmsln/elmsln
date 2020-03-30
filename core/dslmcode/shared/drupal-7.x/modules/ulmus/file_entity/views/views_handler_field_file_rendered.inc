@@ -39,7 +39,8 @@ class views_handler_field_file_rendered extends views_handler_field_entity {
   }
 
   function render($values) {
-    $file = $this->get_value($values);
-    return file_view_file($file, $this->options['file_view_mode']);
+    if ($file = $this->get_value($values)) {
+      return file_view_file($file, $this->options['file_view_mode']);
+    }
   }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * File administration and module settings UI.
@@ -178,7 +179,7 @@ function file_entity_filter_form_submit($form, &$form_state) {
  *   Array of key/value pairs with file field names and the
  *   value to update that field to.
  */
-function file_entity_mass_update($files, $updates) {
+function file_entity_mass_update(array $files, array $updates) {
   // We use batch processing to prevent timeout when updating a large number
   // of files.
   if (count($files) > 10) {
@@ -323,17 +324,26 @@ function file_entity_admin_files() {
     'timestamp' => array(
       'data' => t('Updated'),
       'field' => 'fm.timestamp',
-      'sort' => 'desc'),
+      'sort' => 'desc',
+    ),
     'usage' => array('data' => t('Used in'), 'field' => 'total_count'),
     'operations' => array('data' => t('Operations')),
   );
 
+  if (variable_get('file_entity_total_count_optimization', FALSE)) {
+    // If the total_count is being retrieved by subqueries,
+    // the table is not sortable by this column.
+    unset($header['usage']['field']);
+  }
+
   $query = db_select('file_managed', 'fm')->extend('PagerDefault')->extend('TableSort');
-  $query->leftJoin('file_usage', 'fu', 'fm.fid = fu.fid');
-  $query->groupBy('fm.fid');
-  $query->groupBy('fm.uid');
-  $query->groupBy('fm.timestamp');
-  $query->addExpression('SUM(fu.count)', 'total_count');
+  if (!variable_get('file_entity_total_count_optimization', FALSE)) {
+    $query->leftJoin('file_usage', 'fu', 'fm.fid = fu.fid');
+    $query->groupBy('fm.fid');
+    $query->groupBy('fm.uid');
+    $query->groupBy('fm.timestamp');
+    $query->addExpression('SUM(fu.count)', 'total_count');
+  }
   file_entity_build_filter_query($query);
 
   $result = $query
@@ -343,6 +353,24 @@ function file_entity_admin_files() {
     ->addTag('file_access')
     ->execute()
     ->fetchAllAssoc('fid');
+
+  if (variable_get('file_entity_total_count_optimization', FALSE)) {
+    // Get the total_count in separate queries, otherwise the main
+    // query will take too long.
+    // This setting can be configured under /admin/config/development/performance.
+    foreach ($result as &$file_result) {
+      $count_query = db_select('file_usage', 'fu')
+        ->fields('fu', array('fid', 'count'))
+        ->condition('fu.fid', $file_result->fid, '=');
+      $count_query->addExpression('fu.count', 'total_count');
+      $count_result = $count_query->execute()->fetchAll();
+
+      if (!empty($count_result[0]->total_count)) {
+        $file_result->total_count = $count_result[0]->total_count;
+      }
+    }
+  }
+
   $files = file_load_multiple(array_keys($result));
 
   $uids = array();
@@ -357,6 +385,7 @@ function file_entity_admin_files() {
   foreach ($files as $file) {
     $file_type = file_type_load($file->type);
     $account = isset($accounts[$file->uid]) ? $accounts[$file->uid] : NULL;
+    $total_count = (int) isset($result[$file->fid]->total_count) ? $result[$file->fid]->total_count : 0;
     $options[$file->fid] = array(
       'title' => array(
         'data' => array(
@@ -369,7 +398,7 @@ function file_entity_admin_files() {
       'size' => format_size($file->filesize),
       'author' => theme('username', array('account' => $account)),
       'timestamp' => format_date($file->timestamp, 'short'),
-      'usage' => format_plural((int) $result[$file->fid]->total_count, '1 place', '@count places'),
+      'usage' => format_plural($total_count, '1 place', '@count places'),
     );
 
     // Show a warning for files that do not exist.
@@ -583,6 +612,7 @@ function file_entity_list_types_page() {
     switch ($type->ctools_type) {
       // Configuration is in code.
       case 'Default':
+      case t('Default'):
         if (!empty($type->disabled)) {
           $row[] = l(t('enable'), $admin_path . '/enable');
         }
@@ -593,6 +623,7 @@ function file_entity_list_types_page() {
 
       // Configuration is in DB.
       case 'Normal':
+      case t('Normal'):
         if (!empty($type->disabled)) {
           $status = l(t('enable'), $admin_path . '/enable');
         }
@@ -604,6 +635,7 @@ function file_entity_list_types_page() {
 
       // Configuration is in code, but overridden in DB.
       case 'Overridden':
+      case t('Overridden'):
         if (!empty($type->disabled)) {
           $row[] = l(t('enable'), $admin_path . '/enable');
         }
@@ -931,7 +963,6 @@ function file_entity_file_type_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'admin/structure/file-types';
 }
 
-
 /**
  * Menu callback; disable a single file type.
  */
@@ -942,7 +973,6 @@ function file_entity_type_enable_confirm($form, &$form_state, $type) {
   return confirm_form($form, $message, 'admin/structure/file-types', '', t('Enable'));
 }
 
-
 /**
  * Process file type disable confirm submissions.
  */
@@ -952,9 +982,7 @@ function file_entity_type_enable_confirm_submit($form, &$form_state) {
   drupal_set_message(t('The file type %label has been enabled.', $t_args));
   watchdog('file_entity', 'Enabled file type %label.', $t_args, WATCHDOG_NOTICE);
   $form_state['redirect'] = 'admin/structure/file-types';
-  return;
 }
-
 
 /**
  * Menu callback; disable a single file type.
@@ -989,9 +1017,7 @@ function file_entity_type_disable_confirm_submit($form, &$form_state) {
   drupal_set_message(t('The file type %label has been disabled.', $t_args));
   watchdog('file_entity', 'Disabled file type %label.', $t_args, WATCHDOG_NOTICE);
   $form_state['redirect'] = 'admin/structure/file-types';
-  return;
 }
-
 
 /**
  * Menu callback; revert a single file type.
@@ -1003,7 +1029,6 @@ function file_entity_type_revert_confirm($form, &$form_state, $type) {
   return confirm_form($form, $message, 'admin/structure/file-types', '', t('Revert'));
 }
 
-
 /**
  * Process file type delete confirm submissions.
  */
@@ -1014,9 +1039,7 @@ function file_entity_type_revert_confirm_submit($form, &$form_state) {
   drupal_set_message(t('The file type %label has been reverted.', $t_args));
   watchdog('file_entity', 'Reverted file type %label.', $t_args, WATCHDOG_NOTICE);
   $form_state['redirect'] = 'admin/structure/file-types';
-  return;
 }
-
 
 /**
  * Menu callback; delete a single file type.
@@ -1049,7 +1072,6 @@ function file_entity_type_delete_confirm_submit($form, &$form_state) {
   watchdog('file_entity', 'Deleted file type %label.', $t_args, WATCHDOG_NOTICE);
 
   $form_state['redirect'] = 'admin/structure/file-types';
-  return;
 }
 
 /**
@@ -1065,11 +1087,28 @@ function file_entity_settings_form($form, &$form_state) {
     '#element_validate' => array('_file_generic_settings_max_filesize'),
   );
 
+  $form['file_entity_default_file_directory'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default file directory'),
+    '#default_value' => variable_get('file_entity_default_file_directory', ''),
+    '#maxlength' => NULL,
+  );
+  if (module_exists('token')) {
+    $form['file_entity_default_file_directory']['#description'] = t('Optional subdirectory within the upload destination where files will be stored if the file is uploaded through the file entity overview page and the directory is not specified otherwise. Do not include preceding or trailing slashes. This field supports tokens.  Suggest using: [current-date:custom:Y]/[current-date:custom:m]/[current-date:custom:d]');
+    $form['file_entity_default_file_directory']['tokens'] = array(
+      '#theme' => 'token_tree',
+      '#dialog' => TRUE,
+    );
+  }
+  else {
+    $form['file_entity_default_file_directory']['#description'] = t('Optional subdirectory within the upload destination where files will be stored if the file is uploaded through the file entity overview page and the directory is not specified otherwise. Do not include preceding or trailing slashes.');
+  }
+
   $form['file_entity_default_allowed_extensions'] = array(
     '#type' => 'textfield',
     '#title' => t('Default allowed file extensions'),
     '#default_value' => variable_get('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm'),
-    '#description' => t('Separate extensions with a space or comma and do not include the leading dot.'),
+    '#description' => t('Separate extensions with a space and do not include the leading dot.'),
     '#maxlength' => NULL,
   );
 
@@ -1120,6 +1159,26 @@ function file_entity_settings_form($form, &$form_state) {
     '#title' => t('Skip available fields.'),
     '#default_value' => variable_get('file_entity_file_upload_wizard_skip_fields', FALSE),
     '#description' => t('The field selection step is only available if the file type the file belongs to has any available fields. If this step is skipped, any fields on the file will be left blank.'),
+  );
+  $form['file_replace_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('File replace optons'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' => t('Default settings for how to handle file name changes during replace.'),
+  );
+  $form['file_replace_options']['file_entity_file_replace_options_keep_original_filename'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Keep original file name'),
+    '#default_value' => variable_get('file_entity_file_replace_options_keep_original_filename', FALSE),
+    '#description' => t('Rename the newly uploaded file to the name of the original file. This action cannot be undone.'),
+  );
+
+  $form['file_entity_protect_repeated_render'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Protect against repeat rendering'),
+    '#default_value' => variable_get('file_entity_protect_repeated_render', TRUE),
+    '#description' => t('Avoid rendering the same entity more than 20 times. This can be a sign of an image entity getting caught in a recursive render, but it can also be triggered when the same image is rendered more than 20 times, e.g. in an long content list or data feed.'),
   );
 
   return system_settings_form($form);

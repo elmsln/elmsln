@@ -1,0 +1,43 @@
+@charset 'UTF-8';
+
+@media only screen {
+  .vbo-search-and-replace-form .field-select-container .fieldset-wrapper {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+  }
+
+  .vbo-search-and-replace-form .field-select-container .form-item.form-type-checkbox {
+    flex-basis: calc(100% / 1);
+  }
+}
+
+@media only screen and (min-width: 400px) {
+  .vbo-search-and-replace-form .field-select-container .form-item.form-type-checkbox {
+    flex-basis: calc(100% / 2);
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .vbo-search-and-replace-form .field-select-container .form-item.form-type-checkbox {
+    flex-basis: calc(100% / 3);
+  }
+}
+
+@media only screen and (min-width: 800px) {
+  .vbo-search-and-replace-form .field-select-container .form-item.form-type-checkbox {
+    flex-basis: calc(100% / 4);
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  .vbo-search-and-replace-form .field-select-container .form-item.form-type-checkbox {
+    flex-basis: calc(100% / 5);
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  .vbo-search-and-replace-form .field-select-container .form-item.form-type-checkbox {
+    flex-basis: calc(100% / 6);
+  }
+}

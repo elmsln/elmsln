@@ -15,12 +15,12 @@ function mooc_hax_features_override_default_overrides() {
   $overrides["filter.textbook_editor.filters|webcomponents_cmstags"] = array(
     'settings' => array(),
     'status' => 1,
-    'weight' => -49,
+    'weight' => -50,
   );
   $overrides["filter.textbook_editor.filters|webcomponents_cmstags_jsonfix"] = array(
     'settings' => array(),
     'status' => 1,
-    'weight' => -43,
+    'weight' => -50,
   );
 
  return $overrides;

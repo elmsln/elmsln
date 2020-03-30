@@ -110,29 +110,22 @@ To use the Material theme, import the correspondent file from the `theme/materia
   `vaadin-split-layout.html`
 
 
-## Running demos and tests in browser
+## Running demos and tests in a browser
 
 1. Fork the `vaadin-split-layout` repository and clone it locally.
 
-1. Make sure you have [npm](https://www.npmjs.com/) installed.
+1. Make sure you have [npm](https://www.npmjs.com/) and [Bower](https://bower.io) installed.
 
-1. When in the `vaadin-split-layout` directory, run `npm install` and then `polymer install --variants` to install dependencies.
+1. When in the `vaadin-split-layout` directory, run `npm install` and then `bower install` to install dependencies.
 
-1. Run `polymer serve`, after that you will be able to access:
+1. Make sure you have [polymer-cli](https://www.npmjs.com/package/polymer-cli) installed globally: `npm i -g polymer-cli`.
 
-  - Polymer1-compatible version:
+1. Run `npm start`, browser will automatically open the component API documentation.
 
-    - API documentation: http://127.0.0.1:8000/components/vaadin-split-layout/
-    - Examples: http://127.0.0.1:8000/components/vaadin-split-layout/demo/
-    - Tests: http://127.0.0.1:8000/components/vaadin-split-layout/test/
+1. You can also open demo or in-browser tests by adding **demo** or **test** to the URL, for example:
 
-  - Polymer2-compatible version:
-
-    - API documentation: http://127.0.0.1:8001/components/vaadin-split-layout/
-    - Examples: http://127.0.0.1:8001/components/vaadin-split-layout/demo/
-    - Tests: http://127.0.0.1:8001/components/vaadin-split-layout/test/
-
-Note that ports `8000` and `8001` could be different in your environment.
+  - http://127.0.0.1:3000/components/vaadin-split-layout/demo
+  - http://127.0.0.1:3000/components/vaadin-split-layout/test
 
 
 ## Running tests from the command line
@@ -142,7 +135,12 @@ Note that ports `8000` and `8001` could be different in your environment.
 
 ## Following the coding style
 
-We are using [ESLint](http://eslint.org/) for linting JavaScript code. You can check if your code is following our standards by running `gulp lint`, which will automatically lint all `.js` files as well as JavaScript snippets inside `.html` files.
+We are using [ESLint](http://eslint.org/) for linting JavaScript code. You can check if your code is following our standards by running `npm run lint`, which will automatically lint all `.js` files as well as JavaScript snippets inside `.html` files.
+
+
+## Big Thanks
+
+Cross-browser Testing Platform and Open Source <3 Provided by [Sauce Labs](https://saucelabs.com).
 
 
 ## Contributing

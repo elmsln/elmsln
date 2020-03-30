@@ -519,7 +519,7 @@ function drush_features_export() {
         drush_die('Aborting.');
       }
       $export = _drush_features_generate_export($items, $module);
-      _features_populate($items, $export[info], $export[name]);
+      _features_populate($items, $export['info'], $export['name']);
       _drush_features_export($export['info'], $module, $directory);
     }
   }

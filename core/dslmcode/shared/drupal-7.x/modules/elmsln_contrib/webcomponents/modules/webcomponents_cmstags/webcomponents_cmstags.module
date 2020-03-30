@@ -361,7 +361,8 @@ function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cac
             $media[] = $match;
           }
         }
-        $text = str_replace($patterns, $media, $text, $temp = 1);
+        $temp = 1;
+        $text = str_replace($patterns, $media, $text, $temp);
       }
       $evaluatedtext = $text;
     }

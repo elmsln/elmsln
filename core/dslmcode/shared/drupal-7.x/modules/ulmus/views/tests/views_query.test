@@ -179,8 +179,10 @@ abstract class ViewsSqlTest extends ViewsTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
-    parent::setUp('views', 'views_ui');
+  public function setUp(array $modules = array()) {
+    $modules[] = 'views';
+    $modules[] = 'views_ui';
+    parent::setUp($modules);
 
     // Define the schema and views data variable before enabling the test
     // module.

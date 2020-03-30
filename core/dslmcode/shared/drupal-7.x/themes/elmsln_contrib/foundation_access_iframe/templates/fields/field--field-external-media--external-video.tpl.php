@@ -46,7 +46,7 @@
 $node = $element['#object'];
 $track = '';
 if (isset($node->field_caption['und'][0]['uri'])) {
-  $track = ' track="' . file_create_url($node->field_caption['und'][0]['uri']) . '"';
+  $track = '<track label="English" kind="subtitles" srclang="en" default src="' . file_create_url(str_replace('.xml', '.vtt', $node->field_caption['und'][0]['uri'])) . '"/>';
 }
 ?>
 
@@ -58,5 +58,8 @@ if (isset($node->field_caption['und'][0]['uri'])) {
  sticky-corner="none"
  crossorigin="anonymous"
  <?php print $attributes; ?>
- <?php print $track;?>>
+ >
+ <video crossorigin="anonymous">
+   <?php print $track;?>
+ </video>
 </video-player>

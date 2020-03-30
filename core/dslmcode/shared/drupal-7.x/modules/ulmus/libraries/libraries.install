@@ -34,3 +34,13 @@ function libraries_update_7201() {
   // during the 7.x-2.x cycle.
   registry_rebuild();
 }
+
+/**
+ * Grant the "View library reports" permission to roles with the "View site reports" permission.
+ */
+function libraries_update_7202() {
+  $rids = array_keys(user_roles(FALSE, 'access site reports'));
+  foreach ($rids as $rid) {
+    _update_7000_user_role_grant_permissions($rid, array('access library reports'), 'libraries');
+  }
+}

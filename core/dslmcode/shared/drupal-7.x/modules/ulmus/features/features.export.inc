@@ -315,7 +315,7 @@ function features_export_render($export, $module_name, $reset = FALSE) {
   $code = array_filter($code);
   foreach ($code as $filename => $contents) {
     if ($filename != '_files') {
-      $code[$filename] = "<?php\n/**\n * @file\n * {$module_name}.{$filename}.inc\n */\n\n". implode("\n\n", $contents) ."\n";
+      $code[$filename] = "<?php\n\n/**\n * @file\n * {$module_name}.{$filename}.inc\n */\n\n". implode("\n\n", $contents) ."\n";
     }
   }
 
@@ -332,8 +332,8 @@ function features_export_render($export, $module_name, $reset = FALSE) {
   $code['info'] = features_export_info($export);
 
   // Used to create or manipulate the generated .module for features.inc.
-  $modulefile_features_inc = "<?php\n/**\n * @file\n * Code for the {$export['name']} feature.\n */\n\ninclude_once '{$module_name}.features.inc';\n";
-  $modulefile_blank = "<?php\n/**\n * @file\n * Drupal needs this blank file.\n */\n";
+  $modulefile_features_inc = "<?php\n\n/**\n * @file\n * Code for the {$export['name']} feature.\n */\n\ninclude_once '{$module_name}.features.inc';\n";
+  $modulefile_blank = "<?php\n\n/**\n * @file\n * Drupal needs this blank file.\n */\n";
 
   // Prepare the module
   // If module exists, let it be and include it in the files
@@ -1088,13 +1088,6 @@ function _features_is_assoc($array) {
  *   returns a copy of the object or array with recursion removed
  */
 function features_remove_recursion($o) {
-  static $replace;
-  if (!isset($replace)) {
-    $replace = create_function(
-      '$m',
-      '$r="\x00{$m[1]}ecursion_features";return \'s:\'.strlen($r.$m[2]).\':"\'.$r.$m[2].\'";\';'
-    );
-  }
   if (is_array($o) || is_object($o)) {
     $re = '#(r|R):([0-9]+);#';
     $serialize = serialize($o);
@@ -1104,7 +1097,7 @@ function features_remove_recursion($o) {
         $chunk = substr($serialize, $last, $pos - $last);
         if (preg_match($re, $chunk)) {
           $length = strlen($chunk);
-          $chunk = preg_replace_callback($re, $replace, $chunk);
+          $chunk = preg_replace_callback($re, '_features_remove_recursion', $chunk);
           $serialize = substr($serialize, 0, $last) . $chunk . substr($serialize, $last + ($pos - $last));
           $pos += strlen($chunk) - $length;
         }
@@ -1114,11 +1107,19 @@ function features_remove_recursion($o) {
         $last += 4 + $length;
         $pos = $last;
       }
-      $serialize = substr($serialize, 0, $last) . preg_replace_callback($re, $replace, substr($serialize, $last));
+      $serialize = substr($serialize, 0, $last) . preg_replace_callback($re, '_features_remove_recursion', substr($serialize, $last));
       $o = unserialize($serialize);
     }
   }
   return $o;
+}
+
+/**
+ * Callback function for preg_replace_callback() to remove recursion.
+ */
+function _features_remove_recursion($m) {
+  $r = "\x00{$m[1]}ecursion_features";
+  return 's:' . strlen($r . $m[2]) . ':"' . $r . $m[2] . '";';
 }
 
 /**

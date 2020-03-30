@@ -80,7 +80,10 @@
     // Add a trigger to update this view specifically.
     var self_settings = this.element_settings;
     self_settings.event = 'RefreshView';
-    this.refreshViewAjax = new Drupal.ajax(this.selector, this.$view, self_settings);
+    var self = this;
+    this.$view.once('refresh', function () {
+      self.refreshViewAjax = new Drupal.ajax(self.selector, self.$view, self_settings);
+    });
   };
 
   Drupal.views.ajaxView.prototype.attachExposedFormAjax = function() {
@@ -101,23 +104,24 @@
    * Attach the ajax behavior to each link.
    */
   Drupal.views.ajaxView.prototype.attachPagerAjax = function() {
-    this.$view.find('ul.pager > li > a, th.views-field a, .attachment .views-summary a')
+    this.$view.find('ul.pager > li > a, ol.pager > li > a, th.views-field a, .attachment .views-summary a')
       .each(jQuery.proxy(this.attachPagerLinkAjax, this));
   };
 
   /**
-   * Attach the ajax behavior to a singe link.
+   * Attach the ajax behavior to a single link.
    */
   Drupal.views.ajaxView.prototype.attachPagerLinkAjax = function(id, link) {
     var $link = $(link);
-    // Don't attach to pagers inside nested views.
-    if ($link.closest('.view')[0] !== this.$view[0]) {
-      return;
-    }
     var viewData = {};
     var href = $link.attr('href');
     // Leave the function early if there is no href to be parsed.
     if (!href) {
+      return;
+    }
+    // Don't attach to pagers inside nested views.
+    if ($link.closest('.view')[0] !== this.$view[0] &&
+      $link.closest('.view').parent().hasClass('attachment') === false) {
       return;
     }
 
@@ -131,11 +135,11 @@
     // Construct an object using the settings defaults and then overriding
     // with data specific to the link.
     $.extend(
-    viewData,
-    this.settings,
-    Drupal.Views.parseQueryString(href),
-    // Extract argument data from the URL.
-    Drupal.Views.parseViewArgs(href, this.settings.view_base_path)
+      viewData,
+      this.settings,
+      Drupal.Views.parseQueryString(href),
+      // Extract argument data from the URL.
+      Drupal.Views.parseViewArgs(href, this.settings.view_base_path)
     );
 
     // For anchor tags, these will go to the target of the anchor rather

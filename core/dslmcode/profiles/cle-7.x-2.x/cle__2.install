@@ -324,3 +324,10 @@ function cle__2_update_7027(&$sandbox) {
 function cle__2_update_7028(&$sandbox) {
   features_revert_module('cle_perms');
 }
+
+/**
+ * View to add bulk
+ */
+function cle__2_update_7029(&$sandbox) {
+  features_revert_module('cle_displays');
+}

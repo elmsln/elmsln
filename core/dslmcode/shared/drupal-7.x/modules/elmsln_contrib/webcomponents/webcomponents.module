@@ -29,9 +29,9 @@ function webcomponents_admin_settings($form, &$form_state) {
   $form['webcomponents_project_location'] = [
     '#type' => 'select',
     '#title' => t('Webcomponents Location'),
-    '#default_value' => variable_get('webcomponents_project_location', 'https://webcomponents.psu.edu/cdn/'),
+    '#default_value' => variable_get('webcomponents_project_location', 'https://cdn.webcomponents.psu.edu/cdn/'),
     '#options' => array(
-      'https://webcomponents.psu.edu/cdn/' => 'Penn State CDN',
+      'https://cdn.webcomponents.psu.edu/cdn/' => 'Penn State CDN',
       'https://cdn.waxam.io/' => 'Waxam CDN',
       'sites/all/libraries/webcomponents/' => 'Local libraries folder (sites/all/libraries/webcomponents/)',
       'other' => t('Other'),
@@ -52,7 +52,7 @@ function webcomponents_admin_settings($form, &$form_state) {
  * Implements hook_process_html().
  */
 function webcomponents_process_html(&$variables) {
-  $location = variable_get('webcomponents_project_location', 'https://webcomponents.psu.edu/cdn/');
+  $location = variable_get('webcomponents_project_location', 'https://cdn.webcomponents.psu.edu/cdn/');
   if ($location == 'other') {
     $location = variable_get('webcomponents_project_location_other', '');  
   }
@@ -60,13 +60,18 @@ function webcomponents_process_html(&$variables) {
   if (strpos($location, 'http') === FALSE) {
     $location = base_path() . $location;
   }
-  $files = array('build.js');
-  drupal_alter('webcomponents_build_file_location', $files);
-  // load webcomponentsjs polyfill library if it exists
+  $buildLocation = $location;
+  // support for build file to come local but assets via CDN
+  if (variable_get('webcomponents_project_local_build_file', false)) {
+    $buildLocation = base_path() . 'sites/all/libraries/webcomponents/';
+  }
   $wc = new WebComponentsService();
+  $markup = $wc->applyWebcomponents($buildLocation, $location);
+  drupal_alter('webcomponents_build_integration_markup', $markup);
+  // load webcomponentsjs polyfill library if it exists
   $element = array(
     '#type' => 'markup',
-    '#markup' => $wc->applyWebcomponents($location, $files),
+    '#markup' => $markup,
   );
   $variables['page_bottom'] .= drupal_render($element);
 }

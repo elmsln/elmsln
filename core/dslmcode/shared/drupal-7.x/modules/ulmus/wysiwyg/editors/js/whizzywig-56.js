@@ -72,14 +72,26 @@ Drupal.wysiwyg.editor.attach.whizzywig = function(context, params, settings) {
   wysiwygWhizzywig.currentField = params.field;
   wysiwygWhizzywig.fields[wysiwygWhizzywig.currentField] = '';
   // Whizzywig needs to have the width set 'inline'.
-  var $field = $('#' + params.field);
+  var $field = this.$field;
   this.originalStyle = $field.attr('style');
   $field.css('width', $field.width() + 'px');
+  // Whizzywig uses defaultValue instead of value.
+  $field.attr('defaultValue', $field.val());
 
   // Attach editor.
   makeWhizzyWig(params.field, (settings.buttons ? settings.buttons : 'all'));
-  // Whizzywig fails to detect and set initial textarea contents.
-  $('#whizzy' + params.field).contents().find('body').html(tidyD($field.val()));
+  var wysiwygInstance = this;
+  setTimeout(function () {
+    // Whizzywig moves the field around, breaking event handlers and references.
+    $field = $('#' + params.field);
+    wysiwygInstance.startWatching($field, {textarea: $field}, function (context) {
+      return context.textarea.css('display') === 'block';
+    });
+  }, 100);
+  this.startWatching($('#whizzy' + params.field).contents().find('body'), {textarea: $field}, function (context) {
+    return context.textarea.css('display') !== 'block';
+  });
+
 };
 
 /**
@@ -90,8 +102,7 @@ Drupal.wysiwyg.editor.detach.whizzywig = function (context, params, trigger) {
     if (whizzies[index] !== this.field) {
       continue;
     }
-    var $field = $('#' + this.field);
-
+    var $field = this.$field;
     // Save contents of editor back into textarea.
     $field.val(this.getContent());
     // If the editor is just being serialized (not detached), our work is done.
@@ -120,6 +131,7 @@ Drupal.wysiwyg.editor.instance.whizzywig = {
   },
 
   setContent: function (content) {
+    var $field = $('#' + this.field);
     // Whizzywig shows the original textarea in source mode.
     if ($field.css('display') == 'block') {
       $('#' + this.field).val(content);
