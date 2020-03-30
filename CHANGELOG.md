@@ -1,3 +1,19 @@
+## 1.0.0 - 2020-03-30 - March forward
+The NARA UX audit on HAX has dramatically improved the initial usability of HAX to new users and now it's enabled by default. We've also got support for cloudfront CDNs thanks to work in HAXcms which have been ported here. This is a nearly 1 million line change between the front end assets and backend removals. HAX is a dramatic improvement (again) and investment in it has improved the accessibility and usability of everything it's involved working on.
+
+This aligns our pipeline for HAXcms and ELMS:LN with the build workflow the core development team utilizes. Meaning that we're able to run 1 build routine and simultaneously support both platforms as well as publishing to npm and other sources to optimize internal workflows. Penn state now has a cloudfront delivered https://cdn.webcomponents.psu.edu/haxcms and /cdn which can serve both audiences.
+
+### Notable
+- API, LOR, HUB, comply and other experimental tools have been removed
+- HAX enabled by default
+- Lots of studio improvements
+- Better cross browser compatibility
+- All assets should load faster on all browsers, CDN agnostic
+- Support for cloudfront
+- 100s of issues not from this repo between HAXcms, lrnwebcomponents and EdTechJoker are incorporated here.
+
+To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/21?closed=1
+To read about changes to HAXcms included in this release: https://github.com/elmsln/HAXcms/milestone/3?closed=1
 ## 0.12.0 - 2019-10-01 - HAX impovements
 We'll be able to roll updates faster. This sees HAXcms 0.12.0 release aligning with ELMSLN
 as we'll continue to do that from now on as best we can. This includes lots of improvements to HAX and the databinding / interplay with Drupal's input filters as well as bug fixes that were reported as part of development in between. There's improvements in the studio around permissions, minor doc updates from students, PHP version compatibility and support for Ubuntu 18 LTS. HAXcms core has been updated as well though its planned to start tests at Headless Drupal as backend toward the end of the year at the earliest. The outlining tools and UX feedback from HAXcms will feed directly into having course outline options built on top of Drupal as a backend, allowing ELMSLN sites to remain in place, yet progressively be upgraded to leverage the latest and greatest of HAXcms in place. HAXcms scope is on singular site / publishing flows so the theme engine and UX improvements in HAXcms can help inform ELMS:LN without there being a conflict in use-case.
