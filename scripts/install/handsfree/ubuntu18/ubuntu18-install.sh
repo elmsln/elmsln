@@ -53,7 +53,6 @@ apt-get install -y
 
 a2enmod proxy_fcgi setenvif
 a2enconf php7.2-fpm
-a2dismod php7.2
 a2dismod mpm_prefork
 a2enmod mpm_event
 a2enmod http2

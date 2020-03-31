@@ -54,7 +54,6 @@ before_script:
   - sudo a2enmod rewrite actions alias
   - sudo a2enmod proxy_fcgi setenvif
   - sudo a2enconf php7.2-fpm
-  - sudo a2dismod php7.2
   - sudo a2dismod mpm_prefork
   - sudo a2enmod mpm_event
   - sudo a2enmod http2
