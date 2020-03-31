@@ -52,16 +52,16 @@ before_script:
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
   - sudo a2enmod rewrite actions alias
-  - a2enmod proxy_fcgi setenvif
-  - a2enconf php7.2-fpm
-  - a2dismod php7.2
-  - a2dismod mpm_prefork
-  - a2enmod mpm_event
-  - a2enmod http2
-  - echo "Protocols h2 http/1.1" > /etc/apache2/conf-available/http2.conf
-  - a2enconf http2
-  - a2enmod ssl rewrite headers
-  - pecl channel-update pecl.php.net
+  - sudo a2enmod proxy_fcgi setenvif
+  - sudo a2enconf php7.2-fpm
+  - sudo a2dismod php7.2
+  - sudo a2dismod mpm_prefork
+  - sudo a2enmod mpm_event
+  - sudo a2enmod http2
+  - sudo echo "Protocols h2 http/1.1" > /etc/apache2/conf-available/http2.conf
+  - sudo a2enconf http2
+  - sudo a2enmod ssl rewrite headers
+  - sudo pecl channel-update pecl.php.net
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
   - sudo mkdir -p /etc/apache2/sites-available
   - sudo mkdir -p /etc/apache2/sites-enabled
@@ -85,7 +85,7 @@ before_script:
   - sudo apt-get -y install php7.2-mbstring php7.2-zip
   # setup fake mailserver
   - sudo service postfix stop
-  - smtp-sink -d "%d.%H.%M.%S" 127.0.0.1:2500 1000 &
+  - sudo smtp-sink -d "%d.%H.%M.%S" 127.0.0.1:2500 1000 &
   - echo -e '#!/usr/bin/env bash\nexit 0' | sudo tee /usr/sbin/sendmail
   - echo 'sendmail_path = "/usr/sbin/sendmail -t -i "' | sudo tee "/home/travis/.phpenv/versions/`php -i | grep "PHP Version" | head -n 1 | grep -o -P '\d+\.\d+\.\d+.*'`/etc/conf.d/sendmail.ini"
   - sudo mkdir -p /var/www
