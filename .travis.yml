@@ -6,7 +6,7 @@ dist: bionic
 os:
   - linux
 addons:
-  mariadb: '10.4'
+  mariadb: '10.1'
 env:
   global:
     - ES_VER=1.0.1
