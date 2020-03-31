@@ -51,7 +51,7 @@ install:
   - sudo mv composer.phar /usr/local/bin/composer
   - sudo sed -i '1i export PATH="/home/travis/.composer/vendor/bin:$PATH"' /home/travis/.bashrc
   - sudo sed -i '1i export PATH="/home/travis/.config/composer/vendor/bin:$PATH"' /home/travis/.bashrc
-  - sudo source /home/travis/.bashrc
+  - source /home/travis/.bashrc
   # full path to execute in case root needs to log out before it picks it up
   - php /usr/local/bin/composer global require consolidation/cgr
   - cgr drush/drush:8.x-dev --prefer-source
