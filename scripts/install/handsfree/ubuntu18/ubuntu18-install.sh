@@ -46,10 +46,9 @@ apt-get -y install docker docker.io docker-compose
 apt-get -y install apache2
 
 # using apt-get to install the main packages
-apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make mcrypt
-
+apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make autoconf libc-dev pkg-config
 #install php
-apt-get -y install php php7.2-fpm php7.2-gd php7.2-xml php-common php-mysql php-ldap php-cgi php-pear php7.2-mbstring php7.2-zip php-xml-parser php-curl php-cli php-apcu php-dev php-mcrypt mcrypt
+apt-get -y install php php7.2-fpm php7.2-gd php7.2-xml php-common php-mysql php-ldap php-cgi php-pear php7.2-mbstring php7.2-zip php-xml php-curl php-cli php-apcu php-dev libmcrypt-dev
 apt-get install -y 
 
 a2enmod proxy_fcgi setenvif
@@ -68,7 +67,7 @@ pecl channel-update pecl.php.net
 
 # install uploadprogress
 pecl install uploadprogress
-
+pecl install mcrypt-1.0.1
 # adding uploadprogresss to php conf files
 touch /etc/php/7.2/mods-available/uploadprogress.ini
 echo extension=uploadprogress.so > /etc/php/7.2/mods-available/uploadprogress.ini

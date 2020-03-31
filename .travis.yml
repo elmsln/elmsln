@@ -45,8 +45,8 @@ install:
   - sudo apt-get update -y
   - sudo apt-get install mariadb-server -y
   - sudo apt-get -y install apache2
-  - sudo apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make mcrypt
-  - sudo apt-get -y --force-yes install php php7.2-fpm php7.2-gd php7.2-xml php-common php-mysql php-ldap php-cgi php-pear php7.2-mbstring php7.2-zip php-xml-parser php-curl php-cli php-apcu php-dev php-mcrypt mcrypt
+  - sudo apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make autoconf libc-dev pkg-config
+  - sudo apt-get -y --force-yes install php php7.2-fpm php7.2-gd php7.2-xml php-common php-mysql php-ldap php-cgi php-pear php7.2-mbstring php7.2-zip php-xml php-curl php-cli php-apcu php-dev libmcrypt-dev
 
   # install drush/cgr globally
   - composer global require consolidation/cgr
@@ -86,6 +86,7 @@ before_script:
   - sudo groupadd elmsln
   - sudo apt-get install libyaml-dev -y
   - yes '' | sudo pecl install -f yaml-2.0.0
+  - yes '' | sudo pecl install -f mcrypt-1.0.1
   - sudo echo "extension=yaml.so" > /etc/php/7.2/mods-available/yaml.ini
   - sudo phpenmod yaml
   - sudo service php7.2-fpm restart
