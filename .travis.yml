@@ -99,6 +99,7 @@ before_script:
   - sudo chown -R travis:travis /home/travis/.drush
   - cat /home/travis/.bashrc
   - cat /var/www/elmsln/config/scripts/drush-create-site/config.cfg
+  - cat /var/www/elmsln/config/scripts/drush-create-site/configpwd.cfg
   # due to weirdness in travis w/ php versions we have to do it this way
   - cat /var/www/elmsln/scripts/server/php.txt >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - ls -lasD /etc/apache2/sites-enabled

@@ -114,7 +114,7 @@ done
 chown $owner:$webgroup "$configsdir/scripts/drush-create-site/config.cfg" -v
 chmod 0444 "$configsdir/scripts/drush-create-site/config.cfg" -v
 # ensure password settings are more secure then config, not global readable
-chown $owner:$webgroup "$configsdir/scripts/drush-create-site/config.cfg" -v
+chown $owner:$webgroup "$configsdir/scripts/drush-create-site/configpwd.cfg" -v
 chmod 0440 "$configsdir/scripts/drush-create-site/configpwd.cfg" -v
 # set web server perms correctly for private files
 chown -R $wwwuser:$webgroup "$drupal_priv"

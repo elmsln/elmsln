@@ -221,6 +221,7 @@ fi
 config='/var/www/elmsln/config/scripts/drush-create-site/config.cfg'
 configpwd='/var/www/elmsln/config/scripts/drush-create-site/configpwd.cfg'
 touch $config
+touch $configpwd
 # step through creation of the config file
 echo "#university / institution deploying this instance" >> $config
 elmslnecho "what is your uniersity abbreviation? (ex psu)"
