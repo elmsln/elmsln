@@ -17,13 +17,8 @@ env:
     - DATABASE='drupal'
     - DB_USERNAME='root'
     - DB_ENCODE='utf8'
-  matrix:
     - DRUPAL_3RD_PARTY='composer_manager'
     - DRUPAL_3RD_PARTY='libraries'
-  mysql:
-    database: $DATABASE
-    username: $DB_USERNAME
-    encoding: $DB_ENCODE
 
 before_install:
   - phpenv config-rm xdebug.ini
@@ -131,7 +126,6 @@ after_script:
   - drush @online status
 
 notifications:
-  webhooks: https://demo.elmsln.org/build-passed.php?token=POijnbYhujiH7*768iJNnjNamkkdjnhba9873654rtghnfjBNz
   email: false
   slack:
     rooms:
