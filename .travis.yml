@@ -65,15 +65,15 @@ before_script:
   - sudo service php7.2-fpm restart
   - sudo service mariadb restart
   - sudo service apache2 restart
-  - sudo groupadd admin
-  - sudo groupadd elmsln
   - sudo apt-get install libyaml-dev -y
   - yes '' | sudo pecl install -f yaml-2.0.0
   - yes '' | sudo pecl install -f mcrypt-1.0.1
   - sudo echo "extension=yaml.so" > /etc/php/7.2/mods-available/yaml.ini
   - sudo phpenmod yaml
   - sudo service php7.2-fpm restart
+  # sometimes these are not installed for some reason
   - sudo apt-get -y install php7.2-mbstring php7.2-zip
+  - sudo groupadd elmsln
   # setup fake mailserver
   - sudo service postfix stop
   - sudo smtp-sink -d "%d.%H.%M.%S" 127.0.0.1:2500 1000 &
