@@ -63,7 +63,6 @@ before_script:
   - sudo mkdir -p /etc/apache2/sites-enabled
   - sudo service apache2 restart
   - sudo service php7.2-fpm restart
-  - sudo setsebool -P httpd_can_sendmail on
   - sudo service mariadb restart
   - sudo service apache2 restart
   - sudo groupadd admin
