@@ -68,7 +68,6 @@ before_script:
   - sudo apt-get install libyaml-dev -y
   - yes '' | sudo pecl install -f yaml-2.0.0
   - yes '' | sudo pecl install -f mcrypt-1.0.1
-  - sudo echo "extension=yaml.so" > /etc/php/7.2/mods-available/yaml.ini
   - sudo phpenmod yaml
   - sudo service php7.2-fpm restart
   # sometimes these are not installed for some reason
