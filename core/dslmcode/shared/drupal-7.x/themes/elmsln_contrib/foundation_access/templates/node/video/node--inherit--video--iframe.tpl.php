@@ -14,7 +14,7 @@
 ?>
 <video-player
  id="node-<?php print $nid;?>"
- thumbnail-src="<?php print $poster; ?>"
+ <?php print $poster; ?>
  class="entity_iframe entity_iframe_node entity_iframe_tool_elmsmedia elmsmedia_video <?php print $classes; ?>"
  accent-color="red"
  sticky-corner="none"

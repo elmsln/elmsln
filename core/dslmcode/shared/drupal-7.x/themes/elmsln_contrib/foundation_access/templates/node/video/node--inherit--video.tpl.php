@@ -1,7 +1,7 @@
 <?php
   $poster = '';
   if (isset($node->field_poster['und'][0]['uri'])) {
-    $poster = file_create_url($node->field_poster['und'][0]['uri']);
+    $poster = ' thumbnail-src="' . file_create_url($node->field_poster['und'][0]['uri']) . '"';
   }
   $video = '';
   if (isset($node->field_video['und'][0]['uri'])) {
@@ -14,7 +14,7 @@
 ?>
 <video-player
  id="node-<?php print $node->nid; ?>"
- thumbnail-src="<?php print $poster; ?>"
+ <?php print $poster; ?>
  class="iframe <?php print $classes; ?>"
  accent-color="red"
  sticky-corner="none"

@@ -6,6 +6,10 @@
   if (isset($node->field_caption['und'][0]['uri'])) {
     $track = '<track label="English" kind="subtitles" srclang="en" default src="' . file_create_url(str_replace('.xml', '.vtt', $node->field_caption['und'][0]['uri'])) . '"/>';
   }
+  $poster = '';
+  if (isset($node->field_poster['und'][0]['uri'])) {
+    $poster = ' thumbnail-src="' . file_create_url($node->field_poster['und'][0]['uri']) . '"';
+  }
 ?>
 <figure id="node-<?php print $node->nid; ?>" class="mediavideo <?php print $classes; ?>"<?php print $attributes; ?>>
   <?php if (isset($content['field_figurelabel_ref'])): ?>
@@ -16,7 +20,7 @@
       <video-player
       crossorigin="anonymous"
       id="node-<?php print $node->nid; ?>"
-      thumbnail-src="<?php print $poster;?>"
+      <?php print $poster;?>
       source="<?php print _elmsln_api_video_url($video_url); ?>"
       class="iframe"
       accent-color="red"
