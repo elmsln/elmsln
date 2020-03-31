@@ -118,7 +118,7 @@ for build in "${buildlist[@]}"
   # install default site for associated stacks in the build list
   cd $stacks/$build
   elmslnecho "drush installing service placeholder: $build"
-  drush site-install minimal --y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su="$dbsu" --db-su-pw="$dbsupw" --account-mail="$admin" --site-mail="$site_email"
+  drush site-install minimal --v --y --db-url=mysql://elmslndfltdbo:$dbpw@127.0.0.1/default_$build --db-su="$dbsu" --db-su-pw="$dbsupw" --account-mail="$admin" --site-mail="$site_email"
 done
 echo '3' > $steplog
 COUNTER=0
@@ -137,7 +137,7 @@ for tool in "${authoritylist[@]}"
   cd ${webdir}/${tool}
   sitedir=${webdir}/${tool}/sites
   elmslnecho "drush installing authority tool: $tool"
-  drush site-install ${dist} --y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su="$dbsu" --db-su-pw="$dbsupw" --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
+  drush site-install ${dist} --v --y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su="$dbsu" --db-su-pw="$dbsupw" --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
   #move out of $tool site directory to host
   sudo mkdir -p $sitedir/$tool/$host
   sudo mkdir -p $sitedir/$tool/$host/files
