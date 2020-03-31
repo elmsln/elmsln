@@ -47,6 +47,14 @@ install:
   - sudo apt-get -y install apache2
   - sudo apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make autoconf libc-dev pkg-config
   - sudo apt-get -y --force-yes install php php7.2-fpm php7.2-gd php7.2-xml php-common php-mysql php-ldap php-cgi php-pear php7.2-mbstring php7.2-zip php-xml php-curl php-cli php-apcu php-dev libmcrypt-dev
+  - sudo curl -sS https://getcomposer.org/installer | php
+  - sudo mv composer.phar /usr/local/bin/composer
+  - sudo sed -i '1i export PATH="/home/travis/.composer/vendor/bin:$PATH"' /home/travis/.bashrc
+  - sudo sed -i '1i export PATH="/home/travis/.config/composer/vendor/bin:$PATH"' /home/travis/.bashrc
+  - sudo source /home/travis/.bashrc
+  # full path to execute in case root needs to log out before it picks it up
+  - php /usr/local/bin/composer global require consolidation/cgr
+  - cgr drush/drush:8.x-dev --prefer-source
 before_script:
   - cd ../../../
   # enable php-fpm
