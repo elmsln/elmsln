@@ -12,12 +12,6 @@ function mooc_page_field_default_field_instances() {
 
   // Exported field_instance: 'node-page-body'.
   $field_instances['node-page-body'] = array(
-    'accessibility_content' => 1,
-    'accessibility_content_block_submit' => array(
-      'moderate' => 0,
-      'severe' => 0,
-      'suggestion' => 0,
-    ),
     'bundle' => 'page',
     'default_value' => NULL,
     'deleted' => 0,
