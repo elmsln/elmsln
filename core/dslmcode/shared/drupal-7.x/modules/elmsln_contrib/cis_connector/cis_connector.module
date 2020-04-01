@@ -818,6 +818,41 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
             $output = array();
           }
         }
+        else {
+          // there is a section context but CIS returned nothing
+          // let's query and default to what's active
+          $query = array(
+            'status' => 1,
+            'type' => 'course',
+            'field_machine_name' => _cis_connector_course_context(),
+          );
+          $course = _cis_connection_query($query, 'node');
+          if (isset($course['list'][0])) {
+            $coursenid = $course['list'][0]['nid'];
+            $query = array(
+              'status' => 1,
+              'type' => 'service_instance',
+              'field_course' => $coursenid,
+              'deep-load-refs' => 'node',
+            );
+            $service_instances = _cis_connection_query($query, 'node');
+            if (isset($service_instances['list'][0])) {
+              // hold onto the objects returned here
+              foreach ($service_instances['list'] as $instance) {
+                if (isset($instance['field_services'])) {
+                  $tmp = $instance['field_services'][0];
+                  if (isset($tmp['field_machine_name'])) {
+                    $output[$tmp['field_machine_name']['und'][0]['value']] = array(
+                      'field_machine_name' => $tmp['field_machine_name']['und'][0]['value'],
+                      'title' => $tmp['title'],
+                      'field_distribution' => $tmp['field_distribution']['und'][0]['value'],
+                    );
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     break;
     case 'help':
