@@ -1,0 +1,15 @@
+diff --git a/includes/entity.inc b/includes/entity.inc
+index 62359a9..e1b3c50 100644
+--- a/includes/entity.inc
++++ b/includes/entity.inc
+@@ -313,7 +313,9 @@ class DrupalDefaultEntityController implements DrupalEntityControllerInterface {
+       }
+       $query->fields('revision', $entity_revision_fields);
+     }
+-
++	if(!isset($entity_fields)){
++		$entity_fields = array();
++	}
+     $query->fields('base', $entity_fields);
+ 
+     if ($ids) {
