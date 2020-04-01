@@ -1,0 +1,26 @@
+diff --git a/entity.module b/entity.module
+index d00afa4..04cfc0b 100644
+--- a/entity.module
++++ b/entity.module
+@@ -249,15 +249,19 @@ function entity_load_single($entity_type, $id) {
+  *   fields must have. Instead, it is preferable to use EntityFieldQuery to
+  *   retrieve a list of entity IDs loadable by this function.
+  *
+- * @return
++ * @return array
+  *   An array of entity objects indexed by their names (or ids if the entity
+  *   type has no name key).
+  *
+  * @see entity_load()
+  */
+ function entity_load_multiple_by_name($entity_type, $names = FALSE, $conditions = array()) {
+-  $entities = entity_load($entity_type, $names, $conditions);
+   $info = entity_get_info($entity_type);
++  // entity_load() will cause WSOD if entity_get_info() does not return a value.
++  if (!$info) {
++    return array();
++  }
++  $entities = entity_load($entity_type, $names, $conditions);
+   if (!isset($info['entity keys']['name'])) {
+     return $entities;
+   }
