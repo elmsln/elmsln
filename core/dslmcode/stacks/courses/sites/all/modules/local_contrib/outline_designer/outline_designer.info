@@ -4,3 +4,9 @@ package = "Outline Designer"
 project = "outline_designer"
 core = 7.x
 configure = admin/config/content/outline_designer
+
+; Information added by Drupal.org packaging script on 2020-04-02
+version = "7.x-2.3"
+core = "7.x"
+project = "outline_designer"
+datestamp = "1579273090"

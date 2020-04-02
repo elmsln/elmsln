@@ -169,3 +169,9 @@ dependencies[] = mooc_nav_block
 dependencies[] = webcomponents_app
 dependencies[] = webcomponents_app_context
 dependencies[] = book_player
+
+; Information added by Drupal.org packaging script on 2020-04-02
+version = "7.x-1.1"
+core = "7.x"
+project = "mooc"
+datestamp = "1579273090"
