@@ -4,3 +4,9 @@ core = 7.x
 package = Webcomponents
 dependencies[] = webcomponents
 dependencies[] = wysiwyg_template
+
+; Information added by Drupal.org packaging script on 2020-04-02
+version = "7.x-3.6"
+core = "7.x"
+project = "webcomponents"
+datestamp = "1585833108"
