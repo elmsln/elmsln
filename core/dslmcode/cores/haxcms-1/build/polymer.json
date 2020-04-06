@@ -48,7 +48,8 @@
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/javascript.js",
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/yaml.js",
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/json.js",
-    "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/xml.js"
+    "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/xml.js",
+    "!node_modules/@lrnwebcomponents/storybook-utilities/storybook-utilities.js"
   ],
   "builds": [
     {
