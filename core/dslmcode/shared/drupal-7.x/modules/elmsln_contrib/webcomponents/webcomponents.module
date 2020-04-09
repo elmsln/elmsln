@@ -49,6 +49,13 @@ function webcomponents_admin_settings($form, &$form_state) {
 }
 
 /**
+ * Implements hook_page_build().
+ */
+function webcomponents_page_build(&$page) {
+  // load in drupal specific behaviors to match our amazing build integration element
+  drupal_add_js(drupal_get_path('webcomponents') . '/webcomponents-behaviors.js');
+}
+/**
  * Implements hook_process_html().
  */
 function webcomponents_process_html(&$variables) {
@@ -66,8 +73,6 @@ function webcomponents_process_html(&$variables) {
     $buildLocation = base_path() . 'sites/all/libraries/webcomponents/';
   }
   $wc = new WebComponentsService();
-  // load in drupal specific behaviors to match our amazing build integration element
-  drupal_add_js(drupal_get_path('webcomponents') . '/webcomponents-behaviors.js');
   $markup = $wc->applyWebcomponents($buildLocation, $location);
   drupal_alter('webcomponents_build_integration_markup', $markup);
   // load webcomponentsjs polyfill library if it exists
