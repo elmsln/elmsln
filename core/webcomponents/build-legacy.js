@@ -3,6 +3,7 @@ var ancient=false;
 // weird but required because of polyfill timing to ensure globals are all in place
 window.addEventListener('WebComponentsReady', function(e) {
   define([window.WCAutoloadPolyfillEntryPoint], function () {"use strict"
+  console.log('process');
   window.WCAutoload.process();
   });
 });
@@ -40,14 +41,7 @@ if (!ancient) {
     ];
     window.WCAutoloadPolyfillEntryPoint = cdn + "build/es5-amd/node_modules/@lrnwebcomponents/wc-autoload/wc-autoload.js";
   }
-  var sTag;
-  var def = document.getElementsByTagName("script")[0];
-  defs.forEach(function(el) {
-    sTag = document.createElement("script");
-    sTag.src = cdn + el;
-    sTag.setAttribute('defer','defer');
-    def.parentNode.insertBefore(sTag, def);
-  });
+  define(defs, function () {"use strict"});
 }
 else {
   if (window.__appForceUpgrade) {
