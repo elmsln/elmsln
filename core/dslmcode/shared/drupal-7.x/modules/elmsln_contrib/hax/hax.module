@@ -241,7 +241,7 @@ function _hax_node_form($node) {
   drupal_alter('hax_cms_hax_attributes', $attributes);
   $content = '<cms-hax' . drupal_attributes($attributes) . '><template>'
   . check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])
-  .'</template></cms-hax>';
+  .'</template></cms-hax><style>hax-tray { z-index:1251;}</style>';
   return $content;
 }
 
