@@ -25,22 +25,24 @@ if (!ancient) {
   // FF 6x.x can be given ES6 compliant code safely
   if (!/Safari/.test(navigator.userAgent) && window.customElements) {
     defs = [
-      "assets/babel-top.js",
-      "build/es6-amd/node_modules/web-animations-js/web-animations-next-lite.min.js",
-      "build/es6-amd/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
+      cdn + "assets/babel-top.js",
+      cdn + "build/es6-amd/node_modules/web-animations-js/web-animations-next-lite.min.js",
+      cdn + "build/es6-amd/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
     ];
     window.WCAutoloadPolyfillEntryPoint = cdn + "build/es6-amd/node_modules/@lrnwebcomponents/wc-autoload/wc-autoload.js";
   }
   else {
     defs = [
-      "assets/babel-top.js",
-      "build/es5-amd/node_modules/web-animations-js/web-animations-next-lite.min.js",
-      "build/es5-amd/node_modules/fetch-ie8/fetch.js",
-      "build/es6/node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
-      "build/es5-amd/node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
+      cdn + "assets/babel-top.js",
+      cdn + "build/es5-amd/node_modules/web-animations-js/web-animations-next-lite.min.js",
+      cdn + "build/es5-amd/node_modules/fetch-ie8/fetch.js",
+      cdn + "build/es6/node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
+      cdn + "build/es5-amd/node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
     ];
     window.WCAutoloadPolyfillEntryPoint = cdn + "build/es5-amd/node_modules/@lrnwebcomponents/wc-autoload/wc-autoload.js";
   }
+  console.log(defs);
+  console.log(window.WCAutoloadPolyfillEntryPoint);
   define(defs, function () {"use strict"});
 }
 else {
