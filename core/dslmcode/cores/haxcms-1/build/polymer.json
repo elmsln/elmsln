@@ -34,6 +34,7 @@
     "!node_modules/@lrnwebcomponents/wave-player/lib/wavesurferjs/src/*",
     "node_modules/@webcomponents/webcomponentsjs/*.js",
     "node_modules/@webcomponents/webcomponentsjs/bundles/*.js",
+    "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js.map",
     "node_modules/monaco-editor/min/**",
     "node_modules/monaco-editor/min-maps/**",
     "node_modules/lunr/lunr.js",

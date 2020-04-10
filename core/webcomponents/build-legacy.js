@@ -2,7 +2,7 @@ var cdn = "./";
 var ancient=false;
 // weird but required because of polyfill timing to ensure globals are all in place
 window.addEventListener('WebComponentsReady', function(e) {
-  define([window.WCAutoloadPolyfillEntryPoint], function () {"use strict"
+  define([window.WCAutoloadPolyfillEntryPoint], function () {"use strict";
   window.WCAutoload.process();
   });
 });
@@ -25,7 +25,6 @@ if (!ancient) {
   if (!/Safari/.test(navigator.userAgent) && window.customElements) {
     defs = [
       "assets/babel-top.js",
-      "build/es6-amd/node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js",
       "build/es6-amd/node_modules/web-animations-js/web-animations-next-lite.min.js",
       "build/es6-amd/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
     ];
@@ -34,7 +33,6 @@ if (!ancient) {
   else {
     defs = [
       "assets/babel-top.js",
-      "build/es5-amd/node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js",
       "build/es5-amd/node_modules/web-animations-js/web-animations-next-lite.min.js",
       "build/es5-amd/node_modules/fetch-ie8/fetch.js",
       "build/es6/node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
