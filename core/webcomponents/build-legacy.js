@@ -25,6 +25,7 @@ if (!ancient) {
   if (!/Safari/.test(navigator.userAgent) && window.customElements) {
     defs = [
       "assets/babel-top.js",
+      "build/es6-amd/node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js",
       "build/es6-amd/node_modules/web-animations-js/web-animations-next-lite.min.js",
       "build/es6-amd/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
     ];
@@ -33,6 +34,7 @@ if (!ancient) {
   else {
     defs = [
       "assets/babel-top.js",
+      "build/es5-amd/node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js",
       "build/es5-amd/node_modules/web-animations-js/web-animations-next-lite.min.js",
       "build/es5-amd/node_modules/fetch-ie8/fetch.js",
       "build/es6/node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
