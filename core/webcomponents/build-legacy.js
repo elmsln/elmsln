@@ -1,11 +1,5 @@
 var cdn = "./";
 var ancient=false;
-// weird but required because of polyfill timing to ensure globals are all in place
-window.addEventListener('WebComponentsReady', function(e) {
-  define([window.WCAutoloadPolyfillEntryPoint], function () {"use strict";
-    window.WCAutoload.process();
-  });
-});
 if (window.__appCDN) {
   cdn = window.__appCDN;
 }
@@ -26,6 +20,7 @@ if (!ancient) {
     defs = [
       cdn + "assets/babel-top.js",
       cdn + "build/es6-amd/node_modules/web-animations-js/web-animations-next-lite.min.js",
+      cdn + "build/es6-amd/node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js",
       cdn + "build/es6-amd/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
       cdn + "build/es6-amd/node_modules/@polymer/polymer/polymer-legacy.js"
     ];
@@ -36,14 +31,18 @@ if (!ancient) {
       cdn + "assets/babel-top.js",
       cdn + "build/es5-amd/node_modules/web-animations-js/web-animations-next-lite.min.js",
       cdn + "build/es5-amd/node_modules/fetch-ie8/fetch.js",
+      cdn + "build/es5-amd/node_modules/@lrnwebcomponents/deduping-fix/deduping-fix.js",
       cdn + "build/es6/node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
       cdn + "build/es5-amd/node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
       cdn + "build/es5-amd/node_modules/@polymer/polymer/polymer-legacy.js"
     ];
     window.WCAutoloadPolyfillEntryPoint = cdn + "build/es5-amd/node_modules/@lrnwebcomponents/wc-autoload/wc-autoload.js";
   }
-  define(defs, function () {"use strict";});
-
+  define(defs, function () {"use strict";
+    define([window.WCAutoloadPolyfillEntryPoint], function () {"use strict";
+      window.WCAutoload.process();
+    });
+  });
 }
 else {
   if (window.__appForceUpgrade) {
