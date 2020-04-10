@@ -1,1 +1,3 @@
-define(["./build-haxcms.js"],(function(i){}));
+define(["./build-haxcms.js"], function (_buildHaxcms) {
+  "use strict";
+});
