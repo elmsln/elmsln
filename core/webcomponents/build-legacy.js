@@ -1,9 +1,5 @@
 var cdn = "./";
 var ancient=false;
-// weird but required because of polyfill timing to ensure globals are all in place
-window.addEventListener('WebComponentsReady', function(e) {
-  window.WCAutoload.process();
-});
 if (window.__appCDN) {
   cdn = window.__appCDN;
 }
