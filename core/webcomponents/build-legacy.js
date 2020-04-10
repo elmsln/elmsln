@@ -1,5 +1,11 @@
 var cdn = "./";
 var ancient=false;
+// weird but required because of polyfill timing to ensure globals are all in place
+window.addEventListener('WebComponentsReady', function(e) {
+  define([window.WCAutoloadPolyfillEntryPoint], function () {"use strict";
+    window.WCAutoload.process();
+  });
+});
 if (window.__appCDN) {
   cdn = window.__appCDN;
 }
@@ -36,11 +42,7 @@ if (!ancient) {
     ];
     window.WCAutoloadPolyfillEntryPoint = cdn + "build/es5-amd/node_modules/@lrnwebcomponents/wc-autoload/wc-autoload.js";
   }
-  define(defs, function () {"use strict";
-    define([window.WCAutoloadPolyfillEntryPoint], function () {"use strict";
-      window.WCAutoload.process();
-    });
-  });
+  define(defs, function () {"use strict";});
 
 }
 else {
