@@ -27,6 +27,7 @@
     "node_modules/web-animations-js/*.map",
     "node_modules/web-animations-js/*.js",
     "node_modules/@lrnwebcomponents/wc-autoload/wc-autoload.js",
+    "node_modules/@lrnwebcomponents/product-card/lib/fields.json",
     "node_modules/@lrnwebcomponents/dynamic-import-registry/dynamic-import-registry.js",
     "node_modules/@polymer/marked-element/node_modules/marked/lib/marked.js",
     "node_modules/@lrnwebcomponents/a11y-media-player/lib/screenfull/dist/screenfull.js",
