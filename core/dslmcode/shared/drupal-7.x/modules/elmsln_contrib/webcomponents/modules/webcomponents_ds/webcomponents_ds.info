@@ -5,8 +5,8 @@ package = Webcomponents
 dependencies[] = webcomponents
 dependencies[] = ds
 
-; Information added by Drupal.org packaging script on 2020-04-02
-version = "7.x-3.6"
+; Information added by Drupal.org packaging script on 2020-04-27
+version = "7.x-3.9"
 core = "7.x"
 project = "webcomponents"
-datestamp = "1585833108"
+datestamp = "1588020549"

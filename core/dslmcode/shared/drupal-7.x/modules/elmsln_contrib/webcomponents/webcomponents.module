@@ -26,34 +26,94 @@ function webcomponents_menu() {
  * Set CDN if you want
  */
 function webcomponents_admin_settings($form, &$form_state) {
-  $form['webcomponents_project_location'] = [
-    '#type' => 'select',
-    '#title' => t('Webcomponents Location'),
-    '#default_value' => variable_get('webcomponents_project_location', 'https://cdn.webcomponents.psu.edu/cdn/'),
-    '#options' => array(
-      'https://cdn.webcomponents.psu.edu/cdn/' => 'Penn State CDN',
-      'https://cdn.waxam.io/' => 'Waxam CDN',
-      'sites/all/libraries/webcomponents/' => 'Local libraries folder (sites/all/libraries/webcomponents/)',
-      'other' => t('Other'),
-    ),
-    '#description' => t("Use this to point to CDNs or if you've installed your web components some place else. Start without a slash and end with a slash."),
-  ];
-  $form['webcomponents_project_location_other'] = [
-    '#type' => 'textfield',
-    '#title' => t('Other Location'),
-    '#default_value' => variable_get('webcomponents_project_location_other', ''),
-    '#maxlength' => 1000,
-    '#description' => t("Only use this if you need to use a source other than the above supported options."),
-  ];
+  if (!module_exists('hax')) {
+    $form['webcomponents_project_location'] = [
+      '#type' => 'select',
+      '#title' => t('Webcomponents Location'),
+      '#default_value' => variable_get('webcomponents_project_location', 'https://cdn.webcomponents.psu.edu/cdn/'),
+      '#options' => array(
+        'https://cdn.webcomponents.psu.edu/cdn/' => 'Penn State CDN',
+        'https://cdn.waxam.io/' => 'Waxam CDN',
+        base_path() . 'sites/all/libraries/webcomponents/' => 'Local libraries folder (sites/all/libraries/webcomponents/)',
+        'other' => t('Other'),
+      ),
+      '#description' => t("Use this to point to CDNs or if you've installed your web components some place else. Start without a slash and end with a slash."),
+    ];
+    $form['webcomponents_project_location_other'] = [
+      '#type' => 'textfield',
+      '#title' => t('Other Location'),
+      '#default_value' => variable_get('webcomponents_project_location_other', ''),
+      '#maxlength' => 1000,
+      '#description' => t("Only use this if you need to use a source other than the above supported options."),
+    ];
+  }
+  else {
+    drupal_goto('admin/config/content/hax');
+  }
   return system_settings_form($form);
 }
-
 /**
  * Implements hook_page_build().
  */
 function webcomponents_page_build(&$page) {
   // load in drupal specific behaviors to match our amazing build integration element
   drupal_add_js(drupal_get_path('module', 'webcomponents') . '/webcomponents-behaviors.js');
+  $preconnect = array(
+    'https://fonts.googleapis.com',
+    'https://cdnjs.cloudflare.com',
+    'https://i.creativecommons.org',
+    'https://licensebuttons.net'
+  );
+  $base = variable_get('webcomponents_project_location');
+  if (variable_get('webcomponents_project_location') == 'sites/all/libraries/webcomponents/') {
+    $base = base_path() . variable_get('webcomponents_project_location');
+  }
+  else if (variable_get('webcomponents_project_location') != base_path() . 'sites/all/libraries/webcomponents/') {
+    $preconnect[] = variable_get('webcomponents_project_location');
+  }
+  $loader = array(
+    "preconnect" => $preconnect,
+    "preload" => array(
+      $base . "build.js",
+      $base . "wc-registry.json",
+      $base . "build/es6/node_modules/web-animations-js/web-animations-next-lite.min.js",
+    ),
+    "modulepreload" => array(
+      $base . "build/es6/node_modules/@lrnwebcomponents/wc-autoload/wc-autoload.js",
+      $base . "build/es6/node_modules/@lrnwebcomponents/dynamic-import-registry/dynamic-import-registry.js"
+    )
+  );
+  foreach ($loader as $rel => $data) {
+    foreach ($data as $key => $src) {
+      $tag = array(
+        '#tag' => 'link',
+        '#attributes' => array(
+          'rel' => $rel,
+          'href' => $src,
+        ),
+      );
+      if ($rel == "preload") {
+        $tag['#attributes']['as'] = 'script';
+        if ($src == $base . "wc-registry.json") {
+          $tag['#attributes']['as'] = 'fetch';
+          $tag['#attributes']['crossorigin'] = "anonymous";
+        }
+      }
+      if ($rel == "modulepreload") {
+        $tag2 = array(
+          '#tag' => 'link',
+          '#attributes' => array(
+            'rel' => "preload",
+            'href' => $src,
+            'as' => "script",
+            'crossorigin' => "anonymous"
+          ),
+        );
+        drupal_add_html_head($tag2, 'webcomponents-tag2-preload-' . $key);
+      }
+      drupal_add_html_head($tag, 'webcomponents-tag-' . $rel . $key);
+    }
+  }
 }
 /**
  * Implements hook_process_html().
@@ -62,10 +122,6 @@ function webcomponents_process_html(&$variables) {
   $location = variable_get('webcomponents_project_location', 'https://cdn.webcomponents.psu.edu/cdn/');
   if ($location == 'other') {
     $location = variable_get('webcomponents_project_location_other', '');  
-  }
-  // append base_path if this site has a url to start it
-  if (strpos($location, 'http') === FALSE) {
-    $location = base_path() . $location;
   }
   $buildLocation = $location;
   // support for build file to come local but assets via CDN
