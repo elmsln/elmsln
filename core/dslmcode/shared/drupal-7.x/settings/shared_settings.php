@@ -6,8 +6,43 @@
 // hide webcomponents messaging about cache rebuilds
 $conf['webcomponents_hide_messages'] = TRUE;
 // default is PSU's CDN but we want these to come from ELMS for versioning purposes
-$conf['webcomponents_project_location'] = 'sites/all/libraries/webcomponents/';
+$conf['webcomponents_project_location'] = base_path() . 'sites/all/libraries/webcomponents/';
 $conf['webcomponents_project_local_build_file'] = TRUE;
+// baseline HAX elements
+$conf['hax_autoload_element_list'] = '{
+  "video-player": "@lrnwebcomponents/video-player/video-player.js",
+  "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js",
+  "license-element": "@lrnwebcomponents/license-element/license-element.js",
+  "md-block": "@lrnwebcomponents/md-block/md-block.js",
+  "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
+  "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
+  "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js",
+  "cms-token": "@lrnwebcomponents/cms-hax/lib/cms-token.js",
+  "lrn-math-controller": "@lrnwebcomponents/lrn-math/lrn-math.js",
+  "retro-card": "@lrnwebcomponents/retro-card/retro-card.js",
+  "rss-items": "@lrnwebcomponents/rss-items/rss-items.js",
+  "self-check": "@lrnwebcomponents/self-check/self-check.js",
+  "team-member": "@lrnwebcomponents/team-member/team-member.js",
+  "a11y-gif-player": "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js",
+  "citation-element": "@lrnwebcomponents/citation-element/citation-element.js",
+  "a11y-collapse": "@lrnwebcomponents/a11y-collapse/a11y-collapse.js",
+  "figure-label": "@lrnwebcomponents/figure-label/figure-label.js",
+  "flash-card": "@lrnwebcomponents/flash-card/flash-card.js",
+  "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
+  "glossary-term": "@lrnwebcomponents/glossary-term/glossary-term.js",
+  "hero-banner": "@lrnwebcomponents/hero-banner/hero-banner.js",
+  "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
+  "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
+  "lrndesign-abbreviation": "@lrnwebcomponents/lrndesign-abbreviation/lrndesign-abbreviation.js",
+  "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
+  "lrndesign-paperstack": "@lrnwebcomponents/lrndesign-paperstack/lrndesign-paperstack.js",
+  "media-image": "@lrnwebcomponents/media-image/media-image.js",
+  "multiple-choice": "@lrnwebcomponents/multiple-choice/multiple-choice.js",
+  "parallax-image": "@lrnwebcomponents/parallax-image/parallax-image.js",
+  "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
+  "q-r": "@lrnwebcomponents/q-r/q-r.js",
+  "task-list": "@lrnwebcomponents/task-list/task-list.js"
+  }';
 // fix for core change in 7.50+
 $conf['x_frame_options'] = '';
 // allow image cache derivatives without itok token
