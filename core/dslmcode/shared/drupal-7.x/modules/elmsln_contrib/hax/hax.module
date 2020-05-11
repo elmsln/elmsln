@@ -236,7 +236,7 @@ function _hax_node_form($node) {
   if (is_null($autoloader)) {
     $autoloader = json_decode(HAX_DEFAULT_ELEMENTS);
   }
-  $allowed_tags = array_keys($autoloader);
+  $allowed_tags = get_object_vars($autoloader);
   // allow hijacking these defaults
   drupal_alter('hax_allowed_tags', $allowed_tags);
   $attributes['allowed-tags'] = json_encode($allowed_tags);
