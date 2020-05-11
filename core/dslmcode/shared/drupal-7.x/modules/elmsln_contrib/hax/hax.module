@@ -375,6 +375,9 @@ function hax_hax_stax() {
 function hax_hax_autoloader() {
   // generate autoload list
   $autoloader = json_decode(variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS));
+  if (is_null($autoloader)) {
+    $autoloader = json_decode(HAX_DEFAULT_ELEMENTS);
+  }
   return $autoloader;
 }
 
@@ -483,7 +486,7 @@ function loadHaxElementListSelectorData($token) {
     }
     // need to account for bad data management before
     $elementList = variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS);
-    if (!json_decode($elementList)) {
+    if (is_null(json_decode($elementList))) {
       $elementList = HAX_DEFAULT_ELEMENTS;
     }
     $data = json_decode('{
