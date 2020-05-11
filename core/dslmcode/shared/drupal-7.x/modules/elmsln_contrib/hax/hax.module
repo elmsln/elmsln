@@ -288,14 +288,12 @@ function hax_settings($form, &$form_state) {
     '#type' => 'hidden',
     '#title' => t('Other Location'),
     '#default_value' => variable_get('webcomponents_project_location_other', ''),
-    '#maxlength' => 1000,
     '#description' => t("Only use this if you need to use a source other than the above supported options."),
   ];
   $form['hax_project_pk'] = [
     '#type' => 'hidden',
     '#title' => t('Public key'),
     '#default_value' => variable_get('hax_project_pk', ''),
-    '#maxlength' => 1000,
     '#description' => t("Only use this if you need to use a source other than the above supported options."),
   ];
   // collapse default state
@@ -303,7 +301,6 @@ function hax_settings($form, &$form_state) {
     '#type' => 'hidden',
     '#title' => t('Elements to autoload'),
     '#default_value' => variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS),
-    '#maxlength' => 1000,
     '#description' => t("This allows for auto-loading elements known to play nice with HAX. If you've written any webcomponents that won't automatically be loaded into the page via that module this allows you to attempt to auto-load them when HAX loads. For example, if you have a video-player element in your bower_components directory and want it to load on this interface, this would be a simple way to do that. Spaces only between elements, no comma"),
   );
   $hax = new HaxService();
