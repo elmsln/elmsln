@@ -6,7 +6,7 @@
 // hide webcomponents messaging about cache rebuilds
 $conf['webcomponents_hide_messages'] = TRUE;
 // default is PSU's CDN but we want these to come from ELMS for versioning purposes
-$conf['webcomponents_project_location'] = base_path() . 'sites/all/libraries/webcomponents/';
+$conf['webcomponents_project_location'] = 'sites/all/libraries/webcomponents/';
 $conf['webcomponents_project_local_build_file'] = TRUE;
 // baseline HAX elements
 $conf['hax_autoload_element_list'] = '{
