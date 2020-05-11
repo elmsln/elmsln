@@ -120,7 +120,10 @@ function webcomponents_page_build(&$page) {
  */
 function webcomponents_process_html(&$variables) {
   $location = variable_get('webcomponents_project_location', 'https://cdn.webcomponents.psu.edu/cdn/');
-  if ($location == 'other') {
+  if ($location == 'sites/all/libraries/webcomponents/') {
+    $location = base_path() . variable_get('webcomponents_project_location');
+  }
+  else if ($location == 'other') {
     $location = variable_get('webcomponents_project_location_other', '');  
   }
   $buildLocation = $location;
