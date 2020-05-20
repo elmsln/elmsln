@@ -6,7 +6,7 @@
 
 define('CIS_SECTION_STUDENT', 'student');
 define('CIS_SECTION_PAST_STUDENT', 'past student');
-define('CIS_SECTION_STRICT_ACCESS', TRUE);
+define('CIS_SECTION_STRICT_ACCESS', FALSE);
 
 include_once 'cis_section.features.inc';
 
