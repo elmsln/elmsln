@@ -3179,10 +3179,15 @@ html.js .js-hide {
 }
 
 .etb-book .field-name-body > p:not(.style-scope) {
-  line-height: 40px;
-  margin-bottom: 32px;
+  line-height: 60px;
+  margin-bottom: 30px;
   text-rendering: optimizeLegibility;
+  font-size: 30px;
 }
+.etb-book .field-name-body > p:not(.style-scope) img {
+  padding: 30px;
+}
+
 button {
   padding: 0;
 }
@@ -7311,20 +7316,6 @@ article h6,
   font-size: .8rem !important;
 }
 
-article p:not([class]),
-article p.elmsln-core-in-context,
-.ckeditor-edit-body p:not([class]),
-.ckeditor-edit-body p.elmsln-core-in-context {
-  max-width: 70%;
-}
-@media (max-width: 50rem) {
-  article p:not([class]),
-  article p.elmsln-core-in-context,
-  .ckeditor-edit-body p:not([class]),
-  .ckeditor-edit-body p.elmsln-core-in-context {
-    max-width: 100%;
-  }
-}
 /* ELMSLN bullets */
 article.node div.body ul li,
 .ckeditor-edit-body.node div.body ul li {

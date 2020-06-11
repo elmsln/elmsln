@@ -56,7 +56,6 @@
     "!node_modules/@vaadin/*/test/*",
     "node_modules/pdfjs-dist/build/pdf.js",
     "node_modules/pdfjs-dist/build/pdf.worker.js",
-    "!node_modules/@lrnwebcomponents/*/*.story.js",
     "node_modules/msr/MediaStreamRecorder.min.js",
     "node_modules/@lrnwebcomponents/chartist-render/lib/chartist/dist/chartist.min.js",
     "!node_modules/@webcomponents/webcomponentsjs/gulpfile.js",
@@ -65,7 +64,18 @@
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/yaml.js",
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/json.js",
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/xml.js",
-    "!node_modules/@lrnwebcomponents/storybook-utilities/storybook-utilities.js"
+    "!node_modules/@lrnwebcomponents/storybook-utilities/storybook-utilities.js",
+    "!node_modules/@lrnwebcomponents/*/*.umd.js",
+    "!node_modules/@lrnwebcomponents/*/*.amd.js",
+    "!node_modules/@lrnwebcomponents/*/*.es6.js",
+    "!node_modules/@lrnwebcomponents/*/*.stories.js",
+    "!node_modules/@lrnwebcomponents/*/*.story.js",
+    "!rollup.config.js",
+    "!*.stories.js",
+    "!*.story.js",
+    "!*.umd.js",
+    "!*.amd.js",
+    "!*.es6.js"
   ],
   "builds": [
     {
