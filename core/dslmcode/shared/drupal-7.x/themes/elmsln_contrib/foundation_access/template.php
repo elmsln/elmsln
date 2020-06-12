@@ -1850,6 +1850,7 @@ function _foundation_access_svg_whitelist_tags() {
 function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
   // bring in materialize
   $settings['contentsCss'][] = base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css';
+  $settings['contentsCss'][] = base_path() . drupal_get_path('theme', 'foundation_access') . '/css/main.css';
   $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $css = _foundation_access_contextual_colors($lmsless_classes);
   $settings['contentsCss'][] = $css;
