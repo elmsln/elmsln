@@ -5,6 +5,7 @@
   --simple-drawer-header-color: white;
   --simple-modal-titlebar-background: var(--elmsln-system-color-dark);
   --simple-modal-titlebar-color: white;
+  --elmsln-font-size: 30px;
 }
 simple-modal {
   --simple-modal-min-width: 50vw;
@@ -3180,12 +3181,12 @@ html.js .js-hide {
 
 .etb-book .field-name-body > p:not(.style-scope) {
   line-height: 60px;
-  margin-bottom: 30px;
+  margin-bottom: var(--elmsln-font-size, 30px);
   text-rendering: optimizeLegibility;
-  font-size: 30px;
+  font-size: var(--elmsln-font-size, 30px);
 }
 .etb-book .field-name-body > p:not(.style-scope) img {
-  padding: 30px;
+  padding: var(--elmsln-font-size, 30px);
 }
 
 button {
@@ -7285,15 +7286,17 @@ form.node-form div.field-group-htabs-wrapper fieldset.field-group-htab {
 }
 
 article,
+.ckeditor-edit-body,
+.ckeditor-edit-body p,
+.ckeditor-edit-body div {
+  font-size: var(--elmsln-font-size, 30px);
+}
 article h1,
 article h2,
 article h3,
 article h4,
 article h5,
 article h6,
-.ckeditor-edit-body,
-.ckeditor-edit-body p,
-.ckeditor-edit-body div,
 .ckeditor-edit-body h1,
 .ckeditor-edit-body h2,
 .ckeditor-edit-body h3,
