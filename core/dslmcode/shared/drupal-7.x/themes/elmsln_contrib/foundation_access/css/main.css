@@ -8,17 +8,17 @@
   --elmsln-font-size: 30px;
   --haxcms-base-styles-body-line-height: 1.8;
   --haxcms-base-styles-body-letter-spacing: .5px;
-  --hax-base-styles-h1-font-size: 2.125rem;
-  --hax-base-styles-h1-line-height: 2.5em;
-  --hax-base-styles-h2-font-size: 1.6875rem;
-  --hax-base-styles-h3-font-size: 1.375rem;
-  --hax-base-styles-h4-font-size: 1.125rem;
+  --hax-base-styles-h1-font-size: 5.5em;
+  --hax-base-styles-h1-line-height: 2.778em;
+  --hax-base-styles-h2-font-size: 2.25rem;
+  --hax-base-styles-h3-font-size: 1.75rem;
+  --hax-base-styles-h4-font-size: 1.25rem;
   --hax-base-styles-h5-font-size: 1.125rem;  
   --hax-base-styles-h6-font-size: 1.25em;
   --hax-base-styles-p-min-height: 43px;
   --hax-base-styles-p-font-size: 30px;
   --hax-base-styles-p-line-height: 1.8;
-  --hax-base-styles-p-letter-spacing: .5px;
+  --hax-base-styles-p-letter-spacing: .5px;  
 }
 simple-modal {
   --simple-modal-min-width: 50vw;
