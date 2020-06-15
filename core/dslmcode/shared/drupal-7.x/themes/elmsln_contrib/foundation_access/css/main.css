@@ -7318,7 +7318,10 @@ article h6,
 .ckeditor-edit-body h6 {
   font-size: 1.2rem;
 }
-
+/* better padding to things floated right aka inset */
+article img[style*="float:right"] {
+  padding: 0 0 48px 48px;
+}
 .text-largest {
   font-size: 1.7rem !important;
 }
