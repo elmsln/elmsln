@@ -1,4 +1,5 @@
 <video-player
+crossorigin="anonymous"
 accent-color="indigo"
 source="<?php print file_create_url($node->field_audio['und'][0]['uri']); ?>"
 <?php if (isset($node->field_poster['und'][0]['uri'])): ?>
