@@ -7319,6 +7319,7 @@ article h6,
   font-size: 1.2rem;
 }
 /* better padding to things floated right aka inset */
+article img[style*="float: right"],
 article img[style*="float:right"] {
   padding: 0 0 48px 48px;
 }
