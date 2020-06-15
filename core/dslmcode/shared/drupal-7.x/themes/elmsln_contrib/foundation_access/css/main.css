@@ -7945,7 +7945,6 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
 /* ALL LRN / WEB COMPONENT BASED DESIGN MODIFICATIONS */
 video-player {
   z-index: 0;
-  font-size: 12px;
 }
 image-compare-slider .container.image-compare-slider {
   margin: unset;
