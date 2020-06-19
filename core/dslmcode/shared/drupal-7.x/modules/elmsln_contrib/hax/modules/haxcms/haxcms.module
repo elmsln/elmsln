@@ -176,7 +176,7 @@ function _haxcms_loadJOS($book) {
         $item->parent = 'mlid-' . $bookData['plid'];
       }
       $item->order = (int)$bookData['weight'];
-      $item->slug = drupal_get_path_alias($page->book['link_path']);
+      $item->slug = drupal_get_path_alias($bookData['link_path']);
       $item->title = $bookData['title'];
       $page = node_load(str_replace('node/', '', $bookData['link_path']));
       $item->metadata->created = $page->created;
