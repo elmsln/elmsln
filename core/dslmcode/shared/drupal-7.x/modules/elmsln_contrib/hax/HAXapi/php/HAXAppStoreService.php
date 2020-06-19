@@ -1,6 +1,8 @@
 <?php
-
-class HAXService {
+/**
+ * Class to help bridge compliance with the HAX AppStore specification
+ */
+class HAXAppStoreService {
   /**
    * returns an array of app store definitions based
    * on passing in the apikeys for the ones we have
@@ -15,7 +17,7 @@ class HAXService {
       $jsonstring = '{
         "details": {
           "title": "Youtube",
-          "icon": "av:play-arrow",
+          "icon": "mdi-action:youtube-play",
           "color": "red",
           "author": "Google, Youtube LLC",
           "description": "The most popular online video sharing and remix site.",

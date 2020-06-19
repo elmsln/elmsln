@@ -11,9 +11,3 @@ dependencies[] = token_filter
 dependencies[] = webcomponents_cmstags
 features[features_api][] = api:2
 features[filter][] = hax
-
-; Information added by Drupal.org packaging script on 2020-04-27
-version = "7.x-3.9"
-core = "7.x"
-project = "hax"
-datestamp = "1588020518"

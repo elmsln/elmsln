@@ -6,3 +6,17 @@
 function hax_install() {
   drupal_set_message(t('Either use a CDN listed in webcomponents module or make sure you copy the contents of CopyThisStuff from the hax module directory into sites/all/libraries/webcomponents/ and then run npm install to get dependencies in order for HAX to work.'), 'status');
 }
+
+/**
+ * Force cache clear as we've added an endpoint
+ */
+function hax_update_7001(&$sandbox) {
+  drupal_flush_all_caches();
+}
+
+/**
+ * Force cache clear as we normalized endpoints
+ */
+function hax_update_7002(&$sandbox) {
+  drupal_flush_all_caches();
+}

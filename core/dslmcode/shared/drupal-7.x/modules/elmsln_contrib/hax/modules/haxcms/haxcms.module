@@ -1,0 +1,289 @@
+<?php
+define("HAXCMS_VERSION", "1.2.0");
+define("HAXCMS_DRUPAL_THEME", "haxcms_drupal_theme");
+include_once __DIR__ . '/../../HAXapi/php/HAXAppStoreService.php';
+/**
+ * @file
+ * Headless Authoring eXperience, all we do is accept calls and make things haxable in the first place.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function haxcms_permission() {
+  return array(
+    'access haxcms loader' => array(
+      'title' => t('Access haxcms loader'),
+      'description' => t('User can access the HAXcms book loader'),
+    ),
+  );
+}
+/**
+ * Implements hook_webcomponents_build_integration_markup_alter().
+ * This ensures that HAXcms's build script loads at the right times
+ */
+function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
+  if (arg(0) == 'haxcms') {
+    $markup .= "\n" . '<script>document.body.removeAttribute("no-js");window.__appCustomEnv=true;</script><script src="' . base_path() . drupal_get_path('module', 'haxcms') . '/build-haxcms.js' . '"></script>';
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function haxcms_cron() {
+  // ensure entity iframe theme is enabled
+  $theme = _haxcms_drupal_theme();
+  if (!_haxcms_drupal_theme_exists($theme)) {
+    theme_enable(array($theme));
+  }
+}
+
+/**
+ * Helper function to test if a theme is enabled.
+ */
+function _haxcms_drupal_theme_exists($theme_name) {
+  $themes = list_themes();
+  return isset($themes[$theme_name]) && $themes[$theme_name]->status == 1;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function haxcms_menu() {
+  // load the player onto the UI
+  $items['haxcms/node/%node'] = array(
+    'page callback' => '_haxcms_loader',
+    'page arguments' => array(2),
+    'access callback' => '_haxcms_view_cms',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'theme callback' => '_haxcms_drupal_theme',
+  );
+  // load site.json format
+  $items['haxapi/loadJOS/%node'] = array(
+    'page callback' => '_haxcms_loadJOS',
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access callback' => '_haxcms_view_cms',
+    'access arguments' => array(2),
+  );
+  $items['haxapi/getNodeContent/%node'] = array(
+    'page callback' => '_haxcms_getNodeContent',
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access callback' => '_haxcms_view_cms',
+    'access arguments' => array(2),
+  );
+  // settings for theme / JOS spec settings Drupal won't have
+  $items['admin/config/content/haxcms'] = array(
+    'title' => 'HAXcms configuration',
+    'description' => 'site.json loader / configuration',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('haxcms_settings'),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Render just the node body and display
+ */
+function _haxcms_getNodeContent($node) {
+  $body = field_get_items('node', $node, 'body');
+  print check_markup($body[0]['value'], $body[0]['format']);
+  exit;
+}
+
+/**
+ * Return a built JSON outline schema file
+ */
+function _haxcms_loadJOS($book) {
+  // support being asked to load a node that IS NOT the book root
+  // we require a book in order to know the structure
+  if ($book->book['bid'] != $book->nid) {
+    $book = node_load($book->book['bid']);
+  }
+  include_once __DIR__ . '/../../HAXapi/php/JSONOutlineSchema.php';
+  $site = new JSONOutlineSchema();
+  $site->file = base_path() . "haxapi/loadJOS/" . $book->nid;
+  // site data
+  $site->title = $book->title;
+  $site->description = variable_get("site_slogan", "Slogan");
+  $site->author = variable_get("site_mail","");
+  $site->license = "by-sa";
+  $site->metadata = new stdClass();
+  // author
+  $site->metadata->author = new stdClass();
+  $site->metadata->author->image = "";
+  $site->metadata->author->name = "ELMS:LN";
+  $site->metadata->author->socialLink = "https://twitter.com/elmsln";
+  $site->metadata->author->email = "elmsln@psu.edu";
+  // site
+  $site->metadata->site = new stdClass();
+  $site->metadata->site->name = str_replace('/', '', base_path());
+  $site->metadata->site->domain = base_path();
+  $site->metadata->site->domain = HAXCMS_VERSION;
+  $site->metadata->site->logo = image_style_url('thumbnail', theme_get_setting('logo_path'));
+  // just for spec conformance, drupal manages this stuff
+  $site->metadata->site->git = new stdClass();
+  $site->metadata->site->static = new stdClass();
+  $site->metadata->site->settings = new stdClass();
+  $site->metadata->node = new stdClass();
+  $site->metadata->node->fields = new stdClass();
+  // theme
+  $site->metadata->theme = new stdClass();
+  $site->metadata->theme->element = variable_get("haxcms_settings_theme", "learn-two-theme");
+  $site->metadata->theme->variables = new stdClass();
+  $site->metadata->theme->variables->image = file_create_url(theme_get_setting('logo_path'));
+  $site->metadata->theme->variables->hexCode = variable_get("haxcms_settings_haxCode", "#009d75");
+  $site->metadata->theme->variables->cssVariable = variable_get("haxcms_settings_cssVariable", "--simple-colors-default-theme-deep-purple-7");
+  $site->metadata->theme->variables->icon = variable_get("haxcms_settings_icon", "icons:android");
+
+  // now work on the items
+  // @todo load the children of this book root
+  $items = array(2, 3);
+  foreach ($items as $nid) {
+    $page = node_load($nid);
+    $item = new JSONOutlineSchemaItem();
+    $item->id = 'mlid-' . $page->book['mlid'];
+    $item->title = $page->title;
+    $item->indent = ($page->book['depth'] - 1);
+    
+    if ($book->book['mlid'] == $page->book['plid']) {
+      $item->parent = null;
+    }
+    else {
+      $item->parent = 'mlid-' . $page->book['plid'];
+    }
+    $item->order = (int)$page->book['weight'];
+    $item->slug = drupal_get_path_alias($page->book['link_path']);
+    $item->title = $page->title;
+    $item->metadata->created = $page->created;
+    $item->metadata->updated = $page->changed;
+    $item->location = base_path() . "haxapi/getNodeContent/" . $page->nid;
+    array_push($site->items, $item);
+  }
+  // allow altering the site data by hook
+  $status = 200;
+  drupal_alter('haxcms_site_data', $site, $status);
+
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', $status);
+  // output the response as json
+  print drupal_json_output($site);
+  exit;
+}
+
+/**
+ * Helper function to return if a link show be displayed.
+ */
+function _haxcms_view_cms($node) {
+  // make sure it is enabled, a node, in a book, that they can see
+  if (user_access('access haxcms loader') && user_access('access content') && isset($node->nid) && isset($node->book) && node_access("view", $node)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Present the node form but wrap the content in hax-body tag
+ * @param  [type] $node [description]
+ * @return [type]       [description]
+ */
+function _haxcms_loader($node) {
+  if (isset($node->book['bid'])) {
+    // write content to screen, wrapped in tag to do all the work
+    $siteAttributes = array(
+      'file' => base_path() . 'haxapi/loadJOS/' . $node->book['bid'],
+    );
+    // deep developer function to allow full control over tag's properties
+    drupal_alter('haxcms_render_attributes', $siteAttributes);
+    return theme('haxcms', array(
+      'node' => $node,
+      'logo' => image_style_url('thumbnail', theme_get_setting('logo_path')),
+      'siteAttributes' => $siteAttributes,
+      'contents' => check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])));
+  }
+}
+
+/**
+ * Implements hook_custom_theme().
+ */
+function haxcms_custom_theme() {
+  // this probably isn't required but acts as a fallback
+  if (arg(0) == 'haxcms') {
+    return _haxcms_drupal_theme();
+  }
+}
+
+/**
+ * Callback for haxcms drupal theme layer interaction.
+ */
+function _haxcms_drupal_theme() {
+  return variable_get('haxcms_drupal_theme', HAXCMS_DRUPAL_THEME);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function haxcms_theme() {
+  return array(
+    'haxcms' => array(
+      'variables' => array(
+        'siteAttributes' => NULL,
+        'node' => NULL,
+        'logo' => NULL,
+        'contents' => NULL),
+      'template' => 'haxcms',
+    ),
+  );
+}
+
+/**
+ * Processes variables for haxcms.tpl.php.
+ *
+ * The $variables array contains the following elements:
+ * - title
+ * - contents
+ *
+ * @see haxcms.tpl.php
+ */
+function template_preprocess_haxcms(&$variables) {
+  global $base_url, $language;
+  $variables['base_url'] = $base_url;
+  $variables['language'] = $language;
+  $variables['language_rtl'] = ($language->direction == LANGUAGE_RTL);
+  $variables['dir'] = $language->direction ? 'rtl' : 'ltr';
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function haxcms_page_build(&$page) {
+  // HAXcms NEEDS base set to operate correctly
+  if (arg(0) == "haxcms") {
+    $tag = array(
+      '#tag' => 'base',
+      '#attributes' => array(
+        'href' => base_path() . 'haxcms/'
+      ),
+    );
+    drupal_add_html_head($tag, 'haxcms-base-tag');
+  }
+}
+
+/**
+ * Helper function to make outline designer settings more obvious.
+ */
+function haxcms_settings($form, &$form_state) {
+  $form['hax_project_pk'] = [
+    '#type' => 'hidden',
+    '#title' => t('Public key'),
+    '#default_value' => variable_get('hax_project_pk', ''),
+    '#description' => t("Only use this if you need to use a source other than the above supported options."),
+  ];
+  return system_settings_form($form);
+}

@@ -1,6 +1,6 @@
 <?php
 
-include_once 'HAXService.php';
+include_once __DIR__ . '/HAXapi/php/HAXAppStoreService.php';
 
 /**
  * @file
@@ -24,30 +24,34 @@ function hax_permission() {
  * Implements hook_menu().
  */
 function hax_menu() {
-  $items['hax-node-save/%node/%'] = array(
+  // HAXapi callbacks
+  // save the node
+  $items['haxapi/saveNode/%node/%'] = array(
     'page callback' => '_hax_node_save',
-    'page arguments' => array(1, 2),
+    'page arguments' => array(2, 3),
     'type' => MENU_CALLBACK,
     'access callback' => '_hax_node_access',
     'access arguments' => array('update', 1),
   );
-  $items['hax-file-save/%'] = array(
+  // save a file upload
+  $items['haxapi/saveFile/%'] = array(
     'page callback' => '_hax_file_save',
-    'page arguments' => array(1),
+    'page arguments' => array(2),
     'type' => MENU_CALLBACK,
     'access callback' => '_hax_file_access',
     'access arguments' => array('create'),
   );
-  $items['hax-app-store/%'] = array(
+  // generate valid Appstore spec
+  $items['haxapi/generateAppStore/%'] = array(
     'page callback' => '_hax_load_app_store',
-    'page arguments' => array(1),
+    'page arguments' => array(2),
     'type' => MENU_CALLBACK,
     'access callback' => 'user_access',
     'access arguments' => array('use hax'),
   );
-  $items['hax-element-list-selector-data/%'] = array(
+  $items['haxapi/haxElementSelectorData/%'] = array(
     'page callback' => 'loadHaxElementListSelectorData',
-    'page arguments' => array(1),
+    'page arguments' => array(2),
     'type' => MENU_CALLBACK,
     'access callback' => 'user_access',
     'access arguments' => array('administer site configuration'),
@@ -222,12 +226,12 @@ function _hax_node_form($node) {
   drupal_set_title(t('HAX edit @title', array('@title' => $node->title)), PASS_THROUGH);
   // fake a component to get it into the head of the document, heavy weighting
   $appStoreConnection = array(
-    'url' => base_path() . 'hax-app-store/' . drupal_get_token('hax'),
+    'url' => base_path() . 'haxapi/generateAppStore/' . drupal_get_token('hax'),
   );
   // write content to screen, wrapped in tag to do all the work
   $attributes = array(
     'element-align' => variable_get('hax_align', 'left'),
-    'end-point' => base_path() . 'hax-node-save/' . $node->nid . '/' . drupal_get_token('hax'),
+    'end-point' => base_path() . 'haxapi/saveNode/' . $node->nid . '/' . drupal_get_token('hax'),
     'app-store-connection' => json_encode($appStoreConnection),
     'redirect-location' => base_path() . 'node/' . $node->nid,
   );
@@ -268,7 +272,7 @@ function _hax_node_form($node) {
 function hax_settings($form, &$form_state) {
   // load in drupal specific behaviors to match our amazing build integration element
   drupal_add_js(drupal_get_path('module', 'hax') . '/hax-form-helper.js');
-  $endpoint = base_path() . 'hax-element-list-selector-data/' . drupal_get_token('hax-element-list-selector-data');
+  $endpoint = base_path() . 'haxapi/haxElementSelectorData/' . drupal_get_token('hax-element-list-selector-data');
   $form['hax_element'] = [
     '#markup' => '<hax-element-list-selector fields-endpoint="' . $endpoint . '"></hax-element-list-selector>',
   ];
@@ -303,7 +307,7 @@ function hax_settings($form, &$form_state) {
     '#default_value' => variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS),
     '#description' => t("This allows for auto-loading elements known to play nice with HAX. If you've written any webcomponents that won't automatically be loaded into the page via that module this allows you to attempt to auto-load them when HAX loads. For example, if you have a video-player element in your bower_components directory and want it to load on this interface, this would be a simple way to do that. Spaces only between elements, no comma"),
   );
-  $hax = new HaxService();
+  $hax = new HAXAppStoreService();
   $blox = variable_get('hax_blox');
   if (!$blox || $blox == '') {
     $blox = json_encode($hax->loadBaseBlox());
@@ -338,7 +342,7 @@ function hax_settings($form, &$form_state) {
  * Implements hook_hax_app_store().
  */
 function hax_hax_app_store() {
-  $hax = new HAXService();
+  $hax = new HAXAppStoreService();
   $apikeys = array();
   $baseApps = $hax->baseSupportedApps();
   foreach ($baseApps as $key => $app) {
@@ -359,7 +363,7 @@ function hax_hax_app_store() {
  * Implements hook_hax_blox().
  */
 function hax_hax_blox() {
-  $hax = new HAXService();
+  $hax = new HAXAppStoreService();
   $blox = $hax->loadBaseBlox();
   return $blox;
 }
@@ -368,7 +372,7 @@ function hax_hax_blox() {
  * Implements hook_hax_stax().
  */
 function hax_hax_stax() {
-  $hax = new HAXService();
+  $hax = new HAXAppStoreService();
   $stax = $hax->loadBaseStax();
   return $stax;
 }
@@ -442,7 +446,7 @@ function _hax_site_connection() {
         },
         "add": {
           "method": "POST",
-          "endPoint": "hax-file-save/' . drupal_get_token('hax') . '",
+          "endPoint": "haxapi/saveFile/' . drupal_get_token('hax') . '",
           "acceptsGizmoTypes": [
             "image",
             "video",
@@ -480,7 +484,7 @@ function _hax_site_connection() {
 function loadHaxElementListSelectorData($token) {
   // Ensure we had data PUT here and it is valid.
   if (drupal_valid_token($token, 'hax-element-list-selector-data')) {
-    $hax = new HaxService();
+    $hax = new HAXAppStoreService();
     $apikeys = [];
     $baseApps = $hax->baseSupportedApps();
     foreach ($baseApps as $key => $app) {

@@ -1,0 +1,8 @@
+name = "HAXcms"
+description = "Drupal as backend to feed data to the HAXcms theme layer"
+core = "7.x"
+package = Webcomponents
+dependencies[] = hax
+dependencies[] = image
+dependencies[] = book
+configure = admin/config/content/haxcms

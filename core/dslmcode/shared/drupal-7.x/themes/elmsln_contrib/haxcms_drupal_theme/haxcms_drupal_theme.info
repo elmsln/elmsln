@@ -1,0 +1,5 @@
+name = HAXcms theme for drupal
+description = Allows Drupal to leverage HAXcms themes correctly
+package = Webcomponents
+core = 7.x
+stylesheets[all][] = layout.css
