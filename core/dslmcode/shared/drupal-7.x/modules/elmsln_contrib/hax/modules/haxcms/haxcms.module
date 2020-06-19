@@ -176,7 +176,10 @@ function _haxcms_loadJOS($book) {
         $item->parent = 'mlid-' . $bookData['plid'];
       }
       $item->order = (int)$bookData['weight'];
-      $item->slug = drupal_get_path_alias($bookData['link_path']);
+      // @todo for this to work we have to detect a path NOT having 'node' in it
+      // and then load accordingly
+      //$item->slug = drupal_get_path_alias($bookData['link_path']);
+      $item->slug = $bookData['link_path'];
       $item->title = $bookData['title'];
       $page = node_load(str_replace('node/', '', $bookData['link_path']));
       $item->metadata->created = $page->created;
