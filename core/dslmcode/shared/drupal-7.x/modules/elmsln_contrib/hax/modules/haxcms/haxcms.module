@@ -97,6 +97,21 @@ function _haxcms_getNodeContent($node) {
 }
 
 /**
+ * copy of book_get_flat_menu but without a depth limit to give us everything
+ */
+function _haxcms_book_get_flat_menu($book_link) {
+  $haxcmsflat =& drupal_static(__FUNCTION__, array());
+  if (!isset($haxcmsflat[$book_link['mlid']])) {
+
+    // Call menu_tree_all_data() to take advantage of the menu system's caching.
+    $tree = menu_tree_all_data($book_link['menu_name'], NULL, 100);
+    $haxcmsflat[$book_link['mlid']] = array();
+    _book_flatten_menu($tree, $haxcmsflat[$book_link['mlid']]);
+  }
+  return $haxcmsflat[$book_link['mlid']];
+}
+
+/**
  * Return a built JSON outline schema file
  */
 function _haxcms_loadJOS($book) {
@@ -143,27 +158,32 @@ function _haxcms_loadJOS($book) {
 
   // now work on the items
   // @todo load the children of this book root
-  $items = array(2, 3);
-  foreach ($items as $nid) {
-    $page = node_load($nid);
-    $item = new JSONOutlineSchemaItem();
-    $item->id = 'mlid-' . $page->book['mlid'];
-    $item->title = $page->title;
-    $item->indent = ($page->book['depth'] - 1);
-    
-    if ($book->book['mlid'] == $page->book['plid']) {
-      $item->parent = null;
+
+  $items = _haxcms_book_get_flat_menu($book->book);
+  foreach ($items as $mlid => $bookData) {
+    if ($book->book['mlid'] != $bookData['mlid']) {
+      $item = new JSONOutlineSchemaItem();
+      $item->id = 'mlid-' . $bookData['mlid'];
+      $item->title = $bookData['title'];
+      $item->indent = ($bookData['depth'] - 1);
+      // JOS requires parent be null for top level items
+      // while Drupal has a parent as the root node for everything
+      // and JOS has the structure itself in this "book" root
+      if ($book->book['mlid'] == $bookData['plid']) {
+        $item->parent = null;
+      }
+      else {
+        $item->parent = 'mlid-' . $bookData['plid'];
+      }
+      $item->order = (int)$bookData['weight'];
+      $item->slug = drupal_get_path_alias($page->book['link_path']);
+      $item->title = $bookData['title'];
+      $page = node_load(str_replace('node/', '', $bookData['link_path']));
+      $item->metadata->created = $page->created;
+      $item->metadata->updated = $page->changed;
+      $item->location = base_path() . "haxapi/getNodeContent/" . $page->nid;
+      array_push($site->items, $item);
     }
-    else {
-      $item->parent = 'mlid-' . $page->book['plid'];
-    }
-    $item->order = (int)$page->book['weight'];
-    $item->slug = drupal_get_path_alias($page->book['link_path']);
-    $item->title = $page->title;
-    $item->metadata->created = $page->created;
-    $item->metadata->updated = $page->changed;
-    $item->location = base_path() . "haxapi/getNodeContent/" . $page->nid;
-    array_push($site->items, $item);
   }
   // allow altering the site data by hook
   $status = 200;
