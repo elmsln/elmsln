@@ -1,7 +1,7 @@
 <?php
 $color = "#009d75";
 if (function_exists('variable_get')) {
-  $color = variable_get("haxcms_settings_haxCode", "#009d75");
+  $color = variable_get("haxcms_settings_hexCode", "#009d75");
 }
 /**
  * @file
