@@ -5,4 +5,9 @@
  */
 function haxcms_install() {
   drupal_set_message(t('HAXcms is a headless CMS. This module is designed to use Drupal as it\'s backend. See https://haxtheweb.org/ for more details.'), 'status');
+  $theme = _haxcms_drupal_theme();
+  if (!_haxcms_drupal_theme_exists($theme)) {
+    drupal_set_message(t('HAXcms Drupal Theme was enabled if installed, otherwise ensure you get https://www.drupal.org/project/haxcms_drupal_theme'), 'status');
+    theme_enable(array($theme));
+  }
 }

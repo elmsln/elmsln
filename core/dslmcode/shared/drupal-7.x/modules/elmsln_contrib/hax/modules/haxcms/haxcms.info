@@ -5,4 +5,5 @@ package = Webcomponents
 dependencies[] = hax
 dependencies[] = image
 dependencies[] = book
+dependencies[] = path
 configure = admin/config/content/haxcms

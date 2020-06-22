@@ -37,7 +37,7 @@ class JSONOutlineSchema
     /**
      * Get a reasonable license name from the short hand
      */
-    public function getLicenseDetails()
+    public function getLicenseDetails($all = FALSE)
     {
         $list = array(
             "by" => array(
@@ -75,6 +75,9 @@ class JSONOutlineSchema
                     "https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png"
             )
         );
+        if ($all) {
+            return $list;
+        }
         if (isset($list[$this->license])) {
             return $list[$this->license];
         }

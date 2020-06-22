@@ -8,23 +8,22 @@ include_once __DIR__ . '/../../HAXapi/php/HAXAppStoreService.php';
  */
 
 /**
- * Implements hook_permission().
- */
-function haxcms_permission() {
-  return array(
-    'access haxcms loader' => array(
-      'title' => t('Access haxcms loader'),
-      'description' => t('User can access the HAXcms book loader'),
-    ),
-  );
-}
-/**
  * Implements hook_webcomponents_build_integration_markup_alter().
  * This ensures that HAXcms's build script loads at the right times
  */
 function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
   if (arg(0) == 'haxcms') {
-    $markup .= "\n" . '<script>document.body.removeAttribute("no-js");window.__appCustomEnv=true;</script><script src="' . base_path() . drupal_get_path('module', 'haxcms') . '/build-haxcms.js' . '"></script>';
+    // some Drupal markup hacks to go w/ the HAXcms build script
+    $markup .= "\n" . '
+    <style>#admin-menu .dropdown a {
+      line-height: 24px;
+      font-size: 12px;
+    }</style>
+    <script>
+      document.body.removeAttribute("no-js");
+      window.__appCustomEnv=true;window.appSettings = {connectionSettings: "' . base_path() . 'haxapi/connectionSettings"};
+    </script>
+    <script src="' . base_path() . drupal_get_path('module', 'haxcms') . '/build-haxcms.js' . '"></script>';
   }
 }
 
@@ -52,11 +51,11 @@ function _haxcms_drupal_theme_exists($theme_name) {
  */
 function haxcms_menu() {
   // load the player onto the UI
-  $items['haxcms/node/%node'] = array(
+  $items['haxcms'] = array(
     'page callback' => '_haxcms_loader',
-    'page arguments' => array(2),
-    'access callback' => '_haxcms_view_cms',
-    'access arguments' => array(2),
+    'page arguments' => array(0),
+    'access callback' => '_haxcms_node_access',
+    'access arguments' => array('view'),
     'type' => MENU_CALLBACK,
     'theme callback' => '_haxcms_drupal_theme',
   );
@@ -65,15 +64,55 @@ function haxcms_menu() {
     'page callback' => '_haxcms_loadJOS',
     'page arguments' => array(2),
     'type' => MENU_CALLBACK,
-    'access callback' => '_haxcms_view_cms',
-    'access arguments' => array(2),
+    'access callback' => '_haxcms_node_access',
+    'access arguments' => array('view', 2),
+  );
+  // load connection settings for HAXcms to know how to talk to Drupal
+  $items['haxapi/getUserData/%'] = array(
+    'page callback' => '_haxcms_getUserData',
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
+  );
+  // load connection settings for HAXcms to know how to talk to Drupal
+  $items['haxapi/connectionSettings'] = array(
+    'page callback' => '_haxcms_connectionSettings',
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
   );
   $items['haxapi/getNodeContent/%node'] = array(
     'page callback' => '_haxcms_getNodeContent',
     'page arguments' => array(2),
     'type' => MENU_CALLBACK,
-    'access callback' => '_haxcms_view_cms',
-    'access arguments' => array(2),
+    'access callback' => '_haxcms_node_access',
+    'access arguments' => array('view', 2),
+  );
+  // HAXcms implementation based on data structure so we can do POST
+  // @see _hax_node_save for stand alone submission mode
+  $items['haxapi/saveNode/%'] = array(
+    'page callback' => '_haxcms_saveNode',
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
+  );
+  // delete node
+  $items['haxapi/deleteNode/%'] = array(
+    'page callback' => '_haxcms_deleteNode',
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
+  );
+  // create node
+  $items['haxapi/createNode/%'] = array(
+    'page callback' => '_haxcms_createNode',
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
   );
   // settings for theme / JOS spec settings Drupal won't have
   $items['admin/config/content/haxcms'] = array(
@@ -88,10 +127,293 @@ function haxcms_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function haxcms_menu_alter(&$items) {
+  // Override the book admin page with a custom version that includes book copy links.
+  $items['admin/content/book']['page callback'] = '_haxcms_book_admin_overview';
+}
+
+/**
+ * Menu callback.  Overrides the book_admin_overview at admin/content/book.
+ *
+ * @see book_copy_menu_alter()
+ */
+function _haxcms_book_admin_overview() {
+  $has = array(
+    'copy' => FALSE,
+    'delete' => FALSE,
+    'export' => FALSE,
+  );
+  $paths = array(
+    'copy' => 'admin/content/book/copy',
+    'delete' => 'admin/content/book/delete',
+    'export' => 'feeds_node_helper_export',
+  );
+  $headers = array(t('View'), t('Outline'), t('HAXcms'));
+  // form simple add button
+  if (module_exists('outline_designer')) {
+    drupal_add_css(drupal_get_path('module', 'outline_designer') .'/css/outline_designer.css');
+    $add_button = l('<div style="width:120px;" class="context-menu context-menu-theme-'. variable_get('outline_designer_theme', 'osx') .'"><div title="" class="context-menu-item"><div style="background-repeat:no-repeat;background-image: url('. base_path() . drupal_get_path('module', 'outline_designer') .'/images/add_content.png);" class="context-menu-item-inner">'. t('add book') . '</div></div></div>', 'node/add/'. variable_get('book_child_type', 'book'), array('html' => TRUE, 'query' => array('destination' => 'admin/content/book', 'parent' => 'new')));
+  }
+  else {
+    $add_button = l('<div style="width:120px;" class="context-menu"><div title="" class="context-menu-item"><div style="background-repeat:no-repeat;" class="context-menu-item-inner">'. t('add book') . '</div></div></div>', 'node/add/'. variable_get('book_child_type', 'book'), array('html' => TRUE, 'query' => array('destination' => 'admin/content/book', 'parent' => 'new')));
+  }
+  // support for copy button
+  if (module_exists('book_copy') && user_access('copy books')) {
+    $has['copy'] = TRUE;
+  }
+  // support for delete button
+  if (module_exists('book_delete') && user_access('bypass node access')) {
+    $has['delete'] = TRUE;
+  }
+  // export for export button
+  if (module_exists('feeds_node_helper_export') && user_access('bypass node access')) {
+    $has['export'] = TRUE;
+  }
+  // form headers based on what's allowed
+  foreach ($has as $key => $item) {
+    if ($item) {
+      $headers[] = ucwords(t($key));
+    }
+  }
+  // loop through books
+  foreach (book_get_books() as $book) {
+    $ary = array(l($book['title'], $book['href'], $book['options']), l(t('edit order and titles'), "admin/content/book/". $book['nid']), l(t('Load via HAXcms'), "haxcms/node/". $book['nid']));
+    foreach ($has as $key => $item) {
+      if ($item) {
+        $ary[] = l(t('@key book', array('@key' => $key)), $paths[$key] . '/' . $book['nid']);
+      }
+    }
+    $rows[] = $ary;
+  }
+  // If no books were found, let the user know.
+  if (empty($rows)) {
+    $rows[] = array(array('data' => t('No books available.'), 'colspan' => 3));
+  }
+  $output = theme('table', array('header' => $headers, 'rows' => $rows));
+  return $add_button . $output;
+}
+
+/**
+ * Helper to translate HAXcms front end API request structure to Drupal node
+ * @return mixed Boolean if requested or Object for node response if we can load one
+ */
+function _haxcms_convert_request_structure($token, $validateOnly = FALSE, $method = "POST") {
+  // ensure we had data POST here and it is valid
+  $postData = file_get_contents("php://input");
+  $postData = json_decode($postData, TRUE);
+  if ($_SERVER['REQUEST_METHOD'] == $method && drupal_valid_token($token, 'hax') && isset($postData['node'])) {
+    // if we were only asked to validate the return the node path
+    if ($validateOnly) {
+      return TRUE;
+    }
+    // try and load a menu link so we can figure out the node
+    else if (isset($postData['node']['id'])) {
+      if ($link = menu_link_load(str_replace('mlid-', '', $postData['node']['id']))) {
+        return node_load(str_replace('node/', '', $link['link_path']));
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Return basic user data info
+ */
+function _haxcms_getUserData($token) {
+  if (drupal_valid_token($token, 'hax')) {
+    // send back happy headers
+    drupal_add_http_header('Content-Type', 'application/json');
+    // define status
+    drupal_add_http_header('Status', 200);
+    $image = '';
+    if (isset($GLOBALS['user']->picture)) {
+      $picture = file_load($GLOBALS['user']->picture);
+      $image = image_style_url('thumbnail', $picture->uri);
+    }
+    $return = array(
+      'status' => 200,
+      'data' => array(
+        'fName' => '',
+        'lName' => '',
+        'social' => array(),
+        'integrations' => array(),
+        'userName' => $GLOBALS['user']->name,
+        'userPicture' => $image,
+      ),
+    );
+    // output the response as json
+    print drupal_json_output($return);
+    exit;
+  }
+}
+
+/**
+ * Callback to create a new node
+ */
+function _haxcms_createNode($token) {
+  $status = 403;
+  $message = t('Access denied');
+  $node = new stdClass();
+  if (_haxcms_convert_request_structure($token, TRUE)) {
+    $postData = file_get_contents("php://input");
+    $postData = json_decode($postData, TRUE);
+    $nodeData = $postData['node'];
+    $status = 500;
+    $message = t('Node creation failed!');
+    // parent node is required or we don't know where to place this item
+    if ($link = menu_link_load(str_replace('mlid-', '', $nodeData['parentId']))) {
+      $parent = node_load(str_replace('node/', '', $link['link_path']));
+      // load this from an actual setting / default setting
+      // default to the parent's type
+      $type = variable_get('book_child_type', $parent->type);
+      // set the node
+      $node->type = $type;
+      node_object_prepare($node);
+      $node->title = $nodeData['title'];
+      $node->uid = $GLOBALS['user']->uid;
+      // default to setting parent language if set, otherwise none
+      $node->language = isset($parent->language) ? $parent->language : LANGUAGE_NONE;
+      // copy over book structure
+      $node->book['weight'] = -15;
+      $node->book['plid'] = $parent->book['mlid'];
+      $node->book['bid'] = $parent->book['bid'];
+      // minor support for OG
+      if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
+        $node->og_group_ref = $parent->og_group_ref;
+      }
+      $node->book['menu_name'] = $parent->book['menu_name'];
+      $node->book['module'] = $parent->book['module'];
+      // leave a trace that haxcms processed this
+      $node->_haxcms = TRUE;
+      // allow other projects to jump in as needed for this very specific node save context
+      drupal_alter('haxcms_save_node', $node);
+
+      // Allow other modules to alter the new book node.
+      if (node_access('create', $node->type)) {
+        node_save($node);
+        // allow front end to set path if defined
+        if (isset($nodeData['location']) && $nodeData['location'] != '' && $nodeData['location'] != NULL) {
+          $pathMap = array("source" => 'node/' . $node->nid, "alias" => $nodeData['location']);
+          path_save($pathMap);
+        }
+        $status = 200;
+        $message = t('Node created!');
+      }
+    }
+  }
+  // send back happy headers
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', $status);
+  $return = array(
+    'status' => $status,
+    'message' => $message,
+    'data' => $node,
+  );
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
+}
+/**
+ * Callback to delete a node
+ */
+function _haxcms_deleteNode($token) {
+  $status = 403;
+  $message = t('Access denied');
+  if ($node = _haxcms_convert_request_structure($token)) {
+    if (user_access('use hax') && _haxcms_node_access('delete', $node)) {
+      node_delete($node->nid);
+      $status = 200;
+      $message = t('Delete successful!');
+    }
+  }
+  // send back happy headers
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', $status);
+  $return = array(
+    'status' => $status,
+    'message' => $message,
+    'data' => $node,
+  );
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
+}
+
+/**
+ * Callback to save just the body field.
+ */
+function _haxcms_saveNode($token) {
+  $node = new stdClass();
+  $status = 403;
+  $message = t('Access denied');
+  if ($node = _haxcms_convert_request_structure($token)) {
+    // verify they can update this
+    if (user_access('use hax') && _haxcms_node_access('update', $node)) {
+      $postData = file_get_contents("php://input");
+      $postData = json_decode($postData, TRUE);
+      // body post
+      if (isset($postData['node']['body'])) {
+        $node->body['und'][0]['value'] = $postData['node']['body'];
+        if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
+          $node->body['und'][0]['format'] = filter_default_format();
+        }
+      }
+      else if (isset($postData['node']['details'])) {
+        // @todo support other fields
+        if (isset($postData['node']['details']['title'])) {
+          $node->title = $postData['node']['details'];
+        }
+      }
+      // check for revision to ensure it's set automatically if globally set
+      $node_options = variable_get('node_options_' . $node->type, array(
+        'status',
+        'promote',
+      ));
+      $node->log = t('saved via HAXcms');
+      $node->revision = in_array('revision', $node_options);
+      node_save($node);
+      $status = 200;
+      $message = t('Save successful!');
+    }
+    else {
+      $message = t('Node access denied');
+    }
+  }
+  else {
+    $status = 500;
+    $message = t('Invalid node');
+  }
+  // send back happy headers
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', $status);
+  $return = array(
+    'status' => $status,
+    'message' => $message,
+    'data' => $node,
+  );
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
+}
+
+/**
  * Render just the node body and display
  */
 function _haxcms_getNodeContent($node) {
   $body = field_get_items('node', $node, 'body');
+  // if we dont have content then make it an empty p node
+  // or HAX will be annoyed
+  if (!isset($body[0]['value']) || $body[0]['value'] == '') {
+    $body[0]['value'] = '<p></p>';
+  }
+  if (!isset($body[0]['format']) || $body[0]['format'] == '') {
+    $body[0]['format'] = filter_default_format();
+  }
   print check_markup($body[0]['value'], $body[0]['format']);
   exit;
 }
@@ -112,6 +434,21 @@ function _haxcms_book_get_flat_menu($book_link) {
 }
 
 /**
+ * Return the connection settings
+ */
+function _haxcms_connectionSettings() {
+  // deliver a piece of JS object structure
+  drupal_add_http_header('Content-Type', 'application/javascript');
+  // define status
+  drupal_add_http_header('Status', 200);
+  // include HAXcms and print out the settings
+  include_once __DIR__ . '/../../HAXapi/php/HAXcms.php';
+  $HAXcms = new HAXcms();
+  print 'window.appSettings = ' . json_encode($HAXcms->appJWTConnectionSettings()) . ';';
+  exit;
+}
+
+/**
  * Return a built JSON outline schema file
  */
 function _haxcms_loadJOS($book) {
@@ -123,18 +460,27 @@ function _haxcms_loadJOS($book) {
   include_once __DIR__ . '/../../HAXapi/php/JSONOutlineSchema.php';
   $site = new JSONOutlineSchema();
   $site->file = base_path() . "haxapi/loadJOS/" . $book->nid;
+  $site->id = 'mlid-' . $book->book['mlid'];
+  // load user data
+  $author = user_load($book->uid);
+  if (isset($author->picture->uri)) {
+    $image = image_style_url('thumbnail', $author->picture->uri);
+  }
   // site data
   $site->title = $book->title;
-  $site->description = variable_get("site_slogan", "Slogan");
-  $site->author = variable_get("site_mail","");
-  $site->license = "by-sa";
+  $site->description = '';
+  if (isset($book->body[0])) {
+    $site->description = substr(check_markup($book->body[0]['und']['value'], $book->body[0]['und']['format']),0,200);
+  }
+  $site->author = $author->name;
+  $site->license = variable_get("haxcms_settings_license", "by-sa");
   $site->metadata = new stdClass();
   // author
   $site->metadata->author = new stdClass();
-  $site->metadata->author->image = "";
-  $site->metadata->author->name = "ELMS:LN";
-  $site->metadata->author->socialLink = "https://twitter.com/elmsln";
-  $site->metadata->author->email = "elmsln@psu.edu";
+  $site->metadata->author->image = $image;
+  $site->metadata->author->name = $author->name;
+  $site->metadata->author->socialLink = variable_get("haxcms_settings_socialLink", "");
+  $site->metadata->author->email = $author->mail;
   // site
   $site->metadata->site = new stdClass();
   $site->metadata->site->name = str_replace('/', '', base_path());
@@ -152,13 +498,11 @@ function _haxcms_loadJOS($book) {
   $site->metadata->theme->element = variable_get("haxcms_settings_theme", "learn-two-theme");
   $site->metadata->theme->variables = new stdClass();
   $site->metadata->theme->variables->image = file_create_url(theme_get_setting('logo_path'));
-  $site->metadata->theme->variables->hexCode = variable_get("haxcms_settings_haxCode", "#009d75");
+  $site->metadata->theme->variables->hexCode = variable_get("haxcms_settings_hexCode", "#009d75");
   $site->metadata->theme->variables->cssVariable = variable_get("haxcms_settings_cssVariable", "--simple-colors-default-theme-deep-purple-7");
   $site->metadata->theme->variables->icon = variable_get("haxcms_settings_icon", "icons:android");
 
-  // now work on the items
-  // @todo load the children of this book root
-
+  // now work on the children of this book root
   $items = _haxcms_book_get_flat_menu($book->book);
   foreach ($items as $mlid => $bookData) {
     if ($book->book['mlid'] != $bookData['mlid']) {
@@ -178,8 +522,7 @@ function _haxcms_loadJOS($book) {
       $item->order = (int)$bookData['weight'];
       // @todo for this to work we have to detect a path NOT having 'node' in it
       // and then load accordingly
-      //$item->slug = drupal_get_path_alias($bookData['link_path']);
-      $item->slug = $bookData['link_path'];
+      $item->slug = str_replace(' ', '%20', drupal_get_path_alias($bookData['link_path']));
       $item->title = $bookData['title'];
       $page = node_load(str_replace('node/', '', $bookData['link_path']));
       $item->metadata->created = $page->created;
@@ -201,11 +544,19 @@ function _haxcms_loadJOS($book) {
 }
 
 /**
- * Helper function to return if a link show be displayed.
+ * Permission + Node access check.
  */
-function _haxcms_view_cms($node) {
-  // make sure it is enabled, a node, in a book, that they can see
-  if (user_access('access haxcms loader') && user_access('access content') && isset($node->nid) && isset($node->book) && node_access("view", $node)) {
+function _haxcms_node_access($op, $node = NULL) {
+  // if node not available try and obtain one
+  if ($node == NULL) {
+    $args = arg();
+    if ($args[0] == 'haxcms') {
+      array_shift($args);
+    }
+    $path = drupal_get_normal_path(str_replace('%20', ' ',implode('/', $args)));
+    $node = node_load(str_replace('node/', '', $path));
+  }
+  if (isset($node->nid) && isset($node->book) && node_access($op, $node)) {
     return TRUE;
   }
   return FALSE;
@@ -216,7 +567,17 @@ function _haxcms_view_cms($node) {
  * @param  [type] $node [description]
  * @return [type]       [description]
  */
-function _haxcms_loader($node) {
+function _haxcms_loader($node = NULL) {
+  if ($node == NULL || $node == 'haxcms') {
+    $args = arg();
+    if ($args[0] == 'haxcms') {
+      array_shift($args);
+    }
+    
+    $path = drupal_get_normal_path(str_replace('%20', ' ',implode('/', $args)));
+    $node = node_load(str_replace('node/', '', $path));
+  }
+
   if (isset($node->book['bid'])) {
     // write content to screen, wrapped in tag to do all the work
     $siteAttributes = array(
@@ -288,10 +649,14 @@ function template_preprocess_haxcms(&$variables) {
 function haxcms_page_build(&$page) {
   // HAXcms NEEDS base set to operate correctly
   if (arg(0) == "haxcms") {
+    $href = base_path();
+    if (!drupal_is_front_page()) {
+      $href.= 'haxcms/';
+    }
     $tag = array(
       '#tag' => 'base',
       '#attributes' => array(
-        'href' => base_path() . 'haxcms/'
+        'href' => $href,
       ),
     );
     drupal_add_html_head($tag, 'haxcms-base-tag');
@@ -302,11 +667,55 @@ function haxcms_page_build(&$page) {
  * Helper function to make outline designer settings more obvious.
  */
 function haxcms_settings($form, &$form_state) {
-  $form['hax_project_pk'] = [
-    '#type' => 'hidden',
-    '#title' => t('Public key'),
-    '#default_value' => variable_get('hax_project_pk', ''),
-    '#description' => t("Only use this if you need to use a source other than the above supported options."),
+  $form['haxcms_settings_theme'] = [
+    '#type' => 'select',
+    '#title' => t('Theme'),
+    '#default_value' => variable_get('haxcms_settings_theme', 'learn-two-theme'),
+    '#options' => array(
+      'learn-two-theme' => t('Course theme'),
+      'outline-player' => t('Documentation theme'),
+      'haxor-slevin' => t('Developer blog theme'),
+    ),
+    '#description' => t("Full URL to the social account"),
+  ];
+  include_once __DIR__ . '/../../HAXapi/php/JSONOutlineSchema.php';
+  $outline = new JSONOutlineSchema();
+  $outline->license = '';
+  $list = $outline->getLicenseDetails(TRUE);
+  $license = array();
+  foreach ($list as $key => $value) {
+    $license[$key] = $value['name'];
+  }
+  $form['haxcms_settings_license'] = [
+    '#type' => 'select',
+    '#title' => t('License'),
+    '#default_value' => variable_get('haxcms_settings_license', 'by-sa'),
+    '#options' => $license,
+    '#description' => t("License to broadcast throughout the theme and metadata layers of the site."),
+  ];
+  $form['haxcms_settings_socialLink'] = [
+    '#type' => 'textfield',
+    '#title' => t('Social link'),
+    '#default_value' => variable_get('haxcms_settings_socialLink', ''),
+    '#description' => t("Full URL to the social account"),
+  ];
+  $form['haxcms_settings_hexCode'] = [
+    '#type' => 'textfield',
+    '#title' => t('Hex code'),
+    '#default_value' => variable_get('haxcms_settings_hexCode', '#009d75'),
+    '#description' => t("Hex code for the color value involved"),
+  ];
+  $form['haxcms_settings_cssVariable'] = [
+    '#type' => 'textfield',
+    '#title' => t('CSS variable'),
+    '#default_value' => variable_get('haxcms_settings_cssVariable', '--simple-colors-default-theme-deep-purple-7'),
+    '#description' => t("CSS var, edit if you get what you are doing"),
+  ];
+  $form['haxcms_settings_icon'] = [
+    '#type' => 'textfield',
+    '#title' => t('Icon'),
+    '#default_value' => variable_get('haxcms_settings_icon', 'icons:android'),
+    '#description' => t("Valid Material / iron-icons style icon name"),
   ];
   return system_settings_form($form);
 }

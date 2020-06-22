@@ -25,9 +25,9 @@ function hax_permission() {
  */
 function hax_menu() {
   // HAXapi callbacks
-  // save the node
+  // save the node, Drupal / CMS specific methodology for stand alone mode
   $items['haxapi/saveNode/%node/%'] = array(
-    'page callback' => '_hax_node_save',
+    'page callback' => '_hax_saveNodeStandalone',
     'page arguments' => array(2, 3),
     'type' => MENU_CALLBACK,
     'access callback' => '_hax_node_access',
@@ -80,7 +80,7 @@ function hax_menu() {
 /**
  * Callback to save just the body field.
  */
-function _hax_node_save($node, $token) {
+function _hax_saveNodeStandalone($node, $token) {
   // ensure we had data PUT here and it is valid
   if ($_SERVER['REQUEST_METHOD'] == 'PUT' && drupal_valid_token($token, 'hax')) {
     // load the data from input stream
