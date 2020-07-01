@@ -196,7 +196,7 @@ class CisSectionRosterProcessor {
       }
     }
     // Otherwise, if there are any students to archive, process them.
-    elseif (!empty($this->archiveStudents)) {
+    elseif (!empty($this->archiveStudents) && variable_get('cis_section_strict_access', CIS_SECTION_STRICT_ACCESS)) {
       $this->archiveStudent(array_shift($this->archiveStudents));
     }
     // Otherwise it looks like there's nothing to do.
