@@ -568,10 +568,12 @@ function _haxcms_node_access($op, $node = NULL) {
  * @return [type]       [description]
  */
 function _haxcms_loader($node = NULL) {
+  $baseURI = base_path();
   if ($node == NULL || $node == 'haxcms') {
     $args = arg();
     if ($args[0] == 'haxcms') {
       array_shift($args);
+      $baseURI .= 'haxcms/';
     }
     
     $path = drupal_get_normal_path(str_replace('%20', ' ',implode('/', $args)));
@@ -582,6 +584,7 @@ function _haxcms_loader($node = NULL) {
     // write content to screen, wrapped in tag to do all the work
     $siteAttributes = array(
       'file' => base_path() . 'haxapi/loadJOS/' . $node->book['bid'],
+      'base-uri' => $baseURI,
     );
     // deep developer function to allow full control over tag's properties
     drupal_alter('haxcms_render_attributes', $siteAttributes);
