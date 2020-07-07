@@ -495,7 +495,7 @@ function _haxcms_loadJOS($book) {
   $site->metadata->node->fields = new stdClass();
   // theme
   $site->metadata->theme = new stdClass();
-  $site->metadata->theme->element = variable_get("haxcms_settings_theme", "learn-two-theme");
+  $site->metadata->theme->element = variable_get("haxcms_settings_theme", "clean-one");
   $site->metadata->theme->variables = new stdClass();
   $site->metadata->theme->variables->image = file_create_url(theme_get_setting('logo_path'));
   $site->metadata->theme->variables->hexCode = variable_get("haxcms_settings_hexCode", "#009d75");
@@ -673,11 +673,13 @@ function haxcms_settings($form, &$form_state) {
   $form['haxcms_settings_theme'] = [
     '#type' => 'select',
     '#title' => t('Theme'),
-    '#default_value' => variable_get('haxcms_settings_theme', 'learn-two-theme'),
+    '#default_value' => variable_get('haxcms_settings_theme', 'clean-one'),
     '#options' => array(
-      'learn-two-theme' => t('Course theme'),
+      'clean-one' => t('Course theme'),
+      'clean-two' => t('Course theme two'),
+      'learn-two-theme' => t('Course theme three'),
       'outline-player' => t('Documentation theme'),
-      'haxor-slevin' => t('Developer blog theme'),
+      'haxor-slevin' => t('Developer Blog theme'),
     ),
     '#description' => t("Full URL to the social account"),
   ];

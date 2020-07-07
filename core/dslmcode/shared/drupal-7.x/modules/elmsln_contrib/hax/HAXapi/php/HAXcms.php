@@ -46,7 +46,9 @@ class HAXCMS
         $this->systemRequestBase = 'haxapi';
         $this->config = new stdClass();
         $this->config->themes = array(
-            'learn-two-theme' => t('Course theme'),
+            'clean-one' => t('Course theme'),
+            'clean-two' => t('Course theme two'),
+            'learn-two-theme' => t('Course theme three'),
             'outline-player' => t('Documentation theme'),
             'haxor-slevin' => t('Developer Blog theme'),
         );
