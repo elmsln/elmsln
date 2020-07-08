@@ -27,11 +27,17 @@ function cis_lmsless_permission() {
  */
 function cis_lmsless_page_build(&$page) {
   // make sure they have access to view this
-  if (arg(0) != "haxcms" && user_access('view lmsless bar') && !path_is_admin(current_path())) {
-    $page['page_top']['cis_lmsless'] = array(
-      '#weight' => -10,
-      '#markup' => _cis_lmsless_assemble(),
-    );
+  if (user_access('view lmsless bar') && !path_is_admin(current_path())) {
+    // prevents cis_lmsless on haxcms loaded systems
+    if (function_exists('_is_haxcms_context') && _is_haxcms_context()) {
+
+    }
+    else {
+      $page['page_top']['cis_lmsless'] = array(
+        '#weight' => -10,
+        '#markup' => _cis_lmsless_assemble(),
+      );
+    }
   }
 }
 
