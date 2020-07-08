@@ -333,3 +333,10 @@ function mooc_update_7025(&$sandbox) {
 function mooc_update_7026(&$sandbox) {
   features_revert_module('mooc_hax');
 }
+
+/**
+ * HAXcms showing up but not default
+ */
+function mooc_update_7027(&$sandbox) {
+  module_enable(array('haxcms'));
+}

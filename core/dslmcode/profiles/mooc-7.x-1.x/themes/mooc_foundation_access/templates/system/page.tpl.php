@@ -1,7 +1,14 @@
 <?php
   // support our method of awesome
   if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '' && $page['content']['system_main']['nodes'][arg(1)]['#bundle'] == 'page') {
-    print _webcomponents_app_load_app(variable_get('mooc-app-element', 'mooc-content'));
+    // support HAXcms loading in here
+    if (variable_get('mooc-app-element', 'mooc-content') == 'haxcms' && function_exists('_haxcms_loader')) {
+      $node = node_load(arg(1));
+      print _haxcms_loader($node);
+    }
+    else {
+      print _webcomponents_app_load_app(variable_get('mooc-app-element', 'mooc-content'));      
+    }
   }
   else {
 ?>

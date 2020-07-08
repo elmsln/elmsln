@@ -629,6 +629,16 @@ function mooc_helper_page_build(&$page) {
 }
 
 /**
+ * Implements hook_is_haxcms_context_alter().
+ * This allows MOOC to dictate on other paths that yes, it is in context
+ */
+function mooc_helper_is_haxcms_context_alter(&$is) {
+  if (variable_get('mooc-app-element', 'mooc-content') == 'haxcms') {
+    $is = TRUE;
+  }
+}
+
+/**
  * Implements hook_node_presave().
  */
 function mooc_helper_node_presave($node) {

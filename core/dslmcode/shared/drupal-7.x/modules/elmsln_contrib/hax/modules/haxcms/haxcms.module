@@ -31,7 +31,7 @@ function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
  * Implements hook_cron().
  */
 function haxcms_cron() {
-  // ensure entity iframe theme is enabled
+  // ensure haxcms theme is enabled
   $theme = _haxcms_drupal_theme();
   if (!_haxcms_drupal_theme_exists($theme)) {
     theme_enable(array($theme));

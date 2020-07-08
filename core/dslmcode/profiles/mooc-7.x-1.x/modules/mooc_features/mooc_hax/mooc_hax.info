@@ -5,6 +5,7 @@ package = MOOC
 dependencies[] = ctools
 dependencies[] = features
 dependencies[] = hax
+dependencies[] = haxcms
 dependencies[] = strongarm
 dependencies[] = webcomponents_cmstags
 features[ctools][] = strongarm:strongarm:1
