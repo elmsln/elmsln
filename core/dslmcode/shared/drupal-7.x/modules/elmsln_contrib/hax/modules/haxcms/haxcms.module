@@ -656,6 +656,13 @@ function haxcms_page_build(&$page) {
     if (!drupal_is_front_page() && arg(0) == "haxcms") {
       $href.= 'haxcms/';
     }
+    else {
+      // force the node to render the HAXcms content area
+      $page['page']['haxcms_node'] = array(
+        '#weight' => -10,
+        '#markup' => _haxcms_loader(),
+      );
+    }
     $tag = array(
       '#tag' => 'base',
       '#attributes' => array(
