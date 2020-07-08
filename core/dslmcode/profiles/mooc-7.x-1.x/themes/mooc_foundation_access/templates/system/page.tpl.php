@@ -4,7 +4,7 @@
     // support HAXcms loading in here
     if (variable_get('mooc-app-element', 'mooc-content') == 'haxcms' && function_exists('_haxcms_loader')) {
       $node = node_load(arg(1));
-      print _haxcms_loader($node);
+      drupal_render(_haxcms_loader($node));
     }
     else {
       print _webcomponents_app_load_app(variable_get('mooc-app-element', 'mooc-content'));      
