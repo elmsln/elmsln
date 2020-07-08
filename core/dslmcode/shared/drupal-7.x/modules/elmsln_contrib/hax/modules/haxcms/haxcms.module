@@ -653,7 +653,7 @@ function haxcms_page_build(&$page) {
   // HAXcms NEEDS base set to operate correctly
   if (_is_haxcms_context()) {
     $href = base_path();
-    if (!drupal_is_front_page()) {
+    if (!drupal_is_front_page() && arg(0) == "haxcms") {
       $href.= 'haxcms/';
     }
     $tag = array(
