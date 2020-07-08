@@ -79,11 +79,36 @@
  *
  * @ingroup themeable
  */
+  $logo = image_style_url('thumbnail', theme_get_setting('logo_path'));
+  $baseURI = base_path();
+  $siteAttributes = array();
+  // write content to screen, wrapped in tag to do all the work
+  if (isset($node->book['bid'])) {
+    $siteAttributes = array(
+      'file' => base_path() . 'haxapi/loadJOS/' . $node->book['bid'],
+      'base-uri' => $baseURI,
+    );
+    // deep developer function to allow full control over tag's properties
+    drupal_alter('haxcms_render_attributes', $siteAttributes);
+  }
+  $contents = '';
+  if (isset($node->body)) {
+    $contents = check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']);
+  }
 ?>
-<?php
-  print_r($node);
-  // We hide the comments and links now so that we can render them later.
-  hide($content['comments']);
-  hide($content['links']);
-  print render($content);
-?>
+<div id="loading">
+  <div class="messaging">
+    <img src="<?php print $logo;?>" alt="" loading="lazy" height="300px" width="300px" />
+    <div class="progress-line"></div>
+    <h1>Loading <?php print $node->title; ?>..</h1>
+  </div>
+</div>
+<haxcms-site-builder id="site"<?php print drupal_attributes($siteAttributes);?>>
+  <?php print $contents; ?>
+</haxcms-site-builder>
+<div id="haxcmsoutdatedfallback">
+  <div id="haxcmsoutdatedfallbacksuperold"> 
+    <div style="float:left;padding:16px 0;font-size:32px;text-align: center;width:100%;">Please use a modern browser to
+      view our website correctly. <a href="http://outdatedbrowser.com/">Update my browser now</a></div>
+  </div>
+</div>
