@@ -12,7 +12,7 @@ include_once __DIR__ . '/../../HAXapi/php/HAXAppStoreService.php';
  * This ensures that HAXcms's build script loads at the right times
  */
 function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
-  if (arg(0) == 'haxcms') {
+  if (_is_haxcms_context()) {
     // some Drupal markup hacks to go w/ the HAXcms build script
     $markup .= "\n" . '
     <style>#admin-menu .dropdown a {
@@ -601,7 +601,7 @@ function _haxcms_loader($node = NULL) {
  */
 function haxcms_custom_theme() {
   // this probably isn't required but acts as a fallback
-  if (arg(0) == 'haxcms') {
+  if (_is_haxcms_context()) {
     return _haxcms_drupal_theme();
   }
 }
@@ -651,7 +651,7 @@ function template_preprocess_haxcms(&$variables) {
  */
 function haxcms_page_build(&$page) {
   // HAXcms NEEDS base set to operate correctly
-  if (arg(0) == "haxcms") {
+  if (_is_haxcms_context()) {
     $href = base_path();
     if (!drupal_is_front_page()) {
       $href.= 'haxcms/';
@@ -664,6 +664,15 @@ function haxcms_page_build(&$page) {
     );
     drupal_add_html_head($tag, 'haxcms-base-tag');
   }
+}
+
+function _is_haxcms_context() {
+  $is = FALSE;
+  if (arg(0) == "haxcms") {
+    $is = TRUE;
+  }
+  drupal_alter('is_haxcms_context', $is);
+  return $is;
 }
 
 /**
