@@ -138,5 +138,6 @@ if (function_exists('variable_get')) {
   <?php print $page_top; ?>
   <?php print $page; ?>
   <?php print $page_bottom; ?>
+  <?php print $messages; ?>
 </body>
 </html>
