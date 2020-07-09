@@ -1,7 +1,8 @@
 // HAXcms specific clean up and platforn integration
 // this ties in custom theme files as well as removes DOM nodes related
 // to serving a legacy audience in the event this is evergreen (most times)
-try {
+if (/^h/.test(document.location)) {
+  try {
     var def = document.getElementsByTagName('script')[0];
     // if a dynamic import fails, we bail over to the compiled version
     new Function('import("");');
@@ -41,20 +42,28 @@ try {
       }
     }
   }
-  var cdn = "./";
-  if (window.__appCDN) {
-    cdn = window.__appCDN;
+} else {
+  // this implies we are offline, viewing the files locally
+  // so let's show the simplistic site viewer / iframe theme
+  if (document.getElementById('site')) {
+    document.getElementById('site').style.display = 'none';
+    document.getElementById('haxcmsoutdatedfallbacksuperold').style.display = 'block';
   }
-  // css files load faster when implemented this way
-  var link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = cdn + 'build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css';
-  link.type = 'text/css';
-  def.parentNode.insertBefore(link, def);
-  if (!window.__appCustomEnv) {
-    var link2 = document.createElement('link');
-    link2.rel = 'stylesheet';
-    link2.href = './theme/theme.css';
-    link2.type = 'text/css';
-    def.parentNode.insertBefore(link2, def);
-  }
+}
+var cdn = "./";
+if (window.__appCDN) {
+  cdn = window.__appCDN;
+}
+// css files load faster when implemented this way
+var link = document.createElement('link');
+link.rel = 'stylesheet';
+link.href = cdn + 'build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css';
+link.type = 'text/css';
+def.parentNode.insertBefore(link, def);
+if (!window.__appCustomEnv) {
+  var link2 = document.createElement('link');
+  link2.rel = 'stylesheet';
+  link2.href = './theme/theme.css';
+  link2.type = 'text/css';
+  def.parentNode.insertBefore(link2, def);
+}

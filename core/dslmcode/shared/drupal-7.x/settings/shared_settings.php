@@ -22,7 +22,6 @@ $conf['hax_autoload_element_list'] = '{
   "image-compare-slider": "@lrnwebcomponents/image-compare-slider/image-compare-slider.js",
   "license-element": "@lrnwebcomponents/license-element/license-element.js",
   "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
-  "lrn-calendar": "@lrnwebcomponents/lrn-calendar/lrn-calendar.js",
   "lrn-math": "@lrnwebcomponents/lrn-math/lrn-math.js",
   "lrn-table": "@lrnwebcomponents/lrn-table/lrn-table.js",
   "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
@@ -44,12 +43,13 @@ $conf['hax_autoload_element_list'] = '{
   "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
   "task-list": "@lrnwebcomponents/task-list/task-list.js",
   "video-player": "@lrnwebcomponents/video-player/video-player.js",
-  "wave-player": "@lrnwebcomponents/wave-player/wave-player.js",
   "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js",
   "lrndesign-gallery": "@lrnwebcomponents\/lrndesign-gallery\/lrndesign-gallery.js",
   "lrndesign-timeline": "@lrnwebcomponents\/lrndesign-timeline\/lrndesign-timeline.js",
   "html-block": "@lrnwebcomponents\/html-block\/html-block.js",
   "user-action": "@lrnwebcomponents\/user-action\/user-action.js",
+  "date-card": "@lrnwebcomponents/date-card/date-card.js",
+  "service-card": "@lrnwebcomponents/service-card/service-card.js",
   "rss-items": "@lrnwebcomponents/rss-items/rss-items.js",
   "cms-token": "@lrnwebcomponents/cms-hax/lib/cms-token.js"
 }';
