@@ -197,6 +197,9 @@ function outline_designer_book_admin_overview() {
     'export' => 'feeds_node_helper_export',
   );
   $headers = array(t('View'), t('Outline'));
+  if (module_exists('haxcms')) {
+    $headers = array_push(t('HAXcms'));
+  }
   // form simple add button
   drupal_add_css(drupal_get_path('module', 'outline_designer') .'/css/outline_designer.css');
   $add_button = l('<div style="width:120px;" class="context-menu context-menu-theme-'. variable_get('outline_designer_theme', 'osx') .'"><div title="" class="context-menu-item"><div style="background-repeat:no-repeat;background-image: url('. base_path() . drupal_get_path('module', 'outline_designer') .'/images/add_content.png);" class="context-menu-item-inner">'. t('add book') . '</div></div></div>', 'node/add/'. variable_get('book_child_type', 'book'), array('html' => TRUE, 'query' => array('destination' => 'admin/content/book', 'parent' => 'new')));
@@ -220,7 +223,12 @@ function outline_designer_book_admin_overview() {
   }
   // loop through books
   foreach (book_get_books() as $book) {
-    $ary = array(l($book['title'], $book['href'], $book['options']), l(t('edit order and titles'), "admin/content/book/". $book['nid']));
+    if (module_exists('haxcms')) {
+      $ary = array(l($book['title'], $book['href'], $book['options']), l(t('edit order and titles'), "admin/content/book/". $book['nid']), l(t('Load via HAXcms'), "haxcms/node/". $book['nid']));
+    }
+    else {
+      $ary = array(l($book['title'], $book['href'], $book['options']), l(t('edit order and titles'), "admin/content/book/". $book['nid']));
+    }
     foreach ($has as $key => $item) {
       if ($item) {
         $ary[] = l(t('@key book', array('@key' => $key)), $paths[$key] . '/' . $book['nid']);
