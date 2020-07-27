@@ -198,7 +198,7 @@ function outline_designer_book_admin_overview() {
   );
   $headers = array(t('View'), t('Outline'));
   if (module_exists('haxcms')) {
-    $headers = array_push($headers, t('HAXcms'));
+    $headers = array(t('View'), t('Outline'), t('HAXcms'));
   }
   // form simple add button
   drupal_add_css(drupal_get_path('module', 'outline_designer') .'/css/outline_designer.css');
