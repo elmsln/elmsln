@@ -31,6 +31,7 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
     // pull together sections for this course
     // pull together roster per section
     $roster = json_decode($_elmsln['args']['roster']);
+    $roster = __objectToArray($roster);
     // get section id from the arguments required for this to work
     $section_id = $_elmsln['args']['section'];
     // silly but this ensures we say "Yeah it's active" as we
@@ -83,4 +84,17 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
     'section_id' => $section_id,
     'message' => "Student added to course network",
   );
+}
+
+function __objectToArray($obj) {
+  if (is_object($obj)) $obj = (array)$obj;
+  if (is_array($obj)) {
+      $new = array();
+      foreach ($obj as $key => $val) {
+          $new[$key] = __objectToArray($val);
+      }
+  } else {
+      $new = $obj;
+  }
+  return $new;
 }
