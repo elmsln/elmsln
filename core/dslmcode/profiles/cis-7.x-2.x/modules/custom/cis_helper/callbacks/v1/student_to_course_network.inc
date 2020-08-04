@@ -69,7 +69,7 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
     );
     // need to set context just before making this call
     $_SESSION['cis_course_context'] = $course->field_machine_name[LANGUAGE_NONE][0]['value'];
-    $returned_data = _elmsln_api_network_request($requests, '1', TRUE, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/', TRUE);
+    $returned_data = _elmsln_api_network_request($requests, '1', FALSE, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/', TRUE);
   }
 
   return array(
@@ -77,6 +77,7 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
     'course' => $course,
     'roster' => $roster,
     'active' => $active,
+    'data_back' => $returned_data,
     'section_id' => $section_id,
     'message' => "Student added to course network",
   );
