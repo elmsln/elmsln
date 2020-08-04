@@ -32,9 +32,13 @@ function cis_course_service_elmsln_api_callback_sync_data_model() {
     }
     // build accounts from the roster
     if (isset($_elmsln['args']['roster'])) {
+      $defer = TRUE;
+      if (isset($_elmsln['args']['defer'])) {
+        $defer = $_elmsln['args']['defer'];
+      }
       // attempt to deserialize
       $roster = @unserialize($_elmsln['args']['roster']);
-      $processed = _cis_section_create_accounts($roster);
+      $processed = _cis_section_create_accounts($roster, $defer);
       // account for REALLY big call structures requiring multiple jobs
       // in this event, we should add ourselves back onto the stack
       // thus allowing the call to process further until it's completed
@@ -52,7 +56,6 @@ function cis_course_service_elmsln_api_callback_sync_data_model() {
     return array(
       'sync_data_model' => TRUE,
       'processed' => $processed,
-      'roster' => $roster,
       'message' => "Course service synced successfully",
     );
   }
