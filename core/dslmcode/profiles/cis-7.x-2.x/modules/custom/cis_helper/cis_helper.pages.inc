@@ -206,10 +206,8 @@ function cis_helper_course_redirect($course_name, $section_id) {
         'section' => $section_id,
       ),
     );
-    $response = _elmsln_api_request($request);
+    _elmsln_api_request($request);
   }
-  print $response;
-  exit;
   // load up the mooc based address and then redirect user to the front page
   $settings = _cis_connector_build_registry('mooc');
   $address = _cis_connector_format_address($settings, '/' . $course_name, 'front');
