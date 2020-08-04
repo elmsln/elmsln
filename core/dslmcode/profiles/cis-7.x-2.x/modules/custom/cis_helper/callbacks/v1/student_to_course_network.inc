@@ -12,9 +12,6 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
   if (isset($_elmsln['args']['course'])) {
     $nid = _cis_connector_get_course_by_machine_name($_elmsln['args']['course']);
   }
-  if (function_exists('dpm')) {
-    dpm($nid);
-  }
   // ensure we have a course node id from some where
   if (isset($nid)) {
     // we MUST be fully bootstrapped for this to work
@@ -33,7 +30,7 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
     $_elmsln['args']['__course_context'] = $course->field_machine_name[LANGUAGE_NONE][0]['value'];
     // pull together sections for this course
     // pull together roster per section
-    $roster = unserialize($_elmsln['args']['roster']);
+    $roster = json_decode($_elmsln['args']['roster']);
     // get section id from the arguments required for this to work
     $section_id = $_elmsln['args']['section'];
     // silly but this ensures we say "Yeah it's active" as we

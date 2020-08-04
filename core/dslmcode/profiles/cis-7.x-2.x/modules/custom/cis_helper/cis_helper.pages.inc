@@ -199,7 +199,7 @@ function cis_helper_course_redirect($course_name, $section_id) {
         'elmsln_module' => 'cis_helper',
         'elmsln_callback' => 'student_to_course_network',
         'course' => $course_name,
-        'roster' => $roster,
+        'roster' => json_encode($roster),
         'section' => $section_id,
       ),
     );
