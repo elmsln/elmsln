@@ -207,7 +207,7 @@ function cis_helper_course_redirect($course_name, $section_id) {
   }
   // load up the mooc based address and then redirect user to the front page
   $settings = _cis_connector_build_registry('mooc');
-  $address = _cis_connector_format_address($settings, $course_name, 'front');
+  $address = _cis_connector_format_address($settings, '/' . $course_name, 'front');
   drupal_goto($address);
 }
 /**
