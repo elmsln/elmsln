@@ -23,5 +23,6 @@ function fullUrlBuilder() {
         div.setAttribute('id', 'custom-div');
         document.getElementById('cis-helper-add-offering-page').appendChild(div);
     }
+    console.log(fullUrl);
     document.getElementById('custom-div').innerHTML = '<strong>Access URL:</strong> ' + fullUrl;
 }
