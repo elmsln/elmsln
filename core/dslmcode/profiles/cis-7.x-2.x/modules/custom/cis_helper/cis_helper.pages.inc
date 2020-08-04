@@ -208,11 +208,9 @@ function cis_helper_course_redirect($course_name, $section_id) {
     );
     $response = _elmsln_api_request($request);
   }
-  else {
-    // need to redirect for a login of some kind
-    drupal_goto('user/login', array('redirect_url' => base_path() . $_GET['q']));
-  }
+  print $uname . "\n";
   print_r($response);
+  print_r($_SERVER);
   exit;
   // load up the mooc based address and then redirect user to the front page
   $settings = _cis_connector_build_registry('mooc');
