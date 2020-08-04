@@ -41,29 +41,11 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
     $active = array(
       $section_id => TRUE,
     );
-    // ship it around the network
-    $requests = array(
-      array(
-        'method' => 'POST',
-        'api' => 1,
-        'data' => array(
-          'elmsln_module' => 'cis_course_authority',
-          'elmsln_callback' => 'sync_data_model',
-          'defer' => FALSE,
-          '__course_context' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
-          'roster' => serialize($roster),
-          'course' => $course_data,
-          'sections' => $active,
-        ),
-      )
-    );
-    _elmsln_api_authority_request($requests, TRUE, array('cis'), TRUE);
-    // queue of the same call against the course service network
     $requests = array(
       array(
         'elmsln_module' => 'cis_course_service',
         'elmsln_callback' => 'sync_data_model',
-        'defer' => FALSE,
+        'defer' => TRUE,
         '__course_context' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
         'roster' => serialize($roster),
         'course' => $course_data,
