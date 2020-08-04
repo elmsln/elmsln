@@ -51,6 +51,8 @@ function cis_course_service_elmsln_api_callback_sync_data_model() {
     }
     return array(
       'sync_data_model' => TRUE,
+      'processed' => $processed,
+      'roster' => $roster,
       'message' => "Course service synced successfully",
     );
   }
