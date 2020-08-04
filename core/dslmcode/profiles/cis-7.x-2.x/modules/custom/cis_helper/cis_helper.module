@@ -570,7 +570,7 @@ function cis_helper_page_build(&$page) {
   $node = menu_get_object();
   if (arg(0) == 'cis-add-offering') {
     drupal_add_css(drupal_get_path('module', 'cis_helper') . '/css/cis_helper_add_offering_page.css');
-    drupal_add_css(drupal_get_path('module', 'cis_helper') . '/js/cis_helper_add_offering_page.js');
+    drupal_add_js(drupal_get_path('module', 'cis_helper') . '/js/cis_helper_add_offering_page.js');
   }
   elseif (arg(0) == 'cis-quick-setup') {
     // special js for hiding / displaying groups of form fields
