@@ -635,8 +635,7 @@ function cis_helper_menu() {
     'description' => 'Redirect someone after granting access',
     'page callback' => 'cis_helper_course_redirect',
     'page arguments' => array(1, 2),
-    'access callback' => 'user_access',
-    'access arguments' => array('access iframe version'), // sanity anon / auth check
+    'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
