@@ -113,6 +113,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
   return array(
     'populate_course_network' => TRUE,
     'course' => $course,
+    'roster' => $roster,
     'message' => "Course network synced successfully",
   );
 }
