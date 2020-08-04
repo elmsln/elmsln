@@ -30,7 +30,7 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
     $_elmsln['args']['__course_context'] = $course->field_machine_name[LANGUAGE_NONE][0]['value'];
     // pull together sections for this course
     // pull together roster per section
-    $roster = $_elmsln['args']['roster'];
+    $roster = unserialize($_elmsln['args']['roster']);
     // get section id from the arguments required for this to work
     $section_id = $_elmsln['args']['section'];
     // silly but this ensures we say "Yeah it's active" as we
