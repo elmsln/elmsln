@@ -12,6 +12,9 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
   if (isset($_elmsln['args']['course'])) {
     $nid = _cis_connector_get_course_by_machine_name($_elmsln['args']['course']);
   }
+  if (function_exists('dpm')) {
+    dpm($nid);
+  }
   // ensure we have a course node id from some where
   if (isset($nid)) {
     // we MUST be fully bootstrapped for this to work
@@ -73,7 +76,7 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
   }
 
   return array(
-    'populate_course_network' => TRUE,
+    'student_to_course_network' => TRUE,
     'course' => $course,
     'message' => "Course network synced successfully",
   );
