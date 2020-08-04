@@ -1,31 +1,19 @@
 <?php
 
 /**
- * Callback to propagate course network.
+ * Callback to propagate course network with a premade roster;
+ * a singular student if nessecary.
+ * @see cis_helper.pages.inc for example implementation
  * @return bool if it was successfully cleared
  */
-function cis_helper_elmsln_api_callback_populate_course_network() {
+function cis_helper_elmsln_api_callback_student_to_course_network() {
   global $_elmsln;
   // see if course isset
   if (isset($_elmsln['args']['course'])) {
     $nid = _cis_connector_get_course_by_machine_name($_elmsln['args']['course']);
   }
-  // see if this is a queue based job to process
-  elseif (isset($_elmsln['args']['queue'])) {
-    // weird, but we'll call ourselves again in the background if
-    // we had an item in the queue
-    $queue = DrupalQueue::get('cis_course_process');
-    $item = $queue->claimItem();
-    $nid = $item->data;
-    $queue->deleteItem($item);
-  }
   // ensure we have a course node id from some where
   if (isset($nid)) {
-    $staff = array();
-    // load staff if they came across, they should
-    if (isset($_elmsln['args']['staff'])) {
-      $staff = $_elmsln['args']['staff'];
-    }
     // we MUST be fully bootstrapped for this to work
     drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
     // we MUST blow away the static cache on the registry otherwise it's possible that custom
@@ -41,24 +29,17 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     );
     $_elmsln['args']['__course_context'] = $course->field_machine_name[LANGUAGE_NONE][0]['value'];
     // pull together sections for this course
-    $sections = _cis_helper_course_access_strings($course);
     // pull together roster per section
-    $roster = _cis_helper_assemble_roster($sections);
-    $active = array();
-    // simplify section data so we can send along if its active or not
-    foreach ($sections as $section_id => $section) {
-      // mix in the staff people from CIS
-      // so they get section access
-      foreach ($staff as $uname => $mail) {
-        if (!isset($roster[$section_id][$uname]) && strpos($uname, 'SERVICE_') === FALSE) {
-          $roster[$section_id][$uname] = array(
-            'role' => 'staff',
-            'mail' => $mail,
-          );
-        }
-      }
-      $active[$section_id] = $section->active;
-    }
+    $roster = $_elmsln['args']['roster'];
+    // get section id from the arguments required for this to work
+    $section_id = $_elmsln['args']['section'];
+    // silly but this ensures we say "Yeah it's active" as we
+    // are roping this functionality into the piece that syncs full
+    // rosters across the network and are now using this for potential
+    // rosters of one.
+    $active = array(
+      $section_id => TRUE,
+    );
     // ship it around the network
     $requests = array(
       array(
@@ -89,25 +70,6 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     // need to set context just before making this call
     $_SESSION['cis_course_context'] = $course->field_machine_name[LANGUAGE_NONE][0]['value'];
     $returned_data = _elmsln_api_network_request($requests, '1', TRUE, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/', TRUE);
-    // ensure we have stuff in the queue before trying this
-    if (isset($_elmsln['args']['queue']) && $queue->numberOfItems() > 0) {
-      sleep(10);
-      // now kick off a call to do roster syncing that kicks the next item off the queue
-      // at the end of it
-      $nonblock = array(
-        'method' => 'POST',
-        'api' => '1',
-        'bucket' => 'cis',
-        'path' => '/',
-        'data' => array(
-          'elmsln_module' => 'cis_helper',
-          'elmsln_callback' => 'populate_course_network',
-          'queue' => TRUE,
-          'staff' => $staff,
-        ),
-      );
-      _elmsln_api_nonblocking_requests(array($nonblock), TRUE);
-    }
   }
 
   return array(

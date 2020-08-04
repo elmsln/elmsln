@@ -95,12 +95,17 @@ function cis_helper_add_offering_page($form, $form_state) {
     // fake an LTI launch to setup the page faster
     drupal_goto('cis-quick-setup', $options);
   }
+  // make sure that machine name is visualized
+  $course_list = _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'title');
+  foreach ($course_list as $cmachine => $ctitle) {
+    $course_list[$cmachine] = $ctitle . ' /' . $cmachine . '/';
+  }
   // select the course desired
   $form['courses'] = array(
     '#required' => '1',
     '#description' => t('The courses to establish the offering for'),
     '#type' => 'select',
-    '#options' => _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'title'),
+    '#options' => $course_list,
     '#title' => t('Course'),
     '#default_value' => $course,
   );
@@ -157,7 +162,54 @@ function cis_helper_add_offering_page($form, $form_state) {
   );
   return $form;
 }
-
+/**
+ * Grant access and redirect to the course in question
+ */
+function cis_helper_course_redirect($course_name, $section_id) {
+  $uname = FALSE;
+  if ($GLOBALS['user']->uid != 0) {
+    $uname = $GLOBALS['user']->name;
+  }
+  // @note webaccess hack specific to cosign in the event CIS does not allow
+  // user accounts. If it does, then this will work prior to this hack
+  else if (isset($_SERVER['REMOTE_USER'])) {
+    $uname = $_SERVER['REMOTE_USER'];
+  }
+  else if (isset($_SERVER['PHP_AUTH_USER'])) {
+    $uname = $_SERVER['PHP_AUTH_USER'];
+  }
+  // shouldn't be possible but if some how you get here without
+  // a user name, we should still issue the redirect but NOT do account
+  // setup as we don't know who you are :)
+  if ($uname != FALSE) {
+    // current active user
+    $roster = array(
+      $section_id => array(
+        $uname => 'student'
+      )
+    );
+    // now kick off a call to do roster syncing that kicks the next item off the queue
+    // at the end of it
+    $request = array(
+      'method' => 'POST',
+      'api' => '1',
+      'bucket' => 'cis',
+      'path' => '/',
+      'data' => array(
+        'elmsln_module' => 'cis_helper',
+        'elmsln_callback' => 'student_to_course_network',
+        'course' => $course_name,
+        'roster' => $roster,
+        'section' => $section_id,
+      ),
+    );
+    _elmsln_api_request($request);
+  }
+  // load up the mooc based address and then redirect user to the front page
+  $settings = _cis_connector_build_registry('mooc');
+  $address = _cis_connector_format_address($settings, $course_name, 'front');
+  drupal_goto($address);
+}
 /**
  * Submit handler for cis_helper_add_offering_page.
  */
@@ -170,22 +222,22 @@ function cis_helper_add_offering_page_submit($form, $form_state) {
   $state['values']['campus'] = check_plain($form_state['values']['campus']);
   $state['pass_through'] = TRUE;
   $state['triggering_element']['#parents'][0] = 'submit';
-
+  global $base_url;
   // fake submit form
   drupal_form_submit('cis_helper_quick_setup_page', $state);
+  // present details on what they did and how to form a link
+  $vars = array(
+    '@string' => $form_state['values']['access_string'],
+    '@accessUrl' => $base_url . base_path() . 'course-redirect/' . $form_state['values']['courses'] . '/' . $form_state['values']['access_string'],
+    '@course' => $form_state['values']['courses'],
+    '@semester' => $form_state['values']['semester'],
+    '@year' => $form_state['values']['year'],
+    '@campus' => $form_state['values']['campus'],
+    );
+    drupal_set_message(t('Successfully created @course @semester @year @campus offering with access ID @string. Use @accessUrl for people to gain access based on accessing a URL!', $vars), 'status');
   // if told to just Add
   if ($form_state['values']['op'] == 'Add offering') {
     drupal_goto(check_plain($form_state['values']['courses']) . '/offerings');
-  }
-  else {
-    $vars = array(
-      '@string' => $form_state['values']['access_string'],
-      '@course' => $form_state['values']['courses'],
-      '@semester' => $form_state['values']['semester'],
-      '@year' => $form_state['values']['year'],
-      '@campus' => $form_state['values']['campus'],
-      );
-    drupal_set_message(t('Successfully created @course @semester @year @campus offering with access ID @string!', $vars), 'notification');
   }
 }
 

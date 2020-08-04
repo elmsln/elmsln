@@ -570,6 +570,7 @@ function cis_helper_page_build(&$page) {
   $node = menu_get_object();
   if (arg(0) == 'cis-add-offering') {
     drupal_add_css(drupal_get_path('module', 'cis_helper') . '/css/cis_helper_add_offering_page.css');
+    drupal_add_css(drupal_get_path('module', 'cis_helper') . '/js/cis_helper_add_offering_page.js');
   }
   elseif (arg(0) == 'cis-quick-setup') {
     // special js for hiding / displaying groups of form fields
@@ -625,6 +626,17 @@ function cis_helper_menu() {
     'access arguments' => array('update', 1),
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'cis_helper.pages.inc',
+    'file path' => $path,
+  );
+  // grant course access based on the user that hits the end point
+  $items['course-redirect/%/%'] = array(
+    'title' => 'Course access redirect',
+    'description' => 'Redirect someone after granting access',
+    'page callback' => 'cis_helper_course_redirect',
+    'page arguments' => array(1, 2),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
     'file' => 'cis_helper.pages.inc',
     'file path' => $path,
   );
@@ -1702,6 +1714,12 @@ function cis_helper_elmsln_api_info() {
     'methods' => array('POST'),
     'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
     'file' => 'callbacks/v1/populate_course_network.inc',
+  );
+  // student to course network
+  $callbacks['student_to_course_network'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
+    'file' => 'callbacks/v1/student_to_course_network.inc',
   );
 
   return $callbacks;
