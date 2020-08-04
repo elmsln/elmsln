@@ -4,13 +4,15 @@
  */
 (function ($) {
     $(document).ready(function(){
-        fullUrlBuilder();
-        document.getElementById('edit-courses').addEventListener('change', function(e){
+        setTimeout(function() {
             fullUrlBuilder();
-        });
-        document.getElementById('edit-access-string').addEventListener('input', function(e){
-            fullUrlBuilder();
-        });
+            document.getElementById('edit-courses').addEventListener('change', function(e){
+                fullUrlBuilder();
+            });
+            document.getElementById('edit-access-string').addEventListener('input', function(e){
+                fullUrlBuilder();
+            });
+        }, 5000);
     });
 })
 
