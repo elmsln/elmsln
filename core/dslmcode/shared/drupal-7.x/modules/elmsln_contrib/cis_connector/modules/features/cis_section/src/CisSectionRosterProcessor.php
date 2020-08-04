@@ -246,7 +246,7 @@ class CisSectionRosterProcessor {
         'name' => $name,
         'status' => 1,
         'roles' => array($role_id => $role_name),
-      ) + $user_data;
+      ) + (array)$user_data;
       unset($values['role']);
 
       // Generate a random password if we don't have one.

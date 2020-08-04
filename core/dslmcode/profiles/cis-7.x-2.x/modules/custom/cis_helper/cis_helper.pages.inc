@@ -187,10 +187,7 @@ function cis_helper_course_redirect($course_name, $section_id) {
       $section_id => array(
         $uname => array(
           'role' => 'student',
-          'mail' => $uname . '@psu.edu',
-          'fname' => '',
-          'lname' => '',
-          'data' => array()
+          'mail' => $uname . '@' . variable_get("cis_helper_mail_domain", "psu.edu"),
         )
       )
     );
