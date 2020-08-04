@@ -210,7 +210,7 @@ function cis_helper_course_redirect($course_name, $section_id) {
   }
   else {
     // need to redirect for a login of some kind
-    drupal_goto('user/login?redirect_url=' . base_path() . $_GET['q']);
+    drupal_goto('user/login', array('redirect_url' => $_GET['q']));
   }
   print_r($response);
   exit;
