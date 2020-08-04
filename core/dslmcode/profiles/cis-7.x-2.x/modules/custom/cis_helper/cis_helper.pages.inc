@@ -185,7 +185,13 @@ function cis_helper_course_redirect($course_name, $section_id) {
     // current active user
     $roster = array(
       $section_id => array(
-        $uname => 'student'
+        $uname => array(
+          'role' => 'student',
+          'mail' => $uname . '@psu.edu',
+          'fname' => '',
+          'lname' => '',
+          'data' => array()
+        )
       )
     );
     // now kick off a call to do roster syncing that kicks the next item off the queue
