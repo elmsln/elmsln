@@ -75,6 +75,9 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
   return array(
     'student_to_course_network' => TRUE,
     'course' => $course,
-    'message' => "Course network synced successfully",
+    'roster' => $roster,
+    'active' => $active,
+    'section_id' => $section_id,
+    'message' => "Student added to course network",
   );
 }
