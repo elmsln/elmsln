@@ -211,7 +211,10 @@ function cis_helper_course_redirect($course_name, $section_id) {
   // load up the mooc based address and then redirect user to the front page
   $settings = _cis_connector_build_registry('mooc');
   $address = _cis_connector_format_address($settings, '/' . $course_name, 'front');
-  drupal_goto($address);
+  // delay so they get the role / user object cleared
+  sleep(1);
+  // redirect to the course + activate the section for the user
+  drupal_goto($address, array('query' => array('elmsln_active_section' => $section_id)));
 }
 /**
  * Submit handler for cis_helper_add_offering_page.
