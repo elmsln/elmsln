@@ -630,7 +630,7 @@ function cis_helper_menu() {
     'file path' => $path,
   );
   // grant course access based on the user that hits the end point
-  $items['course-redirect/%/%/%'] = array(
+  $items['course-redirect/%/%'] = array(
     'title' => 'Course access redirect',
     'description' => 'Redirect someone after granting access',
     'page callback' => 'cis_helper_course_redirect',
