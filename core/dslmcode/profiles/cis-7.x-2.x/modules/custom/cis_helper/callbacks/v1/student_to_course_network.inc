@@ -44,12 +44,10 @@ function cis_helper_elmsln_api_callback_student_to_course_network() {
     $requests = array(
       array(
         'elmsln_module' => 'cis_course_service',
-        'elmsln_callback' => 'sync_data_model',
-        'defer' => FALSE,
+        'elmsln_callback' => 'process_roster',
         '__course_context' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
         'roster' => serialize($roster),
-        'course' => $course_data,
-        'sections' => $active,
+        'course' => $course_data
       )
     );
     // need to set context just before making this call

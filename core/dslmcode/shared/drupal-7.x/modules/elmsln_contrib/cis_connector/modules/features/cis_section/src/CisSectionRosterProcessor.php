@@ -255,7 +255,7 @@ class CisSectionRosterProcessor {
       }
 
       // allow other projects to update part of the user
-      drupal_alter('cis_section_user_insert', $fields, $userdata);
+      drupal_alter('cis_section_user_insert', $values, $user_data);
 
       // the first parameter is left blank so a new user is created
       $account = user_save('', $values);
@@ -308,7 +308,7 @@ class CisSectionRosterProcessor {
 
     // allow other things to react to an account being processed
     // via this job
-    drupal_alter('cis_section_account_processed', $account, $userdata);
+    drupal_alter('cis_section_account_processed', $account, $user_data);
   }
 
   /**
