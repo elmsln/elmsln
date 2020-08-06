@@ -81,6 +81,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
       array(
         'elmsln_module' => 'cis_course_service',
         'elmsln_callback' => 'sync_data_model',
+        'defer' => FALSE,
         '__course_context' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
         'roster' => serialize($roster),
         'course' => $course_data,
