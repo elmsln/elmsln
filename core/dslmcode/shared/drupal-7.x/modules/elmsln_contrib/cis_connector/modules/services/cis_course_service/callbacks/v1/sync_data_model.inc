@@ -38,8 +38,14 @@ function cis_course_service_elmsln_api_callback_sync_data_model() {
       }
       // attempt to deserialize
       $roster = @unserialize($_elmsln['args']['roster']);
-      $processed = _cis_section_create_accounts((array)$roster, $defer);
+      $object_msg = 'Object: ' . var_export($roster, TRUE);
+      watchdog('PHP', "%object", array('%object' => $object_msg), WATCHDOG_ERROR);
       // account for REALLY big call structures requiring multiple jobs
+      $processed = _cis_section_create_accounts((array)$roster, $defer);
+      $defer_msg = 'defer: ' . var_export($defer, TRUE);
+      $processed_msg = 'processed: ' . var_export($processed, TRUE);
+      watchdog('PHP', "%object", array('%object' => $defer_msg), WATCHDOG_ERROR);
+      watchdog('PHP', "%object", array('%object' => $processed_msg), WATCHDOG_ERROR);
       // in this event, we should add ourselves back onto the stack
       // thus allowing the call to process further until it's completed
       // at which point the next child down would do the same!
