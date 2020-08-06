@@ -74,12 +74,12 @@ class HAXCMS
         $settings->redirectUrl = $this->basePath; // enables redirecting back to site root if JWT really is dead
         $settings->themes = $this->getThemes();
         $settings->saveNodePath = $path . 'saveNode/' . drupal_get_token('hax');
-        $settings->saveManifestPath = $path . 'saveManifest';
-        $settings->saveOutlinePath = $path . 'saveOutline';
-        $settings->setConfigPath = $path . 'setConfig';
-        $settings->getConfigPath = $path . 'getConfig';
-        $settings->getNodeFieldsPath = $path . 'getNodeFields';
-        $settings->getSiteFieldsPath = $path . 'formLoad?haxcms_form_id=siteSettings';
+        //$settings->saveManifestPath = $path . 'saveManifest';
+        //$settings->saveOutlinePath = $path . 'saveOutline';
+        //$settings->setConfigPath = $path . 'setConfig';
+        //$settings->getConfigPath = $path . 'getConfig';
+        //$settings->getNodeFieldsPath = $path . 'getNodeFields';
+        //$settings->getSiteFieldsPath = $path . 'formLoad?haxcms_form_id=siteSettings';
         // form token to validate form submissions as unique to the session
         $settings->getFormToken = drupal_get_token('hax');
         $settings->createNodePath = $path . 'createNode/' . drupal_get_token('hax');
