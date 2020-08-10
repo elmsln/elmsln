@@ -74,6 +74,9 @@ class HAXCMS
         $settings->redirectUrl = $this->basePath; // enables redirecting back to site root if JWT really is dead
         $settings->themes = $this->getThemes();
         $settings->saveNodePath = $path . 'saveNode/' . drupal_get_token('hax');
+        $settings->backLink = base_path();
+        $settings->backText = t('Back to front page');
+        // @todo comment in when we implement these in Drupal
         //$settings->saveManifestPath = $path . 'saveManifest';
         //$settings->saveOutlinePath = $path . 'saveOutline';
         //$settings->setConfigPath = $path . 'setConfig';

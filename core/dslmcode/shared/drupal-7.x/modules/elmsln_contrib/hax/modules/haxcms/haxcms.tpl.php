@@ -26,6 +26,7 @@
 </div>
 <haxcms-site-builder id="site"<?php print drupal_attributes($siteAttributes);?>>
   <?php print $contents; ?>
+  <?php print $slots; ?>
 </haxcms-site-builder>
 <div id="haxcmsoutdatedfallback">
   <div id="haxcmsoutdatedfallbacksuperold"> 

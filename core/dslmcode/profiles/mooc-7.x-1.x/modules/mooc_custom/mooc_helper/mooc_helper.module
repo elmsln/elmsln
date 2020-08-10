@@ -15,13 +15,67 @@ include_once 'mooc_helper.features.inc';
  */
 function mooc_helper_webcomponents_build_file_location_alter(&$locations) {
   // figure out the app that should also be autoloaded into the build
-  if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '' && _webcomponents_app_access(variable_get('mooc-app-element', 'mooc-content'))) {
-    $app = webcomponents_app_load_app_definitions(variable_get('mooc-app-element', 'mooc-content'));
+  if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '' && _webcomponents_app_access(variable_get('mooc_app_element', 'mooc-content'))) {
+    $app = webcomponents_app_load_app_definitions(variable_get('mooc_app_element', 'mooc-content'));
     // support dynamic app file loading
     if ($app['element']) {
       array_push($locations, $app['element']);
     }
   }
+}
+
+/**
+ * Implements hook_haxcms_slots().
+ */
+function mooc_helper_haxcms_slots() {
+  $ary = array(
+    array(
+      'path' => 'admin/content/book',
+      'title' => t('Outline designer'),
+      'icon' => 'hax:site-map',
+    ),
+    array(
+      'path' => 'admin/config/content/haxcms',
+      'title' => t('Theme settings'),
+      'icon' => 'icons:view-quilt',
+    ),
+    array(
+      'path' => 'admin/content/book/sar',
+      'title' => t('Search and Replace'),
+      'icon' => 'icons:find-replace',
+    ),
+    array(
+      'path' => 'elmsln/course-settings',
+      'title' => t('Course settings'),
+      'icon' => 'hax:site-settings',
+    ),
+    array(
+      'path' => 'cis/section-list',
+      'title' => t('Section list'),
+      'icon' => 'icons:list',
+    ),
+  );
+  $slots = '';
+  foreach ($ary as $item) {
+    $slots .= '
+    <a href="' . base_path() . $item['path'] . '" tabindex="-1" slot="haxcms-site-editor-ui-suffix-buttons">
+      <paper-icon-button
+        icon="' . $item['icon'] . '"
+        title="' . $item['title'] . '"
+        style="
+          display: flex;
+          background-color: black;
+          color: white;
+          border-radius: 50%;
+          width: 48px;
+          height: 48px;
+          padding: 8px;
+          margin: 0;
+      "></paper-icon-button>
+    </a>
+  ';
+  }
+  return $slots;
 }
 
 /**
@@ -633,7 +687,7 @@ function mooc_helper_page_build(&$page) {
  * This allows MOOC to dictate on other paths that yes, it is in context
  */
 function mooc_helper_is_haxcms_context_alter(&$is) {
-  if (arg(0) == 'node' && variable_get('mooc-app-element', 'mooc-content') == 'haxcms') {
+  if (arg(0) == 'node' && variable_get('mooc_app_element', 'mooc-content') == 'haxcms') {
     $is = TRUE;
   }
 }
@@ -754,6 +808,17 @@ function mooc_helper_elmsln_core_service_settings($section = NULL) {
     '#type' => 'select',
     '#required' => $require,
     '#options' => $outlines,
+  );
+  $options['mooc_app_element'] = array(
+    '#description' => t('The theme and visual approach to use when presenting content'),
+    '#default_value' => variable_get('mooc_app_element', 'mooc-content'),
+    '#weight' => '0',
+    '#title' => t('Theme engine'),
+    '#type' => 'select',
+    '#options' => array(
+      'mooc-content' => t('ELMS:LN'),
+      'haxcms' => t('HAXcms engine'),
+    ),
   );
   // if section in scope we need to send back this section's setting for this
   if (!is_null($section)) {

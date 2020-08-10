@@ -121,7 +121,7 @@ function haxcms_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('haxcms_settings'),
     'type' => MENU_NORMAL_ITEM,
-    'access arguments' => array('administer site configuration'),
+    'access arguments' => array('administer haxcms settings'),
   );
   return $items;
 }
@@ -592,8 +592,18 @@ function _haxcms_loader($node = NULL) {
       'node' => $node,
       'logo' => image_style_url('thumbnail', theme_get_setting('logo_path')),
       'siteAttributes' => $siteAttributes,
+      'slots' => _haxcms_get_slots(),
       'contents' => check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])));
   }
+}
+
+/**
+ * Hooks to allow for slots to be pulled in
+ */
+function _haxcms_get_slots() {
+  $slots = module_invoke_all('haxcms_slots');
+  drupal_alter('haxcms_slots', $slots);
+  return $slots;
 }
 
 /**
@@ -623,6 +633,7 @@ function haxcms_theme() {
         'siteAttributes' => NULL,
         'node' => NULL,
         'logo' => NULL,
+        'slots' => NULL,
         'contents' => NULL),
       'template' => 'haxcms',
     ),
@@ -673,6 +684,18 @@ function _is_haxcms_context() {
   }
   drupal_alter('is_haxcms_context', $is);
   return $is;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function haxcms_permission() {
+  return array(
+    'administer haxcms settings' =>  array(
+      'title' => t('Change HAXcms settings'),
+      'description' => t('Influence HAXcms internal settings which affect the creation of the site.json file that powers HAXcms site builder tag.'),
+    ),
+  );
 }
 
 /**

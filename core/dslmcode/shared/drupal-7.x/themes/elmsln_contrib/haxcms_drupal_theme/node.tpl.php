@@ -95,6 +95,7 @@
   if (isset($node->body)) {
     $contents = check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']);
   }
+  $slots = _haxcms_get_slots();
 ?>
 <div id="loading">
   <div class="messaging">
@@ -104,7 +105,8 @@
   </div>
 </div>
 <haxcms-site-builder id="site"<?php print drupal_attributes($siteAttributes);?>>
-  <?php print $contents; ?>
+<?php print $contents; ?>
+<?php print $slots; ?>
 </haxcms-site-builder>
 <div id="haxcmsoutdatedfallback">
   <div id="haxcmsoutdatedfallbacksuperold"> 
