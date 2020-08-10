@@ -58,7 +58,7 @@ function mooc_helper_haxcms_slots() {
   $slots = '<div slot="haxcms-site-editor-ui-suffix-buttons">';
   foreach ($ary as $item) {
     $slots .= '
-    <a href="' . base_path() . $item['path'] . '" tabindex="-1">
+    <a href="' . base_path() . $item['path'] . '" tabindex="-1" target="_blank">
       <paper-icon-button
         icon="' . $item['icon'] . '"
         title="' . $item['title'] . '"
