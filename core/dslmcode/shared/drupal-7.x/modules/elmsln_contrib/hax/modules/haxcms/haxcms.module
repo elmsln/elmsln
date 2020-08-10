@@ -603,7 +603,11 @@ function _haxcms_loader($node = NULL) {
 function _haxcms_get_slots() {
   $slots = module_invoke_all('haxcms_slots');
   drupal_alter('haxcms_slots', $slots);
-  return $slots;
+  $content = '';
+  foreach ($slots as $slot) {
+    $content .= $slot;
+  }
+  return $content;
 }
 
 /**
