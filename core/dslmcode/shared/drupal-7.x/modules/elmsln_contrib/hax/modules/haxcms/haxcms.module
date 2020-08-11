@@ -411,9 +411,11 @@ function _haxcms_getNodeContent($node) {
   if (!isset($body[0]['value']) || $body[0]['value'] == '') {
     $body[0]['value'] = '<p></p>';
   }
+  // should be a format..
   if (!isset($body[0]['format']) || $body[0]['format'] == '') {
     $body[0]['format'] = filter_default_format();
   }
+  print_r($node);
   print check_markup($body[0]['value'], $body[0]['format']);
   exit;
 }

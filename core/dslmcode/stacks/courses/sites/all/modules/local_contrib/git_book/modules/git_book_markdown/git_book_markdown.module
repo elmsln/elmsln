@@ -142,6 +142,9 @@ function _git_book_markdown_book_root_path($nid = NULL) {
     if (isset($GLOBALS['__gbm_active_nid'])) {
       $nid = $GLOBALS['__gbm_active_nid'];
     }
+    else if (arg(0) == 'haxcms' && arg(1) == 'node') {
+      $nid = arg(2);
+    }
     else {
       $nid = arg(1);
     }
