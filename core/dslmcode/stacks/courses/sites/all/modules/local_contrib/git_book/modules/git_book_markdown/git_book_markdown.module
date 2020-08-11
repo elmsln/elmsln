@@ -145,6 +145,9 @@ function _git_book_markdown_book_root_path($nid = NULL) {
     else if (arg(0) == 'haxcms' && arg(1) == 'node') {
       $nid = arg(2);
     }
+    else if (arg(0) == 'haxapi' && arg(1) == 'getNodeContent') {
+      $nid = arg(2);
+    }
     else {
       $nid = arg(1);
     }

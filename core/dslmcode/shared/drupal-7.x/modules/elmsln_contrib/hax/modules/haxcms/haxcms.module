@@ -405,18 +405,24 @@ function _haxcms_saveNode($token) {
  * Render just the node body and display
  */
 function _haxcms_getNodeContent($node) {
-  $body = field_get_items('node', $node, 'body');
-  // if we dont have content then make it an empty p node
-  // or HAX will be annoyed
-  if (!isset($body[0]['value']) || $body[0]['value'] == '') {
-    $body[0]['value'] = '<p></p>';
+  // if we already have a "safe value" then just return it
+  if (isset($node->body[0]['safe_value'])) {
+    print $node->body[0]['safe_value'];
   }
-  // should be a format..
-  if (!isset($body[0]['format']) || $body[0]['format'] == '') {
-    $body[0]['format'] = filter_default_format();
+  else {
+    // in the event that we don't have it via the loading of a node
+    $body = field_get_items('node', $node, 'body');
+    // if we dont have content then make it an empty p node
+    // or HAX will be annoyed
+    if (!isset($body[0]['value']) || $body[0]['value'] == '') {
+      $body[0]['value'] = '<p></p>';
+    }
+    // should be a format..
+    if (!isset($body[0]['format']) || $body[0]['format'] == '') {
+      $body[0]['format'] = filter_default_format();
+    }
+    print check_markup($body[0]['value'], $body[0]['format']);
   }
-  print_r($node);
-  print check_markup($body[0]['value'], $body[0]['format']);
   exit;
 }
 
