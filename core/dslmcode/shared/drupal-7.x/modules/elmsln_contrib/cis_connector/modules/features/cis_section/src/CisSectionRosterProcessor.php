@@ -206,7 +206,7 @@ class CisSectionRosterProcessor {
       }
     }
     // Otherwise, if there are any students to archive, process them.
-    elseif (!empty($this->archiveStudents) && variable_get('cis_section_strict_access', CIS_SECTION_STRICT_ACCESS)) {
+    elseif (!empty($this->archiveStudents)) {
       $this->archiveStudent(array_shift($this->archiveStudents));
     }
     // Otherwise it looks like there's nothing to do.
@@ -393,9 +393,11 @@ class CisSectionRosterProcessor {
     $student = user_role_load_by_name(CIS_SECTION_STUDENT);
     $current = _cis_section_load_users_by_gid($gid, $student->rid);
 
-    // find users that no longer came across
-    $diff = array_diff($current, $this->actualStudents);
-    $this->archiveStudents = array_merge($this->archiveStudents, $diff);
+    // find users that no longer came across but only if in strict access mode
+    if (variable_get('cis_section_strict_access', CIS_SECTION_STRICT_ACCESS)) {
+      $diff = array_diff($current, $this->actualStudents);
+      $this->archiveStudents = array_merge($this->archiveStudents, $diff);
+    }
   }
 
   /**
