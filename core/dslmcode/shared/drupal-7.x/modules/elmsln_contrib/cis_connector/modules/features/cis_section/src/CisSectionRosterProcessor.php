@@ -139,6 +139,7 @@ class CisSectionRosterProcessor {
       }
       $this->processed++;
     }
+    watchdog('processed', $this->processed,$this->processed);
 
     // If we are not finished, queue ourselves.
     if (!$this->isFinished()) {
