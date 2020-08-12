@@ -134,13 +134,19 @@ class CisSectionRosterProcessor {
 
     // Process items until we have to stop.
     while ($this->batchSize == self::BATCH_UNLIMITED || $this->processed < $this->batchSize) {
+      if (function_exists('watchdog')) {
+        watchdog('here', 'wtf');
+      }
       if (!$this->processItem()) {
         break;
       }
       $this->processed++;
     }
     if (function_exists('watchdog')) {
+      watchdog('batchSize', $this->batchSize);
+      watchdog('self::BATCH_UNLIMITED', self::BATCH_UNLIMITED);
       watchdog('processed', $this->processed);
+      watchdog('batchSize', $this->batchSize);
     }
     // If we are not finished, queue ourselves.
     if (!$this->isFinished()) {
