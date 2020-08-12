@@ -184,6 +184,7 @@ class CisSectionRosterProcessor {
    */
   protected function processItem() {
     watchdog('?',serialize($this->roster));
+    watchdog('archive',serialize($this->archiveStudents));
     // If the roster is not empty, continue to process it.
     if (!empty($this->roster)) {
       // Get the section and group.
