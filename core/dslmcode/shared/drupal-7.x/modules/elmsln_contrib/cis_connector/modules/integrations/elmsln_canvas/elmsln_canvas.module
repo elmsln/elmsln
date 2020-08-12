@@ -126,34 +126,36 @@ function elmsln_canvas_cis_helper_build_roster($section) {
   $users = $canvas->getEnrollment('sis_course_id:' . $section, 'course');
   // loop over resulting members and build into user array
   foreach ($users as $member) {
-    // get the name from email
-    $name = _elmsln_canvas_scrub_sis_user($member['sis_user_id']);
-    // get role as an elms one
-    $role = _elmsln_canvas_convert_role($member['role']);
-    // pull out full name
-    $fullname = explode(', ', $member['user']['sortable_name']);
-    if (count($fullname) == 2) {
-      $lname = $fullname[0];
-      $fname = $fullname[1];
+    if (isset($member['sis_user_id'])) {
+      // get the name from email
+      $name = _elmsln_canvas_scrub_sis_user($member['sis_user_id']);
+      // get role as an elms one
+      $role = _elmsln_canvas_convert_role($member['role']);
+      // pull out full name
+      $fullname = explode(', ', $member['user']['sortable_name']);
+      if (count($fullname) == 2) {
+        $lname = $fullname[0];
+        $fname = $fullname[1];
+      }
+      else {
+        $fname = '';
+        $lname = '';
+      }
+      // support ripping out the avatar_url if it's default
+      if (strpos($member['user']['avatar_url'], CANVAS_DEFAULT_AVATAR_NAME)) {
+        unset($member['user']['avatar_url']);
+      }
+      // build the roster array
+      $roster[$name] = array(
+        'role'  => $role,
+        'mail'  => $member['sis_user_id'],
+        'fname' => $fname,
+        'lname' => $lname,
+        'data'  => array(
+          'sis' => $member['user'],
+        ),
+      );
     }
-    else {
-      $fname = '';
-      $lname = '';
-    }
-    // support ripping out the avatar_url if it's default
-    if (strpos($member['user']['avatar_url'], CANVAS_DEFAULT_AVATAR_NAME)) {
-      unset($member['user']['avatar_url']);
-    }
-    // build the roster array
-    $roster[$name] = array(
-      'role'  => $role,
-      'mail'  => $member['sis_user_id'],
-      'fname' => $fname,
-      'lname' => $lname,
-      'data'  => array(
-        'sis' => $member['user'],
-      ),
-    );
   }
   return $roster;
 }

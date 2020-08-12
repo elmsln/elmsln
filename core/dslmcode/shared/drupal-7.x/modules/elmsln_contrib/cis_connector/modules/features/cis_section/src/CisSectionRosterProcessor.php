@@ -103,6 +103,7 @@ class CisSectionRosterProcessor {
     // If the default is requested, retrieve it from settings.
     if ($batch_size = self::BATCH_DEFAULT) {
       $this->batchSize = variable_get(self::BATCH_VARIABLE, self::BATCH_UNLIMITED);
+      watchdog('PHP', $this->batchSize);
     }
     // Otherwise we can just set it.
     else {

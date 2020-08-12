@@ -32,14 +32,10 @@ function cis_course_service_elmsln_api_callback_sync_data_model() {
     }
     // build accounts from the roster
     if (isset($_elmsln['args']['roster'])) {
-      $defer = TRUE;
-      if (isset($_elmsln['args']['defer'])) {
-        $defer = $_elmsln['args']['defer'];
-      }
       // attempt to deserialize
       $roster = @unserialize($_elmsln['args']['roster']);
       // account for REALLY big call structures requiring multiple jobs
-      $processed = _cis_section_create_accounts((array)$roster, $defer);
+      $processed = _cis_section_create_accounts((array)$roster);
       // in this event, we should add ourselves back onto the stack
       // thus allowing the call to process further until it's completed
       // at which point the next child down would do the same!
