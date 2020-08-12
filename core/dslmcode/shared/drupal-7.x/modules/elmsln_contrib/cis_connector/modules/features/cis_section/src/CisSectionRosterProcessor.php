@@ -131,7 +131,12 @@ class CisSectionRosterProcessor {
     // Reset everything so we start from the beginning.
     $this->processed = 0;
     reset($this->roster);
-
+    if (function_exists('watchdog')) {
+      watchdog('batchSize', $this->batchSize);
+      watchdog('self::BATCH_UNLIMITED', serialize(self::BATCH_UNLIMITED));
+      watchdog('processed', $this->processed);
+      watchdog('batchSize', $this->batchSize);
+    }
     // Process items until we have to stop.
     while ($this->batchSize == self::BATCH_UNLIMITED || $this->processed < $this->batchSize) {
       if (function_exists('watchdog')) {
@@ -141,12 +146,6 @@ class CisSectionRosterProcessor {
         break;
       }
       $this->processed++;
-    }
-    if (function_exists('watchdog')) {
-      watchdog('batchSize', $this->batchSize);
-      watchdog('self::BATCH_UNLIMITED', self::BATCH_UNLIMITED);
-      watchdog('processed', $this->processed);
-      watchdog('batchSize', $this->batchSize);
     }
     // If we are not finished, queue ourselves.
     if (!$this->isFinished()) {
@@ -184,6 +183,7 @@ class CisSectionRosterProcessor {
    *   Whether we have processed an item.
    */
   protected function processItem() {
+    watchdog('?',serialize($this->roster));
     // If the roster is not empty, continue to process it.
     if (!empty($this->roster)) {
       // Get the section and group.
