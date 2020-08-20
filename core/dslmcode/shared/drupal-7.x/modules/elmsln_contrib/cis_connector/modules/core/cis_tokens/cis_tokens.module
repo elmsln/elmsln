@@ -106,6 +106,10 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
       if (isset($section_tokens[$name])) {
         $replacements[$original] = $section_tokens[$name];
       }
+      // special support for section context
+      if ($name == 'section_context') {
+        $replacements[$original] = _cis_connector_section_context();
+      }
     }
   }
   // tokens from cis
