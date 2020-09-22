@@ -10,6 +10,7 @@ $conf['webcomponents_project_location'] = 'sites/all/libraries/webcomponents/';
 $conf['webcomponents_project_local_build_file'] = TRUE;
 // baseline HAX elements
 $conf['hax_autoload_element_list'] = '{
+  "a11y-collapse": "@lrnwebcomponents/a11y-collapse/a11y-collapse.js",
   "a11y-figure": "@lrnwebcomponents/a11y-figure/a11y-figure.js",
   "lrndesign-chart": "@lrnwebcomponents/lrndesign-chart/lrndesign-chart.js",
   "accent-card": "@lrnwebcomponents/accent-card/accent-card.js",
