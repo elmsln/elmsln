@@ -114,6 +114,7 @@ fi
     service apache2 restart
     service php5-fpm restart
     service php7.0-fpm restart
+    service php7.2-fpm restart
   else
     service httpd restart
     service mysqld restart
