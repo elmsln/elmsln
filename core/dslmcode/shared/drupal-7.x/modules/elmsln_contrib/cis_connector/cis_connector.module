@@ -1959,23 +1959,15 @@ function _cis_connector_parent_domain($bucket = NULL) {
 function _cis_connector_url_get_properties($url) {
   $properties = &drupal_static(__FUNCTION__);
   if (!isset($properties[$url])) {
-    // split the url at the protocol
-    $url_array = preg_split('/(:\/\/)/', $url);
-    $properties[$url]['protocol'] = $url_array[0];
-    // delete the protocol
-    array_shift($url_array);
-    // split the domain at the first backslash
-    $url_array = preg_split('/\//', $url_array[0], 2);
-    if (isset($url_array[1])) {
-      $properties[$url]['path'] = $url_array[1];
-    }
-    else {
-      $properties[$url]['path'] = '';
-    }
-    // split the url into subdomain and domain
-    $url_array = preg_split('/\./', $url_array[0], 2);
-    $properties[$url]['subdomain'] = $url_array[0];
-    $properties[$url]['domain'] = $properties[$url]['path'];
+    $url_array = parse_url($url);
+    //Split the domain and subdomain
+    $domain_parts = explode('.', $url_array['host']);
+    $properties[$url] = array(
+      'protocol'  => $url_array['scheme'],
+      'path'      => $url_array['path'],
+      'subdomain' => $domain_parts[0],
+      'domain'    => str_replace($domain_parts[0] . '.', '', $url_array['host'])
+    );
   }
 
   return $properties[$url];
