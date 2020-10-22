@@ -182,7 +182,8 @@ for tool in "${authoritylist[@]}"
   drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}
   drush -y --uri=$protocol://$site_domain vset file_public_path sites/$tool/$host/files
   # distro specific additional install routine
-  drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet --dr-locations=/var/www/elmsln/core/dslmcode/profiles
+  #drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet --dr-locations=/var/www/elmsln/core/dslmcode/profiles
+  drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet
   # clean up tasks per distro here
   if [ $dist == 'cis' ];
     then
@@ -257,7 +258,7 @@ done
 # make sure user password is admin as a fallback
 elmslnecho "Set admin account everywhere"
 drush @elmsln ucrt admin --password=${adminpw} --mail=${admin} --concurrency=${concurrent} --strict=0 --y  --quiet
-drush @elmsln urol "administrator" admin
+drush @elmsln urol "administrator" admin --y --quiet
 drush @elmsln upwd admin --password=${adminpw} --concurrency=${concurrent} --strict=0 --y  --quiet
 # enable bakery everywhere by default
 elmslnecho "Enable bakery for unified logins"
