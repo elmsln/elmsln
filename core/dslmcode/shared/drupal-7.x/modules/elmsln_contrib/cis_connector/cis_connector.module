@@ -1975,7 +1975,7 @@ function _cis_connector_url_get_properties($url) {
     // split the url into subdomain and domain
     $url_array = preg_split('/\./', $url_array[0], 2);
     $properties[$url]['subdomain'] = $url_array[0];
-    $properties[$url]['domain'] = $url_array[1];
+    $properties[$url]['domain'] = $properties[$url]['path'];
   }
 
   return $properties[$url];
