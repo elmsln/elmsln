@@ -182,7 +182,7 @@ for tool in "${authoritylist[@]}"
   drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}
   drush -y --uri=$protocol://$site_domain vset file_public_path sites/$tool/$host/files
   # distro specific additional install routine
-  drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet
+  drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet --dr-locations=/var/www/elmsln/core/dslmcode/profiles
   # clean up tasks per distro here
   if [ $dist == 'cis' ];
     then
