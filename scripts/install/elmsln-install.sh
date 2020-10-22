@@ -256,6 +256,7 @@ do
 done
 # make sure user password is admin as a fallback
 elmslnecho "Set admin account everywhere"
+drush @elmsln ucrt admin --password=${adminpw} --mail=${$admin} --concurrency=${concurrent} --strict=0 --y  --quiet
 drush @elmsln upwd admin --password=${adminpw} --concurrency=${concurrent} --strict=0 --y  --quiet
 # enable bakery everywhere by default
 elmslnecho "Enable bakery for unified logins"
