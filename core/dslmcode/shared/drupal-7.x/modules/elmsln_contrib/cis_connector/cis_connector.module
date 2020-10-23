@@ -1964,7 +1964,7 @@ function _cis_connector_url_get_properties($url) {
     $domain_parts = explode('.', $url_array['host']);
     $properties[$url] = array(
       'protocol'  => $url_array['scheme'],
-      'path'      => $url_array['path'],
+      'path'      => (!is_null($url_array['path'])) ? $url_array['path'] : '',
       'subdomain' => $domain_parts[0],
       'domain'    => str_replace($domain_parts[0] . '.', '', $url_array['host'])
     );
