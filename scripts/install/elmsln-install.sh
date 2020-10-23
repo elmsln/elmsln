@@ -143,7 +143,7 @@ for tool in "${authoritylist[@]}"
   cd ${webdir}/${tool}
   sitedir=${webdir}/${tool}/sites
   elmslnecho "drush installing authority tool: $tool"
-  drush site-install ${dist} --v --y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su=$dbsu $dbpwstring --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
+  drush site-install ${dist} install_profile.${dist} --v --y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su=$dbsu $dbpwstring --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
   #move out of $tool site directory to host
   sudo mkdir -p $sitedir/$tool/$host
   sudo mkdir -p $sitedir/$tool/$host/files
