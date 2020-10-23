@@ -407,9 +407,11 @@ function editableviews_module_implements_alter(&$implementations, $hook) {
   if ($hook == 'views_data_alter') {
     // Move our hook_views_data_alter() to the end of the list, so we can
     // doctor relationships provided by other modules.
-    $group = $implementations['editableviews'];
-    unset($implementations['editableviews']);
-    $implementations['editableviews'] = $group;
+    if(isset($implementations['editableviews'])){
+      $group = $implementations['editableviews'];
+      unset($implementations['editableviews']);
+      $implementations['editableviews'] = $group;
+    }
   }
 }
 

@@ -113,23 +113,24 @@ if [ $os == '1' ]; then
   elmslnecho "domains automatically set to ${domains}"
   zzz_performance="/etc/httpd/conf.d/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
-elif [[ $os == '2' && $dist != *"DISTRIB_RELEASE=16"* ]]; then
-  elmslnecho "treating this like ubuntu 14 or below"
+elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=18"* ]]; then
+  elmslnecho "treating this like ubuntu 18"
   wwwuser='www-data'
   elmslnecho "www user automatically set to ${wwwuser}"
   # test for apcu which would mean we dont need to optimize apc
-  if [ -f /etc/php5/mods-available/apcu.ini ]; then
+  if [ -f /etc/php/7.2/mods-available/apcu.ini ]; then
     apcini=""
-    apcuini="/etc/php5/mods-available/apcu.ini"
+    apcuini="/etc/php/7.2/mods-available/apcu.ini"
     elmslnecho "apcu.ini automatically set to ${apcuini}"
   else
-    apcini="/etc/php5/mods-available/apc.ini"
+    apcini="/etc/php/7.2/mods-available/apc.ini"
     elmslnecho "apc.ini automatically set to ${apcini}"
   fi
-  phpini="/etc/php5/apache2/php.ini"
-  phpfpmini="/etc/php5/fpm/php.ini"
+  phpini="/etc/php/7.2/fpm/php.ini"
   elmslnecho "php.ini automatically set to ${phpini}"
-  mycnf="/etc/php5/mods-available/mysql.ini"
+  opcacheini="/etc/php/7.2/mods-available/opcache.ini"
+  elmslnecho "opcache.ini automatically set to ${opcacheini}"
+  mycnf="/etc/mysql/conf.d/mariadb_elmsln.cnf"
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/var/spool/cron/crontabs/"
   elmslnecho "crontab automatically set to ${crontab}"
@@ -138,7 +139,7 @@ elif [[ $os == '2' && $dist != *"DISTRIB_RELEASE=16"* ]]; then
   zzz_performance="/etc/apache2/conf-available/zzz_performance.conf"
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
 elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
-  elmslnecho "treating this like ubuntu 16+"
+  elmslnecho "treating this like ubuntu 16"
   wwwuser='www-data'
   elmslnecho "www user automatically set to ${wwwuser}"
   # test for apcu which would mean we dont need to optimize apc
@@ -155,6 +156,30 @@ elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
   opcacheini="/etc/php/7.0/mods-available/opcache.ini"
   elmslnecho "opcache.ini automatically set to ${opcacheini}"
   mycnf="/etc/mysql/conf.d/mariadb_elmsln.cnf"
+  elmslnecho "my.cnf automatically set to ${mycnf}"
+  crontab="/var/spool/cron/crontabs/"
+  elmslnecho "crontab automatically set to ${crontab}"
+  domains="/etc/apache2/sites-available/"
+  elmslnecho "domains automatically set to ${domains}"
+  zzz_performance="/etc/apache2/conf-available/zzz_performance.conf"
+  elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
+elif [[ $os == '2' ]]; then
+  elmslnecho "treating this like ubuntu 14 or below"
+  wwwuser='www-data'
+  elmslnecho "www user automatically set to ${wwwuser}"
+  # test for apcu which would mean we dont need to optimize apc
+  if [ -f /etc/php5/mods-available/apcu.ini ]; then
+    apcini=""
+    apcuini="/etc/php5/mods-available/apcu.ini"
+    elmslnecho "apcu.ini automatically set to ${apcuini}"
+  else
+    apcini="/etc/php5/mods-available/apc.ini"
+    elmslnecho "apc.ini automatically set to ${apcini}"
+  fi
+  phpini="/etc/php5/apache2/php.ini"
+  phpfpmini="/etc/php5/fpm/php.ini"
+  elmslnecho "php.ini automatically set to ${phpini}"
+  mycnf="/etc/php5/mods-available/mysql.ini"
   elmslnecho "my.cnf automatically set to ${mycnf}"
   crontab="/var/spool/cron/crontabs/"
   elmslnecho "crontab automatically set to ${crontab}"
@@ -378,6 +403,7 @@ if [[ -n "$domains" ]]; then
     service apache2 restart
     service php5-fpm restart
     service php7.0-fpm restart
+    service php7.2-fpm restart
   else
     service httpd restart
     service mysqld restart
@@ -479,6 +505,7 @@ elif [ $os == '2' ]; then
   service mysqld restart
   service php5-fpm restart
   service php7.0-fpm restart
+  service php7.2-fpm restart
 else
   service httpd restart
   service mysqld restart

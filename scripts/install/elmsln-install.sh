@@ -144,6 +144,7 @@ for tool in "${authoritylist[@]}"
   sitedir=${webdir}/${tool}/sites
   elmslnecho "drush installing authority tool: $tool"
   drush site-install ${dist} --v --y --db-url=mysql://${tool}_${host}:$dbpw@127.0.0.1/${tool}_${host} --db-su=$dbsu $dbpwstring --account-mail="$admin" --site-mail="$site_email" --site-name="$tool"
+  drush vset install_profile "$dist"
   #move out of $tool site directory to host
   sudo mkdir -p $sitedir/$tool/$host
   sudo mkdir -p $sitedir/$tool/$host/files
@@ -182,7 +183,7 @@ for tool in "${authoritylist[@]}"
   drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}
   drush -y --uri=$protocol://$site_domain vset file_public_path sites/$tool/$host/files
   # distro specific additional install routine
-  drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet
+  drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet --dr-locations=/var/www/elmsln/core/dslmcode/profiles
   # clean up tasks per distro here
   if [ $dist == 'cis' ];
     then
@@ -256,7 +257,8 @@ do
 done
 # make sure user password is admin as a fallback
 elmslnecho "Set admin account everywhere"
-drush @elmsln ucrt admin --password=${adminpw} --mail=${$admin} --concurrency=${concurrent} --strict=0 --y  --quiet
+drush @elmsln ucrt admin --password=${adminpw} --mail=${admin} --concurrency=${concurrent} --strict=0 --y  --quiet
+drush @elmsln urol "administrator" admin --y --quiet
 drush @elmsln upwd admin --password=${adminpw} --concurrency=${concurrent} --strict=0 --y  --quiet
 # enable bakery everywhere by default
 elmslnecho "Enable bakery for unified logins"
