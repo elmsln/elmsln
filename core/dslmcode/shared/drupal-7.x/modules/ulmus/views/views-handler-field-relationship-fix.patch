@@ -1,0 +1,15 @@
+diff --git a/modules/field/views_handler_field_field.inc b/modules/field/views_handler_field_field.inc
+index da316049..2456650d 100644
+--- a/modules/field/views_handler_field_field.inc
++++ b/modules/field/views_handler_field_field.inc
+@@ -150,7 +150,9 @@ class views_handler_field_field extends views_handler_field {
+         if (!empty($relationships[$this->options['relationship']])) {
+           $options = $relationships[$this->options['relationship']];
+           $data = views_fetch_data($options['table']);
+-          $this->base_table = $data[$options['field']]['relationship']['base'];
++          if(isset($data[$options['field']]['relationship'])){
++            $this->base_table = $data[$options['field']]['relationship']['base'];
++          }
+         }
+       }
+     }

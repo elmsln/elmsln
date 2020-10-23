@@ -1,0 +1,13 @@
+diff --git a/handlers/views_handler_area_result.inc b/handlers/views_handler_area_result.inc
+index dd51bf17..e32c5690 100644
+--- a/handlers/views_handler_area_result.inc
++++ b/handlers/views_handler_area_result.inc
+@@ -81,7 +81,7 @@ class views_handler_area_result extends views_handler_area {
+       if ($total_count > $total) {
+         $total_count = $total;
+       }
+-      $start = ($current_page - 1) * $per_page + 1;
++      $start = max(($current_page - 1) * $per_page + 1,0);
+       $end = $total_count;
+     }
+     $current_record_count = ($end - $start) + 1;

@@ -81,7 +81,7 @@ class views_handler_area_result extends views_handler_area {
       if ($total_count > $total) {
         $total_count = $total;
       }
-      $start = ($current_page - 1) * $per_page + 1;
+      $start = max(($current_page - 1) * $per_page + 1,0);
       $end = $total_count;
     }
     $current_record_count = ($end - $start) + 1;
