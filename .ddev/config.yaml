@@ -91,7 +91,8 @@ provider: default
 # for them. Example:
 hooks:
   post-start:
-    - exec: "sudo ln -s /var/www/html /var/www/elmsln"
-    - exec: "sudo bash /var/www/elmsln/scripts/vagrant/handsfree-vagrant.sh https://github.com/elmsln/elmsln.git 0.11.x https://github.com/elmsln/elmsln-config-vagrant.git"
-    - exec: "bash /var/www/elmsln/scripts/vagrant/cleanup.sh"
-    - exec: "echo 'finished! go to http://online.elmsln.local and login with username admin and password admin.'"
+    - exec: "if [ ! -f /var/www/elmsln/config/SYSTEM_VERSION.txt ]; then sudo apt-get update && sudo apt-get -y install wget git && git clone https://github.com/elmsln/elmsln.git /var/www/elmsln && cd /var/www/elmsln && git checkout master && sudo bash /var/www/elmsln/scripts/install/handsfree/ubuntu18/ubuntu18-install.sh elmsln ln elmsln.ddev http admin@elmsln.dev yes; fi"
+    #- exec: "sudo ln -s /var/www/html /var/www/elmsln"
+    #- exec: "sudo bash /var/www/elmsln/scripts/vagrant/handsfree-vagrant.sh https://github.com/elmsln/elmsln.git 0.11.x https://github.com/elmsln/elmsln-config-vagrant.git"
+    #- exec: "bash /var/www/elmsln/scripts/vagrant/cleanup.sh"
+    #- exec: "echo 'finished! go to http://online.elmsln.local and login with username admin and password admin.'"
