@@ -67,7 +67,7 @@ pecl channel-update pecl.php.net
 # install uploadprogress
 pecl install uploadprogress
 yes '' | pecl install mcrypt-1.0.3
-echo 'extension=mcrypt.so' > /etc/php/7.2/mods-available/mcrypt.ini
+echo 'extension=/usr/lib/php/20190902/mcrypt.so' > /etc/php/7.2/mods-available/mcrypt.ini
 phpenmod mcrypt
 # adding uploadprogresss to php conf files
 touch /etc/php/7.2/mods-available/uploadprogress.ini
