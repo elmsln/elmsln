@@ -39,7 +39,5 @@ additional_hostnames:
 provider: default
 hooks:
   post-start:
-    - exec: "sudo ln -s /var/www/html /var/www/elmsln"
-    - exec: "sudo bash /var/www/elmsln/scripts/vagrant/handsfree-vagrant.sh https://github.com/elmsln/elmsln.git 0.11.x https://github.com/elmsln/elmsln-config-vagrant.git"
-    - exec: "bash /var/www/elmsln/scripts/vagrant/cleanup.sh"
+    - exec: "sudo bash /var/www/elmsln/scripts/install/handsfree/ubuntu18/ubuntu18-install.sh elmsln ln elmsln.ddev http admin@elmsln.dev yes"
     - exec: "echo 'finished! go to http://online.elmsln.ddev and login with username admin and password admin.'"
