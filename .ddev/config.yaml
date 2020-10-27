@@ -2,8 +2,8 @@
 name: elmsln
 type: php
 docroot: domains
-php_version: "7.2"
-webserver_type: "apache-fpm"
+php_version: 7.2
+webserver_type: apache-fpm
 router_http_port: "80"
 router_https_port: "443"
 xdebug_enabled: false
@@ -39,5 +39,6 @@ additional_hostnames:
 provider: default
 hooks:
   post-start:
+    - exec: "sudo ln -s /var/www/html /var/www/elmsln"
     - exec: "sudo bash /var/www/elmsln/scripts/install/handsfree/ubuntu18/ubuntu18-install.sh elmsln ln elmsln.ddev http admin@elmsln.dev yes"
     - exec: "echo 'finished! go to http://online.elmsln.ddev and login with username admin and password admin.'"
