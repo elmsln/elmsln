@@ -1,42 +1,41 @@
 # THIS IS NOT YET SUPPORTED
-APIVersion: v1.0.0
 name: elmsln
 type: php
 docroot: domains
-php_version: "7.0"
+php_version: "7.2"
+webserver_type: "apache-fpm"
 router_http_port: "80"
 router_https_port: "443"
 xdebug_enabled: false
-additional_hostnames: []
-additional_fqdns: 
-  - courses.elmsln.local
-  - media.elmsln.local
-  - online.elmsln.local
-  - analytics.elmsln.local
-  - studio.elmsln.local
-  - interact.elmsln.local
-  - blog.elmsln.local
-  - comply.elmsln.local
-  - discuss.elmsln.local
-  - inbox.elmsln.local
-  - people.elmsln.local
-  - innovate.elmsln.local
-  - grades.elmsln.local
-  - hub.elmsln.local
-  - data-courses.elmsln.local
-  - data-media.elmsln.local
-  - data-online.elmsln.local
-  - data-studio.elmsln.local
-  - data-interact.elmsln.local
-  - data-blog.elmsln.local
-  - data-comply.elmsln.local
-  - data-discuss.elmsln.local
-  - data-inbox.elmsln.local
-  - data-people.elmsln.local
-  - data-innovate.elmsln.local
-  - data-grades.elmsln.local
-  - data-hub.elmsln.local
-  - data-lq.elmsln.local
+additional_hostnames:
+  - courses.elmsln
+  - media.elmsln
+  - online.elmsln
+  - analytics.elmsln
+  - studio.elmsln
+  - interact.elmsln
+  - blog.elmsln
+  - comply.elmsln
+  - discuss.elmsln
+  - inbox.elmsln
+  - people.elmsln
+  - innovate.elmsln
+  - grades.elmsln
+  - hub.elmsln
+  - data-courses.elmsln
+  - data-media.elmsln
+  - data-online.elmsln
+  - data-studio.elmsln
+  - data-interact.elmsln
+  - data-blog.elmsln
+  - data-comply.elmsln
+  - data-discuss.elmsln
+  - data-inbox.elmsln
+  - data-people.elmsln
+  - data-innovate.elmsln
+  - data-grades.elmsln
+  - data-hub.elmsln
+  - data-lq.elmsln
 provider: default
 
 # This config.yaml was created with ddev version v1.0.0 
