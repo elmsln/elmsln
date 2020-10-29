@@ -1,4 +1,3 @@
-# THIS IS NOT YET SUPPORTED
 name: elmsln
 type: php
 docroot: domains
@@ -39,6 +38,4 @@ additional_hostnames:
 provider: default
 hooks:
   post-start:
-    - exec: "sudo ln -s /var/www/html /var/www/elmsln"
-    - exec: "sudo bash /var/www/elmsln/scripts/install/handsfree/ubuntu18/ubuntu18-install.sh elmsln ln elmsln.ddev http admin@elmsln.dev yes"
-    - exec: "echo 'finished! go to http://online.elmsln.ddev and login with username admin and password admin.'"
+    - exec: "sudo bash /var/www/html/scripts/install/handsfree/ddev/handsfree-ddev.sh elmsln ln elmsln.ddev.site http admin@elmsln.dev yes"
