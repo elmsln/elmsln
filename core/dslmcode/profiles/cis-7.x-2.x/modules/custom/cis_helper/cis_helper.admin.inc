@@ -46,7 +46,7 @@ function cis_helper_admin_settings() {
   // the path for the job to be created on
   $form['cis_build_code'] = array(
     '#type' => 'textfield',
-    '#title' => t('Code authenticed course extra install'),
+    '#title' => t('Code authenticated course extra install'),
     '#default_value' => variable_get('cis_build_code', ''),
     '#description' => t('Additional drush calls when access codes are in use'),
   );
