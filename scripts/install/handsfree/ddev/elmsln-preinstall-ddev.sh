@@ -115,7 +115,7 @@ if [ $os == '1' ]; then
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
 elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=18"* ]]; then
   elmslnecho "treating this like ubuntu 18"
-  wwwuser='www-data'
+  wwwuser='bto108a'
   elmslnecho "www user automatically set to ${wwwuser}"
   # test for apcu which would mean we dont need to optimize apc
   if [ -f /etc/php/7.2/mods-available/apcu.ini ]; then
@@ -140,7 +140,7 @@ elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=18"* ]]; then
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
 elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
   elmslnecho "treating this like ubuntu 16"
-  wwwuser='www-data'
+  wwwuser='bto108a'
   elmslnecho "www user automatically set to ${wwwuser}"
   # test for apcu which would mean we dont need to optimize apc
   if [ -f /etc/php/7.0/mods-available/apcu.ini ]; then
@@ -165,7 +165,7 @@ elif [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
   elmslnecho "apache perforamnce tuning automatically set to ${zzz_performance}"
 elif [[ $os == '2' ]]; then
   elmslnecho "treating this like ubuntu 14 or below"
-  wwwuser='www-data'
+  wwwuser='bto108a'
   elmslnecho "www user automatically set to ${wwwuser}"
   # test for apcu which would mean we dont need to optimize apc
   if [ -f /etc/php5/mods-available/apcu.ini ]; then
@@ -304,7 +304,7 @@ echo "wwwuser='${wwwuser}'" >> $config
 echo "#webgroup, usually admin if sharing with other developers else leave root" >> $config
 elmslnecho "webgroup? (usually admin if sharing with other developers else leave root)"
 read webgroup
-echo "webgroup='${webgroup}'" >> $config
+echo "webgroup='bto108a'" >> $config
 
 # append all these settings that we tell people NOT to modify
 echo "" >> $config
@@ -412,9 +412,9 @@ if [[ -n "$domains" ]]; then
   # attempt to author the https domain if they picked it, let's hope everyone does
   if [[ $protocol == 'https' ]]; then
     cd $HOME
-    git clone https://github.com/letsencrypt/letsencrypt
+    
     # automatically create domains
-    bash letsencrypt/letsencrypt-auto --apache --email $admin --agree-tos --redirect --non-interactive
+    
   else
     elmslnwarn "You really should use https and invest in certs... seriously do it!"
   fi
