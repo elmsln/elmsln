@@ -65,7 +65,7 @@ paper-button.coursecard-wrapper {
   padding: 0;
   font-size: 14px;
 }
-lrn-icon,iron-icon {
+lrn-icon,simple-icon {
   display: inline-block;
 }
 .elmsln-service-list li lrnsys-button {
@@ -2482,7 +2482,7 @@ blockquote,
     background-color: white;
     color: blue;
   }
-  .mediavideo__poster .mediavideo-button iron-icon {
+  .mediavideo__poster .mediavideo-button simple-icon {
     width: 50%;
     height: 50%;
     position: absolute;
@@ -6737,7 +6737,7 @@ div.form-type-checkbox :last-child {
   height: 5rem;
   width: 5rem;
 }
-#block-speedreader-speedreader-block-nav-modal paper-icon-button {
+#block-speedreader-speedreader-block-nav-modal simple-icon-button {
   width: 5rem;
   height: 5rem;
   padding: 0;
@@ -7638,7 +7638,7 @@ button#edit-elmsln-view-user {
   max-width: 100%;
   margin: 0 auto;
 }
-.read-time .chip iron-icon {
+.read-time .chip simple-icon {
   width: 1.5em;
   height: 1.5em;
 }
@@ -8207,20 +8207,20 @@ paper-button#close-button.lrnsys-dialog {
   border: none;
   border-radius: unset;
 }
-.elmsln--page--operations li.page-op-button paper-button iron-icon,
-.elmsln--page--operations li.page-op-button paper-button lrn-icon {
+.elmsln--page--operations li.page-op-button button simple-icon,
+.elmsln--page--operations li.page-op-button button lrn-icon {
   margin: 0;
   width: 2rem;
   height: 2rem;
   line-height: 2rem;
 }
-.elmsln--page--operations li.page-op-button app-drawer paper-button {
+.elmsln--page--operations li.page-op-button app-drawer button {
   margin: -1em;
   padding: 1em;
   vertical-align: text-top;
   height: 3.25em;
 }
-.elmsln--page--operations li.page-op-button app-drawer iron-icon {
+.elmsln--page--operations li.page-op-button app-drawer simple-icon {
   margin: -1em .5em 0 0;
   padding: 0;
   line-height: unset;
@@ -8300,26 +8300,14 @@ lrnsys-drawer app-drawer,
   display: block;
 }
 
-#etb-tool-nav paper-icon-button {
+#etb-tool-nav simple-icon-button {
   margin: 0;
   padding: 0;
   height: 32px;
   width: 48px;
 }
-#etb-tool-nav paper-menu-button:hover,
-#etb-tool-nav paper-menu-button:active,
-#etb-tool-nav paper-menu-button:focus {
-  background-color: var(--elmsln-system-color-dark);
-  color: white;
-}
 #etb-tool-nav paper-menu-button a {
   outline: none;
-}
-#etb-tool-nav paper-menu-button paper-item:hover,
-#etb-tool-nav paper-menu-button paper-item:active,
-#etb-tool-nav paper-menu-button paper-item:focus {
-  background-color: var(--elmsln-system-color-dark);
-  color: white;
 }
 
 lrnapp-fab-menu paper-fab {
@@ -8544,7 +8532,7 @@ paper-button.lrnsys-button div.inner.lrnsys-button {
   color: #FFFFFF !important;
 }
 
-.elmsln-edit-button iron-icon {
+.elmsln-edit-button simple-icon {
   width: 2em;
   height: 2em;
   margin:0;
