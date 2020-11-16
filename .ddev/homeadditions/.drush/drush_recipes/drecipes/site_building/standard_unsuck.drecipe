@@ -1,0 +1,26 @@
+{
+  "name": "less crappy standard profile",
+  "drush_recipes_api": "1.0",
+  "core": "7",
+  "weight": 0,
+  "recipe": [
+    {
+      "command": "dis",
+      "arguments": [
+        "color,comment,dashboard,taxonomy,dblog,search,shortcut,toolbar,overlay,rdf"
+      ]
+    },
+    {
+      "command": "pm-uninstall",
+      "arguments": [
+        "color,comment,dashboard,taxonomy,dblog,search,shortcut,toolbar,overlay,rdf"
+      ]
+    }
+  ],
+  "metadata": {
+    "description": "Disables modules from standard that really are not standard and are not used on the average site.",
+    "version": "1.0",
+    "type": "add-on",
+    "author": "btopro"
+  }
+}

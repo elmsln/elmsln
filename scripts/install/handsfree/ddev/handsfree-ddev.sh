@@ -1,13 +1,10 @@
 #!/bin/bash
 
 # detect whether ELMSLN is already installed
-if [[ -f "/var/www/elmsln/config/SYSTEM_VERSION.txt" ]]; then
+if [[ -d "/var/www/elmsln/config/private_files/online" ]]; then
   echo "ELMSLN is already installed on this server, exiting installation"
-  exit 0
+  exit 1
 fi
-
-# symlink to get around ddev's mount path
-sudo ln -s /var/www/html /var/www/elmsln
 
 # copy across the latest Ubuntu18 installer and make some changes to apply 
 # ddev-friendly commands.
@@ -51,12 +48,27 @@ sed -e "s/mysql -u/mysql --host=db --port=3306 -u/g" \
     -e "s/service php7.2-fpm restart/service php7.2-fpm reload/g" \
     -e "s/service php-fpm restart/service php-fpm reload/g" \
     -e "s/git clone https:\/\/github.com\/elmsln\/elmsln-config-example.git config/git clone https:\/\/github.com\/elmsln\/elmsln-config-example.git \/var\/www\/elmsln\/config/g" \
+    -e "s/git clone https:\/\/github.com\/letsencrypt\/letsencrypt//g" \
+    -e "s/bash letsencrypt\/letsencrypt-auto --apache --email \$admin --agree-tos --redirect --non-interactive//g" \
+    -e "s/wwwuser='www-data'/wwwuser='$7'/g" \
+    -e "s/\"webgroup='\${webgroup}'\"/\"webgroup='$7'\"/g" \
     /var/www/elmsln/scripts/install/root/elmsln-preinstall.sh > /var/www/elmsln/scripts/install/handsfree/ddev/elmsln-preinstall-ddev.sh
 
 sed -e "s/source ..\/..\/config\/scripts\/drush-create-site\/config.cfg/source \/var\/www\/elmsln\/config\/scripts\/drush-create-site\/config.cfg/g" \
     -e "s/source ..\/..\/config\/scripts\/drush-create-site\/configpwd.cfg/source \/var\/www\/elmsln\/config\/scripts\/drush-create-site\/configpwd.cfg/g" \
-    -e "s/@127.0.0.1/@db/g" \
+    -e "s/sudo bash \/var\/www\/elmsln\/scripts\/utilities\/harden-security.sh//g" \
+    -e "s/@127.0.0.1/@db:3306/g" \
     /var/www/elmsln/scripts/install/elmsln-install.sh > /var/www/elmsln/scripts/install/handsfree/ddev/elmsln-install-ddev.sh
-    
+
+sed -e "s/source ..\/..\/config\/scripts\/drush-create-site\/config.cfg/source \/var\/www\/elmsln\/config\/scripts\/drush-create-site\/config.cfg/g" \
+    -e "s/source ..\/..\/config\/scripts\/drush-create-site\/configpwd.cfg/source \/var\/www\/elmsln\/config\/scripts\/drush-create-site\/configpwd.cfg/g" \
+    -e "s/mysql -u\$dbsu -p\$dbsupw/mysql -u\$dbsu -p\$dbsupw --host=db --port=3306/g" \
+    -e "s/@127.0.0.1/@db:3306/g" \
+    -e "s/@localhost/@db:3306/g" \
+    /var/www/elmsln/scripts/drush-create-site/drush-create-site > /var/www/elmsln/scripts/install/handsfree/ddev/drush-create-site-ddev.sh
+
 # Now we've made the scripts ddev-friendly, fire the script
 bash /var/www/elmsln/scripts/install/handsfree/ddev/ubuntu18-install-ddev.sh $1 $2 $3 $4 $5 $6
+
+# Ensure that the config directory is properly owned by the ddev user
+sudo chown -R $7:$7 config

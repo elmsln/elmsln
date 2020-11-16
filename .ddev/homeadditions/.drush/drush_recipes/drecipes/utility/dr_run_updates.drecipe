@@ -1,0 +1,41 @@
+{
+	"name": "Run updates",
+	"drush_recipes_api": "1.0",
+	"weight": 10,
+	"dependencies": [
+    "@site"
+  ],
+	"recipe": [
+    {
+      "command": "vset",
+      "arguments": [
+        "maintenance_mode",
+        "1"
+      ],
+      "options": {
+        "always-set": "1"
+      }
+    },
+    {
+      "command": "updb",
+      "options": {
+        "y": "1"
+      }
+    },
+    {
+      "command": "vdel",
+      "arguments": [
+        "maintenance_mode"
+      ],
+      "options": {
+        "exact": "1"
+      }
+    }
+	],
+	"metadata": {
+		"type": "routine",
+		"description": "This performs the commands required to apply drupal database upgrades, wrapped in settings to put the site in maintenance, then take it out of maintenance when done.",
+		"version": "1.0",
+		"author": "btopro"
+	}
+}

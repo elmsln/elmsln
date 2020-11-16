@@ -1,0 +1,33 @@
+{
+  "name": "Security defaults",
+  "drush_recipes_api": "1.0",
+  "core": "7",
+  "weight": 0,
+  "recipe": [
+    "dr_security_core_settings.drecipe",
+    {
+      "command": "dis",
+      "arguments": [
+        "php"
+      ]
+    },
+    {
+      "command": "pm-uninstall",
+      "arguments": [
+        "php"
+      ]
+    },
+    {
+      "command": "en",
+      "arguments": [
+        "seckit,paranoia"
+      ]
+    }
+  ],
+  "metadata": {
+    "description": "Disable php and enhance security through simple baseline ways.",
+    "version": "1.0",
+    "type": "add-on",
+    "author": "btopro"
+  }
+}

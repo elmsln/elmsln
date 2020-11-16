@@ -1,0 +1,34 @@
+{
+	"name": "Safe upgrade",
+	"drush_recipes_api": "1.0",
+	"weight": 10,
+	"dependencies": [
+    "registry_rebuild",
+    "drush_ecl",
+    "@site"
+  ],
+	"recipe": [
+		{
+      "command": "rr"
+    },
+    "dr_run_updates.drecipe",
+		{
+      "command": "cron"
+    },
+    {
+      "command": "cc",
+      "arguments": [
+        "all"
+      ]
+    },
+		{
+      "command": "ecl"
+    }
+	],
+	"metadata": {
+		"type": "routine",
+		"description": "This is a structured upgrade routine to run immediately after code pull.",
+		"version": "1.0",
+		"author": "btopro"
+	}
+}

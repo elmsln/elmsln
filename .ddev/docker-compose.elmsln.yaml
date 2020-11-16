@@ -1,0 +1,6 @@
+version: '3.6'
+
+services:
+  web:
+    environment:
+      - DDEV_USER=$USER
