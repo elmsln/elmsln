@@ -1,0 +1,195 @@
+networks:
+  default:
+    external: true
+    name: ddev_default
+services:
+  db:
+    build:
+      args:
+        BASE_IMAGE: drud/ddev-dbserver-mariadb-10.2:v1.16.0
+        gid: '1001'
+        uid: '1001'
+        username: bto108a
+      context: /home/bto108a/elmsln/.ddev/db-build
+      dockerfile: /home/bto108a/elmsln/.ddev/.dbimageBuild/Dockerfile
+    command: ''
+    container_name: ddev-elmsln-db
+    environment:
+      COLUMNS: '167'
+      DDEV_HOSTNAME: elmsln.ddev.site,analytics.elmsln.ddev.site,blog.elmsln.ddev.site,comply.elmsln.ddev.site,courses.elmsln.ddev.site,data-blog.elmsln.ddev.site,data-comply.elmsln.ddev.site,data-courses.elmsln.ddev.site,data-discuss.elmsln.ddev.site,data-grades.elmsln.ddev.site,data-hub.elmsln.ddev.site,data-inbox.elmsln.ddev.site,data-innovate.elmsln.ddev.site,data-interact.elmsln.ddev.site,data-lq.elmsln.ddev.site,data-media.elmsln.ddev.site,data-online.elmsln.ddev.site,data-people.elmsln.ddev.site,data-studio.elmsln.ddev.site,discuss.elmsln.ddev.site,grades.elmsln.ddev.site,hub.elmsln.ddev.site,inbox.elmsln.ddev.site,innovate.elmsln.ddev.site,interact.elmsln.ddev.site,media.elmsln.ddev.site,online.elmsln.ddev.site,people.elmsln.ddev.site,studio.elmsln.ddev.site
+      DDEV_PHP_VERSION: '7.2'
+      DDEV_PRIMARY_URL: https://elmsln.ddev.site
+      DDEV_PROJECT: elmsln
+      DDEV_PROJECT_TYPE: php
+      DDEV_ROUTER_HTTPS_PORT: '443'
+      DDEV_ROUTER_HTTP_PORT: '80'
+      DDEV_SITENAME: elmsln
+      DDEV_TLD: ddev.site
+      DOCKER_IP: 127.0.0.1
+      HOST_DOCKER_INTERNAL_IP: 172.17.0.1
+      IS_DDEV_PROJECT: "true"
+      LINES: '45'
+      TZ: ''
+    healthcheck:
+      interval: 1s
+      retries: 120
+      start_period: 2m
+      timeout: 2m
+    hostname: elmsln-db
+    image: drud/ddev-dbserver-mariadb-10.2:v1.16.0-elmsln-built
+    labels:
+      com.ddev.app-type: php
+      com.ddev.approot: /home/bto108a/elmsln
+      com.ddev.platform: ddev
+      com.ddev.site-name: elmsln
+    ports:
+    - 127.0.0.1::3306/tcp
+    restart: "no"
+    stop_grace_period: 60s
+    user: 1001:1001
+    volumes:
+    - ddev-global-cache:/mnt/ddev-global-cache:rw
+    - source: /home/bto108a/elmsln/.ddev
+      target: /mnt/ddev_config
+      type: bind
+    - source: mariadb-database
+      target: /var/lib/mysql
+      type: volume
+      volume:
+        nocopy: true
+  dba:
+    container_name: ddev-elmsln-dba
+    environment:
+      HTTPS_EXPOSE: 8037:8036
+      HTTP_EXPOSE: 8036:8036
+      PMA_PASSWORD: db
+      PMA_USER: db
+      TZ: ''
+      UPLOAD_LIMIT: 1024M
+      VIRTUAL_HOST: elmsln.ddev.site,analytics.elmsln.ddev.site,blog.elmsln.ddev.site,comply.elmsln.ddev.site,courses.elmsln.ddev.site,data-blog.elmsln.ddev.site,data-comply.elmsln.ddev.site,data-courses.elmsln.ddev.site,data-discuss.elmsln.ddev.site,data-grades.elmsln.ddev.site,data-hub.elmsln.ddev.site,data-inbox.elmsln.ddev.site,data-innovate.elmsln.ddev.site,data-interact.elmsln.ddev.site,data-lq.elmsln.ddev.site,data-media.elmsln.ddev.site,data-online.elmsln.ddev.site,data-people.elmsln.ddev.site,data-studio.elmsln.ddev.site,discuss.elmsln.ddev.site,grades.elmsln.ddev.site,hub.elmsln.ddev.site,inbox.elmsln.ddev.site,innovate.elmsln.ddev.site,interact.elmsln.ddev.site,media.elmsln.ddev.site,online.elmsln.ddev.site,people.elmsln.ddev.site,studio.elmsln.ddev.site
+    healthcheck:
+      interval: 2m
+      retries: 1
+      timeout: 2s
+    hostname: elmsln-dba
+    image: phpmyadmin:5
+    labels:
+      com.ddev.app-type: php
+      com.ddev.approot: /home/bto108a/elmsln
+      com.ddev.platform: ddev
+      com.ddev.site-name: elmsln
+    links:
+    - db
+    ports:
+    - target: 80
+    restart: "no"
+  web:
+    build:
+      args:
+        BASE_IMAGE: drud/ddev-webserver:v1.16.0
+        gid: '1001'
+        uid: '1001'
+        username: bto108a
+      context: /home/bto108a/elmsln/.ddev/web-build
+      dockerfile: /home/bto108a/elmsln/.ddev/.webimageBuild/Dockerfile
+    cap_add:
+    - SYS_PTRACE
+    container_name: ddev-elmsln-web
+    environment:
+      COLUMNS: '167'
+      DDEV_DOCROOT: domains
+      DDEV_HOSTNAME: elmsln.ddev.site,analytics.elmsln.ddev.site,blog.elmsln.ddev.site,comply.elmsln.ddev.site,courses.elmsln.ddev.site,data-blog.elmsln.ddev.site,data-comply.elmsln.ddev.site,data-courses.elmsln.ddev.site,data-discuss.elmsln.ddev.site,data-grades.elmsln.ddev.site,data-hub.elmsln.ddev.site,data-inbox.elmsln.ddev.site,data-innovate.elmsln.ddev.site,data-interact.elmsln.ddev.site,data-lq.elmsln.ddev.site,data-media.elmsln.ddev.site,data-online.elmsln.ddev.site,data-people.elmsln.ddev.site,data-studio.elmsln.ddev.site,discuss.elmsln.ddev.site,grades.elmsln.ddev.site,hub.elmsln.ddev.site,inbox.elmsln.ddev.site,innovate.elmsln.ddev.site,interact.elmsln.ddev.site,media.elmsln.ddev.site,online.elmsln.ddev.site,people.elmsln.ddev.site,studio.elmsln.ddev.site
+      DDEV_PHP_VERSION: '7.2'
+      DDEV_PRIMARY_URL: https://elmsln.ddev.site
+      DDEV_PROJECT: elmsln
+      DDEV_PROJECT_TYPE: php
+      DDEV_ROUTER_HTTPS_PORT: '443'
+      DDEV_ROUTER_HTTP_PORT: '80'
+      DDEV_SITENAME: elmsln
+      DDEV_TLD: ddev.site
+      DDEV_USER: bto108a
+      DDEV_WEBSERVER_TYPE: apache-fpm
+      DDEV_XDEBUG_ENABLED: "false"
+      DEPLOY_NAME: local
+      DOCKER_IP: 127.0.0.1
+      DOCROOT: domains
+      DRUSH_ALLOW_XDEBUG: '1'
+      HOST_DOCKER_INTERNAL_IP: 172.17.0.1
+      HTTPS_EXPOSE: 443:80,8026:8025
+      HTTP_EXPOSE: 80:80,8025:8025
+      IS_DDEV_PROJECT: "true"
+      LINES: '45'
+      SSH_AUTH_SOCK: /home/.ssh-agent/socket
+      TZ: ''
+      VIRTUAL_HOST: elmsln.ddev.site,analytics.elmsln.ddev.site,blog.elmsln.ddev.site,comply.elmsln.ddev.site,courses.elmsln.ddev.site,data-blog.elmsln.ddev.site,data-comply.elmsln.ddev.site,data-courses.elmsln.ddev.site,data-discuss.elmsln.ddev.site,data-grades.elmsln.ddev.site,data-hub.elmsln.ddev.site,data-inbox.elmsln.ddev.site,data-innovate.elmsln.ddev.site,data-interact.elmsln.ddev.site,data-lq.elmsln.ddev.site,data-media.elmsln.ddev.site,data-online.elmsln.ddev.site,data-people.elmsln.ddev.site,data-studio.elmsln.ddev.site,discuss.elmsln.ddev.site,grades.elmsln.ddev.site,hub.elmsln.ddev.site,inbox.elmsln.ddev.site,innovate.elmsln.ddev.site,interact.elmsln.ddev.site,media.elmsln.ddev.site,online.elmsln.ddev.site,people.elmsln.ddev.site,studio.elmsln.ddev.site
+    external_links:
+    - ddev-router:analytics.elmsln.ddev.site
+    - ddev-router:blog.elmsln.ddev.site
+    - ddev-router:comply.elmsln.ddev.site
+    - ddev-router:courses.elmsln.ddev.site
+    - ddev-router:data-blog.elmsln.ddev.site
+    - ddev-router:data-comply.elmsln.ddev.site
+    - ddev-router:data-courses.elmsln.ddev.site
+    - ddev-router:data-discuss.elmsln.ddev.site
+    - ddev-router:data-grades.elmsln.ddev.site
+    - ddev-router:data-hub.elmsln.ddev.site
+    - ddev-router:data-inbox.elmsln.ddev.site
+    - ddev-router:data-innovate.elmsln.ddev.site
+    - ddev-router:data-interact.elmsln.ddev.site
+    - ddev-router:data-lq.elmsln.ddev.site
+    - ddev-router:data-media.elmsln.ddev.site
+    - ddev-router:data-online.elmsln.ddev.site
+    - ddev-router:data-people.elmsln.ddev.site
+    - ddev-router:data-studio.elmsln.ddev.site
+    - ddev-router:discuss.elmsln.ddev.site
+    - ddev-router:elmsln.ddev.site
+    - ddev-router:grades.elmsln.ddev.site
+    - ddev-router:hub.elmsln.ddev.site
+    - ddev-router:inbox.elmsln.ddev.site
+    - ddev-router:innovate.elmsln.ddev.site
+    - ddev-router:interact.elmsln.ddev.site
+    - ddev-router:media.elmsln.ddev.site
+    - ddev-router:online.elmsln.ddev.site
+    - ddev-router:people.elmsln.ddev.site
+    - ddev-router:studio.elmsln.ddev.site
+    extra_hosts:
+      host.docker.internal: 172.17.0.1
+    healthcheck:
+      interval: 1s
+      retries: 120
+      start_period: 2m
+      timeout: 2m
+    hostname: elmsln-web
+    image: drud/ddev-webserver:v1.16.0-elmsln-built
+    labels:
+      com.ddev.app-type: php
+      com.ddev.approot: /home/bto108a/elmsln
+      com.ddev.platform: ddev
+      com.ddev.site-name: elmsln
+    links:
+    - db
+    ports:
+    - 127.0.0.1::80/tcp
+    - 127.0.0.1::443/tcp
+    restart: "no"
+    user: 1001:1001
+    volumes:
+    - /home/bto108a/elmsln/.ddev/apache:/etc/apache2/sites-enabled:ro
+    - /home/bto108a/elmsln/.ddev/nginx_full:/etc/nginx/sites-enabled:ro
+    - ddev-ssh-agent_socket_dir:/home/.ssh-agent:rw
+    - ddev-global-cache:/mnt/ddev-global-cache:rw
+    - /home/bto108a/elmsln/.ddev:/mnt/ddev_config:ro
+    - consistency: cached
+      source: /home/bto108a/elmsln
+      target: /var/www/html
+      type: bind
+version: '3.6'
+volumes:
+  ddev-global-cache:
+    name: ddev-global-cache
+  ddev-ssh-agent_socket_dir:
+    external: true
+    name: ddev-ssh-agent_socket_dir
+  mariadb-database:
+    name: elmsln-mariadb
+

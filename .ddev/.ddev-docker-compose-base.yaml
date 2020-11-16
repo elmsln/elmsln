@@ -5,13 +5,14 @@ services:
   db:
     container_name: ddev-${DDEV_SITENAME}-db
     build:
-      context: '/home/bto108a/elmsln/.ddev/.dbimageBuild'
+      context: '/home/bto108a/elmsln/.ddev/db-build'
+      dockerfile: '/home/bto108a/elmsln/.ddev/.dbimageBuild/Dockerfile'
       args:
         BASE_IMAGE: $DDEV_DBIMAGE
         username: 'bto108a'
         uid: '1001'
         gid: '1001'
-    image: ${DDEV_DBIMAGE}-built
+    image: ${DDEV_DBIMAGE}-${DDEV_SITENAME}-built
     stop_grace_period: 60s
     volumes:
       - type: "volume"
@@ -34,37 +35,53 @@ services:
       com.ddev.app-type: php
       com.ddev.approot: $DDEV_APPROOT
     environment:
-      - COLUMNS=$COLUMNS
-      - LINES=$LINES
+      - COLUMNS
+      - DDEV_HOSTNAME
+      - DDEV_PHP_VERSION
+      - DDEV_PRIMARY_URL
+      - DDEV_PROJECT
+      - DDEV_PROJECT_TYPE
+      - DDEV_ROUTER_HTTP_PORT
+      - DDEV_ROUTER_HTTPS_PORT
+      - DDEV_SITENAME
+      - DDEV_TLD
+      - DOCKER_IP=127.0.0.1
+      - HOST_DOCKER_INTERNAL_IP=172.17.0.1
+      - IS_DDEV_PROJECT=true
+      - LINES
       - TZ=
-      - DDEV_PROJECT=elmsln
     command: "$DDEV_MARIADB_LOCAL_COMMAND"
     healthcheck:
       interval: 1s
-      retries: 30
-      start_period: 20s
+      retries: 120
+      start_period: 120s
       timeout: 120s
 
   web:
     container_name: ddev-${DDEV_SITENAME}-web
     build:
-      context: '/home/bto108a/elmsln/.ddev/.webimageBuild'
+      context: '/home/bto108a/elmsln/.ddev/web-build'
+      dockerfile: '/home/bto108a/elmsln/.ddev/.webimageBuild/Dockerfile'
       args:
         BASE_IMAGE: $DDEV_WEBIMAGE
         username: 'bto108a'
         uid: '1001'
         gid: '1001'
-    image: ${DDEV_WEBIMAGE}-built
+    image: ${DDEV_WEBIMAGE}-${DDEV_SITENAME}-built
     cap_add:
       - SYS_PTRACE
     volumes:
+      
       - type: bind
         source: ../
         target: /var/www/html
         
         consistency: cached
         
+      
       - ".:/mnt/ddev_config:ro"
+      - "./nginx_full:/etc/nginx/sites-enabled:ro"
+      - "./apache:/etc/apache2/sites-enabled:ro"
       - ddev-global-cache:/mnt/ddev-global-cache
       
       - ddev-ssh-agent_socket_dir:/home/.ssh-agent
@@ -82,28 +99,36 @@ services:
       - "127.0.0.1:$DDEV_HOST_WEBSERVER_PORT:80"
       - "127.0.0.1:$DDEV_HOST_HTTPS_PORT:443"
     environment:
-      - DOCROOT=$DDEV_DOCROOT
-      - DDEV_PHP_VERSION=$DDEV_PHP_VERSION
-      - DDEV_WEBSERVER_TYPE=$DDEV_WEBSERVER_TYPE
-      - DDEV_PROJECT_TYPE=$DDEV_PROJECT_TYPE
-      - DDEV_ROUTER_HTTP_PORT=$DDEV_ROUTER_HTTP_PORT
-      - DDEV_ROUTER_HTTPS_PORT=$DDEV_ROUTER_HTTPS_PORT
-      - DDEV_XDEBUG_ENABLED=$DDEV_XDEBUG_ENABLED
+      - COLUMNS
+      - DOCROOT=${DDEV_DOCROOT}
+      - DDEV_DOCROOT
+      - DDEV_HOSTNAME
+      - DDEV_PHP_VERSION
+      - DDEV_PRIMARY_URL
+      - DDEV_PROJECT
+      - DDEV_PROJECT_TYPE
+      - DDEV_ROUTER_HTTP_PORT
+      - DDEV_ROUTER_HTTPS_PORT
+      - DDEV_SITENAME
+      - DDEV_TLD
+      - DDEV_WEBSERVER_TYPE
+      - DDEV_XDEBUG_ENABLED
+      - DEPLOY_NAME=local
+
+      - DRUSH_ALLOW_XDEBUG=1
       - DOCKER_IP=127.0.0.1
       - HOST_DOCKER_INTERNAL_IP=172.17.0.1
-      - DEPLOY_NAME=local
-      - VIRTUAL_HOST=$DDEV_HOSTNAME
-      - COLUMNS=$COLUMNS
-      - LINES=$LINES
-      - TZ=
       # HTTP_EXPOSE allows for ports accepting HTTP traffic to be accessible from <site>.ddev.site:<port>
       # To expose a container port to a different host port, define the port as hostPort:containerPort
       - HTTP_EXPOSE=${DDEV_ROUTER_HTTP_PORT}:80,${DDEV_MAILHOG_PORT}:8025
       # You can optionally expose an HTTPS port option for any ports defined in HTTP_EXPOSE.
       # To expose an HTTPS port, define the port as securePort:containerPort.
-      - HTTPS_EXPOSE=${DDEV_ROUTER_HTTPS_PORT}:80
+      - HTTPS_EXPOSE=${DDEV_ROUTER_HTTPS_PORT}:80,${DDEV_MAILHOG_HTTPS_PORT}:8025
+      - IS_DDEV_PROJECT=true
+      - LINES
       - SSH_AUTH_SOCK=/home/.ssh-agent/socket
-      - DDEV_PROJECT=elmsln
+      - TZ=
+      - VIRTUAL_HOST=${DDEV_HOSTNAME}
     labels:
       com.ddev.site-name: ${DDEV_SITENAME}
       com.ddev.platform: ddev
@@ -113,6 +138,7 @@ services:
     extra_hosts: [ "host.docker.internal:172.17.0.1" ]
 
     external_links:
+    - "ddev-router:elmsln.ddev.site"
     - "ddev-router:analytics.elmsln.ddev.site"
     - "ddev-router:blog.elmsln.ddev.site"
     - "ddev-router:comply.elmsln.ddev.site"
@@ -132,7 +158,6 @@ services:
     - "ddev-router:data-people.elmsln.ddev.site"
     - "ddev-router:data-studio.elmsln.ddev.site"
     - "ddev-router:discuss.elmsln.ddev.site"
-    - "ddev-router:elmsln.ddev.site"
     - "ddev-router:grades.elmsln.ddev.site"
     - "ddev-router:hub.elmsln.ddev.site"
     - "ddev-router:inbox.elmsln.ddev.site"
@@ -145,10 +170,9 @@ services:
     
     healthcheck:
       interval: 1s
-      retries: 10
-      start_period: 10s
+      retries: 120
+      start_period: 120s
       timeout: 120s
-
 
 
   dba:
@@ -169,9 +193,11 @@ services:
       - PMA_USER=db
       - PMA_PASSWORD=db
       - VIRTUAL_HOST=$DDEV_HOSTNAME
+      - UPLOAD_LIMIT=1024M
       - TZ=
       # HTTP_EXPOSE allows for ports accepting HTTP traffic to be accessible from <site>.ddev.site:<port>
       - HTTP_EXPOSE=${DDEV_PHPMYADMIN_PORT}:8036
+      - HTTPS_EXPOSE=${DDEV_PHPMYADMIN_HTTPS_PORT}:8036
     healthcheck:
       interval: 120s
       timeout: 2s
@@ -192,7 +218,7 @@ volumes:
   
   ddev-global-cache:
     name: ddev-global-cache
-  
+
   
 
   
