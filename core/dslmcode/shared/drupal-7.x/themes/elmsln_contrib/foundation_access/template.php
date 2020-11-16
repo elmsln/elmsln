@@ -1657,7 +1657,7 @@ function foundation_access_status_messages($variables) {
   );
   foreach (drupal_get_messages($display) as $type => $messages) {
     if (!empty($status_mapping[$type])) {
-      $output .= '<h2 class="alert-heading ' . $status_mapping[$type]['color'] . '"><simple-icon icon="' . $status_mapping[$type]['icon'] . '" class="status-icon"></simple-icon>' . $status_mapping[$type]['heading'] . '</h2>';
+      $output .= '<h2 class="alert-heading ' . $status_mapping[$type]['color'] . '"><simple-icon icon="' . $status_mapping[$type]['icon'] . '" class="status-icon" dark contrast="4"></simple-icon>' . $status_mapping[$type]['heading'] . '</h2>';
     }
     $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">";
     if (count($messages) > 1) {
