@@ -6,6 +6,7 @@ webserver_type: apache-fpm
 router_http_port: "80"
 router_https_port: "443"
 xdebug_enabled: false
+disable_settings_management: true
 additional_hostnames:
   - courses.elmsln
   - media.elmsln
@@ -38,4 +39,10 @@ additional_hostnames:
 provider: default
 hooks:
   post-start:
-    - exec: "sudo bash /var/www/html/scripts/install/handsfree/ddev/handsfree-ddev.sh elmsln ln elmsln.ddev.site http admin@elmsln.dev yes"
+    - exec: "sudo ln -s /var/www/html /var/www/elmsln"
+    - exec: "sudo bash /var/www/html/scripts/install/handsfree/ddev/handsfree-ddev.sh elmsln ln elmsln.ddev.site https admin@elmsln.dev yes ${DDEV_USER}"
+    - exec: "sudo rm -rf /root/.composer && sudo cp -a /home/$DDEV_USER/.composer/. /root/.composer/"
+    - exec: "sudo rm -rf /root/.drush && sudo cp -a /home/$DDEV_USER/.drush/. /root/.drush/"
+    - exec: "sudo mkdir /root/.config"
+    - exec: "sudo bash /var/www/html/scripts/install/handsfree/ddev/handsfree-ddev-restart.sh"
+    - exec: "sudo service cron start"

@@ -1,0 +1,1 @@
+Drush plugins with global commands specific to ELMSLN. This just makes it easier to write code to perform different tasks in php instead of bash.

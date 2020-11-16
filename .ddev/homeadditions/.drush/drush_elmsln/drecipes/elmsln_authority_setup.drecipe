@@ -1,0 +1,41 @@
+{
+	"name": "ELMSLN Authority setup",
+	"drush_recipes_api": "1.0",
+	"weight": "0",
+	"core": "7",
+	"recipe": [
+		{
+			"command": "vset",
+			"arguments": [
+				"cron_safe_threshold",
+				"0"
+			]
+		},
+		{
+			"command": "vset",
+			"arguments": [
+				"user_register",
+				"1"
+			]
+		},
+		{
+			"command": "vset",
+			"arguments": [
+				"user_email_verification",
+				"0"
+			]
+		},
+		{
+			"command": "vdel",
+			"arguments": [
+				"update_notify_emails"
+			]
+		}
+	],
+	"metadata": {
+		"type": 2,
+		"version": "1.1",
+		"author": "elmsln",
+		"description": "Set various drush settings that make an ELMSLN authority system production ready"
+	}
+}

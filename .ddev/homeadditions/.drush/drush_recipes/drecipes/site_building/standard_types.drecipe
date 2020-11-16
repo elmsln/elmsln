@@ -1,0 +1,51 @@
+{
+    "name": "Standard Types",
+    "drush_recipes_api": "1.0",
+    "weight": "0",
+    "core": "7",
+    "recipe": [
+        {
+            "command": "cook",
+            "arguments": [
+                "ccr_add_type"
+            ]
+        },
+        {
+            "command": "cook",
+            "arguments": [
+                "ccr_add_field"
+            ],
+            "options": {
+                "mlt-ccr_machine_name": "page"
+            }
+        },
+        {
+            "command": "cook",
+            "arguments": [
+                "ccr_add_type,ccr_add_field"
+            ],
+            "options": {
+                "mlt-ccr_machine_name": "article",
+                "mlt-ccr_human_name": "Article"
+            }
+        },
+        {
+            "command": "cook",
+            "arguments": [
+                "ccr_add_field"
+            ],
+            "options": {
+                "mlt-ccr_machine_name": "article",
+                "mlt-ccr_field_machine_name": "field_image",
+                "mlt-ccr_field_type": "image",
+                "mlt-ccr_field_widget": "image_image"
+            }
+        }
+    ],
+    "metadata": {
+        "type": "add-on",
+        "version": "1.0",
+        "author": "baf139",
+        "description": "The standard types to create during site install"
+    }
+}

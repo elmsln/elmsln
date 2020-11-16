@@ -1,0 +1,28 @@
+{
+    "name": "Toggle user 1 account",
+    "drush_recipes_api": "1.0",
+    "core": "7",
+    "weight": 0,
+    "recipe": [
+        {
+            "madlib": "true",
+            "command": "user-[blockstatus]",
+            "arguments": [
+                "1"
+            ],
+            "tokens": {
+                "[blockstatus]": "block or unblock user 1"
+            },
+            "defaults": {
+                "[blockstatus]": "block"
+            }
+        }
+    ],
+    "metadata": {
+        "description": "Toggle the user 1 account for added security",
+        "version": "1.0",
+        "type": "add-on",
+        "author": "btopro",
+        "lazy": "u1off"
+    }
+}
