@@ -58,7 +58,7 @@
             <?php endif; ?>
             <?php if (!empty($cis_shortcodes)) : ?>
               <li class="page-op-button">
-              <lrnsys-drawer id="embedcontent" align="right" alt="<?php print t('Embed this content')?>" icon="share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
+              <lrnsys-drawer id="embedcontent" align="right" alt="<?php print t('Embed this content')?>" icon="lrn:share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
                 <?php print $cis_shortcodes; ?>
               </lrnsys-drawer>
               </li>
