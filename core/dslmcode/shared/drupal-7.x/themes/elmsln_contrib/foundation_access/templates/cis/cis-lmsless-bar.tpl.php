@@ -47,7 +47,7 @@
       <ul class="menu clearfix">
         <?php if ($bar_elements['help']) : ?>
         <li>
-          <lrnsys-button data-jwerty-key="h" data-voicecommand="help" href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap" button-class="black white-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?>">
+          <lrnsys-button dark data-jwerty-key="h" data-voicecommand="help" href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap" button-class="black white-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?>">
             <lrn-icon icon="help"></lrn-icon>
             <span class="hide-on-med-and-down"><?php print t('Help'); ?></span>
           </lrnsys-button>
@@ -55,14 +55,14 @@
         <?php endif; ?>
         <?php if (isset($bar_elements['resources']) && $bar_elements['resources']) : ?>
         <li>
-          <lrnsys-button data-jwerty-key="r" data-voicecommand="resources" href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap" icon="maps:local-library"  button-class="black white-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?>">
+          <lrnsys-button dark data-jwerty-key="r" data-voicecommand="resources" href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap" icon="maps:local-library" button-class="black white-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?>">
             <span class="hide-on-med-and-down"><?php print t('Resources'); ?></span>
           </lrnsys-button>
         </li>
         <?php endif; ?>
         <?php if ($bar_elements['syllabus']) : ?>
           <li>
-          <lrnsys-button data-jwerty-key="y" data-voicecommand="syllabus" href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap" icon="info-outline"  button-class="black white-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?>">
+          <lrnsys-button dark data-jwerty-key="y" data-voicecommand="syllabus" href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap" icon="info-outline"  button-class="black white-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?>">
             <span class="hide-on-med-and-down"><?php print t('Syllabus'); ?></span>
           </lrnsys-button>
         </li>

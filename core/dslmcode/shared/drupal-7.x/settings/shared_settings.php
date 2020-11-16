@@ -12,7 +12,6 @@ $conf['webcomponents_project_local_build_file'] = TRUE;
 $conf['hax_autoload_element_list'] = '{
   "a11y-collapse": "@lrnwebcomponents/a11y-collapse/a11y-collapse.js",
   "a11y-figure": "@lrnwebcomponents/a11y-figure/a11y-figure.js",
-  "lrndesign-chart": "@lrnwebcomponents/lrndesign-chart/lrndesign-chart.js",
   "accent-card": "@lrnwebcomponents/accent-card/accent-card.js",
   "h5p-element": "@lrnwebcomponents/h5p-element/h5p-element.js",
   "hax-logo": "@lrnwebcomponents/hax-logo/hax-logo.js",
@@ -28,7 +27,6 @@ $conf['hax_autoload_element_list'] = '{
   "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
   "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
   "magazine-cover": "@lrnwebcomponents/magazine-cover/magazine-cover.js",
-  "media-behaviors": "@lrnwebcomponents/media-behaviors/media-behaviors.js",
   "media-image": "@lrnwebcomponents/media-image/media-image.js",
   "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
   "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js",

@@ -40,12 +40,6 @@ provider: default
 hooks:
   post-start:
     - exec: "sudo ln -s /var/www/html /var/www/elmsln"
-    - exec: "sudo DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::https::No-Cache=True -o Acquire::http::No-Cache=True update"
-    - exec: "sudo DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common"
-    - exec: "curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -"
-    - exec: "sudo DEBIAN_FRONTEND=noninteractive apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xF1656F24C74CD1D8"
-    - exec: "sudo DEBIAN_FRONTEND=noninteractive apt-get -y update"
-    - exec: "sudo DEBIAN_FRONTEND=noninteractive apt-get -y install dirmngr dialog apt-utils"
     - exec: "sudo bash /var/www/html/scripts/install/handsfree/ddev/handsfree-ddev.sh elmsln ln elmsln.ddev.site https admin@elmsln.dev yes ${DDEV_USER}"
     - exec: "sudo rm -rf /root/.composer && sudo cp -a /home/$DDEV_USER/.composer/. /root/.composer/"
     - exec: "sudo rm -rf /root/.drush && sudo cp -a /home/$DDEV_USER/.drush/. /root/.drush/"
