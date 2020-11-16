@@ -976,7 +976,7 @@ class HAXAppStoreService {
       "details": {
         "title": "50% columns",
         "author": "ELMS:LN",
-        "icon": "hax:6/6",
+        "icon": "hax:6-6",
         "status": "available",
         "layout": "1-1"
       },
@@ -1009,7 +1009,7 @@ class HAXAppStoreService {
       "details": {
         "title": "66 / 33 columns",
         "author": "ELMS:LN",
-        "icon": "hax:8/4",
+        "icon": "hax:8-4",
         "status": "available",
         "layout": "2-1"
       },
@@ -1036,7 +1036,7 @@ class HAXAppStoreService {
       "details": {
         "title": "33% columns",
         "author": "ELMS:LN",
-        "icon": "hax:4/4/4",
+        "icon": "hax:4-4-4",
         "status": "available",
         "layout": "1-1-1"
       },
@@ -1071,7 +1071,7 @@ class HAXAppStoreService {
       "details": {
         "title": "33 / 66 columns",
         "author": "ELMS:LN",
-        "icon": "hax:4/8",
+        "icon": "hax:4-8",
         "status": "available",
         "layout": "1-2"
       },
@@ -1114,7 +1114,7 @@ class HAXAppStoreService {
       "details": {
         "title": "25% columns",
         "author": "ELMS:LN",
-        "icon": "hax:3/3/3/3",
+        "icon": "hax:3-3-3-3",
         "status": "available",
         "layout": "1-1-1-1"
       },
