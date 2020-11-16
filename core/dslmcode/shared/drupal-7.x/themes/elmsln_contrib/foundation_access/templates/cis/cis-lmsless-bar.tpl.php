@@ -137,7 +137,7 @@
     <ul class="elmsln-more-items col s3">
       <li class="elmsln-network-menu-item right">
         <lrnsys-drawer class="middle-align-wrap elmsln-network-button" align="right" header="<?php print t('Applications'); ?>" data-jwerty-key="o+a" data-voicecommand="open applications">
-          <span slot="button"><iron-icon icon="apps"></iron-icon><span class=" hide-on-small-only"><?php print t('More apps'); ?></span></span>
+          <span slot="button"><simple-icon icon="apps"></simple-icon><span class=" hide-on-small-only"><?php print t('More apps'); ?></span></span>
           <div slot="content" class="elmsln-modal-content elmsln-network-modal">
             <?php print $network_block;?>
           </div>

@@ -252,7 +252,7 @@ function foundation_access_fieldset($variables) {
         }
         // support icons in the headings of collapsed fieldsets
         if (isset($element['#materialize']['icon'])) {
-          $icon = '<iron-icon icon="' . $element['#materialize']['icon'] . '"></iron-icon>';
+          $icon = '<simple-icon icon="' . $element['#materialize']['icon'] . '"></simple-icon>';
         }
         // support descriptions / form the body
         if (isset($element['#description'])) {
@@ -273,13 +273,13 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <lrnsys-collapselist-item>
+          <a11y-collapse>
               <div slot="label">
                 ' . $icon . '
                 <span>' . $element['#title'] . '</span>
               </div>
             <div slot="content"> ' . $body . ' </div>
-          </lrnsys-collapselist-item>
+          </a11y-collapse>
           <div class="divider"></div>
         </li>';
       break;
@@ -562,7 +562,7 @@ function foundation_access_button($variables) {
   if ($variables['element']['#value'] == 'Upload') {
     return '
     <div class="col s12 m4 input-field">
-      <button ' . drupal_attributes($element['#attributes']) . '><paper-button>' . $element['#value'] . '</paper-button></button>
+      <button ' . drupal_attributes($element['#attributes']) . '><button>' . $element['#value'] . '</button></button>
     </div>';
   }
   else {
@@ -583,7 +583,7 @@ function foundation_access_button($variables) {
       $js = ' onclick="document.getElementById(\'cis-service-connection-block-section-context-changer-form\').submit();" ';
     }
     unset($lrnsys['id']);
-    return '<button' . $js . drupal_attributes($element['#attributes']) . '><paper-button ' . drupal_attributes($lrnsys) . '>' . $element['#value'] . '</paper-button></button>';
+    return '<button' . $js . drupal_attributes($element['#attributes']) . drupal_attributes($lrnsys) . '>' . $element['#value'] . '</button>';
   }
 }
 
@@ -1110,7 +1110,7 @@ function foundation_access_preprocess_clipboardjs(&$variables) {
     '#markup' => $variables['text'],
   );
   $variables['content']['button'] = array(
-    '#markup' => '<button title="' . t('Copy content') . '" class="clipboardjs-button" data-clipboard-alert="toast" data-clipboard-alert-text="' . $variables['alert_text'] . '" data-clipboard-target="#' . $uniqid . '" onclick="return false;"><iron-icon icon="content-copy" style="display:block;"></iron-icon></button>',
+    '#markup' => '<button title="' . t('Copy content') . '" class="clipboardjs-button" data-clipboard-alert="toast" data-clipboard-alert-text="' . $variables['alert_text'] . '" data-clipboard-target="#' . $uniqid . '" onclick="return false;"><simple-icon icon="content-copy" style="display:block;"></simple-icon></button>',
   );
 }
 
@@ -1578,7 +1578,7 @@ function foundation_access_pager($variables) {
         if ($i == $pager_current) {
           $items[] = array(
             'class' => array('active'),
-            'data' => '<a class="black-text" href=""><paper-button>' . $i . '</paper-button></a>',
+            'data' => '<a class="black-text" href=""><button>' . $i . '</button></a>',
           );
         }
         if ($i > $pager_current) {
@@ -1657,7 +1657,7 @@ function foundation_access_status_messages($variables) {
   );
   foreach (drupal_get_messages($display) as $type => $messages) {
     if (!empty($status_mapping[$type])) {
-      $output .= '<h2 class="alert-heading ' . $status_mapping[$type]['color'] . '"><iron-icon icon="' . $status_mapping[$type]['icon'] . '" class="status-icon"></iron-icon>' . $status_mapping[$type]['heading'] . '</h2>';
+      $output .= '<h2 class="alert-heading ' . $status_mapping[$type]['color'] . '"><simple-icon icon="' . $status_mapping[$type]['icon'] . '" class="status-icon"></simple-icon>' . $status_mapping[$type]['heading'] . '</h2>';
     }
     $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">";
     if (count($messages) > 1) {
@@ -1685,7 +1685,7 @@ function foundation_access_status_messages($variables) {
  * Helper function to create a materialize toast notification.
  */
 function _foundation_access_make_toast($message, $display_length = 4000, $class_name = NULL, $callback = NULL) {
-  return '<paper-toast id="toastdrawer" class="fit-bottom" opened duration="0"><div class="paper-toast-label">' . t('Message center') . '<paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button></div><div class="toast-content-container">' . $message . '</div></paper-toast>';
+  return '<paper-toast id="toastdrawer" class="fit-bottom" opened duration="0"><div class="paper-toast-label">' . t('Message center') . '<button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</button></div><div class="toast-content-container">' . $message . '</div></paper-toast>';
 }
 
 /**
@@ -1750,7 +1750,7 @@ function foundation_access_pager_link($variables) {
   else {
     $output = check_plain($text);
   }
-  return '<a tabindex="-1" ' . drupal_attributes($attributes) . '><paper-button>' . $output . '</paper-button></a>';
+  return '<a tabindex="-1" ' . drupal_attributes($attributes) . '><button>' . $output . '</button></a>';
 }
 
 /**

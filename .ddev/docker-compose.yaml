@@ -1,70 +1,156 @@
-version: '3'
+version: '3.6'
 #ddev-generated
 services:
+
   db:
     container_name: ddev-${DDEV_SITENAME}-db
-    image: $DDEV_DBIMAGE
+    build:
+      context: '/home/bto108a/elmsln/.ddev/.dbimageBuild'
+      args:
+        BASE_IMAGE: $DDEV_DBIMAGE
+        username: 'bto108a'
+        uid: '1001'
+        gid: '1001'
+    image: ${DDEV_DBIMAGE}-built
     stop_grace_period: 60s
     volumes:
-      - "${DDEV_IMPORTDIR}:/db"
-      - "${DDEV_DATADIR}:/var/lib/mysql"
-      - ".:/mnt/ddev_config"
+      - type: "volume"
+        source: mariadb-database
+        target: "/var/lib/mysql"
+        volume:
+          nocopy: true
+      - type: "bind"
+        source: "."
+        target: "/mnt/ddev_config"
+      - ddev-global-cache:/mnt/ddev-global-cache
     restart: "no"
     user: "$DDEV_UID:$DDEV_GID"
+    hostname: elmsln-db
     ports:
-      - "3306"
+      - "127.0.0.1:$DDEV_HOST_DB_PORT:3306"
     labels:
       com.ddev.site-name: ${DDEV_SITENAME}
       com.ddev.platform: ddev
       com.ddev.app-type: php
       com.ddev.approot: $DDEV_APPROOT
-      com.ddev.app-url: $DDEV_URL
     environment:
       - COLUMNS=$COLUMNS
       - LINES=$LINES
+      - TZ=
+      - DDEV_PROJECT=elmsln
+    command: "$DDEV_MARIADB_LOCAL_COMMAND"
+    healthcheck:
+      interval: 1s
+      retries: 30
+      start_period: 20s
+      timeout: 120s
 
   web:
     container_name: ddev-${DDEV_SITENAME}-web
-    image: $DDEV_WEBIMAGE
+    build:
+      context: '/home/bto108a/elmsln/.ddev/.webimageBuild'
+      args:
+        BASE_IMAGE: $DDEV_WEBIMAGE
+        username: 'bto108a'
+        uid: '1001'
+        gid: '1001'
+    image: ${DDEV_WEBIMAGE}-built
+    cap_add:
+      - SYS_PTRACE
     volumes:
-      - "../:/var/www/html:cached"
-      - ".:/mnt/ddev_config"
+      - type: bind
+        source: ../
+        target: /var/www/html
+        
+        consistency: cached
+        
+      - ".:/mnt/ddev_config:ro"
+      - ddev-global-cache:/mnt/ddev-global-cache
+      
+      - ddev-ssh-agent_socket_dir:/home/.ssh-agent
+      
+
     restart: "no"
     user: "$DDEV_UID:$DDEV_GID"
-    depends_on:
-      - db
+    hostname: elmsln-web
+    
     links:
       - db:db
+    
     # ports is list of exposed *container* ports
     ports:
-      - "80"
-      - "8025"
-    working_dir: /var/www/html/${DDEV_DOCROOT}
+      - "127.0.0.1:$DDEV_HOST_WEBSERVER_PORT:80"
+      - "127.0.0.1:$DDEV_HOST_HTTPS_PORT:443"
     environment:
-      - DDEV_URL=$DDEV_URL
       - DOCROOT=$DDEV_DOCROOT
       - DDEV_PHP_VERSION=$DDEV_PHP_VERSION
+      - DDEV_WEBSERVER_TYPE=$DDEV_WEBSERVER_TYPE
       - DDEV_PROJECT_TYPE=$DDEV_PROJECT_TYPE
       - DDEV_ROUTER_HTTP_PORT=$DDEV_ROUTER_HTTP_PORT
       - DDEV_ROUTER_HTTPS_PORT=$DDEV_ROUTER_HTTPS_PORT
       - DDEV_XDEBUG_ENABLED=$DDEV_XDEBUG_ENABLED
+      - DOCKER_IP=127.0.0.1
+      - HOST_DOCKER_INTERNAL_IP=172.17.0.1
       - DEPLOY_NAME=local
       - VIRTUAL_HOST=$DDEV_HOSTNAME
       - COLUMNS=$COLUMNS
       - LINES=$LINES
-      # HTTP_EXPOSE allows for ports accepting HTTP traffic to be accessible from <site>.ddev.local:<port>
+      - TZ=
+      # HTTP_EXPOSE allows for ports accepting HTTP traffic to be accessible from <site>.ddev.site:<port>
       # To expose a container port to a different host port, define the port as hostPort:containerPort
-      - HTTP_EXPOSE=${DDEV_ROUTER_HTTP_PORT}:80,8025
+      - HTTP_EXPOSE=${DDEV_ROUTER_HTTP_PORT}:80,${DDEV_MAILHOG_PORT}:8025
       # You can optionally expose an HTTPS port option for any ports defined in HTTP_EXPOSE.
       # To expose an HTTPS port, define the port as securePort:containerPort.
       - HTTPS_EXPOSE=${DDEV_ROUTER_HTTPS_PORT}:80
+      - SSH_AUTH_SOCK=/home/.ssh-agent/socket
+      - DDEV_PROJECT=elmsln
     labels:
       com.ddev.site-name: ${DDEV_SITENAME}
       com.ddev.platform: ddev
       com.ddev.app-type: php
       com.ddev.approot: $DDEV_APPROOT
-      com.ddev.app-url: $DDEV_URL
-    extra_hosts: ["unneeded:127.0.0.1"]
+
+    extra_hosts: [ "host.docker.internal:172.17.0.1" ]
+
+    external_links:
+    - "ddev-router:analytics.elmsln.ddev.site"
+    - "ddev-router:blog.elmsln.ddev.site"
+    - "ddev-router:comply.elmsln.ddev.site"
+    - "ddev-router:courses.elmsln.ddev.site"
+    - "ddev-router:data-blog.elmsln.ddev.site"
+    - "ddev-router:data-comply.elmsln.ddev.site"
+    - "ddev-router:data-courses.elmsln.ddev.site"
+    - "ddev-router:data-discuss.elmsln.ddev.site"
+    - "ddev-router:data-grades.elmsln.ddev.site"
+    - "ddev-router:data-hub.elmsln.ddev.site"
+    - "ddev-router:data-inbox.elmsln.ddev.site"
+    - "ddev-router:data-innovate.elmsln.ddev.site"
+    - "ddev-router:data-interact.elmsln.ddev.site"
+    - "ddev-router:data-lq.elmsln.ddev.site"
+    - "ddev-router:data-media.elmsln.ddev.site"
+    - "ddev-router:data-online.elmsln.ddev.site"
+    - "ddev-router:data-people.elmsln.ddev.site"
+    - "ddev-router:data-studio.elmsln.ddev.site"
+    - "ddev-router:discuss.elmsln.ddev.site"
+    - "ddev-router:elmsln.ddev.site"
+    - "ddev-router:grades.elmsln.ddev.site"
+    - "ddev-router:hub.elmsln.ddev.site"
+    - "ddev-router:inbox.elmsln.ddev.site"
+    - "ddev-router:innovate.elmsln.ddev.site"
+    - "ddev-router:interact.elmsln.ddev.site"
+    - "ddev-router:media.elmsln.ddev.site"
+    - "ddev-router:online.elmsln.ddev.site"
+    - "ddev-router:people.elmsln.ddev.site"
+    - "ddev-router:studio.elmsln.ddev.site"
+    
+    healthcheck:
+      interval: 1s
+      retries: 10
+      start_period: 10s
+      timeout: 120s
+
+
+
   dba:
     container_name: ddev-${DDEV_SITENAME}-dba
     image: $DDEV_DBAIMAGE
@@ -74,20 +160,39 @@ services:
       com.ddev.platform: ddev
       com.ddev.app-type: php
       com.ddev.approot: $DDEV_APPROOT
-      com.ddev.app-url: $DDEV_URL
-    depends_on:
-      - db
     links:
       - db:db
     ports:
       - "80"
+    hostname: elmsln-dba
     environment:
       - PMA_USER=db
       - PMA_PASSWORD=db
       - VIRTUAL_HOST=$DDEV_HOSTNAME
-      # HTTP_EXPOSE allows for ports accepting HTTP traffic to be accessible from <site>.ddev.local:<port>
-      - HTTP_EXPOSE=8036
+      - TZ=
+      # HTTP_EXPOSE allows for ports accepting HTTP traffic to be accessible from <site>.ddev.site:<port>
+      - HTTP_EXPOSE=${DDEV_PHPMYADMIN_PORT}:8036
+    healthcheck:
+      interval: 120s
+      timeout: 2s
+      retries: 1
+
 networks:
   default:
     external:
       name: ddev_default
+volumes:
+  
+  mariadb-database:
+    name: "${DDEV_SITENAME}-mariadb"
+  
+  
+  ddev-ssh-agent_socket_dir:
+    external: true
+  
+  ddev-global-cache:
+    name: ddev-global-cache
+  
+  
+
+  

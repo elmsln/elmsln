@@ -28,7 +28,7 @@
   <li>
     <lrnsys-dialog header="<?php print t('Change section');?>">
       <span slot="button">
-        <iron-icon icon="perm-identity"></iron-icon>
+        <simple-icon icon="perm-identity"></simple-icon>
         <span><?php print t('Change section');?></span>
       </span>
       <span slot="content">
@@ -41,7 +41,7 @@
   <li>
     <lrnsys-dialog header="<?php print t('Impersonate account');?>">
       <span slot="button">
-        <iron-icon icon="supervisor-account"></iron-icon>
+        <simple-icon icon="supervisor-account"></simple-icon>
         <span><?php print t('Impersonate account');?></span>
       </span>
       <span slot="content">
