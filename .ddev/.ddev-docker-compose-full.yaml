@@ -15,7 +15,7 @@ services:
     command: ''
     container_name: ddev-elmsln-db
     environment:
-      COLUMNS: '167'
+      COLUMNS: '152'
       DDEV_HOSTNAME: elmsln.ddev.site,analytics.elmsln.ddev.site,blog.elmsln.ddev.site,comply.elmsln.ddev.site,courses.elmsln.ddev.site,data-blog.elmsln.ddev.site,data-comply.elmsln.ddev.site,data-courses.elmsln.ddev.site,data-discuss.elmsln.ddev.site,data-grades.elmsln.ddev.site,data-hub.elmsln.ddev.site,data-inbox.elmsln.ddev.site,data-innovate.elmsln.ddev.site,data-interact.elmsln.ddev.site,data-lq.elmsln.ddev.site,data-media.elmsln.ddev.site,data-online.elmsln.ddev.site,data-people.elmsln.ddev.site,data-studio.elmsln.ddev.site,discuss.elmsln.ddev.site,grades.elmsln.ddev.site,hub.elmsln.ddev.site,inbox.elmsln.ddev.site,innovate.elmsln.ddev.site,interact.elmsln.ddev.site,media.elmsln.ddev.site,online.elmsln.ddev.site,people.elmsln.ddev.site,studio.elmsln.ddev.site
       DDEV_PHP_VERSION: '7.2'
       DDEV_PRIMARY_URL: https://elmsln.ddev.site
@@ -28,7 +28,7 @@ services:
       DOCKER_IP: 127.0.0.1
       HOST_DOCKER_INTERNAL_IP: 172.17.0.1
       IS_DDEV_PROJECT: "true"
-      LINES: '45'
+      LINES: '38'
       TZ: ''
     healthcheck:
       interval: 1s
@@ -43,7 +43,7 @@ services:
       com.ddev.platform: ddev
       com.ddev.site-name: elmsln
     ports:
-    - 127.0.0.1::3306/tcp
+    - 127.0.0.1:32854:3306/tcp
     restart: "no"
     stop_grace_period: 60s
     user: 1001:1001
@@ -96,7 +96,7 @@ services:
     - SYS_PTRACE
     container_name: ddev-elmsln-web
     environment:
-      COLUMNS: '167'
+      COLUMNS: '152'
       DDEV_DOCROOT: domains
       DDEV_HOSTNAME: elmsln.ddev.site,analytics.elmsln.ddev.site,blog.elmsln.ddev.site,comply.elmsln.ddev.site,courses.elmsln.ddev.site,data-blog.elmsln.ddev.site,data-comply.elmsln.ddev.site,data-courses.elmsln.ddev.site,data-discuss.elmsln.ddev.site,data-grades.elmsln.ddev.site,data-hub.elmsln.ddev.site,data-inbox.elmsln.ddev.site,data-innovate.elmsln.ddev.site,data-interact.elmsln.ddev.site,data-lq.elmsln.ddev.site,data-media.elmsln.ddev.site,data-online.elmsln.ddev.site,data-people.elmsln.ddev.site,data-studio.elmsln.ddev.site,discuss.elmsln.ddev.site,grades.elmsln.ddev.site,hub.elmsln.ddev.site,inbox.elmsln.ddev.site,innovate.elmsln.ddev.site,interact.elmsln.ddev.site,media.elmsln.ddev.site,online.elmsln.ddev.site,people.elmsln.ddev.site,studio.elmsln.ddev.site
       DDEV_PHP_VERSION: '7.2'
@@ -118,7 +118,7 @@ services:
       HTTPS_EXPOSE: 443:80,8026:8025
       HTTP_EXPOSE: 80:80,8025:8025
       IS_DDEV_PROJECT: "true"
-      LINES: '45'
+      LINES: '38'
       SSH_AUTH_SOCK: /home/.ssh-agent/socket
       TZ: ''
       VIRTUAL_HOST: elmsln.ddev.site,analytics.elmsln.ddev.site,blog.elmsln.ddev.site,comply.elmsln.ddev.site,courses.elmsln.ddev.site,data-blog.elmsln.ddev.site,data-comply.elmsln.ddev.site,data-courses.elmsln.ddev.site,data-discuss.elmsln.ddev.site,data-grades.elmsln.ddev.site,data-hub.elmsln.ddev.site,data-inbox.elmsln.ddev.site,data-innovate.elmsln.ddev.site,data-interact.elmsln.ddev.site,data-lq.elmsln.ddev.site,data-media.elmsln.ddev.site,data-online.elmsln.ddev.site,data-people.elmsln.ddev.site,data-studio.elmsln.ddev.site,discuss.elmsln.ddev.site,grades.elmsln.ddev.site,hub.elmsln.ddev.site,inbox.elmsln.ddev.site,innovate.elmsln.ddev.site,interact.elmsln.ddev.site,media.elmsln.ddev.site,online.elmsln.ddev.site,people.elmsln.ddev.site,studio.elmsln.ddev.site
