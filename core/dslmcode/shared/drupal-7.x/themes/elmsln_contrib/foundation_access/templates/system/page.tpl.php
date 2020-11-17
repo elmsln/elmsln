@@ -51,9 +51,9 @@
               <?php endif; ?>
               </ul>
             <?php else: ?>
-              <-button disabled class="disabled elmsln-more-menu-button">
+              <button disabled class="disabled elmsln-more-menu-button">
                 <simple-icon icon="more-vert"></simple-icon>
-              </-button>
+              </button>
             <?php endif; ?>
             </li>
           </ul>
