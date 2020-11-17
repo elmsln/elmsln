@@ -120,11 +120,11 @@ function _mooc_nav_block_mooc_nav_block($node) {
     // ensure we have headings in the body of the document
     if (count($results) == 5 && count($results[0]) > 1) {
       // loop through items found
-      $scrollspy = '<ul id="scrollspy-nav" class="scrollspy-toc table-of-contents white"><li class="scrollspy-label scrollspy-link"><a tabindex="-1"  href="#main-content" class="scrollspy-link black-text"><button>' . $node->title . '</button></li>';
+      $scrollspy = '<ul id="scrollspy-nav" class="scrollspy-toc table-of-contents white"><li class="scrollspy-label scrollspy-link"><a tabindex="-1"  href="#main-content" class="scrollspy-link black-text">' . $node->title . '</li>';
       foreach ($results[0] as $key => $result) {
         $tmp = strip_tags(trim($results[3][$key]));
         if (!empty($tmp)) {
-          $scrollspy .= '<li class="scrollspy-depth"><a tabindex="-1" class="scrollspy-link black-text" href="#' . hash('md5', 'h' . $key) . '"><button>' . $tmp . '</button></a></li>';
+          $scrollspy .= '<li class="scrollspy-depth"><a tabindex="-1" class="scrollspy-link black-text" href="#' . hash('md5', 'h' . $key) . '">' . $tmp . '</a></li>';
         }
       }
       $scrollspy .= '</ul>';
