@@ -65,9 +65,11 @@ function mooc_helper_haxcms_slots() {
     border-radius: 50%;
     padding: 10px;
     margin: 2px;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.7);
 ">
       <simple-icon-button
         constrast="4"
+        dark
         accent-color="grey"
         icon="' . $item['icon'] . '"
         title="' . $item['title'] . '"
