@@ -55,18 +55,25 @@ function mooc_helper_haxcms_slots() {
       'icon' => 'icons:list',
     ),
   );
-  $slots = '<div slot="haxcms-site-editor-ui-suffix-buttons">';
+  $slots = '<div slot="haxcms-site-editor-ui-suffix-buttons" style="display:grid;">';
   foreach ($ary as $item) {
     $slots .= '
-    <a href="' . base_path() . $item['path'] . '" tabindex="-1" target="_blank">
+    <a href="' . base_path() . $item['path'] . '" tabindex="-1" target="_blank"
+    style="
+    display: inline-flex;
+    background: black;
+    border-radius: 50%;
+    padding: 10px;
+    margin: 2px;
+">
       <simple-icon-button
         constrast="4"
         accent-color="grey"
         icon="' . $item['icon'] . '"
         title="' . $item['title'] . '"
         style="
-          --simple-icon-height: 24px;
-          --simple-icon-width: 24px;
+          --simple-icon-height: 20px;
+          --simple-icon-width: 20px;
       "></simple-icon-button>
     </a>
   ';
