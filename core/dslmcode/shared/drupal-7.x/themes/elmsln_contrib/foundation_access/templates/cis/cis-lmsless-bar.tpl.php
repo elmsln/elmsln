@@ -48,7 +48,7 @@
         <?php if ($bar_elements['help']) : ?>
         <li>
           <lrnsys-button dark data-jwerty-key="h" data-voicecommand="help" href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap" button-class="black white-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?>">
-            <lrn-icon icon="help"></lrn-icon>
+            <simple-icon icon="lrn:help" dark></simple-icon>
             <span class="hide-on-med-and-down"><?php print t('Help'); ?></span>
           </lrnsys-button>
         </li>
