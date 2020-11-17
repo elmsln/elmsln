@@ -53,10 +53,10 @@ lrnsys-drawer:not(:defined) {
   margin-top: 2em;
 }
 
-lrnsys-button,paper-button {
+lrnsys-button,button {
   display: block;
 }
-paper-button.coursecard-wrapper {
+button.coursecard-wrapper {
   height: unset;
 }
 #etb-course-nav .top-bar li lrnsys-button {
@@ -2487,7 +2487,7 @@ blockquote,
     height: 50%;
     position: absolute;
   }
-  .mediavideo__poster paper-button.mediavideo-button {
+  .mediavideo__poster button.mediavideo-button {
     padding: 0;
     margin: 0;
   }
@@ -3205,7 +3205,7 @@ html.js .js-hide {
 button {
   padding: 0;
 }
-button paper-button.paper-button-0 {
+button button.paper-button-0 {
   margin: 0;
   text-transform: none;
 }
@@ -3664,7 +3664,7 @@ article ul.collection {
   height: 3em;
   display: block;
 }
-.elmsln-service-list paper-button.lrnsys-button div.inner.lrnsys-button {
+.elmsln-service-list button.lrnsys-button div.inner.lrnsys-button {
   height: 3em;
   line-height: 3em;
 }
@@ -3773,7 +3773,7 @@ lrnsys-dialog-modal .dialog-heading {
     padding: .5rem .5rem 0 0;
     font-size: .7rem;
   }
-  #etb-course-nav .elmsln-user-button paper-button {
+  #etb-course-nav .elmsln-user-button button {
     padding-right: 0 !important;
   }
   lrnsys-drawer-modal #contentContainer {
@@ -3973,7 +3973,7 @@ body.devel-show .devel-querylog {
 .tabs .tab a {
   line-height: 3rem;
 }
-.tabs .tab lrnsys-button paper-button {
+.tabs .tab lrnsys-button button {
   padding: 0 1em;
 }
 /* cis lmsless nav */
@@ -6632,20 +6632,11 @@ simple-modal[opened] .elmsln-modal-content {
 .elmsln-modal-content ul li lrnsys-dialog {
   display: flex;
   padding: 0 16px;
+  height: 48px;
 }
 .elmsln-modal-content ul li lrnsys-dialog:hover,
 .elmsln-modal-content ul li lrnsys-dialog:active,
 .elmsln-modal-content ul li lrnsys-dialog:focus {
-  background-color: var(--elmsln-system-color-dark);
-  --lrnsys-button-link-color: white;
-  color: white;
-}
-.page-op-button lrnsys-button:hover,
-.page-op-button lrnsys-button:active,
-.page-op-button lrnsys-button:focus,
-.page-op-button lrnsys-drawer:hover,
-.page-op-button lrnsys-drawer:active,
-.page-op-button lrnsys-drawer:focus {
   background-color: var(--elmsln-system-color-dark);
   --lrnsys-button-link-color: white;
   color: white;
@@ -6677,7 +6668,7 @@ simple-modal[opened] .elmsln-modal-content {
   border: none;
   transition: all .2s ease-in-out;
 }
-#scrollspy-nav .scrollspy-link.active paper-button {
+#scrollspy-nav .scrollspy-link.active button {
   transform: scale(1.06);
   padding: 0 0 0 .5em;
 }
@@ -7958,12 +7949,12 @@ image-compare-slider .container.image-compare-slider {
   margin: unset;
   margin-bottom: 315px;
 }
-ul.pagination paper-button {
+ul.pagination button {
     margin: 0;
     padding: 0;
     min-width: 2em;
 }
-paper-button simple-tooltip {
+button simple-tooltip {
   text-transform: unset;
 }
 lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
@@ -8058,7 +8049,7 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
 #toastdrawer lrnsys-button {
   display: inline-flex;
 }
-#toastdrawer paper-button {
+#toastdrawer button {
   top: 0;
   right: 0;
   position: absolute;
@@ -8118,26 +8109,26 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   color: black;
 }
 
-.dropdown-content li a paper-button {
+.dropdown-content li a button {
   border-radius: 0;
   margin: 0;
   padding: 0 0 0 .25rem;
 }
-#etb-course-nav .top-bar li a paper-button {
+#etb-course-nav .top-bar li a button {
   padding: 0;
   display: flex;
 }
-#etb-course-nav .top-bar li a paper-button div.inner,
-#etb-course-nav .top-bar li a paper-button span.label {
+#etb-course-nav .top-bar li a button div.inner,
+#etb-course-nav .top-bar li a button span.label {
   height: unset;
   padding: 0 .6em;
   margin: 0;
 }
-lrnsys-button paper-button {
+lrnsys-button button {
   height: inherit;
 }
 
-lrnsys-drawer paper-button {
+lrnsys-drawer button {
   height: unset;
 }
 .elmsln-modal-content li a {
@@ -8162,11 +8153,11 @@ lrnsys-drawer paper-button {
   height: 2em;
   line-height: 2em;
 }
-#etb-course-nav lrnsys-drawer .elmsln-modal-content li paper-button {
+#etb-course-nav lrnsys-drawer .elmsln-modal-content li button {
   height: 2em;
   line-height: 2em;
 }
-#etb-course-nav lrnsys-drawer .elmsln-modal-content li paper-button div.inner img, #etb-course-nav lrnsys-drawer .elmsln-modal-content li paper-button div.inner {
+#etb-course-nav lrnsys-drawer .elmsln-modal-content li button div.inner img, #etb-course-nav lrnsys-drawer .elmsln-modal-content li button div.inner {
   line-height: 2em;
   font-size: 1em;
 }
@@ -8182,7 +8173,7 @@ lrnsys-drawer .drawer-contents {
   display: inline-block;
 }
 
-#etb-course-nav paper-button {
+#etb-course-nav button {
   padding: 0;
   min-width: .1rem;
   margin: 0;
@@ -8193,14 +8184,14 @@ lrnsys-drawer .drawer-contents {
   width: 100%;
   display: flex;
 }
-paper-button#close-button {
+button#close-button {
   height: unset;
   width: unset;
 }
-paper-button#close-button.lrnsys-dialog {
+button#close-button.lrnsys-dialog {
   padding: 1em;
 }
-.elmsln--page--operations li.page-op-button paper-button {
+.elmsln--page--operations li.page-op-button button {
   margin: 0;
   padding: .25rem;
   min-width: unset;
@@ -8235,7 +8226,7 @@ lrnsys-drawer app-drawer,
 .disabled.elmsln-more-menu-button {
   background-color: unset;
 }
-#etb-network-navpaper-button.lrnsys-button {
+#etb-network-nav button.lrnsys-button {
   min-width: 3.25em;
   padding: 0 .75em;
   margin: 0;
@@ -8251,26 +8242,20 @@ lrnsys-drawer app-drawer,
   margin: 0;
   text-transform: unset;
 }
-#etb-network-nav lrnsys-drawer.elmsln-network-button:focus,
-#etb-network-nav lrnsys-drawer.elmsln-network-button:active,
-#etb-network-nav lrnsys-drawer.elmsln-network-button:hover {
-  background-color: var(--elmsln-system-color-dark);
-  color: white;
-}
 
 .elmsln-network-icon {
   display: inline-grid;
 }
-#etb-network-nav paper-button lrn-icon {
+#etb-network-nav button lrn-icon {
   width: 2em;
   height: 2em;
 }
 
-.scrollspy-link paper-button {
+.scrollspy-link button {
   margin: 0;
   padding: 0;
 }
-.collapsible-header paper-button {
+.collapsible-header button {
   width: 100%;
   -ms-flex-align: left;
   -webkit-align-items: left;
@@ -8337,13 +8322,13 @@ lrn-aside div.card-panel.lrndesign-panelcard {
   margin: 0;
 }
 
-button.btn paper-button {
+button.btn button {
   min-width: 1rem;
   margin: 0;
   padding: 0;
 }
 
-#scrollspy-nav paper-button {
+#scrollspy-nav button {
   min-width: 1rem;
   width: 100%;
   -ms-flex-align: left;
@@ -8355,8 +8340,8 @@ button.btn paper-button {
   outline: none;
 }
 
-.elmsln-modal .close-reveal-modal paper-button,
-.etb-nav-modal .close-reveal-modal paper-button {
+.elmsln-modal .close-reveal-modal button,
+.etb-nav-modal .close-reveal-modal button {
   cursor: pointer;
   font-size: 2rem;
   font-weight: bold;
@@ -8511,8 +8496,8 @@ div.autocomplete-deluxe-multiple {
 /**
  * Fixes some stuff that's loaded into tight spaces
  */
-.collapsible-header paper-button,
-paper-button.lrnsys-button div.inner.lrnsys-button {
+.collapsible-header button,
+button.lrnsys-button div.inner.lrnsys-button {
   font-size: .9rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -8537,7 +8522,7 @@ paper-button.lrnsys-button div.inner.lrnsys-button {
   height: 2em;
   margin:0;
 }
-.elmsln-edit-button paper-button {
+.elmsln-edit-button button {
   border-radius: 40em !important;
   width: 2.2em !important;
   height: 2.2em !important;

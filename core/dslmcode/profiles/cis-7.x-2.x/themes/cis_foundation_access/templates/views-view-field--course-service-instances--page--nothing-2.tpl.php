@@ -95,7 +95,7 @@
   }
   // make sure we have something to render
   if (isset($text)) {
-    print '<paper-button>' . $icon . '<div style="display:inline-flex;">' . $text . '</div></paper-button>';
+    print '<button>' . $icon . '<div style="display:inline-flex;">' . $text . '</div></button>';
   }
 ?>
 

@@ -131,7 +131,7 @@
       height: 40px;
       font-family: 'Roboto', 'Noto', sans-serif;
     }
-    #edit-actions paper-button {
+    #edit-actions button {
       color: #ffffff;
       border-radius: 4px;
       background: #216256;
@@ -173,7 +173,7 @@
     #toastdrawer a {
       color: #3bab97;
     }
-    #toastdrawer paper-button {
+    #toastdrawer button {
       margin: 0;
       color: #ffffff;
       border-radius: 4px;

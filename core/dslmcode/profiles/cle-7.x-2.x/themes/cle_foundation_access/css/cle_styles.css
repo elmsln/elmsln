@@ -7,7 +7,7 @@
   font-size: .6em;
   text-align: right;
 }
-lrnapp-studio-dashboard .lrnsys-button-0 paper-button.lrnsys-button div.inner.lrnsys-button {
+lrnapp-studio-dashboard .lrnsys-button-0 button.lrnsys-button div.inner.lrnsys-button {
   height: unset;
 }
 lrnapp-studio-dashboard lrndesign-gallerycard {

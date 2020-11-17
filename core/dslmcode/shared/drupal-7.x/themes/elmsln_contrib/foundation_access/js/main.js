@@ -135,7 +135,7 @@ var clipboardjs = require('./components/clipboardjs.js');
     // close x's for modals
     $('.close-reveal-modal').click(function(){
       $('#' + $(this).parents().parents().attr('id')).modal('close');
-      $('[href=#' + $(this).parents().attr('id') + '] paper-button').focus();
+      $('[href=#' + $(this).parents().attr('id') + '] button').focus();
     });
     /* Implement customer javascript here */
     $(".disable-scroll").on("show", function () {

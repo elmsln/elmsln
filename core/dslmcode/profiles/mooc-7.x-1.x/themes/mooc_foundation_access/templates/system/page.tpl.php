@@ -85,9 +85,9 @@
               <?php endif; ?>
               </ul>
             <?php else: ?>
-              <paper-button disabled class="disabled elmsln-more-menu-button">
+              <button disabled class="disabled elmsln-more-menu-button">
                 <iron-icon icon="more-vert"></iron-icon>
-              </paper-button>
+              </button>
             <?php endif; ?>
             </li>
           </ul>

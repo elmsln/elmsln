@@ -63,7 +63,7 @@ cms-hax:hover::before {
 #outlineoptions {
   padding: .2em;
 }
-#outline-tip paper-button {
+#outline-tip button {
   padding: 0;
   margin: 0;
 }
@@ -79,7 +79,7 @@ cms-hax:hover::before {
   background-color: var(--elmsln-system-color-text);
   color: white;
 }
-#outlinepopover paper-button {
+#outlinepopover button {
   text-transform: unset;
   border-radius: 0;
   border-bottom: 2px solid black;
@@ -314,14 +314,14 @@ cms-hax:hover::before {
   font-size: 1rem;
 }
 
-#block-mooc-nav-block-mooc-nav-nav lrnsys-button paper-button iron-icon,
-#block-mooc-nav-block-mooc-nav-nav lrnsys-button paper-button lrn-icon {
+#block-mooc-nav-block-mooc-nav-nav lrnsys-button button iron-icon,
+#block-mooc-nav-block-mooc-nav-nav lrnsys-button button lrn-icon {
   margin: 0;
 }
 
 /* Special accounting for the page layout when on the lrnapp-book */
 
-#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item paper-button {
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item button {
   border-radius: unset;
   text-transform: unset;
 }
@@ -333,8 +333,8 @@ cms-hax:hover::before {
   padding-left: unset;
 }
 
-#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item.elmsln-icon paper-button,
-#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button.has-children paper-button{
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item.elmsln-icon button,
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button.has-children button{
   padding-left: .25rem;
 }
 .elmsln-book-item.elmsln-icon:before {
@@ -479,7 +479,7 @@ body.page-node-edit #scrollspy-nav {
   list-style-type: none;
   margin: 0;
 }
-.page-mooc-book-toc ul.menu paper-button {
+.page-mooc-book-toc ul.menu button {
   color: #222222;
 }
 .page-mooc-book-toc ul.menu ul.menu {
@@ -499,17 +499,17 @@ body.page-node-edit #scrollspy-nav {
   margin: 0 0 0 2rem;
 }
 
-.etb-book .page-mooc-book-toc ul.menu a paper-button {
+.etb-book .page-mooc-book-toc ul.menu a button {
   border-radius: unset;
   padding: 0 0 0 1rem;
   border-left: 2px solid #222222;
 }
-.page-mooc-book-toc ul.menu lrnsys-button.has-children a paper-button {
+.page-mooc-book-toc ul.menu lrnsys-button.has-children a button {
   padding: 0;
   border-left: 0;
 }
 
-.page-mooc-book-toc ul.menu a paper-button iron-icon {
+.page-mooc-book-toc ul.menu a button iron-icon {
   margin: 0 .5rem 0 0;
 }
 
@@ -546,7 +546,7 @@ ul.book-navigation-wrapper {
   clear:both;
 }
 
-.book-navigation-footer paper-button {
+.book-navigation-footer button {
   padding: 0 .5em;
 }
 
@@ -597,12 +597,12 @@ ul.book-navigation-wrapper {
   display: flex;
 }
 
-.book-sibling-parent lrnsys-button.elmsln-dropdown-button paper-button {
+.book-sibling-parent lrnsys-button.elmsln-dropdown-button button {
   border-bottom: black solid 2px;
   border-radius: unset;
   padding: 0 0 0 1em !important;
 }
-lrnsys-dialog.mooc-helper-toc paper-button {
+lrnsys-dialog.mooc-helper-toc button {
   border-bottom: black solid 2px;
   border-radius: unset;
   padding: 0 1rem 0 0;
@@ -615,7 +615,7 @@ lrnsys-dialog.mooc-helper-toc {
   border-bottom-color:white;
 }
 
-.book-sibling-parent a.elmsln-dropdown-button paper-button {
+.book-sibling-parent a.elmsln-dropdown-button button {
   margin: 0;
 }
 
@@ -749,7 +749,7 @@ section.main-section.etb-book a.elmsln-outline-button {
   .book-sibling-parent-1 a.active-trail:hover {
     background: transparent;
   }
-  .elmsln-dropdown-button.book-parent-tree paper-button{
+  .elmsln-dropdown-button.book-parent-tree button{
   	padding: 0;
   	text-overflow: ellipsis;
   	word-wrap: break-word;
@@ -795,7 +795,7 @@ section.main-section.etb-book a.elmsln-outline-button {
 /**
  * Ensure that menu inner padding isn't applied
  */
-.highlighted-block-area .lrnsys-button-0 paper-button.lrnsys-button div.inner.lrnsys-button {
+.highlighted-block-area .lrnsys-button-0 button.lrnsys-button div.inner.lrnsys-button {
   padding: 0;
 }
 
