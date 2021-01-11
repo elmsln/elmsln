@@ -48,6 +48,7 @@
     "node_modules/@lrnwebcomponents/*/lib/screenfull/dist/screenfull.js",
     "node_modules/@lrnwebcomponents/img-pan-zoom/lib/openseadragon/openseadragon.min.js",
     "node_modules/@lrnwebcomponents/elmsln-apps/lib/*/*.js",
+    "node_modules/@lrnwebcomponents/stop-note/lib/svgs/*/*.svg",
     "node_modules/@lrnwebcomponents/simple-icon/lib/svgs/*/*.svg",
     "node_modules/@lrnwebcomponents/hax-iconset/lib/svgs/*/*.svg",
     "node_modules/@lrnwebcomponents/wave-player/lib/wavesurferjs/dist/wavesurfer.js",
