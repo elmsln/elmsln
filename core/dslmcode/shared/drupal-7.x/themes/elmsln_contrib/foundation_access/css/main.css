@@ -7666,6 +7666,9 @@ button#edit-elmsln-view-user {
   display: -ms-inline-flexbox;
   display: inline-flex;
 }
+.page-node-edit .form-actions.form-wrapper button {
+  display: inline-block;
+}
 
 @media all and (min-width: 720px) {
   .page-node-edit .form-actions.form-wrapper {
