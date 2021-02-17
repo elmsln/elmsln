@@ -13,7 +13,7 @@ div.textbook_box {
   -khtml-border-radius: 4px 4px 0px 0px; /* for old Konqueror browsers */
 }
 div.textbook_box h3 {
-  font-size: 1.5em;
+  font-size: 24px;
   font-weight: bold;
   display: block;
   float: left;
@@ -74,7 +74,6 @@ div.textbook_box li{
   position: relative;
   display: block;
   padding: .4em .4em .4em 2em;
-  *padding: .4em;
   margin: .7em 0 !important;
   background: #eee;
   color: #444;
@@ -83,7 +82,9 @@ div.textbook_box li{
   -webkit-border-radius: .3em;
   border-radius: .3em; /* future proofing */
   -khtml-border-radius: .3em; /* for old Konqueror browsers */
-  transition: all .3s ease-out;  
+  transition: all .3s ease-out;
+  font-size: 14px;
+  line-height: 24px;
 }
 
 div.textbook_box li:hover{

@@ -15,6 +15,9 @@
     "node_modules/@material/*/*.js",
     "node_modules/tslib/tslib.es6.js",
     "node_modules/tslib/tslib.js",
+    "node_modules/lit-element-router/utility/router-utility.js",
+    "node_modules/lit-element-router/lit-element-router.js",
+    "node_modules/@github/time-elements/dist/time-elements.js",
     "node_modules/@lrnwebcomponents/*/*.js",
     "node_modules/@lrnwebcomponents/*/lib/*",
     "node_modules/@lrnwebcomponents/*/lib/*/*.js",
@@ -45,6 +48,7 @@
     "node_modules/@lrnwebcomponents/*/lib/screenfull/dist/screenfull.js",
     "node_modules/@lrnwebcomponents/img-pan-zoom/lib/openseadragon/openseadragon.min.js",
     "node_modules/@lrnwebcomponents/elmsln-apps/lib/*/*.js",
+    "node_modules/@lrnwebcomponents/stop-note/lib/svgs/*/*.svg",
     "node_modules/@lrnwebcomponents/simple-icon/lib/svgs/*/*.svg",
     "node_modules/@lrnwebcomponents/hax-iconset/lib/svgs/*/*.svg",
     "node_modules/@lrnwebcomponents/wave-player/lib/wavesurferjs/dist/wavesurfer.js",
@@ -84,24 +88,6 @@
       ],
       "js": {
         "minify": false,
-        "transformImportMeta": true
-      },
-      "css": {
-        "minify": false
-      },
-      "html": {
-        "minify": false
-      },
-      "bundle": false
-    },
-    {
-      "name": "es6-amd",
-      "browserCapabilities": [
-        "es2015"
-      ],
-      "js": {
-        "minify": false,
-        "transformModulesToAmd": true,
         "transformImportMeta": true
       },
       "css": {

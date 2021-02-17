@@ -274,7 +274,7 @@ function foundation_access_fieldset($variables) {
         $output = '
         <li class="collapsible-li">
           <a11y-collapse>
-              <div slot="label">
+              <div slot="heading">
                 ' . $icon . '
                 <span>' . $element['#title'] . '</span>
               </div>
@@ -1110,7 +1110,7 @@ function foundation_access_preprocess_clipboardjs(&$variables) {
     '#markup' => $variables['text'],
   );
   $variables['content']['button'] = array(
-    '#markup' => '<button title="' . t('Copy content') . '" class="clipboardjs-button" data-clipboard-alert="toast" data-clipboard-alert-text="' . $variables['alert_text'] . '" data-clipboard-target="#' . $uniqid . '" onclick="return false;"><simple-icon icon="content-copy" style="display:block;"></simple-icon></button>',
+    '#markup' => '<button title="' . t('Copy content') . '" class="clipboardjs-button" data-clipboard-alert="toast" data-clipboard-alert-text="' . $variables['alert_text'] . '" data-clipboard-target="#' . $uniqid . '" onclick="return false;"><simple-icon-lite icon="content-copy" style="display:flex;"></simple-icon></button>',
   );
 }
 

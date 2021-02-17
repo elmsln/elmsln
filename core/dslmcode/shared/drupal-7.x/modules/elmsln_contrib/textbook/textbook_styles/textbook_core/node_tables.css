@@ -62,7 +62,8 @@ table.textbook_table_2{
   empty-cells:show;
 }
 table.textbook_table_2 th{
-  font-size:1.2em;
+  font-size:14px;
+  line-height: 16px;
   padding:10px 8px;
   background:#eee;
   border:1px solid #ccc;

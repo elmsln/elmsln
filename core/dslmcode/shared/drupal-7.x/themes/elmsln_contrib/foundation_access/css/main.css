@@ -2162,13 +2162,19 @@ p.txtbk-intro {
     box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
     color: white; }
   .ev1-button--icon, .clipboard--button-only .clipboardjs-button {
-    width: 3.5em;
-    height: 3.5em;
+    width: 40px;
+    padding: 0;
+    height: 40px;
     border-radius: 50%;
     text-indent: -9999px; }
+    .clipboard--button-only .clipboardjs-button button {
+      display: flex;
+      margin-left: 8px;
+      color: white;
+    }
     .ev1-button--icon i, .clipboard--button-only .clipboardjs-button i {
       text-indent: 0;
-      font-size: 1.4em;
+      font-size: 12px;
       position: absolute;
       text-indent: 0;
       top: 50%;
@@ -7665,6 +7671,9 @@ button#edit-elmsln-view-user {
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
   display: inline-flex;
+}
+.page-node-edit .form-actions.form-wrapper button {
+  display: inline-block;
 }
 
 @media all and (min-width: 720px) {
