@@ -29,6 +29,9 @@ function cis_lmsless_page_build(&$page) {
   // make sure they have access to view this
   if (user_access('view lmsless bar') && !path_is_admin(current_path())) {
     // prevents cis_lmsless on haxcms loaded systems
+    // @todo, this might not be the correct assumption
+    // we might want a mode where it's HAXcms theme layer online.
+    // maybe this is an additional setting for a mode
     if (function_exists('_is_haxcms_context') && _is_haxcms_context()) {
 
     }
