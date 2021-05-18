@@ -40,6 +40,7 @@
     "node_modules/@vaadin/**",
     "node_modules/vmsg/*",
     "node_modules/bootstrap/dist/css/bootstrap.min.css",
+    "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
     "node_modules/fetch-ie8/fetch.js",
     "node_modules/promise-polyfill/dist/polyfill.min.js",
     "node_modules/web-animations-js/*.map",
