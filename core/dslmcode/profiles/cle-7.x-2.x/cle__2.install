@@ -331,3 +331,10 @@ function cle__2_update_7028(&$sandbox) {
 function cle__2_update_7029(&$sandbox) {
   features_revert_module('cle_displays');
 }
+
+/**
+ * Ensure styles are not cached to avoid image caching edge cases w/ student work
+ */
+function cle__2_update_7030(&$sandbox) {
+  features_revert_module('cle_cis_ux');
+}
