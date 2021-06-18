@@ -1,5 +1,5 @@
-name = CLE Open studio 2018
-description = Single page apps for the open studio 2018
+name = CLE Open studio 2021
+description = Single page apps for the open studio 2021
 core = 7.x
 package = CLE
 dependencies[] = cle_assignment

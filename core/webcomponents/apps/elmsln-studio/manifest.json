@@ -1,0 +1,45 @@
+{
+  "name": "elmsln-studio",
+  "short_name": "elmsln-studio",
+  "description": "2021 version of the open studio",
+  "start_url": "/",
+  "display": "standalone",
+  "app_integration": {
+    "element": "node_modules/@lrnwebcomponents/elmsln-studio/elmsln-studio.js",
+    "title": "View studio projects",
+    "endpoints": {
+      "assignments-source": {
+        "callback": "_cle_open_studio_2021_assignments_source",
+        "property": "assignments-source"
+      },
+      "discussion-source": {
+        "callback": "_cle_open_studio_2021_discussion_source",
+        "property": "discussion-source"
+      },
+      "lessons-source": {
+        "callback": "_cle_open_studio_2021_lessons_source",
+        "property": "lessons-source"
+      },
+      "portfolios-source": {
+        "callback": "_cle_open_studio_2021_portfolios_source",
+        "property": "portfolios-source"
+      },
+      "profile-source": {
+        "callback": "_cle_open_studio_2021_profile_source",
+        "property": "profile-source"
+      },
+      "submissions-source": {
+        "callback": "_cle_open_studio_2021_submissions_source",
+        "property": "submissions-source"
+      },
+      "users-source": {
+        "callback": "_cle_open_studio_2021_users_source",
+        "property": "users-source"
+      }
+    },
+    "context": {
+      "distro": "cle",
+      "module": "cle_open_studio_2021"
+    }
+  }
+}

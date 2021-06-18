@@ -70,3 +70,18 @@ function cle_open_studio_app_registry_files_alter(&$files, $modules) {
  */
 function _cle_open_studio_app_submission_service($action) {
 }
+
+/** 
+ * Implements hook_webcomponent_app_files_alter().
+ */
+function cle_open_studio_app_webcomponent_app_files_alter(&$files) {
+  // ensure we don't register studio 2021 while 2018 is enabled
+  $remove = array(
+    "sites/all/libraries/webcomponents/apps/elmsln-studio/manifest.json"
+  );
+  foreach ($remove as $path) {
+    if (array_search($path, $files) !== false) {
+      unset($files[array_search($path, $files)]);
+    }
+  }
+}
