@@ -33,7 +33,6 @@ apt-get -y install apache2
 apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make autoconf libc-dev pkg-config
 #install php
 apt-get -y install php7.4 php-yaml php7.4-fpm php7.4-gd php7.4-xml php7.4-common php7.4-mysql php7.4-ldap php7.4-cgi php-pear php7.4-mbstring php7.4-zip php7.4-xml php7.4-curl php7.4-cli php7.4-apcu php7.4-dev libmcrypt-dev
-apt-get install -y 
 
 a2enmod proxy_fcgi setenvif
 a2enconf php7.4-fpm
@@ -114,6 +113,7 @@ source $HOME/.bashrc
 
 # full path to execute in case root needs to log out before it picks it up
 php /usr/local/bin/composer global require consolidation/cgr
+source $HOME/.bashrc
 cgr drush/drush:8.x-dev --prefer-source
 # copy in the elmsln server stuff as the baseline for .drush
 if [ ! -d $HOME/.drush ]; then
