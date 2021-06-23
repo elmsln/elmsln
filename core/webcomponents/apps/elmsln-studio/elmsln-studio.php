@@ -226,116 +226,83 @@ function _cle_open_studio_2021_users_source($machine_name, $app_route, $params, 
   $section = _cis_section_load_section_by_id($section_id);
   $field_conditions = array(
     'og_user_node' => array('target_id', $section, '='),
-    '__role' => _cis_connector_role_groups('learner'),
   );
-  $users = _cis_connector_assemble_entity_list('user', 'user', 'uid', 'name', $field_conditions);
+  $users = _cis_connector_assemble_entity_list('user', 'user', 'name', '_entity', $field_conditions);
 
   // form a single user record
   foreach ($users as &$usr) {
-    $response[$usr->name] = new stdClass();
-    $response[$usr->name]->id = $usr->name;
-    $response[$usr->name]->lastName = _elmsln_core_get_user_name('last', $usr->uid);;
-    $response[$usr->name]->firstName = _elmsln_core_get_user_name('first', $usr->uid);;
-    $response[$usr->name]->image = _elmsln_core_get_user_picture('avatar', $usr->uid);
-    // need full submission object
-    $response[$usr->name]->submissions = array();
-    // need IDs of the feedback given
-    $response[$usr->name]->given = array();
-    // @todo figure out difference here
-    $response[$usr->name]->replies = array();
-    // @todo figure out difference here
-    $response[$usr->name]->discussions = array();
-    $response[$usr->name]->feedbackPercentile = 25;
-  }
-  /**
-  "kmk5124": {
-      "id": "kmk5124",
-      "lastName": "Korat",
-      "firstName": "Kitty",
-      "image": "//placekitten.com/g/400/300",
-      "submissions": [
-        {
-          "id": "assignment-10-kmk5124",
-          "assignment": "Deliver: Iterate critique",
-          "assignmentDate": "2021-01-09T23:06:35.000Z",
-          "project": "Hypertext Narrative Project",
-          "lesson": "Lesson 1",
-          "portfolio": "project-1-kmk5124",
-          "portfolioId": "project-1-kmk5124",
-          "assignmentId": "assignment-10",
-          "projectId": "project-1",
-          "lessonId": "lesson-1",
-          "userId": "kmk5124",
-          "firstName": "Kitty",
-          "lastName": "Korat",
-          "avatar": "//placekitten.com/g/400/300",
-          "date": "2021-01-14T22:06:37.000Z",
-          "image": "https://webcomponents.psu.edu/styleguide/elements/elmsln-studio/demo/images/image3.jpg",
-          "thumbnail": "https://webcomponents.psu.edu/styleguide/elements/elmsln-studio/demo/images/image3.jpg",
-          "full": "https://webcomponents.psu.edu/styleguide/elements/elmsln-studio/demo/images/image3.jpg",
-          "imageAlt": "Random tech image #290",
-          "imageLongdesc": "This is a long description for image #290. Cursus viverra eu neque eu id enim ut. Phasellus vestibulum maximus pellentesque quisque.",
-          "feedbackInstructions": "",
-          "feedbackRubric": {
-            "key": [
-              { "description": "Exceeded", "points": 2 },
-              { "description": "Met", "points": 1 },
-            ],
-            "values": {
-              "pellentesque porttitor": [
-                "In consectetur scelerisque?",
-                "Semper varius ex nibh.",
-                "Nulla etiam mollis."
-              ],
-              "a orci": [
-                "Magna eleifend interdum et?",
-                "Nisi ante faucibus ac quisque.",
-                "Eget quis quisque?"
-              ]
-            }
-          },
-          "feature": "Orci sem mi lectus risus lorem feugiat suspendisse consequat ante tortor diam nisi. Ipsum eleifend ac proin lectus cursus lobortis interdum? Risus iaculis consectetur massa ut magna.",
-          "body": "Pellentesque euismod fringilla ultrices. Orci ligula aliquam scelerisque sem venenatis duis phasellus ipsum faucibus. Nunc vivamus ut ex ac odio lacus lorem accumsan iaculis.",
-          "feedback": ["feedback-132", "feedback-133"],
-          "activity": "submission"
-        }
-      ],
-      "given": [
-        "feedback-2",
-        "feedback-258"
-      ],
-      "replies": [
-        "feedback-4-reply-1",
-        "feedback-14-reply-1"
-      ],
-      "discussions": [
-        "feedback-84",
-        "feedback-258",
-        "feedback-4-reply-1",
-        "feedback-14-reply-1"
-      ],
-      "feedbackPercentile": 25
+    if ($usr->name != 'SERVICE_CLE_AA') {
+      $data[$usr->name] = new stdClass();
+      $data[$usr->name]->id = $usr->name;
+      $data[$usr->name]->lastName = _elmsln_core_get_user_name('last', $usr->uid);
+      $data[$usr->name]->firstName = _elmsln_core_get_user_name('first', $usr->uid);
+      $data[$usr->name]->image = _elmsln_core_get_user_picture('avatar', $usr->uid);
+      // instructor bool
+      $data[$usr->name]->instructor = _cis_connector_role_grouping("teacher");
+      // need full submission object
+      $data[$usr->name]->submissions = array();
+      // pull together all the submissions they should be seeing
+      $options = new stdClass();
+      // only show things marked ready for feedback
+      $options->filter['state'] = array('submission_ready', '=');
+      $options->filter['author'] = $usr->uid;
+      $options->truncate = array(
+        'images' => 'images',
+        'comments' => 'comments',
+        'relatedSubmissions' => 'relatedSubmissions',
+      );
+      // get submissions based on criteria
+      $service = new LRNAppOpenStudioSubmissionService();
+      $submissions = $service->getSubmissions($options, FALSE);
+      foreach ($submissions as &$submission) {
+        $encodeSub = new stdClass();
+        $encodeSub->id = $submission->id;
+        $encodeSub->assignment = "Deliver: Iterate critique";
+        $encodeSub->assignmentDate = "2021-01-09T23:06:35.000Z";
+        $encodeSub->project = "Hypertext Narrative Project";
+        $encodeSub->lesson = "Lesson 1";
+        $encodeSub->portfolio = "project-1-kmk5124";
+        $encodeSub->portfolioId = "project-1-kmk5124";
+        $encodeSub->assignmentId = "assignment-10";
+        $encodeSub->projectId = "project-1";
+        $encodeSub->lessonId = "lesson-1";
+        $encodeSub->userId = $usr->name;
+        $encodeSub->firstName = _elmsln_core_get_user_name('first', $usr->uid);
+        $encodeSub->lastName = _elmsln_core_get_user_name('last', $usr->uid);
+        $encodeSub->avatar = _elmsln_core_get_user_picture('avatar', $usr->uid);
+        $encodeSub->date = gmdate(DATE_W3C, $submission->changed);
+        $encodeSub->image = "";
+        $encodeSub->thumbnail = "";
+        $encodeSub->full = "";
+        $encodeSub->imageAlt = "";
+        $encodeSub->imageLongdesc = "";
+        $encodeSub->feedbackInstructions = "";
+        $encodeSub->feedbackRubric = array(
+          "key" => array(),
+          "values" => array(),
+        );
+        $encodeSub->feature = $submission->field_submission_text[LANGUAGE_NONE][0]['safe_value'];
+        $encodeSub->body = $submission->field_submission_text[LANGUAGE_NONE][0]['safe_value'];
+        // @todo need IDs of the feedback given
+        $encodeSub->feedback = array();
+        $encodeSub->activity = "submission";
+        $data[$usr->name]->submissions[] = $encodeSub;
+      }
+      // @todo need IDs of the feedback given
+      $data[$usr->name]->given = array();
+      // @todo figure out difference here
+      $data[$usr->name]->replies = array();
+      // @todo figure out difference here
+      $data[$usr->name]->discussions = array();
+      // @todo figure out what this is
+      $data[$usr->name]->feedbackPercentile = 25;
     }
-   */
-  // pull together all the submissions they should be seeing
-  $options = new stdClass();
-  // only show things marked ready for feedback
-  $options->filter['state'] = array('submission_ready', '=');
-  $options->truncate = array(
-    'images' => 'images',
-    'comments' => 'comments',
-    'relatedSubmissions' => 'relatedSubmissions',
-  );
-  // get submissions based on criteria
-  $service = new LRNAppOpenStudioSubmissionService();
-  $data['submissions'] = $service->getSubmissions($options);
-  // snag projects
-  $service = new LRNAppOpenStudioProjectService();
-  $data['projects'] = $service->getProjects();
+  }
   $response = array(
     'status' => $status,
-    'data' => $data
+    'data' => $data,
+    'submissions' => $service->getSubmissions($options),
   );
-  $response = _cle_open_studio_2021_context_alter(__FUNCTION__, $response);
+  //$response = _cle_open_studio_2021_context_alter(__FUNCTION__, $response);
   return $response;
 }

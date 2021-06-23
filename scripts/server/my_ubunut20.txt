@@ -1,4 +1,4 @@
-;Ubuntu 16 Stuffs
+;Ubuntu 20 Stuffs
 transaction-isolation = READ-COMMITTED
 innodb_autoinc_lock_mode = 2
 innodb_checksum_algorithm = crc32

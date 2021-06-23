@@ -378,8 +378,8 @@ if [[ -n "$opcacheini" ]]; then
 fi
 
 # Add on our last bit of conf for our new Ubuntu Stuff.
-if [[ $os == '2' && $dist == *"DISTRIB_RELEASE=16"* ]]; then
-  cat /var/www/elmsln/scripts/server/my_ubunut16.txt >> $mycnf
+if [[ $os == '2' && $dist == *"DISTRIB_RELEASE=20"* ]]; then
+  cat /var/www/elmsln/scripts/server/my_ubunut20.txt >> $mycnf
 fi
 
 if [[ -n "$domains" ]]; then

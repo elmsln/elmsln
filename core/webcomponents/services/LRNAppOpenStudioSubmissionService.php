@@ -49,7 +49,7 @@ class LRNAppOpenStudioSubmissionService {
    *                  - author
    *                  - submission
    */
-  public function getSubmissions($options = NULL) {
+  public function getSubmissions($options = NULL, $encode = TRUE) {
     global $user;
     $items = array();
     $account = (isset($options->uid) ? user_load($options->uid) : $user);
@@ -102,7 +102,10 @@ class LRNAppOpenStudioSubmissionService {
         unset($items[$key]);
       }
     }
-    $items = $this->encodeSubmissions($items, $truncate);
+    // support NOT encoding
+    if ($encode) {
+      $items = $this->encodeSubmissions($items, $truncate);
+    }
     return $items;
   }
 
