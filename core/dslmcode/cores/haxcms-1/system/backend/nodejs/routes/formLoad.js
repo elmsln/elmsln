@@ -42,7 +42,7 @@ const HAXCMS = require('../lib/HAXCMS.js');
       });
     }
     else {
-        req.send(403);
+      res.send(403);
     }
   }
   module.exports = formLoad;

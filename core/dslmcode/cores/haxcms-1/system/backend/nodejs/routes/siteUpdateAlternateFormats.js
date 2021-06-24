@@ -17,12 +17,13 @@ const HAXCMS = require('../lib/HAXCMS.js');
    *   )
    * )
    */
-  function siteUpdateAlternateFormats(req, res) {
-    format = NULL;
-    let site = HAXCMS.loadSite(req.body['site']['name']);
+  async function siteUpdateAlternateFormats(req, res) {
+    let format = null;
+    let site = await HAXCMS.loadSite(req.body['site']['name']);
     if ((req.body['format'])) {
       format = req.body['format'];
     }
-    site.updateAlternateFormats(format);
+    await site.updateAlternateFormats(format);
+    res.send(true);
   }
   module.exports = siteUpdateAlternateFormats;

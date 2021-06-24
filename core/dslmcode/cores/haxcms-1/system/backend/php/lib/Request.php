@@ -31,7 +31,7 @@ class Request {
      */
     private function encodeData($response, $dataOnly = FALSE, $encode = TRUE) {
       if (!$dataOnly) {
-        header('Status: ' . $this->status);
+        http_response_code($this->status);
         header('Content-Type: ' . $this->contentType);
       }
       if ($encode) {

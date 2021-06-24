@@ -28,10 +28,10 @@ const json_decode = require('locutus/php/json/json_decode');
     openapi.servers[0].description = "Site list / dashboard for administrator user";
     // output, yaml we have to exit early or we'll get encapsulation
     if ((req.body['args']) && req.body['args'][1] == 'json') {
-      return json_decode(openapi.toJson());
+      res.send(json_decode(openapi.toJson()));
     }
     else {
-      req.send(openapi.toYaml());
+      res.send(openapi.toYaml());
     }
   }
   module.exports = openapi;

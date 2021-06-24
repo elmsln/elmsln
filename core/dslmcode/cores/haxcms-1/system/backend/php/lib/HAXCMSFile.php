@@ -12,10 +12,18 @@ class HAXCMSFIle
     {
         global $HAXCMS;
         global $fileSystem;
-        // check for a file upload
+        $size = false;
+        $status = 0;
+        $return = array();
+        $name = $upload['name'];
+        // check for a file upload; we block a few formats by design
         if (
             isset($upload['tmp_name']) &&
-            is_uploaded_file($upload['tmp_name'])
+            is_uploaded_file($upload['tmp_name']) &&
+            strpos($name, '.php') === FALSE &&
+            strpos($name, '.sh') === FALSE &&
+            strpos($name, '.js') === FALSE &&
+            strpos($name, '.css') === FALSE
         ) {
             // get contents of the file if it was uploaded into a variable
             $filedata = file_get_contents($upload['tmp_name']);
@@ -32,7 +40,17 @@ class HAXCMSFIle
             $path = HAXCMS_ROOT . '/' . $pathPart;
             // ensure this path exists
             $fileSystem->mkdir($path);
-            $fullpath = $path . $upload['name'];
+            // account for name possibly matching on file system already
+            $actual_name = pathinfo($name, PATHINFO_FILENAME);
+            $original_name = $actual_name;
+            $extension = pathinfo($name, PATHINFO_EXTENSION);
+            $i = 1;
+            while (file_exists($path . $actual_name . "." . $extension)) {           
+                $actual_name = (string)$original_name . $i;
+                $i++;
+            }
+            $name = $actual_name . "." . $extension;
+            $fullpath = $path . $name;
             if ($size = @file_put_contents($fullpath, $filedata)) {
                 //@todo make a way of defining these as returns as well as number to take
                 // specialized support for images to do scale and crop stuff automatically
@@ -57,20 +75,20 @@ class HAXCMSFIle
                     $image = new ImageResize($fullpath);
                     $image
                         ->scale(50)
-                        ->save($path . 'scale-50/' . $upload['name'])
+                        ->save($path . 'scale-50/' . $name)
                         ->crop(100, 100)
-                        ->save($path . 'crop-sm/' . $upload['name']);*/
+                        ->save($path . 'crop-sm/' . $name);*/
                     // fake the file object creation stuff from CMS land
                     $return = array(
                         'file' => array(
-                            'path' => $path . $upload['name'],
+                            'path' => $path . $name,
                             'fullUrl' =>
                                 $HAXCMS->basePath .
                                 $pathPart .
-                                $upload['name'],
-                            'url' => 'files/' . $upload['name'],
+                                $name,
+                            'url' => 'files/' . $name,
                             'type' => mime_content_type($fullpath),
-                            'name' => $upload['name'],
+                            'name' => $name,
                             'size' => $size
                         )
                     );
@@ -78,14 +96,14 @@ class HAXCMSFIle
                     // fake the file object creation stuff from CMS land
                     $return = array(
                         'file' => array(
-                            'path' => $path . $upload['name'],
+                            'path' => $path . $name,
                             'fullUrl' =>
                                 $HAXCMS->basePath .
                                 $pathPart .
-                                $upload['name'],
-                            'url' => 'files/' . $upload['name'],
+                                $name,
+                            'url' => 'files/' . $name,
                             'type' => mime_content_type($fullpath),
-                            'name' => $upload['name'],
+                            'name' => $name,
                             'size' => $size
                         )
                     );
@@ -116,7 +134,7 @@ class HAXCMSFIle
         }
         if ($size === false) {
             $status = 500;
-            $return = 'failed to write';
+            $return = 'failed to write ' . $name;
         }
         return array(
             'status' => $status,

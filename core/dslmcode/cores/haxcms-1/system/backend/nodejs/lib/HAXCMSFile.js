@@ -9,7 +9,7 @@ class HAXCMSFIle
   /**
    * Save file into this site, optionally updating reference inside the page
    */
-  save(req, site, page = null, imageOps = null)
+  async save(req, site, page = null, imageOps = null)
   {
     var returnData = {};
     // check for a file upload
@@ -96,7 +96,7 @@ class HAXCMSFIle
               page.metadata.files = [];
             }
             page.metadata.files.push(returnData['file']);
-            site.updateNode(page);
+            await site.updateNode(page);
           }
           // perform scale / crop operations if requested
           if (imageOps != null) {

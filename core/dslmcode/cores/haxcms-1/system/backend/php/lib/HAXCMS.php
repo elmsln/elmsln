@@ -6,7 +6,7 @@
 // system constants
 include_once 'Variables.php';
 // service creation / HAX app store service abstraction
-include_once 'HAXService.php';
+include_once 'HAXAppStoreService.php';
 // working with sites
 include_once 'HAXCMSSite.php';
 // working with files
@@ -135,6 +135,7 @@ class HAXCMS
           "csv",
           "archive",
           "markdown",
+          "*",
           "html"
         );
         // end point to get the sites data
@@ -210,17 +211,7 @@ class HAXCMS
                 // dynamicImporter
                 if (!isset($this->config->node)) {
                     $this->config->node = new stdClass();
-                    $this->config->node->dynamicElementLoader = new stdClass();
                     $this->config->node->fields = new stdClass();
-                }
-                // load in core dynamicElementLoader data
-                $dynamicElementLoader = json_decode(
-                    file_get_contents(
-                      $this->coreConfigPath . 'dynamicElementLoader.json'
-                    )
-                );
-                foreach ($dynamicElementLoader as $name => $data) {
-                    $this->config->node->dynamicElementLoader->{$name} = $data;
                 }
                 // publishing endpoints
                 if (!isset($this->config->site)) {
@@ -274,8 +265,7 @@ class HAXCMS
                 }
                 // @todo this is VERY hacky specific placement of the theme options
                 $this->config->site->fields[0]->properties[1]->properties[0]->options = $themeSelect;
-                // userData object
-                // load in core dynamicElementLoader data
+                // load in core userData object
                 if (
                 !($this->userData = json_decode(
                     file_get_contents($this->configDirectory . '/userData.json')
@@ -419,26 +409,6 @@ class HAXCMS
       // @todo add future support for dependency injection as far as allowed forms
       if (method_exists($this, $form_id . "Form")) {
         $fields = $this->{$form_id . "Form"}($context);
-        // reserved so we know what form is being submitted
-        $fields['haxcms_form_id'] = json_decode(
-          '{
-            "property": "haxcms_form_id",
-            "title": "haxcms_form_id",
-            "description": "",
-            "inputMethod": "textfield",
-            "hidden": true
-          }'
-        );
-        // reserved so we know what form is being submitted
-        $fields['haxcms_form_token'] = json_decode(
-          '{
-            "property": "haxcms_form_token",
-            "title": "haxcms_form_token",
-            "description": "",
-            "inputMethod": "textfield",
-            "hidden": true
-          }'
-        );
       }
       else {
         $fields = array(
@@ -676,7 +646,7 @@ class HAXCMS
             'cdn' => array(
                 'name' => 'CDN',
                 'description' => 'A CDN address that supports HAXCMS',
-                'value' => 'webcomponents.psu.edu'
+                'value' => 'cdn.webcomponents.psu.edu'
             )
         );
         // publishing
@@ -716,7 +686,7 @@ class HAXCMS
             }
         }
         // API keys
-        $hax = new HAXService();
+        $hax = new HAXAppStoreService();
         $apiDocs = $hax->baseSupportedApps();
         foreach ($apiDocs as $key => $value) {
             $props = new stdClass();
@@ -905,7 +875,7 @@ class HAXCMS
         "operations": {
           "browse": {
             "method": "GET",
-            "endPoint": "system/api/loadFiles",
+            "endPoint": "system/api/listFiles",
             "pagination": {
               "style": "link",
               "props": {
@@ -916,8 +886,14 @@ class HAXCMS
               }
             },
             "search": {
+              "filename": {
+                "title": "File name",
+                "type": "string"
+              }
             },
             "data": {
+              "__HAXJWT__": true,
+              "__HAXAPPENDUPLOADENDPOINT__": true
             },
             "resultMap": {
               "defaultGizmoType": "image",
@@ -932,7 +908,7 @@ class HAXCMS
                 "source": "url",
                 "id": "uuid",
                 "title": "name",
-                "type": "type"
+                "mimetype": "mimetype"
               }
             }
           },
@@ -978,6 +954,50 @@ class HAXCMS
       }
     }
     /**
+     * Load wc-registry.json relative to the site in question
+     */
+    public function getWCRegistryJson($site, $base = './') {
+      $wcMap = &$GLOBALS['HAXCMS']->staticCache(__FUNCTION__ . $site->manifest->metadata->site->name . $base);
+      if (!isset($wcMap)) {
+        // need to make the request relative to site
+        if ($base == './') {
+          // possible this comes up empty
+          if (file_exists($site->directory . '/' . $site->manifest->metadata->site->name . '/wc-registry.json')) {
+            $wcPath = $site->directory . '/' . $site->manifest->metadata->site->name . '/wc-registry.json';
+          }
+          else {
+            $wcPath = HAXCMS_ROOT . '/wc-registry.json';            
+          }
+        }
+        else {
+          $wcPath = $base . 'wc-registry.json';
+        }
+        $wcMap = json_decode(file_get_contents($wcPath));
+      }
+      return $wcMap;
+    }
+    /**
+     * Request URI resolution
+     */
+    public function request_uri() {
+      if (isset($_SERVER['REQUEST_URI'])) {
+        $uri = $_SERVER['REQUEST_URI'];
+      }
+      else {
+        if (isset($_SERVER['argv'])) {
+          $uri = $_SERVER['SCRIPT_NAME'] . '?' . $_SERVER['argv'][0];
+        }
+        elseif (isset($_SERVER['QUERY_STRING'])) {
+          $uri = $_SERVER['SCRIPT_NAME'] . '?' . $_SERVER['QUERY_STRING'];
+        }
+        else {
+          $uri = $_SERVER['SCRIPT_NAME'];
+        }
+      }
+      $uri = '/' . ltrim($uri, '/');
+      return $uri;
+    }
+    /**
      * Load a site off the file system with option to create
      */
     public function loadSite($name, $create = false, $domain = null)
@@ -997,6 +1017,12 @@ class HAXCMS
                 $tmpname);
             $siteDirectoryPath = $site->directory . '/' . $site->manifest->metadata->site->name;
             // sanity checks to ensure we'll actually deliver a site
+            if (!is_link($siteDirectoryPath . '/wc-registry.json')) {
+              @symlink(
+                  '../../wc-registry.json',
+                  $siteDirectoryPath . '/wc-registry.json'
+              );
+            }
             if (!is_link($siteDirectoryPath . '/build')) {
               if (is_dir($siteDirectoryPath . '/build')) {
                 $GLOBALS['fileSystem']->remove([$siteDirectoryPath . '/build']);
@@ -1030,6 +1056,11 @@ class HAXCMS
         } elseif ($create) {
             // attempt to create site
             return $this->createSite($name, $domain);
+        } elseif (isset($GLOBALS["HAXcmsInDocker"]) && $name == "html") {
+          // we're in a docker container, howay!
+          $site = new HAXCMSSite();
+          $site->loadInDocker(HAXCMS_ROOT);
+          return $site;
         }
         return false;
     }
@@ -1291,6 +1322,7 @@ class HAXCMS
         $settings->login = $path . 'login';
         $settings->refreshUrl = $path . 'refreshAccessToken';
         $settings->logout = $path . 'logout';
+        $settings->connectionSettings = $path . 'connectionSettings';
         $settings->redirectUrl = $this->basePath; // enables redirecting back to site root if JWT really is dead
         $settings->themes = $this->getThemes();
         $settings->saveNodePath = $path . 'saveNode';
@@ -1374,8 +1406,13 @@ class HAXCMS
     }
     /**
      * Return the link to the cdn to use for serving dynamic pages
+     * if $site defines a dynamicCDN endpoint then this overrides
+     * any global setting. Useful for locally developed custom builds.
      */
-    public function getCDNForDynamic() {
+    public function getCDNForDynamic($site = null) {
+      if ($site && isset($site->manifest->metadata->site->dynamicCDN)) {
+        return $site->manifest->metadata->site->dynamicCDN;
+      }
       return $this->cdn;
     }
     /**
@@ -1387,10 +1424,16 @@ class HAXCMS
         $buster = $this->getCache('git-sha');
         if (is_null($buster)) {
           $buster = $prepend;
-          // open the system itself
-          $git = new Git();
-          $repo = $git->open(HAXCMS_ROOT, false);
-          $buster .= $this->getRequestToken($repo->currentSHA());
+          // for NON .git deploys or they brick
+          if (file_exists(HAXCMS_ROOT . '\/.git\/')) {
+            // open the system itself
+            $git = new Git();
+            $repo = $git->open(HAXCMS_ROOT, false);
+            $buster .= $this->getRequestToken($repo->currentSHA());
+          }
+          else {
+            $buster .= $this->getRequestToken($this->getHAXCMSVersion());
+          }
           $this->setCache('git-sha', $buster);
         }
       }

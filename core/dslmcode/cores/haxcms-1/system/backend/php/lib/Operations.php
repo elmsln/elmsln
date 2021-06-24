@@ -439,55 +439,53 @@ class Operations {
     foreach ($items as $key => $item) {
       // get a fake item
       if (!($page = $site->loadNode($item->id))) {
-          $page = $GLOBALS['HAXCMS']->outlineSchema->newItem();
-          $itemMap[$item->id] = $page->id;
-      } else {
-          $page->id = $item->id;
+        $page = $GLOBALS['HAXCMS']->outlineSchema->newItem();
+        $itemMap[$item->id] = $page->id;
       }
       // set a crappy default title
       $page->title = $item->title;
+      $cleanTitle = $GLOBALS['HAXCMS']->cleanTitle($page->title);
       if ($item->parent == null) {
-          $page->parent = null;
-          $page->indent = 0;
+        $page->parent = null;
+        $page->indent = 0;
       } else {
-          // check the item map as backend dictates unique ID
-          if (isset($itemMap[$item->parent])) {
-              $page->parent = $itemMap[$item->parent];
-          } else {
-              // set to the parent id
-              $page->parent = $item->parent;
-          }
-          // move it one indentation below the parent; this can be changed later if desired
-          $page->indent = $item->indent;
+        // check the item map as backend dictates unique ID
+        if (isset($itemMap[$item->parent])) {
+          $page->parent = $itemMap[$item->parent];
+        } else {
+          // set to the parent id
+          $page->parent = $item->parent;
+        }
+        // move it one indentation below the parent; this can be changed later if desired
+        $page->indent = $item->indent;
       }
       if (isset($item->order)) {
-          $page->order = $item->order;
+        $page->order = $item->order;
       } else {
-          $page->order = $key;
+        $page->order = $key;
       }
       // keep location if we get one already
       if (isset($item->location) && $item->location != '') {
-          // force location to be in the right place
-          $cleanTitle = $GLOBALS['HAXCMS']->cleanTitle($item->location);
-          $page->location = 'pages/' . $cleanTitle . '/index.html';
+        $page->location = $item->location;
       } else {
-          $cleanTitle = $GLOBALS['HAXCMS']->cleanTitle($page->title);
-          // generate a logical page location
-          $page->location = 'pages/' . $cleanTitle . '/index.html';
+        // generate a logical page slug
+        $page->location = 'pages/' . $page->id . '/index.html';
+      }
+      // keep location if we get one already
+      if (isset($item->slug) && $item->slug != '') {
+      } else {
+          // generate a logical page slug
+          $page->slug = $site->getUniqueSlugName($cleanTitle, $page, true);
       }
       // verify this exists, front end could have set what they wanted
       // or it could have just been renamed
-      $siteDirectory =
-          $site->directory . '/' . $site->manifest->metadata->site->name;
+      $siteDirectory = $site->directory . '/' . $site->manifest->metadata->site->name;
       // if it doesn't exist currently make sure the name is unique
       if (!$site->loadNode($page->id)) {
-          // ensure this location doesn't exist already
-          $tmpTitle = $site->getUniqueLocationName($cleanTitle, $page);
-          $page->location = 'pages/' . $tmpTitle . '/index.html';
-          $site->recurseCopy(
-              HAXCMS_ROOT . '/system/boilerplate/page/default',
-              $siteDirectory . '/pages/' . $tmpTitle
-          );
+        $site->recurseCopy(
+            HAXCMS_ROOT . '/system/boilerplate/page/default',
+            $siteDirectory . '/' . str_replace('/index.html', '', $page->location)
+        );
       }
       // this would imply existing item, lets see if it moved or needs moved
       else {
@@ -496,25 +494,16 @@ class Operations {
               // see if this is something moving as opposed to brand new
               if (
                   $tmpItem->id == $page->id &&
-                  $tmpItem->location != ''
+                  $tmpItem->slug != ''
               ) {
                   // core support for automatically managing paths to make them nice
                   if (isset($site->manifest->metadata->site->settings->pathauto) && $site->manifest->metadata->site->settings->pathauto) {
                       $moved = true;
-                      $new = 'pages/' . $site->getUniqueLocationName($GLOBALS['HAXCMS']->cleanTitle($page->title), $page) . '/index.html';
-                      $site->renamePageLocation(
-                          $page->location,
-                          $new
-                      );
-                      $page->location = $new;
+                      $page->slug = $site->getUniqueSlugName($GLOBALS['HAXCMS']->cleanTitle($page->title), $page, true);
                   }
-                  else if ($tmpItem->location != $page->location) {
+                  else if ($tmpItem->slug != $page->slug) {
                       $moved = true;
-                      // @todo might want something to rebuild the path based on new parents
-                      $site->renamePageLocation(
-                          $tmpItem->location,
-                          $page->location
-                      );
+                      $page->slug = $tmpItem->slug;
                   }
               }
           }
@@ -524,12 +513,16 @@ class Operations {
               !$moved &&
               !file_exists($siteDirectory . '/' . $page->location)
           ) {
-              // ensure this location doesn't exist already
-              $tmpTitle = $site->getUniqueLocationName($cleanTitle, $page);
-              $page->location = 'pages/' . $tmpTitle . '/index.html';
+              $pAuto = false;
+              if (isset($site->manifest->metadata->site->settings->pathauto) && $site->manifest->metadata->site->settings->pathauto) {
+                $pAuto = true;
+              }
+              $tmpTitle = $site->getUniqueSlugName($cleanTitle, $page, $pAuto);
+              $page->location = 'pages/' . $page->id . '/index.html';
+              $page->slug = $tmpTitle;
               $site->recurseCopy(
                   HAXCMS_ROOT . '/system/boilerplate/page/default',
-                  $siteDirectory . '/pages/' . $tmpTitle
+                  $siteDirectory . '/' . str_replace('/index.html', '', $page->location)
               );
           }
       }
@@ -631,15 +624,7 @@ class Operations {
     if (isset($this->params['node']['id']) && $this->params['node']['id'] != '' && $this->params['node']['id'] != null) {
         $item->id = $this->params['node']['id'];
     }
-    if (isset($this->params['node']['location']) && $this->params['node']['location'] != '' && $this->params['node']['location'] != null) {
-        $cleanTitle = $GLOBALS['HAXCMS']->cleanTitle($this->params['node']['location']);
-    } else {
-        $cleanTitle = $GLOBALS['HAXCMS']->cleanTitle($item->title);
-    }
-    // ensure this location doesn't exist already
-    $item->location =
-        'pages/' . $site->getUniqueLocationName($cleanTitle) . '/index.html';
-
+    $item->location = 'pages/' . $item->id . '/index.html';
     if (isset($this->params['indent']) && $this->params['indent'] != '' && $this->params['indent'] != null) {
         $item->indent = $this->params['indent'];
     }
@@ -656,6 +641,13 @@ class Operations {
     }
     if (isset($this->params['order']) && $this->params['metadata'] != '' && $this->params['metadata'] != null) {
         $item->metadata = $this->params['metadata'];
+    }
+    if (isset($this->params['node']['location']) && $this->params['node']['location'] != '' && $this->params['node']['location'] != null) {
+      $cleanTitle = $GLOBALS['HAXCMS']->cleanTitle($this->params['node']['location']);
+      $item->slug = $site->getUniqueSlugName($cleanTitle);
+    } else {
+      $cleanTitle = $GLOBALS['HAXCMS']->cleanTitle($item->title);
+      $item->slug = $site->getUniqueSlugName($cleanTitle, $item, true);
     }
     $item->metadata->created = time();
     $item->metadata->updated = time();
@@ -703,8 +695,15 @@ class Operations {
         $schema = $this->params['node']['schema'];
       }
     }
+    $details = array();
+    // if we have details object then merge configure and advanced
     if (isset($this->params['node']['details'])) {
-      $details = $this->params['node']['details'];
+      foreach ($this->params['node']['details']['node']['configure'] as $key => $value) {
+        $details[$key] = $value;
+      }
+      foreach ($this->params['node']['details']['node']['advanced'] as $key => $value) {
+        $details[$key] = $value;
+      }
     }
     // update the page's content, using manifest to find it
     // this ensures that writing is always to what the file system
@@ -814,58 +813,46 @@ class Operations {
             // sanitize both sides
             $key = filter_var($key, FILTER_SANITIZE_STRING);
             switch ($key) {
-                case 'location':
-                    // check on name
-                    $value = filter_var($value, FILTER_SANITIZE_STRING);
-                    $cleanTitle = $GLOBALS['HAXCMS']->cleanTitle($value);
+                case 'node-configure-slug':
+                  // check on name
+                  $value = $GLOBALS['HAXCMS']->cleanTitle(filter_var($value, FILTER_SANITIZE_STRING));
+                  $page->slug = $value;
+                  if ($value == '') {
+                    $pAuto = false;
                     if (isset($site->manifest->metadata->site->settings->pathauto) && $site->manifest->metadata->site->settings->pathauto) {
-                        $new = 'pages/' . $site->getUniqueLocationName($GLOBALS['HAXCMS']->cleanTitle(filter_var($details['title'], FILTER_SANITIZE_STRING)), $page) . '/index.html';
-                        $site->renamePageLocation(
-                            $page->location,
-                            $new
-                        );
-                        $page->location = $new;
+                      $pAuto = true;
                     }
-                    else if (
-                        $cleanTitle !=
-                        str_replace(
-                            'pages/',
-                            '',
-                            str_replace('/index.html', '', $page->location)
-                        )
-                    ) {
-                        $tmpTitle = $site->getUniqueLocationName(
-                            $cleanTitle, $page
-                        );
-                        $location = 'pages/' . $tmpTitle . '/index.html';
-                        // move the folder
-                        $site->renamePageLocation(
-                            $page->location,
-                            $location
-                        );
-                        $page->location = $location;
-                    }
-                    break;
-                case 'title':
-                case 'description':
+                    $page->slug = $site->getUniqueSlugName($GLOBALS['HAXCMS']->cleanTitle(filter_var($details['node-configure-title'], FILTER_SANITIZE_STRING)), $page, $pAuto);
+                  }
+                break;
+                case 'node-configure-title':
                     $value = filter_var($value, FILTER_SANITIZE_STRING);
-                    $page->{$key} = $value;
-                    break;
-                case 'created':
-                    $value = filter_var($value, FILTER_VALIDATE_INT);
-                    $page->metadata->created = $value;
-                    break;
-                case 'published':
+                    $page->title = $value;
+                break;
+                case 'node-configure-description':
+                    $value = filter_var($value, FILTER_SANITIZE_STRING);
+                    $page->description = $value;
+                break;
+                case 'node-configure-published':
                     $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
                     $page->metadata->published = $value;
-                case 'theme':
-                    $themes = $GLOBALS['HAXCMS']->getThemes();
-                    $value = filter_var($value, FILTER_SANITIZE_STRING);
-                    if (isset($themes->{$value})) {
-                        $page->metadata->theme = $themes->{$value};
-                        $page->metadata->theme->key = $value;
-                    }
-                    break;
+                break;
+                case 'node-advanced-created':
+                    $value = filter_var($value, FILTER_VALIDATE_INT);
+                    $page->metadata->created = $value;
+                break;
+                case 'node-advanced-theme':
+                  $themes = $GLOBALS['HAXCMS']->getThemes();
+                  $value = filter_var($value, FILTER_SANITIZE_STRING);
+                  // support for removing the custom theme or applying none
+                  if ($value == '_none_') {
+                    unset($page->metadata->theme);
+                  }
+                  else if (isset($themes->{$value})) {
+                    $page->metadata->theme = $themes->{$value};
+                    $page->metadata->theme->key = $value;
+                  }
+                  break;
                 default:
                     // ensure ID is never changed
                     if ($key != 'id') {
@@ -920,6 +907,14 @@ class Operations {
         $site->gitCommit(
             'Page details updated: ' . $page->title . ' (' . $page->id . ')'
         );
+        // make sure we return the "theme" if set back to null
+        // we do this so that the front end can reset to the default theme
+        // but also so we don't save this data for no reason in the piecea above
+        if (!isset($page->metadata->theme)) {
+          $themes = $GLOBALS['HAXCMS']->getThemes();
+          $page->metadata->theme = $themes->{$site->manifest->metadata->theme->element};
+          $page->metadata->theme->key = $site->manifest->metadata->theme->element;
+        }
         return $page;
       }
     }
@@ -1100,7 +1095,7 @@ class Operations {
       isset($this->params['app-store-token']) &&
       $GLOBALS['HAXCMS']->validateRequestToken($this->params['app-store-token'], 'appstore')
     ) {
-      $haxService = new HAXService();
+      $haxService = new HAXAppStoreService();
       $apikeys = array();
       $baseApps = $haxService->baseSupportedApps();
       foreach ($baseApps as $key => $app) {
@@ -1134,7 +1129,6 @@ class Operations {
           "meme-maker",
           "lrn-aside",
           "grid-plate",
-          "tab-list",
           "magazine-cover",
           "image-compare-slider",
           "license-element",
@@ -1147,7 +1141,6 @@ class Operations {
           "media-image",
           "lrndesign-blockquote",
           "a11y-gif-player",
-          "paper-audio-player",
           "wikipedia-query",
           "lrn-vocab",
           "full-width-image",
@@ -1295,7 +1288,7 @@ class Operations {
   }
   /**
    * @OA\Post(
-   *    path="/loadFiles",
+   *    path="/listFiles",
    *    tags={"hax","authenticated","file"},
    *    @OA\Parameter(
    *         name="jwt",
@@ -1310,9 +1303,42 @@ class Operations {
    *   )
    * )
    */
-  public function loadFiles() {
-    // @todo make this load the files out of the JSON outline schema and only return them
-    return array();
+  public function listFiles() {
+    $files = array();
+    $site = $GLOBALS['HAXCMS']->loadSite($this->params['site']['name']);
+    $search = (isset($this->params['filename'])) ? $this->params['filename'] : '';
+    // build files directory path
+    $fileDir = $site->directory . '/' . $site->manifest->metadata->site->name . '/files';
+    if ($handle = opendir($fileDir)) {
+      while (false !== ($file = readdir($handle))) {
+        // ignore system files
+          if (
+              $file != "." &&
+              $file != ".." &&
+              $file != '.gitkeep' &&
+              $file != '._.DS_Store' &&
+              $file != '.DS_Store'
+          ) {
+              // ensure this is a file and if we are searching for results then return only exact ones
+              if (is_file($fileDir . '/' . $file) && ($search == "" || strpos($file, $search) || strpos($file, $search) === 0)) {
+                // @todo thumbnail support for non image media / thumbnails in general via internal cache / file call
+                $files[] = array(
+                  'path' => 'files/' . $file,
+                  'fullUrl' =>
+                      $GLOBALS['HAXCMS']->basePath .
+                      $GLOBALS['HAXCMS']->sitesDirectory .
+                      $fileDir . '/' .
+                      $file,
+                  'url' => 'files/' . $file,
+                  'mimetype' => mime_content_type($fileDir . '/' . $file),
+                  'name' => $file
+                );
+              }
+          }
+      }
+      closedir($handle);
+  }
+    return $files;
   }
   /**
    * @OA\Post(
@@ -1523,7 +1549,7 @@ class Operations {
         return array(
           '__failed' => array(
             'status' => 500,
-            'message' => 'failed to write',
+            'message' => $fileResult['data'],
           )
         );
       }
@@ -1566,7 +1592,11 @@ class Operations {
           $json = file_get_contents(HAXCMS_ROOT . '/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $item . '/site.json');
           $site = json_decode($json);
           if (isset($site->title)) {
+            $site->indent = 0;
+            $site->order = 0;
+            $site->parent = null;
             $site->location = $GLOBALS['HAXCMS']->basePath . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $item . '/';
+            $site->slug = $GLOBALS['HAXCMS']->basePath . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $item . '/';
             $site->metadata->pageCount = count($site->items);
             unset($site->items);
             $return['items'][] = $site;
@@ -1604,10 +1634,11 @@ class Operations {
    *                 example={
    *                    "site": {
    *                      "name": "mynewsite",
+   *                      "description": "The description",
    *                      "domain": ""
    *                    },
    *                    "theme": {
-   *                      "name": "learn-two-theme",
+   *                      "name": "clean-one",
    *                      "variables": {
    *                        "image":"",
    *                        "icon":"",
@@ -1652,8 +1683,8 @@ class Operations {
       $schema->metadata->site = new stdClass();
       $schema->metadata->theme = new stdClass();
       $schema->metadata->site->name = $site->manifest->metadata->site->name;
-      if (isset($this->params['theme']['name']) && is_string($this->params['theme']['name'])) {
-        $theme = $this->params['theme']['name'];
+      if (isset($this->params['site']['theme']) && is_string($this->params['site']['theme'])) {
+        $theme = $this->params['site']['theme'];
       }
       else {
         $theme = HAXCMS_DEFAULT_THEME;
@@ -1670,25 +1701,25 @@ class Operations {
           $schema->description = strip_tags($this->params['site']['description']);
       }
       // background image / banner
-      if (isset($this->params['theme']['variables']['image']) && $this->params['theme']['variables']['image'] != '' && $this->params['theme']['variables']['image'] != null) {
-          $schema->metadata->theme->variables->image = $this->params['theme']['variables']['image'];
+      if (isset($this->params['theme']['image']) && $this->params['theme']['image'] != '' && $this->params['theme']['image'] != null) {
+        $schema->metadata->site->logo = $this->params['theme']['image'];
       }
       else {
-        $schema->metadata->theme->variables->image = 'assets/banner.jpg';
+        $schema->metadata->site->logo = 'assets/banner.jpg';
       }
       // icon to express the concept / visually identify site
-      if (isset($this->params['theme']['variables']['icon']) && $this->params['theme']['variables']['icon'] != '' && $this->params['theme']['variables']['icon'] != null) {
-          $schema->metadata->theme->variables->icon = $this->params['theme']['variables']['icon'];
+      if (isset($this->params['theme']['icon']) && $this->params['theme']['icon'] != '' && $this->params['theme']['icon'] != null) {
+          $schema->metadata->theme->variables->icon = $this->params['theme']['icon'];
       }
       // slightly style the site based on css vars and hexcode
-      if (isset($this->params['theme']['variables']['hexCode']) && $this->params['theme']['variables']['hexCode'] != '' && $this->params['theme']['variables']['hexCode'] != null) {
-          $hex = $this->params['theme']['variables']['hexCode'];
+      if (isset($this->params['theme']['hexCode']) && $this->params['theme']['hexCode'] != '' && $this->params['theme']['hexCode'] != null) {
+          $hex = $this->params['theme']['hexCode'];
       } else {
           $hex = '#aeff00';
       }
       $schema->metadata->theme->variables->hexCode = $hex;
-      if (isset($this->params['theme']['variables']['cssVariable']) && $this->params['theme']['variables']['cssVariable'] != '' && $this->params['theme']['variables']['cssVariable'] != null) {
-          $cssvar = $this->params['theme']['variables']['cssVariable'];
+      if (isset($this->params['theme']['cssVariable']) && $this->params['theme']['cssVariable'] != '' && $this->params['theme']['cssVariable'] != null) {
+          $cssvar = $this->params['theme']['cssVariable'];
       } else {
           $cssvar = '--simple-colors-default-theme-light-blue-7';
       }
@@ -1715,11 +1746,6 @@ class Operations {
       }
       $site->manifest->metadata->node = new stdClass();
       $site->manifest->metadata->node->fields = new stdClass();
-      $site->manifest->metadata->node->dynamicElementLoader = new stdClass();
-      // @todo support injecting this with out things via PHP
-      if (isset($GLOBALS['HAXCMS']->config->node->dynamicElementLoader)) {
-        $site->manifest->metadata->node->dynamicElementLoader = $GLOBALS['HAXCMS']->config->node->dynamicElementLoader;
-      }
       $site->manifest->description = $schema->description;
       // save the outline into the new site
       $site->manifest->save(false);
@@ -1812,6 +1838,29 @@ class Operations {
           $repo = @$git->open($directory, true);
           @$repo->set_remote("origin", $repoUrl);
           @$repo->pull('origin', 'master');
+          
+          // this ensures that our repo doesn't get squashed by a sanitization
+          // check that's baked into site loading.
+          // This is safe / nessecary because the git repo url could be
+          // any name for the repo but we do a lot of security checks when
+          // user input is involved. As this is user input but from a valid git
+          // url (which would have failed above if it wasn't real)
+          // working with JSON Outline Schema instead of the extrapolations
+          include_once 'JSONOutlineSchema.php';
+          $manifest = new JSONOutlineSchema();
+          $manifest->load(HAXCMS_ROOT . '/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $repo_path . '/site.json');
+          // repo name matches site->manifest->site->name value as they don't
+          // have to be identical but also is a crud test for if this is a valid
+          // site.json format in the first place
+          if (isset($manifest->metadata) && $repo_path != $manifest->metadata->site->name) {
+            // move directory from the git repo based name to the folder name
+            // that the system will expect
+            rename(
+              HAXCMS_ROOT . '/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $repo_path,
+              HAXCMS_ROOT . '/' . $GLOBALS['HAXCMS']->sitesDirectory . '/' . $manifest->metadata->site->name);
+            // update this to ensure it works when we do a full site load
+            $repo_path = $manifest->metadata->site->name;
+          }
           // load the site that we SHOULD have just pulled in
           if ($site = $GLOBALS['HAXCMS']->loadSite($repo_path)) {
             return array(
@@ -1873,6 +1922,31 @@ class Operations {
         unset($response->values->appStore->{$key});
       }
     }
+    return $response;
+  }
+  /**
+   * Get configuration related to HAX appstore. This allows the user to set valid
+   * configuration via a front-end presented form.
+   */
+  /**
+   * @OA\Get(
+   *    path="/haxConfigurationSelectionData",
+   *    tags={"editor","authenticated","settings"},
+   *    @OA\Parameter(
+   *         name="jwt",
+   *         description="JSON Web token, obtain by using  /login",
+   *         in="query",
+   *         required=true,
+   *         @OA\Schema(type="string")
+   *    ),
+   *    @OA\Response(
+   *        response="200",
+   *        description="Get configuration for HAX in how appstore is constructed"
+   *   )
+   * )
+   */
+  public function haxConfigurationSelectionData() {
+    $response = new stdClass();
     return $response;
   }
   /**
@@ -2095,7 +2169,6 @@ class Operations {
             // when we first launched this site, HAX would have these definitions as well but
             // when in production, appstore isn't around so the user may have added custom
             // things that they care about but now magically in a published state its gone
-            $site->manifest->metadata->node->dynamicElementLoader = $GLOBALS['HAXCMS']->config->node->dynamicElementLoader;
             // set last published time to now
             if (!isset($site->manifest->metadata->site->static)) {
               $site->manifest->metadata->site->static = new stdClass();
@@ -2150,6 +2223,9 @@ class Operations {
                 if (is_link($siteDirectoryPath . '/node_modules')) {
                     @unlink($siteDirectoryPath . '/node_modules');
                 }
+                if (is_link($siteDirectoryPath . '/wc-registry.json')) {
+                  @unlink($siteDirectoryPath . '/wc-registry.json');
+                }
                 if (is_link($siteDirectoryPath . '/assets/babel-top.js')) {
                     @unlink($siteDirectoryPath . '/assets/babel-top.js');
                 }
@@ -2173,6 +2249,12 @@ class Operations {
                 }
                 // additional files to move to ensure we don't screw things up
                 $templates = $site->getManagedTemplateFiles();
+                // overwrite these files with their boilerplate versions
+                // so that our templateVars can be relative to a published state
+                // as opposed to a local working state
+                foreach ($templates as $file) {
+                  copy(HAXCMS_ROOT . '/system/boilerplate/site/' . $file, $siteDirectoryPath . '/' . $file);
+                }
                 // support for index as that comes from a CDN defining what to do
                 // remove current index, then pull a new one
                 // this ensures that the php file won't be in the published copy while it is in master
@@ -2193,6 +2275,7 @@ class Operations {
                         '/' . $site->manifest->metadata->site->name . '/',
                     'title' => $site->manifest->title,
                     'short' => $site->manifest->metadata->site->name,
+                    'domain' => $site->manifest->metadata->site->domain,
                     'description' => $site->manifest->description,
                     'forceUpgrade' => $site->getForceUpgrade(),
                     'swhash' => array(),
@@ -2201,14 +2284,23 @@ class Operations {
                     'licenseName' => $licenseName,
                     'serviceWorkerScript' => $site->getServiceWorkerScript('/' . $site->manifest->metadata->site->name . '/', TRUE),
                     'bodyAttrs' => $site->getSitePageAttributes(),
+                    'metadata' => $site->getSiteMetadata(),
+                    'logo512x512' => $site->getLogoSize('512','512'),
+                    'logo310x310' => $site->getLogoSize('310','310'),
+                    'logo192x192' => $site->getLogoSize('192','192'),
+                    'logo150x150' => $site->getLogoSize('150','150'),
+                    'logo144x144' => $site->getLogoSize('144','144'),
+                    'logo96x96' => $site->getLogoSize('96','96'),
+                    'logo72x72' => $site->getLogoSize('72','72'),
+                    'logo70x70' => $site->getLogoSize('70','70'),
+                    'logo48x48' => $site->getLogoSize('48','48'),
+                    'logo36x36' => $site->getLogoSize('36','36'),
+                    'favicon' => $site->getLogoSize('16','16'),
                 );
                 // custom isn't a regex by design
                 if ($cdn != 'custom') {
                   // special fallback for HAXtheWeb since it cheats in order to demo the solution
-                  if ($cdn == 'haxtheweb.org') {
-                    $templateVars['cdn'] = 'cdn.waxam.io';
-                  }
-                  else if ($cdn == 'webcomponents.psu.edu') {
+                  if ($cdn == 'cdn.webcomponents.psu.edu') {
                     $templateVars['cdn'] = $cdn . 'cdn/';
                   }
                   else {
@@ -2236,6 +2328,9 @@ class Operations {
                     $templateVars['basePath'] = '/';
                     if (isset($parts['base'])) {
                         $templateVars['basePath'] = $parts['base'];
+                    }
+                    if ($templateVars['basePath'] == null || $templateVars['basePath'] == '' || $templateVars['basePath'] == false) {
+                      $templateVars['basePath'] = "/";
                     }
                     if ($templateVars['basePath'] == '/') {
                         $templateVars['ghPagesURLParamCount'] = 0;
@@ -2273,6 +2368,7 @@ class Operations {
                             $file != "." &&
                             $file != ".." &&
                             $file != '.gitkeep' &&
+                            $file != '._.DS_Store' &&
                             $file != '.DS_Store'
                         ) {
                             // ensure this is a file
@@ -2418,6 +2514,9 @@ class Operations {
                     $siteDirectoryPath . '/node_modules'
                 );
             }
+            if (is_link($siteDirectoryPath . '/wc-registry.json')) {
+              @unlink($siteDirectoryPath . '/wc-registry.json');
+            }
             if (is_link($siteDirectoryPath . '/assets/babel-top.js')) {
                 @unlink($siteDirectoryPath . '/assets/babel-top.js');
             }
@@ -2430,7 +2529,7 @@ class Operations {
             else {
                 $GLOBALS['fileSystem']->remove([$siteDirectoryPath . '/build']);
             }
-
+            @symlink('../../wc-registry.json', $siteDirectoryPath . '/wc-registry.json');
             @symlink(
                 '../../../babel/babel-top.js',
                 $siteDirectoryPath . '/assets/babel-top.js'

@@ -39,8 +39,8 @@ const strtr = require('locutus/php/strings/strtr');
    *   )
    * )
    */
-  function publishSite(req, res) {
-    let site = site = HAXCMS.loadSite(req.body['site']['name']);
+  async function publishSite(req, res) {
+    let site = await HAXCMS.loadSite(req.body['site']['name']);
     // ensure we have something we can load and ship back out the door
     if (site) {
         // local publishing options, then defer to system, then make some up...
@@ -61,7 +61,7 @@ const strtr = require('locutus/php/strings/strtr');
                 site.directory + '/' + site.manifest.metadata.site.name;
             repo = git.open(siteDirectoryPath, true);
             // ensure we're on master and everything is added
-            repo.checkout('master');
+            await repo.checkout('master');
             // Try to build a reasonable "domain" value
             if (
                 (gitSettings.url) &&
@@ -99,18 +99,13 @@ const strtr = require('locutus/php/strings/strtr');
                     site.manifest.metadata.site.name +
                     '/';
             }
-            // ensure we have the latest dynamic element loader since it may have improved from
-            // when we first launched this site, HAX would have these definitions as well but
-            // when in production, appstore isn't around so the user may have added custom
-            // things that they care about but now magically in a published state its gone
-            site.manifest.metadata.node.dynamicElementLoader = HAXCMS.config.node.dynamicElementLoader;
             // set last published time to now
             if (!(site.manifest.metadata.site.static)) {
               site.manifest.metadata.site.static = {};
             }
             site.manifest.metadata.site.static.lastPublished = Date.now();
             site.manifest.metadata.site.static.publishedLocation = domain;
-            site.manifest.save(false);
+            await site.manifest.save(false);
             // just to be safe in case the push isn't successful
             try {
                 repo.add('.');
@@ -149,19 +144,22 @@ const strtr = require('locutus/php/strings/strtr');
                 ).isFile()
             ) {
                 // move the index.html and fs.unlink the symlinks otherwise we'll get build failures
-                if (fs.lstat(siteDirectoryPath + '/build').isSymbolicLink()) {
+                if (fs.lstatSync(siteDirectoryPath + '/build').isSymbolicLink()) {
                     fs.unlink(siteDirectoryPath + '/build');
                 }
-                if (fs.lstat(siteDirectoryPath + '/dist').isSymbolicLink()) {
+                if (fs.lstatSync(siteDirectoryPath + '/dist').isSymbolicLink()) {
                     fs.unlink(siteDirectoryPath + '/dist');
                 }
-                if (fs.lstat(siteDirectoryPath + '/node_modules').isSymbolicLink()) {
+                if (fs.lstatSync(siteDirectoryPath + '/node_modules').isSymbolicLink()) {
                     fs.unlink(siteDirectoryPath + '/node_modules');
                 }
-                if (fs.lstat(siteDirectoryPath + '/assets/babel-top.js').isSymbolicLink()) {
+                if (fs.lstatSync(siteDirectoryPath + '/wc-registry.json').isSymbolicLink()) {
+                    fs.unlink(siteDirectoryPath + '/wc-registry.json');
+                }
+                if (fs.lstatSync(siteDirectoryPath + '/assets/babel-top.js').isSymbolicLink()) {
                     fs.unlink(siteDirectoryPath + '/assets/babel-top.js');
                 }
-                if (fs.lstat(siteDirectoryPath + '/assets/babel-bottom.js').isSymbolicLink()) {
+                if (fs.lstatSync(siteDirectoryPath + '/assets/babel-bottom.js').isSymbolicLink()) {
                     fs.unlink(siteDirectoryPath + '/assets/babel-bottom.js');
                 }
                 // copy these things because we have a local routine
@@ -207,19 +205,14 @@ const strtr = require('locutus/php/strings/strtr');
                     'ghPagesURLParamCount' : 1,
                     'licenseLink' : licenseLink,
                     'licenseName' : licenseName,
-                    'serviceWorkerScript' : site.getServiceWorkerScript('/' + site.manifest.metadata.site.name + '/', TRUE),
+                    'serviceWorkerScript' : site.getServiceWorkerScript('/' + site.manifest.metadata.site.name + '/', true),
                     'bodyAttrs' : site.getSitePageAttributes(),
                 };
                 // custom isn't a regex by design
                 if (cdn != 'custom') {
                   // special fallback for HAXtheWeb since it cheats in order to demo the solution
-                  if (cdn == 'haxtheweb.org') {
-                    templateVars['cdn'] = 'cdn.waxam.io';
-                  }
-                  else {
-                    templateVars['cdn'] = cdn;
-                  }
-                  templateVars['metadata'] = site.getSiteMetadata(NULL, domain, 'https://' + templateVars['cdn']);
+                  templateVars['cdn'] = cdn;
+                  templateVars['metadata'] = site.getSiteMetadata(null, domain, 'https://' + templateVars['cdn']);
                   // build a regex so that we can do fully offline sites and cache the cdn requests even
                   templateVars['cdnRegex'] =
                     "(https?:\/\/" +    
@@ -246,7 +239,7 @@ const strtr = require('locutus/php/strings/strtr');
                         templateVars['ghPagesURLParamCount'] = 0;
                     }
                     // now we need to update the SW to match
-                    templateVars['serviceWorkerScript'] = site.getServiceWorkerScript(templateVars['basePath'], TRUE);
+                    templateVars['serviceWorkerScript'] = site.getServiceWorkerScript(templateVars['basePath'], true);
                 }
                 if ((site.manifest.metadata.theme.variables.hexCode)) {
                     templateVars['hexCode'] =
@@ -345,7 +338,7 @@ const strtr = require('locutus/php/strings/strtr');
                 for (var key in templates) {
                     let location = templates[key];
                   if (fs.lstatSync(siteDirectoryPath + '/' + location).isFile()) {
-                    fs.writeFile(
+                    fs.writeFileSync(
                         siteDirectoryPath + '/' + location,
                         twig.render(location, templateVars)
                     );
@@ -373,10 +366,11 @@ const strtr = require('locutus/php/strings/strtr');
                 HAXCMS.configDirectory + '/../_published/' + site.manifest.metadata.site.name + '/.git'
             );
             // rewrite the base path to ensure it is accurate based on a local build publish vs web
-            let index = fs.readFileSync(
+            let index = await fs.readFileSync(
                 HAXCMS.configDirectory + '/../_published/' +
                     site.manifest.metadata.site.name +
-                    '/index.html'
+                    '/index.html',
+                    {encoding:'utf8', flag:'r'}
             );
             // replace if it was publishing with the name in it
             index = index.replace(
@@ -393,7 +387,7 @@ const strtr = require('locutus/php/strings/strtr');
                     '/"'
             );
             // rewrite the file
-            fs.writeFile(
+            fs.writeFileSync(
                 HAXCMS.configDirectory + '/../_published/' +
                     site.manifest.metadata.site.name +
                     '/index.html',
@@ -428,6 +422,9 @@ const strtr = require('locutus/php/strings/strtr');
             }
             if (fs.lstatSync(siteDirectoryPath + '/assets/babel-bottom.js').isSymbolicLink()) {
                 fs.unlink(siteDirectoryPath + '/assets/babel-bottom.js');
+            }
+            if (fs.lstatSync(siteDirectoryPath + '/wc-registry.json').isSymbolicLink()) {
+                fs.unlink(siteDirectoryPath + '/wc-registry.json');
             }
             if (fs.lstatSync(siteDirectoryPath + '/build').isSymbolicLink()) {
                 fs.unlink(siteDirectoryPath + '/build');

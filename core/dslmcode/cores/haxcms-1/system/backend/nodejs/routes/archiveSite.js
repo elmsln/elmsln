@@ -35,10 +35,10 @@ const HAXCMS = require('../lib/HAXCMS.js');
    *   )
    * )
    */
-  function archiveSite(req, res) {
-    let site = HAXCMS.loadSite(req.body['site']['name']);
+  async function archiveSite(req, res) {
+    let site = await HAXCMS.loadSite(req.body['site']['name']);
     if (site.name) {
-      fs.rename(
+      await fs.rename(
         HAXCMS.HAXCMS_ROOT + '/' + HAXCMS.sitesDirectory + '/' + site.manifest.metadata.site.name,
         HAXCMS.HAXCMS_ROOT + '/' + HAXCMS.archivedDirectory + '/' + site.manifest.metadata.site.name);
       res.send({

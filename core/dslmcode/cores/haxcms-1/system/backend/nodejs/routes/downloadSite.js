@@ -36,13 +36,13 @@ const basename = require('locutus/php/filesystem/basename');
    *   )
    * )
    */
-  function downloadSite(req, res) {
+  async function downloadSite(req, res) {
     // load site
-    let site = HAXCMS.loadSite(req.body['site']['name']);
+    let site = await HAXCMS.loadSite(req.body['site']['name']);
     // helpful boilerplate https://stackoverflow.com/questions/29873248/how-to-zip-a-whole-directory-and-download-using-php
-    dir = HAXCMS.HAXCMS_ROOT + '/' + HAXCMS.sitesDirectory + '/' + site.name;
+    let dir = HAXCMS.HAXCMS_ROOT + '/' + HAXCMS.sitesDirectory + '/' + site.name;
     // form a basic name
-    zip_file =
+    let zip_file =
       HAXCMS.HAXCMS_ROOT +
       '/' +
       HAXCMS.publishedDirectory +
@@ -50,38 +50,38 @@ const basename = require('locutus/php/filesystem/basename');
       site.name +
       '.zip';
     // Get real path for our folder
-    rootPath = fs.realpath(dir);
+    let rootPath = await fs.realpath(dir);
     // Initialize archive object
     let zip = '';
     // @todo ZipArchive
     //let zip = new ZipArchive();
     //zip.open(zip_file, ZipArchive::CREATE | ZipArchive::OVERWRITE);
     // Create recursive directory iterator
-    directory = new RecursiveDirectoryIterator(rootPath);
-    filtered = new DirFilter(directory, ['node_modules']);
-    files = new RecursiveIteratorIterator(filtered);
+    let directory = new RecursiveDirectoryIterator(rootPath);
+    let filtered = new DirFilter(directory, ['node_modules']);
+    let files = new RecursiveIteratorIterator(filtered);
     for (var name in files) {
       let file = files[name];
       // Skip directories (they would be added automatically)
       if (!file.isDir()) {
         // Get real and relative path for current file
-        filePath = file.getRealPath();
-        relativePath = filePath.substr(strlen(rootPath) + 1);
+        let filePath = file.getRealPath();
+        let relativePath = filePath.substr(strlen(rootPath) + 1);
         // Add current file to archive
         if (filePath != '' && relativePath != '') {
-          zip.addFile(filePath, relativePath);
+          await zip.addFile(filePath, relativePath);
         }
       }
     }
     // Zip archive will be created only after closing object
     zip.close();
-    return {
+    res.send({
       'link':
         HAXCMS.basePath +
         HAXCMS.publishedDirectory +
         '/' +
         basename(zip_file),
       'name': basename(zip_file)
-    };
+    });
   }
   module.exports = downloadSite;

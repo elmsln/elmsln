@@ -8,6 +8,7 @@ class JSONOutlineSchemaItem
     public $id;
     public $indent;
     public $location;
+    public $slug;
     public $order;
     public $parent;
     public $title;
@@ -21,6 +22,7 @@ class JSONOutlineSchemaItem
         $this->id = 'item-' . $this->generateUUID();
         $this->indent = 0;
         $this->location = '';
+        $this->slug = '';
         $this->order = 0;
         $this->parent = '';
         $this->title = 'New item';

@@ -35,10 +35,10 @@ const HAXCMS = require('../lib/HAXCMS.js');
    *   )
    * )
    */
-  function deleteSite(req, res) {
-    let site = HAXCMS.loadSite(req.body['site']['name']);
+  async function deleteSite(req, res) {
+    let site = await HAXCMS.loadSite(req.body['site']['name']);
     if (site.name) {
-      fs.unlink(
+      await fs.unlink(
         site.directory + '/' + site.manifest.metadata.site.name
       );
       res.send({
@@ -47,7 +47,7 @@ const HAXCMS = require('../lib/HAXCMS.js');
       });
     }
     else {
-        res.send(500);
+      res.send(500);
     }
   }
   module.exports = deleteSite;

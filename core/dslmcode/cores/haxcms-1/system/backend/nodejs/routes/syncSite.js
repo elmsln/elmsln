@@ -34,9 +34,9 @@ const HAXCMS = require('../lib/HAXCMS.js');
    *   )
    * )
    */
-  function syncSite(req, res) {
+  async function syncSite(req, res) {
     // ensure we have something we can load and ship back out the door
-    if (site = HAXCMS.loadSite(req.body['site']['name'])) {
+    if (site = await HAXCMS.loadSite(req.body['site']['name'])) {
       // local publishing options, then defer to system, then make some up...
       if ((site.manifest.metadata.site.git)) {
           gitSettings = site.manifest.metadata.site.git;
@@ -54,10 +54,10 @@ const HAXCMS = require('../lib/HAXCMS.js');
           siteDirectoryPath = site.directory + '/' + site.manifest.metadata.site.name;
           repo = git.open(siteDirectoryPath, true);
           // ensure we're on branch, most likley master
-          repo.checkout(gitSettings.branch);
-          repo.pull('origin', gitSettings.branch);
-          repo.push('origin', gitSettings.branch);
-          res.send(TRUE);
+          await repo.checkout(gitSettings.branch);
+          await repo.pull('origin', gitSettings.branch);
+          await repo.push('origin', gitSettings.branch);
+          res.send(true);
       }
     } else {
       res.send(500);

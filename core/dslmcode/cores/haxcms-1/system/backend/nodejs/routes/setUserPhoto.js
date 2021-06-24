@@ -21,7 +21,7 @@ const HAXCMS = require('../lib/HAXCMS.js');
     // @todo might want to scrub prior to this level but not sure
     if (($_FILES['file-upload'])) {
       upload = $_FILES['file-upload'];
-      file = new HAXCMSFile();
+      let file = new HAXCMSFile();
       fileResult = file.save(upload, 'system/user/files', null, 'thumbnail');
       if (fileResult['status'] == 500) {
         res.send(500);
@@ -30,7 +30,7 @@ const HAXCMS = require('../lib/HAXCMS.js');
       values = {};
       values.userPicture = fileResult['data']['file']['fullUrl'];
       HAXCMS.setUserData(values);
-      return fileResult;
+      res.send(fileResult);
     }
   }
   module.exports = setUserPhoto;

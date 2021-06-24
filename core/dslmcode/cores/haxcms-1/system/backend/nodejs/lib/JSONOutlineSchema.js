@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
-const uuidv4 = require('uuid/v4');
-const JSONOutlineSchemaItem = require('./lib/JSONOutlineSchemaItem.js');
+const { v4: uuidv4 } = require('uuid');
+const json_decode = require('locutus/php/json/json_decode');
+const JSONOutlineSchemaItem = require('./JSONOutlineSchemaItem.js');
 const array_search = require('locutus/php/array/array_search');
 const usort = require('locutus/php/array/usort');
 
@@ -17,7 +18,7 @@ class JSONOutlineSchema
     /**
      * Establish defaults
      */
-    __construct()
+     constructor()
     {
         this.file = null;
         this.id = uuidv4();
@@ -92,7 +93,7 @@ class JSONOutlineSchema
     addItem(item)
     {
         let safeItem = this.validateItem(item);
-        count = this.items.push(safeItem);
+        let count = this.items.push(safeItem);
         return count;
     }
     /**
@@ -105,10 +106,10 @@ class JSONOutlineSchema
         // create a generic schema item
         let tmp = new JSONOutlineSchemaItem();
         // crush the item given into a stdClass object
-        ary = get_object_vars(item);
+        let ary = (item);
         for (var key in ary) {
             // only set what the element from spec allows into a new object
-            if ((tmp[key])) {
+            if (tmp.hasOwnProperty(key)) {
                 tmp[key] = ary[key];
             }
         }
@@ -117,7 +118,7 @@ class JSONOutlineSchema
     /**
      * Remove an item from the outline if it exists
      * @var id an id that's in the array of items
-     * @return JSONOutlineSchemaItem or FALSE if not found
+     * @return JSONOutlineSchemaItem or false if not found
      */
     removeItem(id)
     {
@@ -133,7 +134,7 @@ class JSONOutlineSchema
     /**
      * Update an item in the outline
      * @var id an id that's in the array of items
-     * @return JSONOutlineSchemaItem or FALSE if not found
+     * @return JSONOutlineSchemaItem or false if not found
      */
     updateItem(item, save = false)
     {
@@ -158,12 +159,13 @@ class JSONOutlineSchema
     /**
      * Load a schema from a file
      */
-    load(location)
+    async load(location)
     {
         if (fs.lstatSync(location).isFile()) {
             this.file = location;
-            let fileData = json_decode(fs.readFileSync(location));
-            let vars = get_object_vars(fileData);
+            let fileData = json_decode(await fs.readFileSync(location,
+                {encoding:'utf8', flag:'r'}));
+            let vars = (fileData);
             for (var key in vars) {
                 if ((this[key]) && key != 'items') {
                     this[key] = vars[key];
@@ -178,6 +180,7 @@ class JSONOutlineSchema
                     newItem.id = item.id;
                     newItem.indent = item.indent;
                     newItem.location = item.location;
+                    newItem.slug = item.slug;
                     newItem.order = item.order;
                     newItem.parent = item.parent;
                     newItem.title = item.title;
@@ -205,23 +208,22 @@ class JSONOutlineSchema
     /**
      * Save data back to the file system location
      */
-    save(reorder = true)
+    async save(reorder = true)
     {
         // on every save we ensure it's sorted in the right order
         if (reorder) {
             this.items = this.orderTree(this.items);
         }
-        let schema = get_object_vars(this);
+        let schema = (this);
         let file = schema['file'];
+        // delete so it doesn't show up in the site.json file
         delete schema['file'];
-        schema['items'] = [];
-        for (var key in this.items) {
-            let newItem = get_object_vars(this.items[key]);
-            schema['items'].push(newItem)
-        }
+        let output;
         // ensure we have valid json object
         if (output = JSON.stringify(schema, null, 2)) {
-          return fs.writeFile(file, output);
+          // reassign so we don't lose it in the transaction
+          this.file = file;
+          return fs.writeFileSync(file, output);
         }
     }
     /**
@@ -274,3 +276,4 @@ class JSONOutlineSchema
         }
     }
 }
+module.exports = JSONOutlineSchema;

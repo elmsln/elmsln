@@ -7,7 +7,7 @@ class FeedMe
      */
     getRSSFeed(site)
     {
-        domain = "";
+        let domain = "";
         if ((site.manifest.metadata.site.domain)) {
             domain = site.manifest.metadata.site.domain;
         }
@@ -60,7 +60,8 @@ class FeedMe
     ${domain + '/' + item.location.replace('pages/','').replace('/index.html', '')}
     </link>
     <description>
-        <![CDATA[ ${fs.readFileSync(siteDirectory + '/' + item.location)} ]]>
+        <![CDATA[ ${fs.readFileSync(siteDirectory + '/' + item.location,
+        {encoding:'utf8', flag:'r'})} ]]>
     </description>
     <category>${tags}</category>
     <guid>
@@ -98,16 +99,16 @@ class FeedMe
     /**
      * Generate Atom items.
      */
-    atomItems(site, limit = 25)
+    async atomItems(site, limit = 25)
     {
-        output = '';
-        domain = "";
-        count = 0;
+        let output = '';
+        let domain = "";
+        let count = 0;
         if ((site.manifest.metadata.site.domain)) {
             domain = site.manifest.metadata.site.domain;
         }
-        items = site.sortItems('created');
-        siteDirectory = site.directory + '/' + site.manifest.metadata.site.name;
+        let items = site.sortItems('created');
+        let siteDirectory = site.directory + '/' + site.manifest.metadata.site.name;
         for (var key in items) {
             let item = items[key];
             let tags = '';
@@ -136,7 +137,8 @@ class FeedMe
     <link href="${domain}/${item.location.replace('pages/','').replace('/index.html', '')}"/>
     ${tags}]
     <content type="html">
-      <![CDATA[ ${fs.readFileSync(siteDirectory + '/' + item.location)} ]]>
+      <![CDATA[ ${fs.readFileSync(siteDirectory + '/' + item.location,
+      {encoding:'utf8', flag:'r'})} ]]>
     </content>
   </entry>`;
             }
@@ -145,3 +147,4 @@ class FeedMe
         return output;
     }
 }
+module.exports = FeedMe;
