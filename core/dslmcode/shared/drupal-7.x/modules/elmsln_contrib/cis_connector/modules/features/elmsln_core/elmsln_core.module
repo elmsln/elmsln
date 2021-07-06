@@ -2621,7 +2621,7 @@ function elmsln_core_tokens_alter(&$replacements, $context) {
  */
 function elmsln_core_hax_app_store() {
   //global $base_url;
-  /*$parts = explode('://', $base_url);
+  $parts = explode('://', $base_url);
   // built in support when file_entity and restws is in place
   $json = '{
     "details": {
@@ -2668,7 +2668,11 @@ function elmsln_core_hax_app_store() {
               "type": "type"
             }
           }
-        },
+        }
+      }
+    }
+  }';
+  /*,
         "add": {
           "method": "POST",
           "endPoint": "elmsmedia-file-save/' . drupal_get_token('elmsln') . '",
@@ -2692,10 +2696,8 @@ function elmsln_core_hax_app_store() {
             }
           }
         }
-      }
-    }
-}';*/
- // return json_decode($json);
+  */
+  return json_decode($json);
 }
 
 /**
