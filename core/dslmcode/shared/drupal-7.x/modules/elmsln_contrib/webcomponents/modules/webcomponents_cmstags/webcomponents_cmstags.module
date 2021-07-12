@@ -132,6 +132,10 @@ function _webcomponents_cmstags_token_render($format) {
   );
   $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
   $token = $params['token'];
+  // force iframe render mode if nothing is suggested
+  if (strpos($token,'render=') === FALSE) {
+    $token = str_replace(']','|render=iframe]',$token);
+  }
   // set global to skip our drupal token processor!
   $GLOBALS['skip_drupal_token'] = TRUE;
   // see if we can generate a url from a simple token parse

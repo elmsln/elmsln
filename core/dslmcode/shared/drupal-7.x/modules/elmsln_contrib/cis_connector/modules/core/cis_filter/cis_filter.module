@@ -85,7 +85,6 @@ function _cis_filter_process($text, $filter, $format, $langcode, $cache, $cache_
               $instance = '/';
               if (isset($settings['instance']) && $settings['instance']) {
                 $instance = base_path();
-                // @todo huh!? when would this EVER fire?
                 // test for non-subdomain installation
                 $test = explode('/', $instance);
                 if (count($test) == 4) {
@@ -256,7 +255,7 @@ function cis_filter_preprocess_cis_filter_render__value(&$vars) {
   // this currently supports simple field values and markup rendered
   // fields.
   // request the object via webservice
-  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, TRUE, 'deep-load-refs=file,node');
+  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, FALSE, 'deep-load-refs=file,node');
   $vars['response'] = $response;
   // see if this text value is a complex one to filter
   if (isset($response[$code['field']]) && is_array($response[$code['field']])) {
@@ -289,7 +288,7 @@ function cis_filter_preprocess_cis_filter_render__display_mode(&$vars) {
   // pull in the original code as an array
   $code = $vars['settings']['code'];
   // get response from loading the object
-  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, TRUE, 'display_mode=' . $code['display_mode']);
+  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, FALSE, 'display_mode=' . $code['display_mode']);
   // ensure addresses are correct / more CDN-esk instead of local render
   $response['rendered'] = str_replace('/services/', '/', str_replace($settings['service_address'], $settings['address'], $response['rendered']));
   $response['rendered'] = preg_replace('<img(.*?)src="\/(.*?)"(.*?)\/>', 'img${1}src="' . $settings['protocol'] . '://' . $settings['address'] . '/${2}"${3}/', $response['rendered']);
@@ -359,7 +358,6 @@ function cis_filter_preprocess_cis_filter_render__link(&$vars) {
     }
   }
   elseif (isset($code['text'])) {
-    // @todo investigate a theme function for this
     $link = l(t('@t', array('@t' => $code['text'])), $link);
   }
   $vars['content'] = $link;
@@ -722,7 +720,7 @@ function cis_filter_preprocess_cis_filter_render(&$vars) {
  */
 function _cis_filter_filtered_request_object($code, $instance) {
   // request the object via webservice
-  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, TRUE, 'deep-load-refs=file');
+  $response = _cis_connection_object($code['item'], $code['entity_type'], 'json', 'GET', NULL, $code['tool'], $instance, FALSE, 'deep-load-refs=file');
   if (!empty($response)) {
     // see if this text value is a complex one to filter
     foreach($response as &$field) {

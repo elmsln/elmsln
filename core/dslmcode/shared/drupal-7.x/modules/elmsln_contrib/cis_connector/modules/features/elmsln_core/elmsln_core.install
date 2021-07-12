@@ -396,3 +396,13 @@ function elmsln_core_update_7035(&$sandbox) {
   module_disable(array("elmsln_voice", "voicecommander", "jwerty"));
   features_revert_module('elmsln_core');
 }
+
+/**
+ * Set weight of the My Funky Module module to 13.
+ */
+function elmsln_core_update_7036() {
+  db_update('system')
+  ->fields(array('weight' => -1000))
+  ->condition('name', 'restws_basic_auth', '=')
+  ->execute();
+}
