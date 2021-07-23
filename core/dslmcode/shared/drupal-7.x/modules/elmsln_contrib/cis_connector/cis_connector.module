@@ -1175,7 +1175,7 @@ function _cis_connector_make_request($url, $options){
   // as some systems can have issues with SSL configuration and socket connections
   if (function_exists('curl_init')) {
     $headers = array();
-    if (isset($options['headers'])) {
+    if (isset($options['headers']) && is_array($options['headers'])) {
       foreach ($options['headers'] as $property => $value) {
         $headers[] = $property . ': ' . $value;
       }

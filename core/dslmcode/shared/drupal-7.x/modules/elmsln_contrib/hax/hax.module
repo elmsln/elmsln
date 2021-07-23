@@ -1,6 +1,6 @@
 <?php
 
-include_once __DIR__ . '/HAXapi/php/HAXAppStoreService.php';
+include_once __DIR__ . '/HAXapi/php/lib/HAXAppStoreService.php';
 
 /**
  * @file

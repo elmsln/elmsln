@@ -1,7 +1,8 @@
 <?php
-define("HAXCMS_VERSION", "1.2.0");
+define("HAXCMS_VERSION", "2.0.9");
 define("HAXCMS_DRUPAL_THEME", "haxcms_drupal_theme");
-include_once __DIR__ . '/../../HAXapi/php/HAXAppStoreService.php';
+
+include_once __DIR__ . '/../../HAXapi/php/lib/HAXAppStoreService.php';
 /**
  * @file
  * Headless Authoring eXperience, all we do is accept calls and make things haxable in the first place.
@@ -71,6 +72,27 @@ function haxcms_menu() {
   $items['haxapi/getUserData/%'] = array(
     'page callback' => '_haxcms_getUserData',
     'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
+  );
+  // login endpoint
+  $items['haxapi/login'] = array(
+    'page callback' => '_haxcms_login',
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
+  );
+  // logout endpoint
+  $items['haxapi/logout'] = array(
+    'page callback' => '_haxcms_logout',
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
+  );
+  // refreshAccessToken endpoint
+  $items['haxapi/refreshAccessToken'] = array(
+    'page callback' => '_haxcms_refreshAccessToken',
     'type' => MENU_CALLBACK,
     'access callback' => 'user_access',
     'access arguments' => array('use hax'),
@@ -217,6 +239,148 @@ function _haxcms_convert_request_structure($token, $validateOnly = FALSE, $metho
   }
   return FALSE;
 }
+
+/**
+ * Verify user is logged into Drupal
+*/
+function _haxcms_login() {
+  // test if this is a valid user login
+  if ($GLOBALS['user']->uid === 0) {
+    // deliver a piece of JS object structure
+    drupal_add_http_header('Content-Type', 'application/javascript');
+    drupal_add_http_header('Status', 403);
+    print json_encode(array(
+      '__failed' => array(
+        'status' => 403,
+        'message' => 'Access denied',
+      )
+    )); 
+  } else {
+    drupal_add_http_header('Status', 200);
+    $HAXCMS = _haxcms_bootstrap();
+    $u = $GLOBALS['user']->name;
+    // set a refresh_token COOKIE that will ship w/ all calls automatically
+    setcookie('haxcms_refresh_token', $HAXCMS->getRefreshToken($u), $_expires = 0, $_path = '/', $_domain = '', $_secure = false, $_httponly = true);
+    print $HAXCMS->getJWT($u);
+  }
+  exit;
+}
+  /**
+   * @OA\Post(
+   *    path="/logout",
+   *    tags={"cms","user"},
+   *    @OA\Response(
+   *        response="200",
+   *        description="User logout, front end will kill token"
+   *   )
+   * )
+   */
+  function _haxcms_logout() {
+    print 'loggedout';
+    exit;
+  }
+  /**
+   * Simple bootstrap for HAXcms that returns an instance so we can use the class
+   */
+  function _haxcms_bootstrap() {
+    // include HAXcms and print out the settings
+    define('HAXCMS_ROOT', DRUPAL_ROOT . drupal_get_path("module", "hax"));
+    include_once __DIR__ . '/../../HAXapi/php/lib/HAXCMS.php';
+    class DrupalHAXCMS extends HAXCMS {
+      /**
+       * Get Front end JWT based connection settings
+       */
+      public function appJWTConnectionSettings()
+      {
+          $path = $this->basePath . $this->systemRequestBase . '/';
+          $settings = new stdClass();
+          $settings->login = $path . 'login';
+          $settings->refreshUrl = $path . 'refreshAccessToken';
+          $settings->logout = $path . 'logout';
+          $settings->connectionSettings = $path . 'connectionSettings';
+          $settings->redirectUrl = $this->basePath; // enables redirecting back to site root if JWT really is dead
+          $settings->themes = $this->getThemes();
+          $settings->saveNodePath = $path . 'saveNode/' . drupal_get_token('hax');
+          $settings->backLink = base_path();
+          $settings->backText = t('Back to front page');
+          // @todo comment in when we implement these in Drupal
+          //$settings->saveManifestPath = $path . 'saveManifest';
+          //$settings->saveOutlinePath = $path . 'saveOutline';
+          //$settings->setConfigPath = $path . 'setConfig';
+          //$settings->getConfigPath = $path . 'getConfig';
+          //$settings->getNodeFieldsPath = $path . 'getNodeFields';
+          //$settings->getSiteFieldsPath = $path . 'formLoad?haxcms_form_id=siteSettings';
+          // form token to validate form submissions as unique to the session
+          $settings->getFormToken = drupal_get_token('hax');
+          $settings->createNodePath = $path . 'createNode/' . drupal_get_token('hax');
+          $settings->deleteNodePath = $path . 'deleteNode/' . drupal_get_token('hax');
+          $settings->getUserDataPath = $path . 'getUserData/' . drupal_get_token('hax');
+          // not an actual jwt but fakes it correctly for session based Drupal to function
+          $settings->jwt = drupal_get_token('hax');
+          //$settings->syncSitePath = $path . 'syncSite';
+          //$settings->publishSitePath = $path . 'publishSite';
+          //$settings->revertSitePath = $path . 'revertCommit';
+          //$settings->setUserPhotoPath = $path . 'setUserPhoto';
+          //$settings->createNewSitePath = $path . 'createSite';
+          //$settings->gitImportSitePath = $path . 'gitImportSite';
+          //$settings->downloadSitePath = $path . 'downloadSite';
+          //$settings->archiveSitePath = $path . 'archiveSite';
+          //$settings->cloneSitePath = $path . 'cloneSite';
+          //$settings->deleteSitePath = $path . 'deleteSite';
+          $settings->appStore = array(
+            'url' => base_path() . 'haxapi/generateAppStore/' . drupal_get_token('hax'),
+          );
+          return $settings;
+      }
+    }
+    $HAXCMS = new DrupalHAXCMS();
+    $HAXCMS->basePath = base_path();
+    $HAXCMS->systemRequestBase = 'haxapi';
+    $HAXCMS->config->themes = array(
+      'clean-one' => t('Course theme'),
+      'clean-two' => t('Course theme two'),
+      'learn-two-theme' => t('Course theme three'),
+      'outline-player' => t('Documentation theme'),
+      'haxor-slevin' => t('Developer Blog theme'),
+    );
+    return $HAXCMS;
+  }
+  /**
+   * @OA\Post(
+   *    path="/refreshAccessToken",
+   *    tags={"cms","user"},
+   *    @OA\Response(
+   *        response="200",
+   *        description="User access token for refreshing JWT when it goes stale"
+   *   )
+   * )
+   */
+  function _haxcms_refreshAccessToken() {
+    $HAXCMS = _haxcms_bootstrap();
+    // check that we have a valid refresh token
+    $validRefresh = $HAXCMS->validateRefreshToken(FALSE);
+    // if we have a valid refresh token then issue a new access token
+    if ($validRefresh) {
+      // define status
+      drupal_add_http_header('Status', 200);
+      print $HAXCMS->getJWT($validRefresh->user);
+    }
+    else {
+    // define status
+    // deliver a piece of JS object structure
+    drupal_add_http_header('Content-Type', 'application/javascript');
+    drupal_add_http_header('Status', 401);
+      // this failed so unset the cookie
+      setcookie('haxcms_refresh_token', '', 1);
+      print json_encode(array(
+        '__failed' => array(
+          'status' => 401,
+          'message' => 'haxcms_refresh_token:invalid',
+        )
+      ));
+    }
+    exit;
+  }
 
 /**
  * Return basic user data info
@@ -449,10 +613,8 @@ function _haxcms_connectionSettings() {
   drupal_add_http_header('Content-Type', 'application/javascript');
   // define status
   drupal_add_http_header('Status', 200);
-  // include HAXcms and print out the settings
-  include_once __DIR__ . '/../../HAXapi/php/HAXcms.php';
-  $HAXcms = new HAXcms();
-  print 'window.appSettings = ' . json_encode($HAXcms->appJWTConnectionSettings()) . ';';
+  $HAXCMS = _haxcms_bootstrap();
+  print 'window.appSettings = ' . json_encode($HAXCMS->appJWTConnectionSettings()) . ';';
   exit;
 }
 
@@ -465,7 +627,8 @@ function _haxcms_loadJOS($book) {
   if ($book->book['bid'] != $book->nid) {
     $book = node_load($book->book['bid']);
   }
-  include_once __DIR__ . '/../../HAXapi/php/JSONOutlineSchema.php';
+  define('HAXCMS_ROOT', DRUPAL_ROOT . drupal_get_path("module", "hax"));
+  include_once __DIR__ . '/../../HAXapi/php/lib/JSONOutlineSchema.php';
   $site = new JSONOutlineSchema();
   $site->file = base_path() . "haxapi/loadJOS/" . $book->nid;
   $site->id = 'mlid-' . $book->book['mlid'];
@@ -727,7 +890,8 @@ function haxcms_settings($form, &$form_state) {
     ),
     '#description' => t("Full URL to the social account"),
   ];
-  include_once __DIR__ . '/../../HAXapi/php/JSONOutlineSchema.php';
+  define('HAXCMS_ROOT', DRUPAL_ROOT . drupal_get_path("module", "hax"));
+  include_once __DIR__ . '/../../HAXapi/php/lib/JSONOutlineSchema.php';
   $outline = new JSONOutlineSchema();
   $outline->license = '';
   $list = $outline->getLicenseDetails(TRUE);
