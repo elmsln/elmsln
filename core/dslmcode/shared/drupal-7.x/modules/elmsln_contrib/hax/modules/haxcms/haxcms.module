@@ -341,6 +341,7 @@ function _haxcms_login() {
       'clean-two' => t('Course theme two'),
       'learn-two-theme' => t('Course theme three'),
       'outline-player' => t('Documentation theme'),
+      'haxcms-slide-theme' => t('Slide player'),
       'haxor-slevin' => t('Developer Blog theme'),
     );
     return $HAXCMS;
@@ -667,6 +668,12 @@ function _haxcms_loadJOS($book) {
   // theme
   $site->metadata->theme = new stdClass();
   $site->metadata->theme->element = variable_get("haxcms_settings_theme", "clean-one");
+  $theme = '';
+  // test for theme hijack, great for testing things
+  if (isset($_GET["theme"])) {
+    $get   = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+    $site->metadata->theme->element = $get["theme"];
+  }
   $site->metadata->theme->variables = new stdClass();
   $site->metadata->theme->variables->image = file_create_url(theme_get_setting('logo_path'));
   $site->metadata->theme->variables->hexCode = variable_get("haxcms_settings_hexCode", "#009d75");
@@ -750,11 +757,17 @@ function _haxcms_loader($node = NULL) {
     $path = drupal_get_normal_path(str_replace('%20', ' ',implode('/', $args)));
     $node = node_load(str_replace('node/', '', $path));
   }
+  $theme = '';
+  // test for theme hijack, great for testing things
+  if (isset($_GET["theme"])) {
+    $get   = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+    $theme = "?theme=" . $get["theme"];
+  }
 
   if (isset($node->book['bid'])) {
     // write content to screen, wrapped in tag to do all the work
     $siteAttributes = array(
-      'file' => base_path() . 'haxapi/loadJOS/' . $node->book['bid'],
+      'file' => base_path() . 'haxapi/loadJOS/' . $node->book['bid'] . $theme,
       'base-uri' => $baseURI,
     );
     // deep developer function to allow full control over tag's properties
