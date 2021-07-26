@@ -1,15 +1,23 @@
 # LitElement
-A simple base class for creating fast, lightweight web components with [lit-html](https://lit-html.polymer-project.org/).
 
-[![Build Status](https://travis-ci.org/Polymer/lit-element.svg?branch=master)](https://travis-ci.org/Polymer/lit-element)
+LitElement is simple base class for creating fast, lightweight web components with [lit-html](https://lit-html.polymer-project.org/).
+
+[![Build Status](https://travis-ci.org/lit/lit-element.svg?branch=master)](https://travis-ci.org/lit/lit-element)
 [![Published on npm](https://img.shields.io/npm/v/lit-element.svg)](https://www.npmjs.com/package/lit-element)
-[![Join our Slack](https://img.shields.io/badge/slack-join%20chat-4a154b.svg)](https://www.polymer-project.org/slack-invite)
-[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/lit-element)
-[![Mentioned in Awesome lit-html](https://awesome.re/mentioned-badge.svg)](https://github.com/web-padawan/awesome-lit-html)
+[![Join our Slack](https://img.shields.io/badge/slack-join%20chat-4a154b.svg)](https://lit.dev/slack-invite/)
+[![Mentioned in Awesome lit-html](https://awesome.re/mentioned-badge.svg)](https://github.com/web-padawan/awesome-lit)
+
+## Looking for Lit?
+
+LitElement is now part of the [Lit library monorepo](https://github.com/lit/lit). Lit 2 includes lit-html 2.x and LitElement 3.x. 
+
+This repo contains the code for LitElement 2.x.
 
 ## Documentation
 
-Full documentation is available at [lit-element.polymer-project.org](https://lit-element.polymer-project.org).
+For LitElement 2.x documentation, see the [legacy documentation site](https://lit-element.polymer-project.org).
+
+For Lit 2, the next version of LitElement and lit-html, see the [Lit site](https://lit.dev). 
 
 ## Overview
 
@@ -20,32 +28,32 @@ and renders declaratively using `lit-html`. See the [lit-html guide](https://lit
 for additional information on how to create templates for lit-element.
 
 ```ts
-    import {LitElement, html, css, customElement, property} from 'lit-element';
+import {LitElement, html, css, customElement, property} from 'lit-element';
 
-    // This decorator defines the element.
-    @customElement('my-element')
-    export class MyElement extends LitElement {
+// This decorator defines the element.
+@customElement('my-element')
+export class MyElement extends LitElement {
 
-      // This decorator creates a property accessor that triggers rendering and
-      // an observed attribute.
-      @property()
-      mood = 'great';
+  // This decorator creates a property accessor that triggers rendering and
+  // an observed attribute.
+  @property()
+  mood = 'great';
 
-      static styles = css`
-        span {
-          color: green;
-        }`;
+  static styles = css`
+    span {
+      color: green;
+    }`;
 
-      // Render element DOM by returning a `lit-html` template.
-      render() {
-        return html`Web Components are <span>${this.mood}</span>!`;
-      }
+  // Render element DOM by returning a `lit-html` template.
+  render() {
+    return html`Web Components are <span>${this.mood}</span>!`;
+  }
 
-    }
+}
 ```
 
 ```html
-    <my-element mood="awesome"></my-element>
+<my-element mood="awesome"></my-element>
 ```
 
 Note, this example uses decorators to create properties. Decorators are a proposed
@@ -81,6 +89,19 @@ Chrome, Safari, Opera, Firefox, Edge. In addition, Internet Explorer 11 is also 
 
 Edge and Internet Explorer 11 require the web components polyfills.
 
+## Forward Compatibility With Lit 2 
+
+Lit 2 (LitElement 3.0) has a few breaking changes and deprecations that have been back-ported to LitElement 2.5 in order to ease upgrading.
+
+To prepare for Lit 2, update these APIs:
+
+| LitElement 2.4         | LitElement 2.5/Lit 2  |
+|------------------------|-----------------------|
+| Decorator imports:<br>`import {customElement} from 'lit-element';` | `import {customElement} from 'lit-element/decorators.js';`
+| `@internalProperty() foo;`  | `@state() foo;`            |
+| Override `_getUpdateComplete()` | Override `getUpdateComplete()` |
+| Shadow root options:</br> Override `createRenderRoot()`. | Add `static shadowRootOptions`.
+| `import {UpdatingElement} from 'lit-element';` |  `import {ReactiveElement} from 'lit-element';`  |
 ## Contributing
 
 Please see [CONTRIBUTING.md](./CONTRIBUTING.md).

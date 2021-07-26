@@ -43,7 +43,7 @@ interface ClassElement {
  * @category Decorator
  * @param tagName The name of the custom element to define.
  */
-export declare const customElement: (tagName: string) => (classOrDescriptor: ClassDescriptor | Constructor<HTMLElement>) => any;
+export declare const customElement: (tagName: string) => (classOrDescriptor: Constructor<HTMLElement> | ClassDescriptor) => any;
 /**
  * A property decorator which creates a LitElement property which reflects a
  * corresponding attribute value. A [[`PropertyDeclaration`]] may optionally be
@@ -62,7 +62,7 @@ export declare const customElement: (tagName: string) => (classOrDescriptor: Cla
  * @category Decorator
  * @ExportDecoratedItems
  */
-export declare function property(options?: PropertyDeclaration): (protoOrDescriptor: Object | ClassElement, name?: string | number | symbol | undefined) => any;
+export declare function property(options?: PropertyDeclaration): (protoOrDescriptor: Object | ClassElement, name?: PropertyKey | undefined) => any;
 export interface InternalPropertyDeclaration<Type = unknown> {
     /**
      * A function that indicates if a property should be considered changed when
@@ -77,10 +77,22 @@ export interface InternalPropertyDeclaration<Type = unknown> {
  *
  * Properties declared this way must not be used from HTML or HTML templating
  * systems, they're solely for properties internal to the element. These
- * properties may be renamed by optimization tools like closure compiler.
+ * properties may be renamed by optimization tools like the Closure Compiler.
+ * @category Decorator
+ * @deprecated `internalProperty` has been renamed to `state` in lit-element
+ *     3.0. Please update to `state` now to be compatible with 3.0.
+ */
+export declare function internalProperty(options?: InternalPropertyDeclaration): (protoOrDescriptor: Object | ClassElement, name?: PropertyKey | undefined) => any;
+/**
+ * Declares a private or protected property that still triggers updates to the
+ * element when it changes.
+ *
+ * Properties declared this way must not be used from HTML or HTML templating
+ * systems, they're solely for properties internal to the element. These
+ * properties may be renamed by optimization tools like the Closure Compiler.
  * @category Decorator
  */
-export declare function internalProperty(options?: InternalPropertyDeclaration): (protoOrDescriptor: Object | ClassElement, name?: string | number | symbol | undefined) => any;
+export declare const state: (options?: InternalPropertyDeclaration<unknown> | undefined) => (protoOrDescriptor: Object | ClassElement, name?: PropertyKey | undefined) => any;
 /**
  * A property decorator that converts a class property into a getter that
  * executes a querySelector on the element's renderRoot.
@@ -108,7 +120,7 @@ export declare function internalProperty(options?: InternalPropertyDeclaration):
  * ```
  * @category Decorator
  */
-export declare function query(selector: string, cache?: boolean): (protoOrDescriptor: Object | ClassElement, name?: string | number | symbol | undefined) => any;
+export declare function query(selector: string, cache?: boolean): (protoOrDescriptor: Object | ClassElement, name?: PropertyKey | undefined) => any;
 /**
  * A property decorator that converts a class property into a getter that
  * returns a promise that resolves to the result of a querySelector on the
@@ -142,7 +154,7 @@ export declare function query(selector: string, cache?: boolean): (protoOrDescri
  * ```
  * @category Decorator
  */
-export declare function queryAsync(selector: string): (protoOrDescriptor: Object | ClassElement, name?: string | number | symbol | undefined) => any;
+export declare function queryAsync(selector: string): (protoOrDescriptor: Object | ClassElement, name?: PropertyKey | undefined) => any;
 /**
  * A property decorator that converts a class property into a getter
  * that executes a querySelectorAll on the element's renderRoot.
@@ -168,7 +180,7 @@ export declare function queryAsync(selector: string): (protoOrDescriptor: Object
  * ```
  * @category Decorator
  */
-export declare function queryAll(selector: string): (protoOrDescriptor: Object | ClassElement, name?: string | number | symbol | undefined) => any;
+export declare function queryAll(selector: string): (protoOrDescriptor: Object | ClassElement, name?: PropertyKey | undefined) => any;
 /**
  * Adds event listener options to a method used as an event listener in a
  * lit-html template.
@@ -228,6 +240,6 @@ export declare function eventOptions(options: AddEventListenerOptions): any;
  * ```
  * @category Decorator
  */
-export declare function queryAssignedNodes(slotName?: string, flatten?: boolean, selector?: string): (protoOrDescriptor: Object | ClassElement, name?: string | number | symbol | undefined) => any;
+export declare function queryAssignedNodes(slotName?: string, flatten?: boolean, selector?: string): (protoOrDescriptor: Object | ClassElement, name?: PropertyKey | undefined) => any;
 export {};
 //# sourceMappingURL=decorators.d.ts.map

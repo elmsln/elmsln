@@ -59,6 +59,7 @@ import {render, ShadyRenderOptions} from 'lit-html/lib/shady-render.js';
 import {PropertyValues, UpdatingElement} from './lib/updating-element.js';
 
 export * from './lib/updating-element.js';
+export {UpdatingElement as ReactiveElement} from './lib/updating-element.js';
 export * from './lib/decorators.js';
 export {html, svg, TemplateResult, SVGTemplateResult} from 'lit-html/lit-html.js';
 import {supportsAdoptingStyleSheets, CSSResult, unsafeCSS} from './lib/css-tag.js';
@@ -74,12 +75,14 @@ declare global {
 // This line will be used in regexes to search for LitElement usage.
 // TODO(justinfagnani): inject version number at build time
 (window['litElementVersions'] || (window['litElementVersions'] = []))
-    .push('2.4.0');
+    .push('2.5.1');
 
 export type CSSResultOrNative = CSSResult|CSSStyleSheet;
 
 export interface CSSResultArray extends
     Array<CSSResultOrNative|CSSResultArray> {}
+
+export type CSSResultGroup = CSSResultOrNative|CSSResultArray;
 
 /**
  * Sentinal value used to avoid calling lit-html's render function when
@@ -130,7 +133,10 @@ export class LitElement extends UpdatingElement {
    * Array of styles to apply to the element. The styles should be defined
    * using the [[`css`]] tag function or via constructible stylesheets.
    */
-  static styles?: CSSResultOrNative|CSSResultArray;
+  static styles?: CSSResultGroup;
+
+  /** @nocollapse */
+  static shadowRootOptions: ShadowRootInit = {mode: 'open'};
 
   private static _styles: Array<CSSResultOrNative|CSSResult>|undefined;
 
@@ -140,7 +146,7 @@ export class LitElement extends UpdatingElement {
    *
    * @nocollapse
    */
-  static getStyles(): CSSResultOrNative|CSSResultArray|undefined {
+  static getStyles(): CSSResultGroup|undefined {
     return this.styles;
   }
 
@@ -236,7 +242,8 @@ export class LitElement extends UpdatingElement {
    * @returns {Element|DocumentFragment} Returns a node into which to render.
    */
   protected createRenderRoot(): Element|ShadowRoot {
-    return this.attachShadow({mode: 'open'});
+    return this.attachShadow(
+        (this.constructor as typeof LitElement).shadowRootOptions);
   }
 
   /**
@@ -260,7 +267,7 @@ export class LitElement extends UpdatingElement {
     // rendering
     if (window.ShadyCSS !== undefined && !window.ShadyCSS.nativeShadow) {
       window.ShadyCSS.ScopingShim!.prepareAdoptedCssText(
-          styles.map((s) => s.cssText), this.localName);
+          styles.map((s) => (s as CSSResult).cssText), this.localName);
     } else if (supportsAdoptingStyleSheets) {
       (this.renderRoot as ShadowRoot).adoptedStyleSheets =
           styles.map((s) => s instanceof CSSStyleSheet ? s : s.styleSheet!);
@@ -307,7 +314,7 @@ export class LitElement extends UpdatingElement {
       this._needsShimAdoptedStyleSheets = false;
       (this.constructor as typeof LitElement)._styles!.forEach((s) => {
         const style = document.createElement('style');
-        style.textContent = s.cssText;
+        style.textContent = (s as CSSResult).cssText;
         this.renderRoot.appendChild(style);
       });
     }

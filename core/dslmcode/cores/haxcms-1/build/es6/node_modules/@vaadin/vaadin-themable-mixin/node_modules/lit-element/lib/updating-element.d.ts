@@ -384,8 +384,27 @@ export declare abstract class UpdatingElement extends HTMLElement {
      *       await this._myChild.updateComplete;
      *     }
      *   }
+     * @deprecated Override `getUpdateComplete()` instead for forward
+     *     compatibility with `lit-element` 3.0 / `@lit/reactive-element`.
      */
     protected _getUpdateComplete(): Promise<unknown>;
+    /**
+     * Override point for the `updateComplete` promise.
+     *
+     * It is not safe to override the `updateComplete` getter directly due to a
+     * limitation in TypeScript which means it is not possible to call a
+     * superclass getter (e.g. `super.updateComplete.then(...)`) when the target
+     * language is ES5 (https://github.com/microsoft/TypeScript/issues/338).
+     * This method should be overridden instead. For example:
+     *
+     *   class MyElement extends LitElement {
+     *     async getUpdateComplete() {
+     *       await super.getUpdateComplete();
+     *       await this._myChild.updateComplete;
+     *     }
+     *   }
+     */
+    protected getUpdateComplete(): Promise<unknown>;
     /**
      * Controls whether or not `update` should be called when the element requests
      * an update. By default, this method always returns `true`, but this can be

@@ -33,5 +33,5 @@ export declare const unsafeCSS: (value: unknown) => CSSResult;
  * string values may be used. To incorporate non-literal values [[`unsafeCSS`]]
  * may be used inside a template string part.
  */
-export declare const css: (strings: TemplateStringsArray, ...values: (number | CSSResult)[]) => CSSResult;
+export declare const css: (strings: TemplateStringsArray, ...values: (CSSResult | number)[]) => CSSResult;
 //# sourceMappingURL=css-tag.d.ts.map

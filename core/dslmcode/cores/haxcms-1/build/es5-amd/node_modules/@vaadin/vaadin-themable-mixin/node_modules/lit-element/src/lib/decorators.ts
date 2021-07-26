@@ -13,7 +13,7 @@
  */
 
 /*
- * IMPORTANT: For compatibility with tsickle and the Closure JS compiler, all
+ * IMPORTANT: For compatibility with tsickle and the Closure Compiler, all
  * property decorators (but not class decorators) in this file that have
  * an @ExportDecoratedItems annotation must be defined as a regular function,
  * not an arrow function.
@@ -181,12 +181,26 @@ export interface InternalPropertyDeclaration<Type = unknown> {
  *
  * Properties declared this way must not be used from HTML or HTML templating
  * systems, they're solely for properties internal to the element. These
- * properties may be renamed by optimization tools like closure compiler.
+ * properties may be renamed by optimization tools like the Closure Compiler.
  * @category Decorator
+ * @deprecated `internalProperty` has been renamed to `state` in lit-element
+ *     3.0. Please update to `state` now to be compatible with 3.0.
  */
 export function internalProperty(options?: InternalPropertyDeclaration) {
   return property({attribute: false, hasChanged: options?.hasChanged});
 }
+
+/**
+ * Declares a private or protected property that still triggers updates to the
+ * element when it changes.
+ *
+ * Properties declared this way must not be used from HTML or HTML templating
+ * systems, they're solely for properties internal to the element. These
+ * properties may be renamed by optimization tools like the Closure Compiler.
+ * @category Decorator
+ */
+export const state = (options?: InternalPropertyDeclaration) =>
+    internalProperty(options);
 
 /**
  * A property decorator that converts a class property into a getter that
@@ -227,7 +241,9 @@ export function query(selector: string, cache?: boolean) {
       configurable: true,
     };
     if (cache) {
-      const key = typeof name === 'symbol' ? Symbol() : `__${name}`;
+      const prop =
+          name !== undefined ? name : (protoOrDescriptor as ClassElement).key;
+      const key = typeof prop === 'symbol' ? Symbol() : `__${prop}`;
       descriptor.get = function(this: LitElement) {
         if ((this as unknown as
              {[key: string]: Element | null})[key as string] === undefined) {
@@ -465,9 +481,10 @@ export function queryAssignedNodes(
         if (nodes && selector) {
           nodes = nodes.filter(
               (node) => node.nodeType === Node.ELEMENT_NODE &&
-                      (node as Element).matches ?
-                  (node as Element).matches(selector) :
-                  legacyMatches.call(node as Element, selector));
+                  // tslint:disable-next-line:no-any testing existence on older browsers
+                  ((node as any).matches ?
+                       (node as Element).matches(selector) :
+                       legacyMatches.call(node as Element, selector)));
         }
         return nodes;
       },

@@ -56,6 +56,7 @@
 import { ShadyRenderOptions } from 'lit-html/lib/shady-render.js';
 import { PropertyValues, UpdatingElement } from './lib/updating-element.js';
 export * from './lib/updating-element.js';
+export { UpdatingElement as ReactiveElement } from './lib/updating-element.js';
 export * from './lib/decorators.js';
 export { html, svg, TemplateResult, SVGTemplateResult } from 'lit-html/lit-html.js';
 import { CSSResult } from './lib/css-tag.js';
@@ -68,6 +69,7 @@ declare global {
 export declare type CSSResultOrNative = CSSResult | CSSStyleSheet;
 export interface CSSResultArray extends Array<CSSResultOrNative | CSSResultArray> {
 }
+export declare type CSSResultGroup = CSSResultOrNative | CSSResultArray;
 /**
  * Base element class that manages element properties and attributes, and
  * renders a lit-html template.
@@ -107,7 +109,9 @@ export declare class LitElement extends UpdatingElement {
      * Array of styles to apply to the element. The styles should be defined
      * using the [[`css`]] tag function or via constructible stylesheets.
      */
-    static styles?: CSSResultOrNative | CSSResultArray;
+    static styles?: CSSResultGroup;
+    /** @nocollapse */
+    static shadowRootOptions: ShadowRootInit;
     private static _styles;
     /**
      * Return the array of styles to apply to the element.
@@ -115,7 +119,7 @@ export declare class LitElement extends UpdatingElement {
      *
      * @nocollapse
      */
-    static getStyles(): CSSResultOrNative | CSSResultArray | undefined;
+    static getStyles(): CSSResultGroup | undefined;
     /** @nocollapse */
     private static _getUniqueStyles;
     private _needsShimAdoptedStyleSheets?;

@@ -17,7 +17,7 @@
     "node_modules/tslib/tslib.js",
     "node_modules/lit-element-router/utility/router-utility.js",
     "node_modules/lit-element-router/lit-element-router.js",
-    "node_modules/@github/time-elements/dist/time-elements.js",
+    "node_modules/@github/time-elements/dist/*.js",
     "node_modules/@lrnwebcomponents/*/*.js",
     "node_modules/@lrnwebcomponents/*/lib/*",
     "node_modules/@lrnwebcomponents/*/locales/*.json",
