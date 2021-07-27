@@ -658,7 +658,8 @@ function _haxcms_loadJOS($book) {
   $site->metadata->site->name = str_replace('/', '', base_path());
   $site->metadata->site->domain = base_path();
   $site->metadata->site->domain = HAXCMS_VERSION;
-  $site->metadata->site->logo = image_style_url('thumbnail', theme_get_setting('logo_path'));
+  // get thumbnail unless it doesn't exist
+  $site->metadata->site->logo = image_style_url('thumbnail', _haxcms_get_logo());
   // just for spec conformance, drupal manages this stuff
   $site->metadata->site->git = new stdClass();
   $site->metadata->site->static = new stdClass();
@@ -675,7 +676,7 @@ function _haxcms_loadJOS($book) {
     $site->metadata->theme->element = $get["theme"];
   }
   $site->metadata->theme->variables = new stdClass();
-  $site->metadata->theme->variables->image = file_create_url(theme_get_setting('logo_path'));
+  $site->metadata->theme->variables->image = file_create_url(_haxcms_get_logo());
   $site->metadata->theme->variables->hexCode = variable_get("haxcms_settings_hexCode", "#009d75");
   $site->metadata->theme->variables->cssVariable = variable_get("haxcms_settings_cssVariable", "--simple-colors-default-theme-deep-purple-7");
   $site->metadata->theme->variables->icon = variable_get("haxcms_settings_icon", "icons:android");
@@ -706,6 +707,7 @@ function _haxcms_loadJOS($book) {
       $item->metadata->created = $page->created;
       $item->metadata->updated = $page->changed;
       $item->location = base_path() . "haxapi/getNodeContent/" . $page->nid;
+      drupal_alter('haxcms_site_item', $item, $bookData, $book);
       array_push($site->items, $item);
     }
   }
@@ -774,11 +776,20 @@ function _haxcms_loader($node = NULL) {
     drupal_alter('haxcms_render_attributes', $siteAttributes);
     return theme('haxcms', array(
       'node' => $node,
-      'logo' => image_style_url('thumbnail', theme_get_setting('logo_path')),
+      'logo' => image_style_url('thumbnail', _haxcms_get_logo()),
       'siteAttributes' => $siteAttributes,
       'slots' => _haxcms_get_slots(),
       'contents' => check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])));
   }
+}
+/**
+ * return path to theme logo or our lego land fallback
+ */
+function _haxcms_get_logo() {
+  if (theme_get_setting('logo_path') != NULL) {
+    return theme_get_setting('logo_path');
+  }
+  return drupal_get_path("module", "hax") . "banner.jpg";
 }
 
 /**

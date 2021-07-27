@@ -2586,6 +2586,13 @@ function _elmsln_core_get_sis_user_data($uid = NULL) {
 }
 
 /**
+ * Implements hook_haxcms_site_data_alter().
+ */
+function elmsln_core_haxcms_site_data_alter(&$site, $status) {
+  $site->title = variable_get('site_name', _cis_connector_course_context());
+}
+
+/**
  * Implements hook_hax_cms_hax_attributes_alter().
  */
 function elmsln_core_hax_cms_hax_attributes_alter(&$attributes) {
