@@ -14,12 +14,26 @@ include_once __DIR__ . '/../../HAXapi/php/lib/HAXAppStoreService.php';
  */
 function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
   if (_is_haxcms_context()) {
+    $search = '';
+    // support variable to hide search
+    if (!variable_get('haxcms_settings_search', TRUE)) {
+      $search = '
+      ::part(search-btn),
+      clean-one::part(search-btn),
+      clean-two::part(search-btn),
+      learn-two-theme::part(search-btn) {
+        display: none;
+      }';
+    }
     // some Drupal markup hacks to go w/ the HAXcms build script
     $markup .= "\n" . '
-    <style>#admin-menu .dropdown a {
-      line-height: 24px;
-      font-size: 12px;
-    }</style>
+    <style>
+      #admin-menu .dropdown a {
+        line-height: 24px;
+        font-size: 12px;
+      }
+      ' . $search . '
+    </style>
     <script>
       document.body.removeAttribute("no-js");
       window.__appCustomEnv=true;window.appSettings = {connectionSettings: "' . base_path() . 'haxapi/connectionSettings"};
@@ -163,22 +177,31 @@ function haxcms_menu_alter(&$items) {
   $items['admin/content/book']['page callback'] = '_haxcms_book_admin_overview';
 }
 
+/**
+ * Return lunr data based on the current page that's being shown and the outline
+ * of nodes associated with it.
+ */
 function _haxcms_getLunrData() {
-  // use referer to see what page this comes from and load the bid so we know how to get it flat
-  // for generation of json output format
-  $HAXCMS = _haxcms_bootstrap();
-  if (isset($_SERVER["HTTP_REFERER"])) {
-    $parts = explode("/", $_SERVER["HTTP_REFERER"]);
-    $nid = array_pop($parts);
-    $node = node_load($nid);
-    $book = node_load($node->book['bid']);
-    $site = _haxcms_loadJOS($book, TRUE);
-    $json = _haxcms_lunrSearchIndex($site->items);
-    drupal_add_http_header('Content-Type', 'application/javascript');
-    drupal_add_http_header('Status', 200);
-    print json_encode($json);
-    exit;
+  drupal_add_http_header('Content-Type', 'application/javascript');
+  if (variable_get('haxcms_settings_search', TRUE)) {
+    // use referer to see what page this comes from and load the bid so we know how to get it flat
+    // for generation of json output format
+    $HAXCMS = _haxcms_bootstrap();
+    if (isset($_SERVER["HTTP_REFERER"])) {
+      $parts = explode("/", $_SERVER["HTTP_REFERER"]);
+      $nid = array_pop($parts);
+      $node = node_load($nid);
+      $book = node_load($node->book['bid']);
+      $site = _haxcms_loadJOS($book, TRUE);
+      $json = _haxcms_lunrSearchIndex($site->items);
+      drupal_add_http_header('Status', 200);
+      print json_encode($json);
+      exit;
+    }
   }
+  drupal_add_http_header('Status', 403);
+  print "0";
+  exit;
 }
 
 function _haxcms_lunrSearchIndex($items) {
@@ -658,10 +681,16 @@ function _haxcms_getNodeContent($node) {
   else {
     // in the event that we don't have it via the loading of a node
     $body = field_get_items('node', $node, 'body');
-    // if we dont have content then make it an empty p node
-    // or HAX will be annoyed
+    // if there's no content then generate an outline of links to render
     if (!isset($body[0]['value']) || $body[0]['value'] == '') {
-      $body[0]['value'] = '<p></p>';
+      $body[0]['value'] = '<p><ul>';
+      $items = _haxcms_book_get_flat_menu($node->book);
+      foreach ($items as $mlid => $bookData) {
+        if ($node->book['mlid'] == $bookData['plid']) {
+          $body[0]['value'] .= '<li><a href="' . str_replace(' ', '%20', drupal_get_path_alias($bookData['link_path'])) . '">' . $bookData['title'] . '</a></li>';
+        }
+      }
+      $body[0]['value'] .= '</ul></p>';
     }
     // should be a format..
     if (!isset($body[0]['format']) || $body[0]['format'] == '') {
@@ -1009,6 +1038,12 @@ function haxcms_settings($form, &$form_state) {
   foreach ($list as $key => $value) {
     $license[$key] = $value['name'];
   }
+  $form['haxcms_settings_search'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Search'),
+    '#default_value' => variable_get('haxcms_settings_search', TRUE),
+    '#description' => t("Allow users to search material"),
+  ];
   $form['haxcms_settings_license'] = [
     '#type' => 'select',
     '#title' => t('License'),
