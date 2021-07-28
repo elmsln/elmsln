@@ -2249,7 +2249,32 @@ function elmsln_core_wrapped_paths() {
   );
   return $paths;
 }
-
+/**
+ * Implements hook_webcomponents_build_integration_markup_alter().
+ * This ensures that HAXcms's build script loads at the right times
+ */
+function elmsln_core_webcomponents_build_integration_markup_alter(&$markup) {
+  if (function_exists('_is_haxcms_context') && _is_haxcms_context()) {
+    // hide things that are in HAXcms that our course systems wont want
+    // @todo this could be how we add support for hiding search button
+    $markup .= "\n" . '
+    <style>
+      learn-two-theme::part(git-corner-btn),  
+      learn-two-theme::part(rss-btn) {
+        display: none;
+      }
+      clean-one::part(git-corner-btn),  
+      clean-one::part(rss-btn) {
+        display: none;
+      }
+      clean-two::part(footer-left),
+      clean-two::part(rss-btn),
+      clean-two::part(git-corner-btn) {
+        display: none;
+      }
+    </style>';
+  }
+}
 /**
  * Implements hook_webcomponents_base_path_alter().
  */

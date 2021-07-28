@@ -563,7 +563,7 @@ class HAXCMSSite
     /**
      * Create Lunr.js style search index
      */
-    private function lunrSearchIndex($items) {
+    public function lunrSearchIndex($items) {
       $data = array();
       foreach ($items as $item) {
         $created = time();

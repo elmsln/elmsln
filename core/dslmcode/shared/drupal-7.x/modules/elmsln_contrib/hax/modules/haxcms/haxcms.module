@@ -60,6 +60,13 @@ function haxcms_menu() {
     'type' => MENU_CALLBACK,
     'theme callback' => '_haxcms_drupal_theme',
   );
+  // load connection settings for HAXcms to know how to talk to Drupal
+  $items['haxcms/lunrSearchIndex.json'] = array(
+    'page callback' => '_haxcms_getLunrData',
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
+  );
   // load site.json format
   $items['haxapi/loadJOS/%node'] = array(
     'page callback' => '_haxcms_loadJOS',
@@ -154,6 +161,80 @@ function haxcms_menu() {
 function haxcms_menu_alter(&$items) {
   // Override the book admin page with a custom version that includes book copy links.
   $items['admin/content/book']['page callback'] = '_haxcms_book_admin_overview';
+}
+
+function _haxcms_getLunrData() {
+  // use referer to see what page this comes from and load the bid so we know how to get it flat
+  // for generation of json output format
+  $HAXCMS = _haxcms_bootstrap();
+  if (isset($_SERVER["HTTP_REFERER"])) {
+    $parts = explode("/", $_SERVER["HTTP_REFERER"]);
+    $nid = array_pop($parts);
+    $node = node_load($nid);
+    $book = node_load($node->book['bid']);
+    $site = _haxcms_loadJOS($book, TRUE);
+    $json = _haxcms_lunrSearchIndex($site->items);
+    drupal_add_http_header('Content-Type', 'application/javascript');
+    drupal_add_http_header('Status', 200);
+    print json_encode($json);
+    exit;
+  }
+}
+
+function _haxcms_lunrSearchIndex($items) {
+  $data = array();
+  foreach ($items as $item) {
+    $created = time();
+    if (isset($item->metadata) && isset($item->metadata->created)) {
+      $created = $item->metadata->created;
+    }
+    $parts = explode("/", $item->location);
+    $nid = array_pop($parts);
+    $node = node_load($nid);
+    // if we already have a "safe value" then just return it
+    if (isset($node->body[0]['safe_value'])) {
+      $nodeBody = $node->body[0]['safe_value'];
+    }
+    else {
+      // in the event that we don't have it via the loading of a node
+      $body = field_get_items('node', $node, 'body');
+      // if we dont have content then make it an empty p node
+      // or HAX will be annoyed
+      if (!isset($body[0]['value']) || $body[0]['value'] == '') {
+        $body[0]['value'] = '<p></p>';
+      }
+      // should be a format..
+      if (!isset($body[0]['format']) || $body[0]['format'] == '') {
+        $body[0]['format'] = filter_default_format();
+      }
+      $nodeBody = check_markup($body[0]['value'], $body[0]['format']);
+    }
+    // may seem silly but IDs in lunr have a size limit for some reason in our context..
+    $data[] = array(
+      "id" => substr(str_replace('-', '', str_replace('item-', '', $item->id)), 0, 29),
+      "title" => $item->title,
+      "created" => $created,
+      "location" => 'node/' . $nid,
+      "description" => $item->description,
+      "text" => _haxcms_cleanSearchData($nodeBody),
+    );
+  }
+  return $data;
+}
+
+function _haxcms_cleanSearchData($text) {
+  // clean up initial, small, trim, replace end lines, utf8 no tags
+  $text = trim(strtolower(str_replace("\n", ' ', utf8_encode(strip_tags($text)))));
+  // all weird chars
+  $text = preg_replace('/[^a-z0-9\']/', ' ', $text);
+  $text = str_replace("'", '', $text);
+  // all words 1 to 4 letters long
+  $text = preg_replace('~\b[a-z]{1,4}\b\s*~', '', $text);
+  // all excess white space
+  $text = preg_replace('/\s+/', ' ', $text);
+  // crush string to array and back to make an unique index
+  $text = implode(' ', array_unique(explode(' ', $text)));
+  return $text;
 }
 
 /**
@@ -622,7 +703,7 @@ function _haxcms_connectionSettings() {
 /**
  * Return a built JSON outline schema file
  */
-function _haxcms_loadJOS($book) {
+function _haxcms_loadJOS($book, $returnSite = false) {
   // support being asked to load a node that IS NOT the book root
   // we require a book in order to know the structure
   if ($book->book['bid'] != $book->nid) {
@@ -711,16 +792,21 @@ function _haxcms_loadJOS($book) {
       array_push($site->items, $item);
     }
   }
-  // allow altering the site data by hook
-  $status = 200;
-  drupal_alter('haxcms_site_data', $site, $status);
+  if (!$returnSite) {
+    // allow altering the site data by hook
+    $status = 200;
+    drupal_alter('haxcms_site_data', $site, $status);
 
-  drupal_add_http_header('Content-Type', 'application/json');
-  // define status
-  drupal_add_http_header('Status', $status);
-  // output the response as json
-  print drupal_json_output($site);
-  exit;
+    drupal_add_http_header('Content-Type', 'application/json');
+    // define status
+    drupal_add_http_header('Status', $status);
+    // output the response as json
+    print drupal_json_output($site);
+    exit;
+  }
+  else {
+    return $site;
+  }
 }
 
 /**
