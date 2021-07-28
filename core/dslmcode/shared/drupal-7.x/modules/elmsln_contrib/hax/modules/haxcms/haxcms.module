@@ -75,6 +75,13 @@ function haxcms_menu() {
     'theme callback' => '_haxcms_drupal_theme',
   );
   // load connection settings for HAXcms to know how to talk to Drupal
+  $items['lunrSearchIndex.json'] = array(
+    'page callback' => '_haxcms_getLunrData',
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
+  );
+  // load connection settings for HAXcms to know how to talk to Drupal
   $items['haxcms/lunrSearchIndex.json'] = array(
     'page callback' => '_haxcms_getLunrData',
     'type' => MENU_CALLBACK,
@@ -190,6 +197,16 @@ function _haxcms_getLunrData() {
     if (isset($_SERVER["HTTP_REFERER"])) {
       $parts = explode("/", $_SERVER["HTTP_REFERER"]);
       $nid = array_pop($parts);
+      // implies we were handed a path and need to function differently
+      if (!is_numeric($nid)) {
+        $path = str_replace($GLOBALS['base_url'] . '/', '', $_SERVER["HTTP_REFERER"]);
+        $path = str_replace('haxcms/', '', $path);
+        $parts = explode("?", $path);
+        if (drupal_get_normal_path($parts[0])) {
+          $parts = explode("/", drupal_get_normal_path($parts[0]));
+          $nid = array_pop($parts);
+        }
+      }
       $node = node_load($nid);
       $book = node_load($node->book['bid']);
       $site = _haxcms_loadJOS($book, TRUE);
