@@ -769,7 +769,7 @@ function _haxcms_loadJOS($book, $returnSite = false) {
   $site->metadata->site->domain = base_path();
   $site->metadata->site->domain = HAXCMS_VERSION;
   // get thumbnail unless it doesn't exist
-  $site->metadata->site->logo = image_style_url('thumbnail', _haxcms_get_logo());
+  $site->metadata->site->logo = _haxcms_get_logo('thumbnail');
   // just for spec conformance, drupal manages this stuff
   $site->metadata->site->git = new stdClass();
   $site->metadata->site->static = new stdClass();
@@ -891,7 +891,7 @@ function _haxcms_loader($node = NULL) {
     drupal_alter('haxcms_render_attributes', $siteAttributes);
     return theme('haxcms', array(
       'node' => $node,
-      'logo' => image_style_url('thumbnail', _haxcms_get_logo()),
+      'logo' => _haxcms_get_logo('thumbnail'),
       'siteAttributes' => $siteAttributes,
       'slots' => _haxcms_get_slots(),
       'contents' => check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])));
@@ -900,11 +900,16 @@ function _haxcms_loader($node = NULL) {
 /**
  * return path to theme logo or our lego land fallback
  */
-function _haxcms_get_logo() {
+function _haxcms_get_logo($style = NULL) {
   if (theme_get_setting('logo_path') != NULL) {
-    return theme_get_setting('logo_path');
+    if ($style == "thumbnail") {
+      return image_style_url('thumbnail', theme_get_setting('logo_path'));
+    }
+    else {
+      return theme_get_setting('logo_path');
+    }
   }
-  return drupal_get_path("module", "hax") . "banner.jpg";
+  return base_path() . drupal_get_path("module", "hax") . "/banner.jpg";
 }
 
 /**

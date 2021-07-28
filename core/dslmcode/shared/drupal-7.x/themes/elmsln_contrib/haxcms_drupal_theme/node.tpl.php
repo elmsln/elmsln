@@ -79,7 +79,7 @@
  *
  * @ingroup themeable
  */
-  $logo = image_style_url('thumbnail', theme_get_setting('logo_path'));
+  $logo = _haxcms_get_logo('thumbnail');
   $baseURI = base_path();
   $siteAttributes = array();
   // write content to screen, wrapped in tag to do all the work
