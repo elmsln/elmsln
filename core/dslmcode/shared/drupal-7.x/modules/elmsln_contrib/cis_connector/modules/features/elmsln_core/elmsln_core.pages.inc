@@ -437,7 +437,7 @@ function elmsln_core_data_form($form, $form_state) {
       ),
       '#materialize' => array(
         'type' => 'collapsible',
-        'icon' => 'filter_list',
+        'icon' => 'filter-list',
       ),
     );
     // ensure users have advanced permissions before displaying
