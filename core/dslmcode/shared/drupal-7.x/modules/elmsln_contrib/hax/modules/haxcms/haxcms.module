@@ -254,7 +254,7 @@ function _haxcms_lunrSearchIndex($items) {
       "id" => substr(str_replace('-', '', str_replace('item-', '', $item->id)), 0, 29),
       "title" => $item->title,
       "created" => $created,
-      "location" => 'node/' . $nid,
+      "location" => drupal_get_path_alias('node/' . $nid),
       "description" => $item->description,
       "text" => _haxcms_cleanSearchData($nodeBody),
     );
@@ -860,14 +860,17 @@ function _haxcms_loadJOS($book, $returnSite = false) {
  */
 function _haxcms_node_access($op, $node = NULL) {
   // if node not available try and obtain one
-  if ($node == NULL) {
+  if ($node == NULL || $node == FALSE) {
     $args = arg();
     if ($args[0] == 'haxcms') {
       array_shift($args);
     }
     $path = drupal_get_normal_path(str_replace('%20', ' ',implode('/', $args)));
-    $node = node_load(str_replace('node/', '', $path));
+    if ($path != '') {
+      $node = node_load(str_replace('node/', '', $path));
+    }
   }
+  drupal_alter('haxcms_root_node_loader', $node);
   if (isset($node->nid) && isset($node->book) && node_access($op, $node)) {
     return TRUE;
   }
@@ -885,7 +888,9 @@ function _haxcms_loader($node = NULL) {
     $args = arg();
     if ($args[0] == 'haxcms') {
       array_shift($args);
-      $baseURI .= 'haxcms/';
+      if (variable_get("site_frontpage", "node") != "haxcms") {
+        $baseURI .= 'haxcms/';
+      }
     }
     
     $path = drupal_get_normal_path(str_replace('%20', ' ',implode('/', $args)));
@@ -898,6 +903,10 @@ function _haxcms_loader($node = NULL) {
     $theme = "?theme=" . $get["theme"];
   }
 
+  // totally possible to be null still. allow other modules to figure out what active is
+  // in elmsln this will be section cvontextr in mooc distro.
+  drupal_alter('haxcms_root_node_loader', $node);
+  // we have to have a total miss if we don't have an answer at this point
   if (isset($node->book['bid'])) {
     // write content to screen, wrapped in tag to do all the work
     $siteAttributes = array(
@@ -948,7 +957,7 @@ function _haxcms_get_slots() {
 function haxcms_custom_theme() {
   // this probably isn't required but acts as a fallback
   if (_is_haxcms_context()) {
-    return _haxcms_drupal_theme();
+   return _haxcms_drupal_theme();
   }
 }
 

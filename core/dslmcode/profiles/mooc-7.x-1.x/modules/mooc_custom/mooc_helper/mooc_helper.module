@@ -25,6 +25,22 @@ function mooc_helper_webcomponents_build_file_location_alter(&$locations) {
 }
 
 /**
+ * Implements hook_haxcms_root_node_loader().
+ */
+function mooc_helper_haxcms_root_node_loader_alter(&$node) {
+  // null node here implies that we hit a path to load HAXcms yet there was no obvious node context (like a home page hit)
+  if ($node == NULL || $node == FALSE) {
+    $node = _mooc_helper_active_outline();
+    // ensure we don't hit the 1st page of a content outline as it's just for organizational purposes
+    $next = book_next($node->book);
+    // shift down to 1st page for an initial outline load only
+    if ($next && $node->book['mlid'] == $next['plid']) {
+      $node = node_load(str_replace('node/', '', $next['link_path']));
+    }
+  }
+}
+
+/**
  * Implements hook_haxcms_slots().
  */
 function mooc_helper_haxcms_slots() {
@@ -417,7 +433,6 @@ function _mooc_helper_active_outline() {
     $node = FALSE;
     $section = _cis_connector_section_context();
     $gid = _cis_section_load_section_by_id($section);
-
     // make sure we have a group available
     if ($gid) {
       $group = node_load($gid);
