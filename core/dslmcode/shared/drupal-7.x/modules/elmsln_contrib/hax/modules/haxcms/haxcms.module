@@ -21,6 +21,7 @@ function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
       ::part(search-btn),
       clean-one::part(search-btn),
       clean-two::part(search-btn),
+      bootstrap-theme::part(search-btn),
       learn-two-theme::part(search-btn) {
         display: none;
       }';
@@ -461,6 +462,7 @@ function _haxcms_login() {
       'clean-one' => t('Course theme'),
       'clean-two' => t('Course theme two'),
       'learn-two-theme' => t('Course theme three'),
+      'bootstrap-theme' => t('Bootstrap theme'),
       'outline-player' => t('Documentation theme'),
       'haxcms-slide-theme' => t('Slide player'),
       'haxor-slevin' => t('Developer Blog theme'),
@@ -1055,6 +1057,7 @@ function haxcms_settings($form, &$form_state) {
       'clean-one' => t('Course theme'),
       'clean-two' => t('Course theme two'),
       'learn-two-theme' => t('Course theme three'),
+      'bootstrap-theme' => t('Bootstrap theme'),
       'outline-player' => t('Documentation theme'),
       'haxor-slevin' => t('Developer Blog theme'),
     ),
