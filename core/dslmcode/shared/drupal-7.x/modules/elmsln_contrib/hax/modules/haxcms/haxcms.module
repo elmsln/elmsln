@@ -17,12 +17,34 @@ function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
     $search = '';
     // support variable to hide search
     if (!variable_get('haxcms_settings_search', TRUE)) {
-      $search = '
+      $search .= '
       ::part(search-btn),
       clean-one::part(search-btn),
       clean-two::part(search-btn),
       bootstrap-theme::part(search-btn),
       learn-two-theme::part(search-btn) {
+        display: none;
+      }';
+    }
+    // support variable to hide search
+    if (!variable_get('haxcms_settings_title', TRUE)) {
+      $search .= '
+      ::part(page-title),
+      clean-one::part(page-title),
+      clean-two::part(page-title),
+      bootstrap-theme::part(page-title),
+      learn-two-theme::part(page-title) {
+        display: none;
+      }';
+    }
+    // support variable to hide search
+    if (!variable_get('haxcms_settings_breadcrumb', TRUE)) {
+      $search .= '
+      ::part(page-breadcrumb),
+      clean-one::part(page-breadcrumb),
+      clean-two::part(page-breadcrumb),
+      bootstrap-theme::part(page-breadcrumb),
+      learn-two-theme::part(page-breadcrumb) {
         display: none;
       }';
     }
@@ -1077,6 +1099,18 @@ function haxcms_settings($form, &$form_state) {
     '#title' => t('Search'),
     '#default_value' => variable_get('haxcms_settings_search', TRUE),
     '#description' => t("Allow users to search material"),
+  ];
+  $form['haxcms_settings_title'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Page title'),
+    '#default_value' => variable_get('haxcms_settings_title', TRUE),
+    '#description' => t("Display page title"),
+  ];
+  $form['haxcms_settings_breadcrumb'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Breadcrumb'),
+    '#default_value' => variable_get('haxcms_settings_breadcrumb', TRUE),
+    '#description' => t("Show breadcrumb trail to the current page"),
   ];
   $form['haxcms_settings_license'] = [
     '#type' => 'select',
