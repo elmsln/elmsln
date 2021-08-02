@@ -26,7 +26,7 @@ function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
         display: none;
       }';
     }
-    // support variable to hide search
+    // support variable to hide title
     if (!variable_get('haxcms_settings_title', TRUE)) {
       $search .= '
       ::part(page-title),
@@ -37,7 +37,7 @@ function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
         display: none;
       }';
     }
-    // support variable to hide search
+    // support variable to hide breadcrumb
     if (!variable_get('haxcms_settings_breadcrumb', TRUE)) {
       $search .= '
       ::part(page-breadcrumb),

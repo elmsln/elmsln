@@ -1,3 +1,11 @@
+cms-token .field-document-file .file {
+  display: flex;
+}
+
+cms-token .field-document-file .file-icon {
+  height: 20px;
+}
+
 /* elmsln card image size for submit widget */
 .elmsln-icon.elmsln-card-submit-image {
   font-size: 10rem;
