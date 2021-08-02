@@ -461,6 +461,7 @@ function _haxcms_login() {
           $settings->getUserDataPath = $path . 'getUserData/' . drupal_get_token('hax');
           // not an actual jwt but fakes it correctly for session based Drupal to function
           $settings->jwt = drupal_get_token('hax');
+          $settings->reloadOnError = true;
           //$settings->syncSitePath = $path . 'syncSite';
           //$settings->publishSitePath = $path . 'publishSite';
           //$settings->revertSitePath = $path . 'revertCommit';
