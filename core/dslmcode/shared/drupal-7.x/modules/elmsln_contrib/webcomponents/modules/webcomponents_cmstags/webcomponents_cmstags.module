@@ -47,13 +47,13 @@ function webcomponents_cmstags_menu() {
  * Access callback to verify that user can access the end point data
  */
 function _webcomponents_cmstags_access($type, $security_token) {
+  if ($type == 'token') {
+    return user_access('access content');
+  }
   // validate each security_token based on the type requested
   if (drupal_valid_token($security_token, 'webcomponents_cmstags_' . $type)) {
     $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
     switch ($type) {
-      case 'token':
-        return user_access('access content');
-      break;
       case 'block':
         // no real block access check to perform
         return user_access('access content');
