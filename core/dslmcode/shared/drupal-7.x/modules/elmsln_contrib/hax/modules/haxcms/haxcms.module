@@ -60,6 +60,15 @@ function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
     <script>
       document.body.removeAttribute("no-js");
       window.__appCustomEnv=true;window.appSettings = {connectionSettings: "' . base_path() . 'haxapi/connectionSettings"};
+      // custom Drupal JS integration for legacy content to still attach correctly
+      window.addEventListener("json-outline-schema-active-body-changed", function(e) {
+        if (window.Drupal) {
+          window.Drupal.attachBehaviors(document, window.Drupal.settings);
+        }
+        if (window.WCAutoload) {
+          window.WCAutoload.process();
+        }
+      });
     </script>
     <script src="' . base_path() . drupal_get_path('module', 'haxcms') . '/build-haxcms.js' . '"></script>';
   }
@@ -718,6 +727,7 @@ function _haxcms_saveNode($token) {
 function _haxcms_getNodeContent($node) {
   // if we already have a "safe value" then just return it
   if (isset($node->body[0]['safe_value'])) {
+    drupal_alter("haxcms_node_content_response", $node->body);
     print $node->body[0]['safe_value'];
   }
   else {
@@ -733,12 +743,21 @@ function _haxcms_getNodeContent($node) {
         }
       }
       $body[0]['value'] .= '</ul></p>';
+      drupal_alter("haxcms_node_content_response", $body);
+      print $body[0]['value'];
     }
-    // should be a format..
-    if (!isset($body[0]['format']) || $body[0]['format'] == '') {
-      $body[0]['format'] = filter_default_format();
+    else {
+      // should be a format..
+      if (!isset($body[0]['format']) || $body[0]['format'] == '') {
+        $body[0]['format'] = NULL;
+      }
+      // special edge case of NO wrapping p tag
+      if (strip_tags($body[0]['value']) == $body[0]['value']) {
+        $body[0]['value'] = '<p>' . $body[0]['value'] . '</p>';
+      }
+      drupal_alter("haxcms_node_content_response", $body);
+      print check_markup($body[0]['value'], $body[0]['format']);
     }
-    print check_markup($body[0]['value'], $body[0]['format']);
   }
   exit;
 }

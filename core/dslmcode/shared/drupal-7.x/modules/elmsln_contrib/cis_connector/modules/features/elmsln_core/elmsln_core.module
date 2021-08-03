@@ -661,7 +661,34 @@ function _elmsln_core_data_access($etype, $entity) {
 }
 
 /**
+ * Implements hook_haxcms_node_content_response_alter().
+ */
+function elmsln_core_haxcms_node_content_response_alter(&$body) {
+  // https://github.com/elmsln/issues/issues/751 - haxcms fast enough we can safely render these faster client side
+  if (isset($body[0]['value']) && (strpos($body[0]['value'], "[ciscode|") !== false || strpos($body[0]['value'], "<cms-token") !== false)) {
+    $GLOBALS['skip_drupal_token'] = TRUE;
+    $regex = "/<cms-token token=\"ciscode(.*?)\"(.*?)><\/cms-token>/";
+    if (preg_match_all($regex, $body[0]['value'], $matches) !== false) {
+      foreach ($matches[0] as $key => $match) {
+        $fullToken = $match;
+        $token = "[ciscode" . $matches[1][$key] . "]";
+        $body[0]['value'] = str_replace($fullToken, $token, $body[0]['value']);
+      }
+    }
+    $regex = "/<cms-token token=\"elmsln_section(.*?)\"(.*?)><\/cms-token>/";
+    if (preg_match_all($regex, $body[0]['value'], $matches) !== false) {
+      foreach ($matches[0] as $key => $match) {
+        $fullToken = $match;
+        $token = "[elmsln_section" . $matches[1][$key] . "]";
+        $body[0]['value'] = str_replace($fullToken, $token, $body[0]['value']);
+      }
+    }
+  }
+}
+
+/**
  * Implementation of hook_node_view().
+ * @note this just applies to the legacy / ELMS / Drupal direct rendering
  */
 function elmsln_core_node_view($node, $view_mode, $langcode) {
   if ($view_mode == 'full' && $node->type == 'page' && module_exists('foundation_access_ux')) {
@@ -2273,6 +2300,8 @@ function elmsln_core_webcomponents_build_integration_markup_alter(&$markup) {
         display: none;
       }
     </style>';
+    // @todo might need a script to ensure it is at the top of the UI or something
+    // that or modify the CSS to basically force certain containers to exist so that there's a space for those special linnk
   }
 }
 /**

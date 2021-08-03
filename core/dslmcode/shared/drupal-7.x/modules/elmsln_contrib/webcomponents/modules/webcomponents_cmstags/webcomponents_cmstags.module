@@ -133,7 +133,7 @@ function _webcomponents_cmstags_token_render($format) {
   $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
   $token = $params['token'];
   // force iframe render mode if nothing is suggested
-  if (strpos($token,'render=') === FALSE) {
+  if (strpos($token,'render=') === FALSE && strpos($token, 'ciscode') !== FALSE) {
     $token = str_replace(']','|render=iframe]',$token);
   }
   // set global to skip our drupal token processor!
