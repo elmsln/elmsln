@@ -406,3 +406,10 @@ function elmsln_core_update_7036() {
   ->condition('name', 'restws_basic_auth', '=')
   ->execute();
 }
+
+/**
+ * Our nonblocking calls have issue here. Let's just use what we know works
+ */
+function elmsln_core_update_7037(&$sandbox) {
+  variable_set('tincanapi_function', 'tincanapi_send');
+}
