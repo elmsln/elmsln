@@ -1092,6 +1092,7 @@ function haxcms_permission() {
  */
 function haxcms_settings($form, &$form_state) {
   $form['haxcms_settings_theme'] = [
+    "#weight" => -100,
     '#type' => 'select',
     '#title' => t('Theme'),
     '#default_value' => variable_get('haxcms_settings_theme', 'clean-one'),

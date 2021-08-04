@@ -28,14 +28,19 @@ function cis_lmsless_permission() {
 function cis_lmsless_page_build(&$page) {
   // make sure they have access to view this
   if (user_access('view lmsless bar') && !path_is_admin(current_path())) {
-    // prevents cis_lmsless on haxcms loaded systems
-    // @todo, this might not be the correct assumption
-    // we might want a mode where it's HAXcms theme layer online.
-    // maybe this is an additional setting for a mode
+    // prevents cis_lmsless on haxcms loaded systems unless we have a setting saying otherwise
     if (function_exists('_is_haxcms_context') && _is_haxcms_context()) {
-
+      // still provide support for NOT including any of this stuff at all
+      if (variable_get("elmsln_haxcms_lmsless", TRUE)) {
+        drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless_hax.css');
+        $page['page_top']['cis_lmsless'] = array(
+          '#weight' => -10,
+          '#markup' => _cis_lmsless_assemble(),
+        );
+      }
     }
     else {
+      drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
       $page['page_top']['cis_lmsless'] = array(
         '#weight' => -10,
         '#markup' => _cis_lmsless_assemble(),
@@ -216,8 +221,17 @@ function _cis_lmsless_assemble_network() {
 function _cis_lmsless_assemble() {
   // assemble variables for theming
   $vars = _cis_lmsless_theme_vars();
-  drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
   return theme('cis_lmsless_bar', $vars);
+}
+
+function cis_lmsless_form_haxcms_settings_alter(&$form, &$form_state, $form_id) {
+  $form['elmsln_haxcms_lmsless'] = [
+    "#weight" => -1,
+    '#type' => 'checkbox',
+    '#title' => t('Top banner and links'),
+    '#default_value' => variable_get('elmsln_haxcms_lmsless', TRUE),
+    '#description' => t("Show the top banner as well as cross-network links"),
+  ];
 }
 
 /**
@@ -396,6 +410,7 @@ function _cis_lmsless_theme_vars() {
       $vars['elmsln_main_menu'] = FALSE;
     }
     // NETWORK AND NETWORK BLOCK
+    drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
     $vars['network'] = _cis_lmsless_assemble_network();
     // add custom network links
     drupal_alter('cis_lmsless_network', $vars);
