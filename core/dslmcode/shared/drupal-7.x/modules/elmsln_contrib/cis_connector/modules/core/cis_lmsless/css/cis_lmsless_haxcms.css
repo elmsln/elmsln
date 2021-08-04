@@ -32,10 +32,6 @@ simple-modal {
     margin-top: 2em;
   }
   
-  lrnsys-button,button {
-    display: block;
-  }
-
   #etb-course-nav .top-bar li lrnsys-button {
     padding: 0;
   }
