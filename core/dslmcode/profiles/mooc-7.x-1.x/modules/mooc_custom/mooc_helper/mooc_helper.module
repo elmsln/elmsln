@@ -71,7 +71,19 @@ function mooc_helper_haxcms_slots() {
       'icon' => 'icons:list',
     ),
   );
-  $slots = '<div slot="haxcms-site-editor-ui-suffix-buttons" style="display:grid;">';
+  $slots = '<div slot="haxcms-site-editor-ui-suffix-buttons" style="display:grid;">
+  <style>
+  #etb-course-nav,
+  #etb-network-nav {
+    left: 48px;
+    position: relative;
+  }
+  @media only screen and (min-width: 1.063em) {
+    .row.full {
+      max-width: calc(100% - 48px) !important;
+    }
+  }
+  </style>';
   foreach ($ary as $item) {
     $slots .= '
     <a href="' . base_path() . $item['path'] . '" tabindex="-1" target="_blank"

@@ -971,6 +971,12 @@ function _haxcms_loader($node = NULL) {
  * return path to theme logo or our lego land fallback
  */
 function _haxcms_get_logo($style = NULL) {
+  $path = '';
+  // support custom logo definitions
+  drupal_alter("haxcms_get_logo",$path, $style);
+  if ($path != '') {
+    return $path;
+  }
   if (theme_get_setting('logo_path') != NULL) {
     if ($style == "thumbnail") {
       return image_style_url('thumbnail', theme_get_setting('logo_path'));
@@ -979,6 +985,7 @@ function _haxcms_get_logo($style = NULL) {
       return theme_get_setting('logo_path');
     }
   }
+  
   return base_path() . drupal_get_path("module", "hax") . "/banner.jpg";
 }
 
