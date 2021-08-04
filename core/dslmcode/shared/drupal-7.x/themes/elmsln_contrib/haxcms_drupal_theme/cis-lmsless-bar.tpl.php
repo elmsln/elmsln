@@ -127,7 +127,7 @@
         <?php elseif ($service['machine_name'] == $network['active']['machine_name']): ?>
           <simple-icon-lite icon="lrn:<?php print $service['icon'];?>" class="elmsln-hover-icon activetool"></simple-icon-lite>
         <?php else: ?>
-          <lrn-icon icon="<?php print $service['icon'];?>" class="elmsln-hover-icon"></lrn-icon>
+          <simple-icon-lite icon="lrn:<?php print $service['icon'];?>" class="elmsln-hover-icon"></simple-icon-lite>
         <?php endif; ?>
         <?php print $label; ?>
       </lrnsys-button>
