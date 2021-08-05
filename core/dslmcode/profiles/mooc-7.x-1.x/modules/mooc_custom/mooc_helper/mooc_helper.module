@@ -71,17 +71,15 @@ function mooc_helper_haxcms_slots() {
       'icon' => 'icons:list',
     ),
   );
+  // slight hack but allows mooc to have a bit of a compatibility mode with haxcms
+  // bc the two have slight style variations if you are authenticated
   $slots = '<div slot="haxcms-site-editor-ui-suffix-buttons" style="display:grid;">
   <style>
   #etb-course-nav,
   #etb-network-nav {
     left: 48px;
     position: relative;
-  }
-  @media only screen and (min-width: 1.063em) {
-    .row.full {
-      max-width: calc(100% - 48px) !important;
-    }
+    max-width: calc(100% - 48px) !important;
   }
   </style>';
   foreach ($ary as $item) {

@@ -281,13 +281,17 @@ function _haxcms_lunrSearchIndex($items) {
       }
       $nodeBody = check_markup($body[0]['value'], $body[0]['format']);
     }
+    $description = substr(trim(strtolower(str_replace("\n", ' ', utf8_encode(strip_tags($nodeBody))))), 0, 200);
+    $description = preg_replace('/[^a-z0-9\']/', ' ', $description);
+    $description = str_replace("'", '', $description);
+
     // may seem silly but IDs in lunr have a size limit for some reason in our context..
     $data[] = array(
       "id" => substr(str_replace('-', '', str_replace('item-', '', $item->id)), 0, 29),
       "title" => $item->title,
       "created" => $created,
       "location" => drupal_get_path_alias('node/' . $nid),
-      "description" => $item->description,
+      "description" => $description,
       "text" => _haxcms_cleanSearchData($nodeBody),
     );
   }

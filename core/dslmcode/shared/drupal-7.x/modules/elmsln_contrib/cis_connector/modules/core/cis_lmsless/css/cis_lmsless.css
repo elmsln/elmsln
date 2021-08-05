@@ -108,3 +108,7 @@
   font-size: 18px;
   font-family: Tahoma, Geneva, sans-serif;
 }
+
+.elmsln-service-list li lrnsys-button simple-icon-lite {
+  margin-top: 12px;
+}

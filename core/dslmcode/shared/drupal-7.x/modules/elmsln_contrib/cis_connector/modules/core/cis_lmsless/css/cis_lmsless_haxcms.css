@@ -69,13 +69,6 @@ simple-modal {
   .right {
     float: right !important; }
   
-  .clearfix:before, .clearfix.imagelightbox__close:after, .clearfix:after {
-    content: " ";
-    display: table; }
-  
-  .clearfix:after {
-    clear: both; }
-  
   .hide {
     display: none; }
   
@@ -142,12 +135,7 @@ simple-modal {
         width: 30%; }
     .reveal-modal.small {
         left: 0;
-        margin: 0 auto;
-        max-width: 80rem;
-        right: 0;
-        width: 40%; }
-    .reveal-modal.medium {
-        left: 0;
+        marginhttps://courses.elmsln-dev.vmhost.psu.edu/art010/node/20530;
         margin: 0 auto;
         max-width: 80rem;
         right: 0;
@@ -190,27 +178,6 @@ simple-modal {
       top: 0.625rem;
       right: 1.375rem; }
     
-  
-  /* Wrapped around .top-bar to contain to grid width */
-  .fixed {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 99;
-    left: 0; }
-    .fixed.expanded:not(.top-bar) {
-      height: auto;
-      max-height: 100%;
-      overflow-y: auto;
-      width: 100%; }
-      .fixed.expanded:not(.top-bar) .title-area {
-        position: fixed;
-        width: 100%;
-        z-index: 99; }
-      .fixed.expanded:not(.top-bar) .top-bar-section {
-        margin-top: 2.8125rem;
-        z-index: 98; }
-  
   .top-bar {
     margin-bottom: 0;
     overflow: hidden;
@@ -218,8 +185,6 @@ simple-modal {
     .top-bar ul {
       list-style: none;
       margin-bottom: 0; }
-    .top-bar .row {
-      max-width: none; }
     .top-bar form,
     .top-bar input,
     .top-bar select {
@@ -256,50 +221,12 @@ simple-modal {
           font-weight: normal;
           padding: 0 0.9375rem;
           width: 75%; }
-    .top-bar .toggle-topbar {
-      position: absolute;
-      right: 0;
-      top: 0; }
-      .top-bar .toggle-topbar a {
-        color: #54a901;
-        display: block;
-        font-size: 0.8125rem;
-        font-weight: bold;
-        height: 2.8125rem;
-        line-height: 2.8125rem;
-        padding: 0 0.9375rem;
-        position: relative;
-        text-transform: uppercase; }
-      .top-bar .toggle-topbar.menu-icon {
-        margin-top: -16px;
-        top: 50%; }
-        .top-bar .toggle-topbar.menu-icon a {
-          color: #FFFFFF;
-          height: 34px;
-          line-height: 33px;
-          padding: 0 2.5rem 0 0.9375rem;
-          position: relative; }
-          .top-bar .toggle-topbar.menu-icon a span::after {
-            content: "";
-            display: block;
-            height: 0;
-            position: absolute;
-            margin-top: -8px;
-            top: 50%;
-            right: 0.9375rem;
-            box-shadow: 0 0 0 1px #FFFFFF, 0 7px 0 1px #FFFFFF, 0 14px 0 1px #FFFFFF;
-            width: 16px; }
-          .top-bar .toggle-topbar.menu-icon a span:hover:after {
-            box-shadow: 0 0 0 1px "", 0 7px 0 1px "", 0 14px 0 1px ""; }
     .top-bar.expanded {
       background: transparent;
       height: auto; }
       .top-bar.expanded .title-area {
         background: #333333; }
-      .top-bar.expanded .toggle-topbar a {
-        color: #888888; }
-        .top-bar.expanded .toggle-topbar a span::after {
-          box-shadow: 0 0 0 1px #888888, 0 7px 0 1px #888888, 0 14px 0 1px #888888; }
+
       @media screen and (-webkit-min-device-pixel-ratio: 0) {
         .top-bar.expanded .top-bar-section .has-dropdown.moved > .dropdown,
         .top-bar.expanded .top-bar-section .dropdown {
@@ -312,7 +239,6 @@ simple-modal {
     position: relative;
     width: auto;
     background-color: black;
-    margin: -1px 0 0 -12px;
   }
     .top-bar-section ul {
       display: block;
@@ -422,8 +348,7 @@ simple-modal {
         display: table; }
       .top-bar:after {
         clear: both; }
-      .top-bar .toggle-topbar {
-        display: none; }
+
       .top-bar .title-area {
         float: left; }
       .top-bar .name h1 a,
@@ -677,8 +602,7 @@ simple-modal {
         margin-top: 0.7rem; }
       #etb-course-nav .top-bar .name {
         width: 0; }
-      #etb-course-nav .top-bar .toggle-topbar.menu-icon {
-        background: #ccc; }
+
     #etb-course-nav .top-bar-section.title-link li {
       background-color: transparent; }
       #etb-course-nav .top-bar-section.title-link li a {
@@ -869,9 +793,6 @@ simple-modal {
     z-index: 100;
     position: absolute; }
   
-  .row.full {
-    max-width: 100% !important; }
-  
   .middle-align-wrap, .center-align-wrap, .center-middle-align-wrap {
     display: -ms-flexbox !important;
     display: flex !important; }
@@ -1047,19 +968,6 @@ simple-modal {
     clip: auto;
     overflow: visible;
     height: auto;
-  }
-  
-  /**
-   * Markup free clearing.
-   *
-   * @see http://perishablepress.com/press/2009/12/06/new-clearfix-hack
-   */
-  .clearfix:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
   }
   
   /* Helps in the event the internet isn't there */
@@ -1247,10 +1155,6 @@ simple-modal {
 
 /** specific stuff to haxcms integration / clean up */
 
-ul.menu li {
-  margin: 0;
-}
-
 simple-drawer {
 position: absolute;
 z-index: 100000;
@@ -1296,16 +1200,6 @@ z-index: 100000;
     min-height: 45px !important;
 }}
 @media only screen and (min-width: 1.063em){
-.row.full {
-    max-width: 100% !important;
-}}
-
-.row {
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 20px;
-}
-
 .elmsln-user-profile-menu-item lrndesign-avatar {
     padding: 4px;
 }
@@ -1392,4 +1286,10 @@ haxcms-site-builder > :first-child {
     --simple-tooltip-opacity: 1;
     --simple-tooltip-text-color: #ffffff;
     --simple-tooltip-delay-in: 0;
+  }
+
+  haxcms-site-builder th {
+    padding-right: 0;
+    text-align: center;
+    border-bottom: unset;
   }

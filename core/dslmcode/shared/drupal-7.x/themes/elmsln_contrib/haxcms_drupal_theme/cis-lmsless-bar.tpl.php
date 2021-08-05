@@ -7,7 +7,7 @@
   <div class="header-image-container"><?php print $banner_image; ?></div>
 <?php endif; ?>
 <!-- Ecosystem Top Nav -->
-<div id="etb-course-nav" class="row full collapse">
+<div id="etb-course-nav">
   <div class="etb-course-nav-inner">
     <nav class="top-bar etb-nav middle-align-wrap etb-nav--center--parent" data-options="is_hover: false" data-topbar>
      <section class="top-bar-section title-link">
@@ -46,8 +46,7 @@
     <?php if (count($bar_elements) > 0) : ?>
     <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar>
      <section>
-      <h3 class="element-invisible"><?php print t('Course and user logistics');?></h3>
-      <ul class="menu clearfix">
+      <ul>
         <?php if ($bar_elements['help']) : ?>
         <li>
           <lrnsys-button icon="lrn:help" dark data-jwerty-key="h" data-voicecommand="help" href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap" button-class="black white-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?>">
@@ -89,7 +88,7 @@
     <?php endif; ?>
   </div>
 </div>
-<div id="etb-network-nav" class="row full collapse">
+<div id="etb-network-nav">
   <?php if ($bar_elements['network']) : ?>
   <ul class="elmsln-service-list col s9">
   <?php else: ?>
