@@ -1336,6 +1336,10 @@ simple-modal::part(titlebar) {
     --simple-tooltip-delay-in: 0;
   }
 
+  #admin-menu lrnsys-button::part(lrnsys-button-button) {
+    color: white !important;
+  }
+
   haxcms-site-builder th {
     padding-right: 0;
     text-align: center;

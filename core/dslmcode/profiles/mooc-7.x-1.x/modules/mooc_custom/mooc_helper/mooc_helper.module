@@ -84,7 +84,7 @@ function mooc_helper_haxcms_slots() {
   </style>';
   foreach ($ary as $item) {
     $slots .= '
-    <a href="' . base_path() . $item['path'] . '" tabindex="-1" target="_blank"
+    <a href="' . base_path() . $item['path'] . '" tabindex="-1"
     style="
     display: inline-flex;
     background: black;

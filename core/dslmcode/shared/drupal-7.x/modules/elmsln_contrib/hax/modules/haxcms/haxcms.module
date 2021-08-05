@@ -62,6 +62,7 @@ function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
     </style>
     <script>
       document.body.removeAttribute("no-js");
+      window.__appPrevRoute = ""; 
       window.__appCustomEnv=true;window.appSettings = {connectionSettings: "' . base_path() . 'haxapi/connectionSettings"};
       // custom Drupal JS integration for legacy content to still attach correctly
       window.addEventListener("json-outline-schema-active-body-changed", function(e) {
@@ -72,6 +73,35 @@ function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
           window.WCAutoload.process();
         }
       });
+      // because we are in a larger system and it might have wrapper UI or "external" links that are not part of the format route
+      // we need to see if we missed our internal router and instead of a fake 404 we need to reload the page to trigger the
+      // real drupal page load
+      window.addEventListener("vaadin-router-location-changed", function(e) {
+        // wait a microtask to allow HAXcms to do its routing first regardless of time to attach
+        setTimeout(function(){
+        // ensure a weird possible handoff issue on backend paths does not cause an infinite loop
+        if (e.detail.router.location.params && e.detail.router.location.params[0] && !e.detail.router.location.params[0].includes("/haxcms") && e.detail.router.location.params[0].includes("haxcms") === true) {
+          //window.location.href = e.detail.router.location.pathname.replace("haxcms/","").replace("haxcms","");
+        }
+        else if (e.detail.location.route.name == "404") {
+            window.localStorage.setItem(
+              "HAXCMSlastRoute-" + window.HAXCMS.requestAvailability().store.manifest.metadata.site.name,
+              window.__appPrevRoute
+            );
+            // ignore admin menu calls
+            if (!e.detail.router.location.pathname.includes("admin_menu") &&
+            !e.detail.router.location.pathname.includes("masquerade") &&
+            !e.detail.router.location.pathname.includes("token=")) {
+              // remove link and replace it with the redirect. sneaky charlie.. we\'re going to be sneaky
+              window.history.replaceState( {} , "Redirecting..", e.detail.router.location.pathname + "?destination=" + window.__appPrevRoute );
+            }
+            window.location.reload();
+        }
+        else {
+          window.__appPrevRoute = e.detail.router.location.route.path;
+        }
+      }, 10); 
+    });
     </script>
     <script src="' . base_path() . drupal_get_path('module', 'haxcms') . '/build-haxcms.js' . '"></script>';
   }
@@ -96,6 +126,10 @@ function _haxcms_drupal_theme_exists($theme_name) {
   return isset($themes[$theme_name]) && $themes[$theme_name]->status == 1;
 }
 
+function _haxcms_deliverStyles() {
+  print '';
+  exit;
+}
 /**
  * Implements hook_menu().
  */
@@ -108,6 +142,13 @@ function haxcms_menu() {
     'access arguments' => array('view'),
     'type' => MENU_CALLBACK,
     'theme callback' => '_haxcms_drupal_theme',
+  );
+  $items['theme/theme.css'] = array(
+    'page callback' => '_haxcms_deliverStyles',
+    'page arguments' => array(0),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
   );
   // load connection settings for HAXcms to know how to talk to Drupal
   $items['lunrSearchIndex.json'] = array(
