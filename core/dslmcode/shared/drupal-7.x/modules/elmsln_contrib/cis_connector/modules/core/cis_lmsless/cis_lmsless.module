@@ -504,7 +504,7 @@ function _cis_lmsless_theme_vars() {
       $vars['userpicturebig'] = $image;
     }
     else {
-      $vars['userpicturebig'] = '<paper-avatar label="' . $vars['username'] . '"></paper-avatar>';
+      $vars['userpicturebig'] = '<lrndesign-avatar label="' . $vars['username'] . '"></lrndesign-avatar>';
     }
     // support user banner
     $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/banners/' . $vars['username'] .'.jpg';
