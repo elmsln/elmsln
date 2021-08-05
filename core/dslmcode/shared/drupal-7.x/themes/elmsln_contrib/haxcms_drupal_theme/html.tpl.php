@@ -64,7 +64,7 @@ if (function_exists('variable_get')) {
       color: white;
       font-family: 'Open Sans', 'arial', 'serif';
       font-size: 40px;
-      background-color: <?php print $color; ?>;
+      background-color: var(--haxcms-color,<?php print $color; ?>);
       transition: .4s ease-in-out all;
     }
     #loading img {
@@ -73,7 +73,7 @@ if (function_exists('variable_get')) {
       height: 300px;
       margin-bottom: 50px;
       border-radius: 50%;
-      border: 8px solid <?php print $color;?>;
+      border: 8px solid var(--haxcms-color,<?php print $color; ?>);
       box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.45);
       -moz-box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.45);
 	    -webkit-box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.45);
@@ -92,7 +92,7 @@ if (function_exists('variable_get')) {
       width: 300px;
     }
     .progress-line:before {
-      background-color: <?php print $color;?>;
+      background-color: var(--haxcms-color,<?php print $color; ?>);
       content: '';
       animation: running-progress 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }

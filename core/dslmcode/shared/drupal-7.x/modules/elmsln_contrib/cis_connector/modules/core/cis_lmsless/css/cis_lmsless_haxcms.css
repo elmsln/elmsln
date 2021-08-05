@@ -1,10 +1,7 @@
-
-simple-modal {
-    --simple-modal-min-width: 50vw;
-    --simple-modal-min-height: 50vh;
-  }
-  
-  paper-button:not(:defined),
+  simple-icon:not(:defined),
+  simple-icon-lite:not(:defined),
+  simple-icon-button:not(:defined),
+  simple-icon-button-lite:not(:defined),
   lrnsys-button:not(:defined),
   paper-fab:not(:defined),
   paper-menu-button:not(:defined),
@@ -13,8 +10,9 @@ simple-modal {
   simple-modal:not(:defined),
   simple-drawer:not(:defined),
   lrnsys-dialog:not(:defined),
-  lrnsys-drawer:not(:defined) {
-    display: none;
+  lrnsys-drawer:not(:defined),
+  haxcms-site-editor-ui:not(:defined) {
+      display: none;
   }
   .elmsln-modal-content ul,
   .elmsln-modal-content ol {
@@ -135,7 +133,7 @@ simple-modal {
         width: 30%; }
     .reveal-modal.small {
         left: 0;
-        marginhttps://courses.elmsln-dev.vmhost.psu.edu/art010/node/20530;
+        margin: 0;
         margin: 0 auto;
         max-width: 80rem;
         right: 0;
@@ -1124,6 +1122,38 @@ simple-modal {
     --lrnsys-drawer-button-padding: 0;
     --lrnsys-drawer-button-margin: 0;
   }
+  .elmsln-modal-content lrnsys-dialog {
+    display: block;
+    padding: 0 20px;
+    color: black;
+    --simple-icon-color: black;
+    height: 48px;
+
+  }
+  .elmsln-modal-content lrnsys-dialog::part(lrnsys-dialog-lrnsys-button-inner) {
+    height: 48px;
+  }
+  .elmsln-modal-content lrnsys-dialog::part(lrnsys-dialog-button) {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0;
+  }
+  .elmsln-modal-content lrnsys-dialog:hover div,
+  .elmsln-modal-content lrnsys-dialog:focus div,
+  .elmsln-modal-content lrnsys-dialog:active div,
+  .elmsln-modal-content lrnsys-dialog:hover,
+  .elmsln-modal-content lrnsys-dialog:focus,
+  .elmsln-modal-content lrnsys-dialog:active {
+    background-color: rgb(66, 66, 66);
+    color: white !important;
+    --simple-icon-color: white;
+  }
+  .elmsln-modal-content lrnsys-dialog div.lrnsys-dialog-button {
+    display: block;
+    margin-top: 12px;
+  }
+  
   
   .elmsln-service-list li.elmsln-network-menu-item a {
     height: 3em;
@@ -1156,10 +1186,25 @@ simple-modal {
 /** specific stuff to haxcms integration / clean up */
 
 simple-drawer {
-position: absolute;
-z-index: 100000;
+  position: absolute;
+  z-index: 100000;
+  --simple-drawer-header-background: var(--haxcms-color, #009d75);
 }
+simple-modal {
+  --simple-modal-min-width: 50vw;
+  --simple-modal-min-height: 50vh;
+  --simple-modal-z-index: 1000000;
+  --simple-modal-titlebar-background: var(--haxcms-color, #009d75);
+}
+simple-modal::part(dialog) {
+  --simple-modal-min-width: 50vw;
+  --simple-modal-min-height: 50vh;
+  --simple-modal-z-index: 1000000 !important;
+}
+simple-modal::part(titlebar) {
+    --simple-modal-titlebar-background: var(--haxcms-color, #009d75) !important;
 
+}
 
 .header-image-container {
     width: 100%;
@@ -1195,27 +1240,24 @@ z-index: 100000;
 }
 
 @media screen and (min-width: 992px){
-#etb-course-nav {
-    margin-top: -47px !important;
-    min-height: 45px !important;
-}}
+  #etb-course-nav {
+      margin-top: -47px !important;
+      min-height: 45px !important;
+  }
+}
 @media only screen and (min-width: 1.063em){
-.elmsln-user-profile-menu-item lrndesign-avatar {
-    padding: 4px;
+  .elmsln-user-profile-menu-item lrndesign-avatar {
+      padding: 4px;
+  }
 }
 
-/** this targets the theme in use and over-rides its height to ensure that it accounts for the lmsless bar */
-haxcms-site-builder > :first-child {
-  min-height: calc(100vh - 130px);
-}
+  @media screen and (max-width: 900px) {
+      .haxcms-theme-element::part(site-body) {
+          position: relative;
+      }
+  }
 
-@media screen and (max-width: 900px) {
-    .haxcms-theme-element::part(site-body) {
-        position: relative;
-    }
-}
-
-@media only screen and (max-width: 600px) {
+  @media only screen and (max-width: 600px) {
     .hide-on-small-only, .hide-on-small-and-down {
       display: none !important;
     }
@@ -1281,6 +1323,12 @@ haxcms-site-builder > :first-child {
     }
   }
 
+  /** this targets the theme in use and over-rides its height to ensure that it accounts for the lmsless bar */
+  haxcms-site-builder > :first-child {
+    min-height: calc(100vh - 130px);
+  }
+
+
   .elmsln-service-list li lrnsys-button::part(lrnsys-button-tooltip) {
     --simple-tooltip-background: #000000;
     --simple-tooltip-opacity: 1;
@@ -1293,3 +1341,82 @@ haxcms-site-builder > :first-child {
     text-align: center;
     border-bottom: unset;
   }
+  .elmsln-modal-content ul:not(.dropdown-content) {
+    display: block;
+    margin: 0;
+    padding: 0;
+  }
+  .elmsln-modal-content ul, .elmsln-modal-content ol {
+    margin: 0;
+    padding: 0;
+  }
+  .elmsln-modal-content ul li {
+    list-style: none;
+    display: block;
+    padding: 0;
+    margin: 0;
+  }
+  .user-drawer-block .details {
+    background-color: #eeeeee;
+  }
+ 
+  .user-drawer-block .user-details-image {
+    display: inline-flex;
+    vertical-align: top;
+    margin: 32px 0 32px 16px;
+  }
+  .user-drawer-block .user-details-text {
+    display: inline-block;
+    line-height: 24px;
+    font-size: 14px;
+    padding: 16px;
+  }
+
+  .elmsln-modal-content .nolink,
+  .subheader {
+    line-height: 32px;
+    color: #212121;
+    font-weight: 500;
+    margin-top: .8px;
+    margin-bottom:8px;
+    font-size: 18px;
+  }
+
+.elmsln-modal-content .nolink {
+    display: block;
+    border-bottom: 1px #e0e0e0 solid;
+}
+
+  .grey {
+    background-color: #9e9e9e;
+}
+
+.divider {
+    height: 1px;
+    overflow: hidden;
+    background-color: #e0e0e0;
+}
+#cis-service-connection-block-section-context-changer-form .container-inline,
+#masquerade-block-1 .container-inline {
+  font-size: 2em;
+}
+#section-to-view,
+#edit-masquerade-user-field {
+  display: block;
+  font-size: 24px;
+}
+#cis-service-connection-block-section-context-changer-form .container-inline div,
+#cis-service-connection-block-section-context-changer-form .container-inline label
+#masquerade-block-1 .container-inline div,
+#masquerade-block-1 .container-inline label {
+  display: block;
+}
+#cis-service-connection-block-section-context-changer-form .form-submit,
+#masquerade-block-1 .form-submit {
+  font-size: 20px;
+  padding: 8px;
+  margin: 8px;
+}
+#edit-elmsln-share-section {
+  width: 90%;
+}
