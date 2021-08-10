@@ -1326,6 +1326,7 @@ simple-modal::part(titlebar) {
   /** this targets the theme in use and over-rides its height to ensure that it accounts for the lmsless bar */
   haxcms-site-builder > :first-child {
     min-height: calc(100vh - 130px);
+    --site-menu-map-menu-height: calc(100vh - 260px);
   }
 
 
