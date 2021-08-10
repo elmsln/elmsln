@@ -1673,6 +1673,8 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
   if ($nonblocking && variable_get('cis_devel_nonblock', FALSE)) {
     $nonblocking = FALSE;
   }
+  //@todo note we no longer want nonblocking to exist
+  $nonblocking = FALSE;
   if ($nonblocking) {
     drupal_load('module', 'httprl');
   }
@@ -1750,7 +1752,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
           //watchdog('course', $request['data']['__course_context']);
           //watchdog('whereitgoes', $bucket);
           //watchdog('allplacestogo', serialize($nonblock));
-          $tmp = _cis_connector_make_request($addresses[$bucket], $options);
+          $returned_data[] = _cis_connector_make_request($addresses[$bucket], $options);
         }
       }
     }
@@ -1844,7 +1846,7 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
             'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
             'blocking' => FALSE,
           );
-          $tmp = _cis_connector_make_request($addresses[$bucket], $options);
+          $returned_data[] = _cis_connector_make_request($addresses[$bucket], $options);
         }
       }
     }
