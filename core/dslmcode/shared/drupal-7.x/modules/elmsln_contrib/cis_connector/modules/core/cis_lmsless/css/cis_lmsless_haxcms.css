@@ -1328,6 +1328,15 @@ simple-modal::part(titlebar) {
     min-height: calc(100vh - 130px);
     --site-menu-map-menu-height: calc(100vh - 260px);
   }
+  haxcms-site-builder bootstrap-theme[responsive-size="sm"]::part(site-inner),
+  haxcms-site-builder bootstrap-theme[responsive-size="xs"]::part(site-inner)
+  {
+    top: 140px;
+  }
+
+  haxcms-site-builder learn-two-theme::part(site-menu) {
+    height: 100vh;
+  }
 
 
   .elmsln-service-list li lrnsys-button::part(lrnsys-button-tooltip) {
