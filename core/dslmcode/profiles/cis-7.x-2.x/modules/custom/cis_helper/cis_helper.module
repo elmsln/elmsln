@@ -499,10 +499,9 @@ function _cis_helper_run_operation($section) {
       // build the address to do a secure call over webservices
       $address = _cis_connector_format_address($settings, '/' . $course_name);
       // execute the request
-      httprl_request($address . '/' . $call['url']);
-      $request = httprl_send_request();
+      $request = _cis_connector_make_request($address . '/' . $call['url']);
       // pull out the data from this call
-      $xml = array_pop($request)->data;
+      $xml = $request->data;
       // load the structure of the field so we can get the storage location
       $field = field_info_field('field_course_archive');
       // get the instance settings so we can get the directory

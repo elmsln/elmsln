@@ -112,9 +112,7 @@ function cis_lti_service_post($params, $key, $url) {
       'blocking' => FALSE,
     );
     // queue up the launch
-    httprl_request($url, $options);
-    // execuse request, we won't get a real response
-    $ext_response = httprl_send_request();
+    $ext_response = _cis_connector_make_request($url, $options);
   }
   return $ext_response;
 }

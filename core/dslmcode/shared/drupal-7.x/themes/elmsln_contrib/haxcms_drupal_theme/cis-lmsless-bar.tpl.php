@@ -42,7 +42,7 @@
       </section>
     </nav>
   </div>
-  <div class="top-bar-right-actions s7 m9 l7 col">
+  <div class="top-bar-right-actions">
     <?php if (count($bar_elements) > 0) : ?>
     <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar>
      <section>
@@ -90,9 +90,9 @@
 </div>
 <div id="etb-network-nav">
   <?php if ($bar_elements['network']) : ?>
-  <ul class="elmsln-service-list col s9">
+  <ul class="elmsln-service-list">
   <?php else: ?>
-  <ul class="elmsln-service-list col s12">
+  <ul class="elmsln-service-list">
   <?php endif; ?>
   <?php if (isset($network['services']['Network'])) : ?>
     <?php
@@ -136,7 +136,7 @@
   <?php endif; ?>
   </ul>
   <?php if ($bar_elements['network']) : ?>
-    <ul class="elmsln-more-items col s3">
+    <ul class="elmsln-more-items">
       <li class="elmsln-network-menu-item right">
         <lrnsys-drawer class="middle-align-wrap elmsln-network-button" align="right" header="<?php print t('Applications'); ?>" data-jwerty-key="o+a" data-voicecommand="open applications">
           <span slot="button"><simple-icon icon="apps"></simple-icon><span class=" hide-on-small-only"><?php print t('More apps'); ?></span></span>

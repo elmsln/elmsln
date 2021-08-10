@@ -1170,7 +1170,7 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
  * Wrapper to leverage curl when possible to avoid potential socket connection
  * issues with certain SSL connections
  */
-function _cis_connector_make_request($url, $options){
+function _cis_connector_make_request($url, $options = array()){
   // support developers overloading the request method, specifically curl
   // as some systems can have issues with SSL configuration and socket connections
   if (function_exists('curl_init')) {
@@ -1182,6 +1182,9 @@ function _cis_connector_make_request($url, $options){
     }
     if (!isset($options['timeout'])) {
       $options['timeout'] = 5000;
+    }
+    if (!isset($options['method'])) {
+      $options['method'] = "GET";
     }
     $curl = curl_init();
     curl_setopt_array($curl, array(
