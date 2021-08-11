@@ -1348,6 +1348,23 @@ simple-modal::part(titlebar) {
     --simple-tooltip-delay-in: 0;
   }
 
+  .elmsln-error-page {
+    font-size: 2rem;
+    line-height: 4rem;
+    text-align: center;
+  }
+  
+  .error-page-hal9000 {
+    filter:saturate(1) invert(1);
+    transform: scale(.95, .95);
+    transition: 3s ease;
+  }
+  
+  .error-page-hal9000.on {
+    filter:saturate(10) invert(.9);
+    transform: scale(1, 1);
+  }
+
   #admin-menu lrnsys-button::part(lrnsys-button-button) {
     color: white !important;
   }
