@@ -267,23 +267,11 @@ function haxcms_menu_alter(&$items) {
 function _haxcms_getLunrData() {
   drupal_add_http_header('Content-Type', 'application/javascript');
   if (variable_get('haxcms_settings_search', TRUE)) {
-    // use referer to see what page this comes from and load the bid so we know how to get it flat
-    // for generation of json output format
-    $HAXCMS = _haxcms_bootstrap();
-    if (isset($_SERVER["HTTP_REFERER"])) {
-      $parts = explode("/", $_SERVER["HTTP_REFERER"]);
-      $nid = array_pop($parts);
-      // implies we were handed a path and need to function differently
-      if (!is_numeric($nid)) {
-        $path = str_replace($GLOBALS['base_url'] . '/', '', $_SERVER["HTTP_REFERER"]);
-        $path = str_replace('haxcms/', '', $path);
-        $parts = explode("?", $path);
-        if (drupal_get_normal_path($parts[0])) {
-          $parts = explode("/", drupal_get_normal_path($parts[0]));
-          $nid = array_pop($parts);
-        }
-      }
-      $node = node_load($nid);
+    $node = NULL;
+    // totally possible to be null still. allow other modules to figure out what active is
+    // in elmsln this will be section cvontextr in mooc distro.
+    drupal_alter('haxcms_root_node_loader', $node);
+    if (isset($node->book['bid'])) {
       $book = node_load($node->book['bid']);
       $site = _haxcms_loadJOS($book, TRUE);
       $json = _haxcms_lunrSearchIndex($site->items);
