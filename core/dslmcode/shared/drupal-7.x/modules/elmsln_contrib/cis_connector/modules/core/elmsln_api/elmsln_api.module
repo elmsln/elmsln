@@ -1673,7 +1673,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
   if ($nonblocking && variable_get('cis_devel_nonblock', FALSE)) {
     $nonblocking = FALSE;
   }
-  //@todo note we no longer want nonblocking to exist
+  // @note we no longer want nonblocking to exist
   $nonblocking = FALSE;
   if ($nonblocking) {
     drupal_load('module', 'httprl');

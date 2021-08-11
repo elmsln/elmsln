@@ -1337,7 +1337,9 @@ simple-modal::part(titlebar) {
   haxcms-site-builder learn-two-theme::part(site-menu) {
     height: 100vh;
   }
-
+  haxcms-site-builder learn-two-theme::part(app-drawer) {
+    position: absolute;
+  }
 
   .elmsln-service-list li lrnsys-button::part(lrnsys-button-tooltip) {
     --simple-tooltip-background: #000000;
