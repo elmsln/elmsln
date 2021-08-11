@@ -1383,7 +1383,7 @@ function _elmsln_api_requests($requests, $nonblocking = FALSE, $recursion = FALS
 function _elmsln_api_nonblocking_requests($requests, $recursion = FALSE) {
   global $_elmsln_api_processing;
   if ($_elmsln_api_processing && !$recursion) {
-    return FALSE;
+   // return FALSE;
   }
   // loop through and queue the requests
   foreach ($requests as $request) {
