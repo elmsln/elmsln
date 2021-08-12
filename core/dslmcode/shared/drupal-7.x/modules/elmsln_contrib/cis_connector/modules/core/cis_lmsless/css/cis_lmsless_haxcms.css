@@ -177,7 +177,7 @@
       right: 1.375rem; }
     
   .top-bar {
-    margin-bottom: 0;
+    margin-bottom: -1px;
     overflow: hidden;
     position: relative; }
     .top-bar ul {
@@ -1241,7 +1241,7 @@ simple-modal::part(titlebar) {
 
 @media screen and (min-width: 992px){
   #etb-course-nav {
-      margin-top: -47px !important;
+      margin-top: -48px !important;
       min-height: 45px !important;
   }
 }
