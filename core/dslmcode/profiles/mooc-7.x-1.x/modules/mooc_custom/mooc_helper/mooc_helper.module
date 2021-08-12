@@ -43,33 +43,18 @@ function mooc_helper_haxcms_root_node_loader_alter(&$node) {
 /**
  * Implements hook_haxcms_slots().
  */
-function mooc_helper_haxcms_slots() {
+function mooc_helper_haxcms_slots($node) {
   $ary = array(
     array(
-      'path' => 'admin/content/book',
+      'path' => 'admin/content/book/' . $node->nid,
       'title' => t('Outline designer'),
       'icon' => 'hax:site-map',
     ),
     array(
       'path' => 'admin/config/content/haxcms',
       'title' => t('Theme settings'),
-      'icon' => 'icons:view-quilt',
-    ),
-    array(
-      'path' => 'admin/content/book/sar',
-      'title' => t('Search and Replace'),
-      'icon' => 'icons:find-replace',
-    ),
-    array(
-      'path' => 'elmsln/course-settings',
-      'title' => t('Course settings'),
       'icon' => 'hax:site-settings',
-    ),
-    array(
-      'path' => 'cis/section-list',
-      'title' => t('Section list'),
-      'icon' => 'icons:list',
-    ),
+    )
   );
   // slight hack but allows mooc to have a bit of a compatibility mode with haxcms
   // bc the two have slight style variations if you are authenticated
@@ -81,28 +66,39 @@ function mooc_helper_haxcms_slots() {
     position: relative;
     max-width: calc(100% - 48px) !important;
   }
-  </style>';
-  foreach ($ary as $item) {
-    $slots .= '
-    <a href="' . base_path() . $item['path'] . '" tabindex="-1"
-    style="
+  .injected-haxcms-btn {
     display: inline-flex;
     background: black;
     border-radius: 50%;
-    padding: 10px;
-    margin: 2px;
-    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.7);
-">
+    padding: 8px;
+    margin: 2px 4px;
+    box-shadow: 0 5px 5px rgb(0 0 0 / 70%);
+    height: 40px;
+    width: 40px;
+  }
+  .injected-haxcms-btn simple-icon-button
+  {
+  --simple-icon-height: 24px;
+  --simple-icon-width: 24px;
+  }
+  .injected-haxcms-btn:hover,
+  .injected-haxcms-btn:focus,
+  .injected-haxcms-btn:active {
+    background-color: var(--haxcms-color, blue);
+    color: #ffffff;
+  }
+  </style>';
+  foreach ($ary as $item) {
+    $slots .= '
+    <a href="' . base_path() . $item['path'] . '" class="injected-haxcms-btn">
       <simple-icon-button
+      tabindex="-1"
         constrast="4"
         dark
         accent-color="grey"
         icon="' . $item['icon'] . '"
         title="' . $item['title'] . '"
-        style="
-          --simple-icon-height: 20px;
-          --simple-icon-width: 20px;
-      "></simple-icon-button>
+      ></simple-icon-button>
     </a>
   ';
   }

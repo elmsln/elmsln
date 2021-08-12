@@ -501,8 +501,9 @@ function _haxcms_login() {
           //$settings->getSiteFieldsPath = $path . 'formLoad?haxcms_form_id=siteSettings';
           // form token to validate form submissions as unique to the session
           $settings->getFormToken = drupal_get_token('hax');
-          $settings->createNodePath = $path . 'createNode/' . drupal_get_token('hax');
-          $settings->deleteNodePath = $path . 'deleteNode/' . drupal_get_token('hax');
+          // @todo comment in when we fully implement the above UX and test it more thoroughly
+          //$settings->createNodePath = $path . 'createNode/' . drupal_get_token('hax');
+          //$settings->deleteNodePath = $path . 'deleteNode/' . drupal_get_token('hax');
           $settings->getUserDataPath = $path . 'getUserData/' . drupal_get_token('hax');
           // not an actual jwt but fakes it correctly for session based Drupal to function
           $settings->jwt = drupal_get_token('hax');
@@ -999,7 +1000,7 @@ function _haxcms_loader($node = NULL) {
       'node' => $node,
       'logo' => _haxcms_get_logo('thumbnail'),
       'siteAttributes' => $siteAttributes,
-      'slots' => _haxcms_get_slots(),
+      'slots' => _haxcms_get_slots($node),
       'contents' => check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])));
   }
 }
@@ -1028,9 +1029,9 @@ function _haxcms_get_logo($style = NULL) {
 /**
  * Hooks to allow for slots to be pulled in
  */
-function _haxcms_get_slots() {
-  $slots = module_invoke_all('haxcms_slots');
-  drupal_alter('haxcms_slots', $slots);
+function _haxcms_get_slots($node) {
+  $slots = module_invoke_all('haxcms_slots', $node);
+  drupal_alter('haxcms_slots', $slots, $node);
   $content = '';
   foreach ($slots as $slot) {
     $content .= $slot;
