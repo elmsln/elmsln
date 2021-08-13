@@ -1328,6 +1328,9 @@ simple-modal::part(titlebar) {
     min-height: calc(100vh - 130px);
     --site-menu-map-menu-height: calc(100vh - 260px);
   }
+  haxcms-site-builder clean-one {
+    --clean-one-site-menu-height: calc(100vh - 190px);
+  }
   haxcms-site-builder bootstrap-theme[responsive-size="sm"]::part(site-inner),
   haxcms-site-builder bootstrap-theme[responsive-size="xs"]::part(site-inner)
   {
