@@ -246,3 +246,19 @@ ol.cle-assignment-listing-multi-submission li {
     min-height: 5rem !important;
   }
 }
+
+@media screen and (min-width: 992px) {
+.header-image-container {
+  height: 5rem !important;
+}
+}
+@media screen and (min-width: 1200px) {
+.header-image-container {
+  height: 5rem !important;
+}
+}
+
+lrnapp-open-studio {
+  border-top: none !important;
+  margin-top: 0;
+}
