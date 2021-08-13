@@ -83,13 +83,6 @@ ol.cle-assignment-listing-multi-submission li {
  margin-left: 1rem;
 }
 
-.submission-column {
-
-}
-.comment-column {
-
-}
-
 .comment-wrapper {
   overflow-y: scroll;
   max-height: 25rem;
@@ -244,5 +237,12 @@ ol.cle-assignment-listing-multi-submission li {
     margin: 0px 0px 0px 0px;
     font-size:1.3em;
     text-align: right;
+  }
+}
+
+/* Clean up for 2021 and up */
+@media screen and (min-width: 1200px) {
+  .header-image-container {
+    min-height: 5rem !important;
   }
 }
