@@ -1,0 +1,1 @@
+function strictIndexOf(t,r,e){for(var n=e-1,f=t.length;++n<f;)if(t[n]===r)return n;return-1}export default strictIndexOf;

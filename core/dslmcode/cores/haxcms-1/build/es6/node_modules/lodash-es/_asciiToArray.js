@@ -1,0 +1,1 @@
+function asciiToArray(r){return r.split("")}export default asciiToArray;

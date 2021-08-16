@@ -1,0 +1,1 @@
+function stackGet(t){return this.__data__.get(t)}export default stackGet;

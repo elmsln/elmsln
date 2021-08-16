@@ -1,0 +1,1 @@
+function getValue(e,t){return null==e?void 0:e[t]}export default getValue;

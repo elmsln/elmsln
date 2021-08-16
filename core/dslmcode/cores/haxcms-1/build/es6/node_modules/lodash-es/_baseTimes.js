@@ -1,0 +1,1 @@
+function baseTimes(e,r){for(var a=-1,s=Array(e);++a<e;)s[a]=r(a);return s}export default baseTimes;

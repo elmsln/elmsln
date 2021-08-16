@@ -1,0 +1,1 @@
+function mapToArray(r){var a=-1,o=Array(r.size);return r.forEach((function(r,n){o[++a]=[n,r]})),o}export default mapToArray;

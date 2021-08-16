@@ -1,0 +1,1 @@
+function arrayEachRight(r,a){for(var t=null==r?0:r.length;t--&&!1!==a(r[t],t,r););return r}export default arrayEachRight;

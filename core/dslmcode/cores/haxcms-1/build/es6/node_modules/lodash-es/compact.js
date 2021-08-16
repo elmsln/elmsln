@@ -1,0 +1,1 @@
+function compact(t){for(var r=-1,a=null==t?0:t.length,c=0,n=[];++r<a;){var o=t[r];o&&(n[c++]=o)}return n}export default compact;

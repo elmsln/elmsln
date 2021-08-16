@@ -1,0 +1,1 @@
+function stackHas(a){return this.__data__.has(a)}export default stackHas;

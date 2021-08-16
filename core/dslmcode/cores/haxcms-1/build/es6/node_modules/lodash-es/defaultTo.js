@@ -1,0 +1,1 @@
+function defaultTo(t,u){return null==t||t!=t?u:t}export default defaultTo;

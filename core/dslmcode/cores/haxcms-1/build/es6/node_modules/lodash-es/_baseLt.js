@@ -1,0 +1,1 @@
+function baseLt(t,e){return t<e}export default baseLt;

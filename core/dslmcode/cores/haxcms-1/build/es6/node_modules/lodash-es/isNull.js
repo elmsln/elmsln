@@ -1,0 +1,1 @@
+function isNull(l){return null===l}export default isNull;

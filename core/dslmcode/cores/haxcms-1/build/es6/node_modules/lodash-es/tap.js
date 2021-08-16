@@ -1,0 +1,1 @@
+function tap(t,a){return a(t),t}export default tap;

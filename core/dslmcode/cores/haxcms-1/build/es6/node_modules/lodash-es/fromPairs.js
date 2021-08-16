@@ -1,0 +1,1 @@
+function fromPairs(r){for(var a=-1,f=null==r?0:r.length,n={};++a<f;){var o=r[a];n[o[0]]=o[1]}return n}export default fromPairs;

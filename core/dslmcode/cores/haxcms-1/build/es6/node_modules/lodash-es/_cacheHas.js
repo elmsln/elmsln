@@ -1,0 +1,1 @@
+function cacheHas(a,c){return a.has(c)}export default cacheHas;

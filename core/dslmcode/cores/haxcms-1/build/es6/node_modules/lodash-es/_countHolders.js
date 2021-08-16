@@ -1,0 +1,1 @@
+function countHolders(o,r){for(var t=o.length,e=0;t--;)o[t]===r&&++e;return e}export default countHolders;

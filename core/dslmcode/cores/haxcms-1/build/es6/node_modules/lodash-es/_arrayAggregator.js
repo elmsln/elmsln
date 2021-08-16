@@ -1,0 +1,1 @@
+function arrayAggregator(r,a,g,t){for(var e=-1,n=null==r?0:r.length;++e<n;){var o=r[e];a(t,o,g(o),r)}return t}export default arrayAggregator;

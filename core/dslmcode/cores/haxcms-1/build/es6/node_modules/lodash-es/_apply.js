@@ -1,0 +1,1 @@
+function apply(l,a,e){switch(e.length){case 0:return l.call(a);case 1:return l.call(a,e[0]);case 2:return l.call(a,e[0],e[1]);case 3:return l.call(a,e[0],e[1],e[2])}return l.apply(a,e)}export default apply;

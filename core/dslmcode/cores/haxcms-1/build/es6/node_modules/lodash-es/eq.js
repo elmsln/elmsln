@@ -1,0 +1,1 @@
+function eq(e,t){return e===t||e!=e&&t!=t}export default eq;

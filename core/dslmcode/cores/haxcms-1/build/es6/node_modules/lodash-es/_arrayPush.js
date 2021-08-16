@@ -1,0 +1,1 @@
+function arrayPush(r,a){for(var t=-1,e=a.length,n=r.length;++t<e;)r[n+t]=a[t];return r}export default arrayPush;

@@ -1,0 +1,1 @@
+function baseIsNaN(a){return a!=a}export default baseIsNaN;

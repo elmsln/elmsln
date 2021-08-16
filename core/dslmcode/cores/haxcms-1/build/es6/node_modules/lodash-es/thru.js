@@ -1,0 +1,1 @@
+function thru(t,r){return r(t)}export default thru;

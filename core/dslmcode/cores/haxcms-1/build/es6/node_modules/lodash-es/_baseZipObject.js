@@ -1,0 +1,1 @@
+function baseZipObject(e,t,r){for(var a=-1,n=e.length,b=t.length,i={};++a<n;){var o=a<b?t[a]:void 0;r(i,e[a],o)}return i}export default baseZipObject;

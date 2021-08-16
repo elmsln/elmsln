@@ -1,0 +1,1 @@
+function isNil(i){return null==i}export default isNil;

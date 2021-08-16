@@ -1,0 +1,1 @@
+function basePropertyOf(r){return function(e){return null==r?void 0:r[e]}}export default basePropertyOf;

@@ -1,0 +1,1 @@
+function arraySome(r,e){for(var a=-1,n=null==r?0:r.length;++a<n;)if(e(r[a],a,r))return!0;return!1}export default arraySome;

@@ -1,0 +1,1 @@
+function stubFalse(){return!1}export default stubFalse;

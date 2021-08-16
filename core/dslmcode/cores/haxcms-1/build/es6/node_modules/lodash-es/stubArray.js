@@ -1,0 +1,1 @@
+function stubArray(){return[]}export default stubArray;

@@ -1,0 +1,1 @@
+function copyArray(r,a){var o=-1,t=r.length;for(a||(a=Array(t));++o<t;)a[o]=r[o];return a}export default copyArray;

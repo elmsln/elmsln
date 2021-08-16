@@ -1,0 +1,1 @@
+function isObjectLike(e){return null!=e&&"object"==typeof e}export default isObjectLike;

@@ -1,0 +1,1 @@
+function stubTrue(){return!0}export default stubTrue;

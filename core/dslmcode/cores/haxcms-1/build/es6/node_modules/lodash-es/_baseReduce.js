@@ -1,0 +1,1 @@
+function baseReduce(e,u,n,t,c){return c(e,(function(e,c,a){n=t?(t=!1,e):u(n,e,c,a)})),n}export default baseReduce;

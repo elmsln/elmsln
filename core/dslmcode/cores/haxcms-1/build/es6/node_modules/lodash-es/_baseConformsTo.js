@@ -1,0 +1,1 @@
+function baseConformsTo(r,n,o){var e=o.length;if(null==r)return!e;for(r=Object(r);e--;){var t=o[e],f=n[t],u=r[t];if(void 0===u&&!(t in r)||!f(u))return!1}return!0}export default baseConformsTo;

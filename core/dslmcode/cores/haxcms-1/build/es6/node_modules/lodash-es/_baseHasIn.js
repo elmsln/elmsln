@@ -1,0 +1,1 @@
+function baseHasIn(n,e){return null!=n&&e in Object(n)}export default baseHasIn;

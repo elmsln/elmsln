@@ -1,0 +1,1 @@
+function arrayEach(r,a){for(var n=-1,t=null==r?0:r.length;++n<t&&!1!==a(r[n],n,r););return r}export default arrayEach;

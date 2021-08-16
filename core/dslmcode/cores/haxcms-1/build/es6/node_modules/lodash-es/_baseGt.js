@@ -1,0 +1,1 @@
+function baseGt(t,e){return t>e}export default baseGt;

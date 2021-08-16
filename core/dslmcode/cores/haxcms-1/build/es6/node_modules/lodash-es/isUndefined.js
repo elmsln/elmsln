@@ -1,0 +1,1 @@
+function isUndefined(e){return void 0===e}export default isUndefined;

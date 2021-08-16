@@ -1,0 +1,1 @@
+function identity(t){return t}export default identity;

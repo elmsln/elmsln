@@ -1,0 +1,1 @@
+function constant(n){return function(){return n}}export default constant;

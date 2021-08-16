@@ -1,0 +1,1 @@
+function setCacheHas(a){return this.__data__.has(a)}export default setCacheHas;

@@ -1,0 +1,1 @@
+function overArg(r,e){return function(n){return r(e(n))}}export default overArg;
