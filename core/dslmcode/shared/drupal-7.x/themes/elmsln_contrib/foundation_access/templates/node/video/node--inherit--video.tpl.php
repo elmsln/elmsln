@@ -12,7 +12,7 @@
     $track = ' track="' . file_create_url(str_replace('.xml', '.vtt', $node->field_caption['und'][0]['uri'])) . '"';
   }
   // @TODO HACK UNTIL VIDEO PLAYER CAN DO THESE THINGS
-  $url = $node->field_video['und'][0]['uri'];
+  /*$url = $node->field_video['und'][0]['uri'];
   if (strpos($url, 'youtube.com') !== FALSE) {
     if (strpos($url, 'https://www.youtube.com/watch?v=') === 0) {
       print '
@@ -33,7 +33,7 @@
         >Trouble playing video? Click to open in new window</a></p>';
       }
     }
-  else {
+  else {*/
 ?>
 <video-player
  id="node-<?php print $node->nid; ?>"
@@ -46,4 +46,4 @@
  crossorigin="anonymous"
  <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>>
 </video-player>
-<?php } ?>
+<?php //} ?>

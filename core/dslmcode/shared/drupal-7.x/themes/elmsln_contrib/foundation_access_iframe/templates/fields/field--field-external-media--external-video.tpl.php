@@ -49,7 +49,7 @@ if (isset($node->field_caption['und'][0]['uri'])) {
   $track = '<track label="English" kind="subtitles" srclang="en" default src="' . file_create_url(str_replace('.xml', '.vtt', $node->field_caption['und'][0]['uri'])) . '"/>';
 }
   // @TODO HACK UNTIL VIDEO PLAYER CAN DO THESE THINGS
-  $url = $node->field_external_media['und'][0]['video_url'];
+  /*$url = $node->field_external_media['und'][0]['video_url'];
   if (strpos($url, 'youtube.com') !== FALSE) {
     if (strpos($url, 'https://www.youtube.com/watch?v=') === 0) {
       print '
@@ -70,7 +70,7 @@ if (isset($node->field_caption['und'][0]['uri'])) {
         >Trouble playing video? Click to open in new window</a></p>';
       }
     }
-  else {
+  else {*/
 ?>
 <video-player
  id="node-<?php print $node->nid; ?>"
@@ -85,4 +85,4 @@ if (isset($node->field_caption['und'][0]['uri'])) {
    <?php print $track;?>
  </video>
 </video-player>
-<?php } ?>
+<?php //} ?>
