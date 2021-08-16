@@ -148,21 +148,21 @@ function haxcms_menu() {
     'page arguments' => array(0),
     'type' => MENU_CALLBACK,
     'access callback' => 'user_access',
-    'access arguments' => array('use hax'),
+    'access arguments' => array('access content'),
   );
   // load connection settings for HAXcms to know how to talk to Drupal
   $items['lunrSearchIndex.json'] = array(
     'page callback' => '_haxcms_getLunrData',
     'type' => MENU_CALLBACK,
     'access callback' => 'user_access',
-    'access arguments' => array('use hax'),
+    'access arguments' => array('access content'),
   );
   // load connection settings for HAXcms to know how to talk to Drupal
   $items['haxcms/lunrSearchIndex.json'] = array(
     'page callback' => '_haxcms_getLunrData',
     'type' => MENU_CALLBACK,
     'access callback' => 'user_access',
-    'access arguments' => array('use hax'),
+    'access arguments' => array('access content'),
   );
   // load site.json format
   $items['haxapi/loadJOS/%node'] = array(
