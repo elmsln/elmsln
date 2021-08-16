@@ -707,6 +707,9 @@ function mooc_helper_page_build(&$page) {
       drupal_add_js('window.onpopstate = function(e){if (window.location.hash === "") { window.location.reload();}};', 'inline');
     }
   }
+  if (function_exists('_is_haxcms_context') && _is_haxcms_context()) {
+    drupal_add_js(drupal_get_path('module', 'mooc_helper') . '/js/haxcms-elms-js-bridge.js');
+  }
 }
 
 /**
