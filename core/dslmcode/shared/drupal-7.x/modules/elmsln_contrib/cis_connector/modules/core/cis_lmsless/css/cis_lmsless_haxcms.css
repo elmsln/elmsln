@@ -1456,3 +1456,8 @@ simple-modal::part(titlebar) {
 #edit-elmsln-share-section {
   width: 90%;
 }
+
+cms-token[token="fn"],
+  cms-token[token="/fn"] {
+  display: none;
+}
