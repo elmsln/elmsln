@@ -1107,6 +1107,46 @@ function haxcms_page_build(&$page) {
       ),
     );
     drupal_add_html_head($tag, 'haxcms-base-tag');
+    $base = variable_get('webcomponents_project_location');
+    if (variable_get('webcomponents_project_location') == 'sites/all/libraries/webcomponents/') {
+      $base = base_path() . variable_get('webcomponents_project_location');
+    }
+    $loader = array(
+      "preload" => array(
+        base_path() . drupal_get_path('module', 'haxcms') . '/build-haxcms.js',
+        $base . 'build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css',
+      ),
+      "modulepreload" => array(
+        $base . 'build/es6/node_modules/@lrnwebcomponents/' . variable_get("haxcms_settings_theme", "clean-one") . '/' . variable_get("haxcms_settings_theme", "clean-one") . '.js',
+      )
+    );
+    foreach ($loader as $rel => $data) {
+      foreach ($data as $key => $src) {
+        $tag = array(
+          '#tag' => 'link',
+          '#attributes' => array(
+            'rel' => $rel,
+            'href' => $src,
+          ),
+        );
+        if ($rel == "preload") {
+          $tag['#attributes']['as'] = 'script';
+        }
+        if ($rel == "modulepreload") {
+          $tag2 = array(
+            '#tag' => 'link',
+            '#attributes' => array(
+              'rel' => "preload",
+              'href' => $src,
+              'as' => "script",
+              'crossorigin' => "anonymous"
+            ),
+          );
+          drupal_add_html_head($tag2, 'haxcms-tag2-preload-' . $key);
+        }
+        drupal_add_html_head($tag, 'haxcms-tag-' . $rel . $key);
+      }
+    }
   }
 }
 
