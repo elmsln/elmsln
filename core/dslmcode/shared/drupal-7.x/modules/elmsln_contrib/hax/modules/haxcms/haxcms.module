@@ -1130,7 +1130,12 @@ function haxcms_page_build(&$page) {
           ),
         );
         if ($rel == "preload") {
-          $tag['#attributes']['as'] = 'script';
+          if ($src == $base . 'build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css') {
+            $tag['#attributes']['as'] = 'style';
+          }
+          else {
+            $tag['#attributes']['as'] = 'script';
+          }
         }
         if ($rel == "modulepreload") {
           $tag2 = array(
