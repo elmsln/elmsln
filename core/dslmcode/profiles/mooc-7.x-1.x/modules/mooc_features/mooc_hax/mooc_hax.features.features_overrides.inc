@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * mooc_hax.features.features_overrides.inc
@@ -20,7 +21,7 @@ function mooc_hax_features_override_default_overrides() {
   $overrides["filter.textbook_editor.filters|webcomponents_cmstags_jsonfix"] = array(
     'settings' => array(),
     'status' => 1,
-    'weight' => -50,
+    'weight' => -42,
   );
 
  return $overrides;
