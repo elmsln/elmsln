@@ -788,11 +788,11 @@ function _haxcms_getNodeContent($node) {
       if (!isset($body[0]['format']) || $body[0]['format'] == '') {
         $body[0]['format'] = NULL;
       }
+      drupal_alter("haxcms_node_content_response", $body);
       // special edge case of NO wrapping p tag
       if (strip_tags($body[0]['value']) == $body[0]['value']) {
         $body[0]['value'] = '<p>' . $body[0]['value'] . '</p>';
       }
-      drupal_alter("haxcms_node_content_response", $body);
       print check_markup($body[0]['value'], $body[0]['format']);
     }
   }

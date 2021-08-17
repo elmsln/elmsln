@@ -684,6 +684,11 @@ function elmsln_core_haxcms_node_content_response_alter(&$body) {
       }
     }
   }
+  // support for Michael Collins though I'm not really sure why this doesn't just work automatically
+  // MD based content isn't having it run through the filter for whatever reason
+  if (function_exists("_filter_markdown") && $body[0]['format'] == "git_book_markdown") {
+    $body[0]['value'] = _filter_markdown($body[0]['value'], $body[0]['format']);
+  }
 }
 
 /**
