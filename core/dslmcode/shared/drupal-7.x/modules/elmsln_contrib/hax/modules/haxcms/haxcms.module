@@ -789,8 +789,9 @@ function _haxcms_getNodeContent($node) {
         $body[0]['format'] = NULL;
       }
       drupal_alter("haxcms_node_content_response", $body);
-      // special edge case of NO wrapping p tag
-      if (strip_tags($body[0]['value']) == $body[0]['value']) {
+      // special edge case of NO wrapping p tag but not for common markdown formats
+      // this is known as adding "Collins" support to the code base.
+      if (strip_tags($body[0]['value']) == $body[0]['value'] && $body[0]['format'] != "markdown" && $body[0]['format'] != "git_book_markdown") {
         $body[0]['value'] = '<p>' . $body[0]['value'] . '</p>';
       }
       print check_markup($body[0]['value'], $body[0]['format']);
