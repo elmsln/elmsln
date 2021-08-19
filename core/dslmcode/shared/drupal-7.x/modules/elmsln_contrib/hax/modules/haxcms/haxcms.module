@@ -77,6 +77,10 @@ function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
       // we need to see if we missed our internal router and instead of a fake 404 we need to reload the page to trigger the
       // real drupal page load
       window.addEventListener("vaadin-router-location-changed", function(e) {
+        if (document.querySelector("#elmsln-node-edit") && e.detail.router.location.route.path.indexOf("node") != -1) {
+          console.log(e.detail.router.location.route.path + "/edit");
+          document.querySelector("#elmsln-node-edit").setAttribute("href",e.detail.router.location.route.path + "/edit");
+        }
         // wait a microtask to allow HAXcms to do its routing first regardless of time to attach
         setTimeout(function(){
         // ensure a weird possible handoff issue on backend paths does not cause an infinite loop

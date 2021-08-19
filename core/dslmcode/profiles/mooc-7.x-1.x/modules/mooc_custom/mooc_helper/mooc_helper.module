@@ -46,14 +46,22 @@ function mooc_helper_haxcms_root_node_loader_alter(&$node) {
 function mooc_helper_haxcms_slots($node) {
   $ary = array(
     array(
+      'path' => 'node/' . $node->nid . '/edit',
+      'title' => t('Edit page details'),
+      'icon' => 'hax:page-details',
+      'id' => 'elmsln-node-edit',
+    ),
+    array(
       'path' => 'admin/content/book/' . $node->nid,
       'title' => t('Outline designer'),
       'icon' => 'hax:site-map',
+      'id' => 'elmsln-outline-designer',
     ),
     array(
       'path' => 'admin/config/content/haxcms',
       'title' => t('Theme settings'),
       'icon' => 'hax:site-settings',
+      'id' => 'elmsln-haxcms-settings',
     )
   );
   // slight hack but allows mooc to have a bit of a compatibility mode with haxcms
@@ -91,7 +99,7 @@ function mooc_helper_haxcms_slots($node) {
   </style>';
   foreach ($ary as $item) {
     $slots .= '
-    <a href="' . base_path() . $item['path'] . '" class="injected-haxcms-btn">
+    <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" class="injected-haxcms-btn">
       <simple-icon-button
       tabindex="-1"
         constrast="4"
