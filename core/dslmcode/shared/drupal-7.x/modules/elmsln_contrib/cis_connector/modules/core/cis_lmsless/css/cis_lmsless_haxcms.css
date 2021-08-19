@@ -1494,3 +1494,19 @@ cms-token[token="fn"],
     margin-right: 0;
     float: right;
     margin-top: .5em; } }
+
+table {
+  font-size: 16px;
+}
+table td p {
+  font-size: 16px;
+}
+table th {
+  border-bottom: 3px solid #ccc;
+  text-align: left;
+}
+table th,
+table td {
+  padding: 8px;
+  font-size: 16px;
+}
