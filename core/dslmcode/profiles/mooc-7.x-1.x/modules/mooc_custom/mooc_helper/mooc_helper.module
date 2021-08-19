@@ -73,13 +73,15 @@ function mooc_helper_haxcms_slots($node) {
     padding: 8px;
     margin: 2px 4px;
     box-shadow: 0 5px 5px rgb(0 0 0 / 70%);
-    height: 40px;
-    width: 40px;
+    height: 24px;
+    width: 24px;
   }
   .injected-haxcms-btn simple-icon-button
   {
-  --simple-icon-height: 24px;
-  --simple-icon-width: 24px;
+    --simple-icon-height: 24px;
+    --simple-icon-width: 24px;
+    height: 24px;
+    width: 24px;
   }
   .injected-haxcms-btn:hover,
   .injected-haxcms-btn:focus,
