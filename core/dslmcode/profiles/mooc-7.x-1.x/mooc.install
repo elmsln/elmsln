@@ -21,6 +21,7 @@ function mooc_install() {
   // we now use HAXcms as the default new render engine
   variable_set('site_frontpage', 'haxcms');
   variable_set('mooc_app_element', 'haxcms');
+  variable_set('node_admin_theme', TRUE);
   // make sure OG doesn't interfere with permissions
   variable_set('og_node_access_strict', FALSE);
   // drop the "book" content type as its confusing
