@@ -70,6 +70,7 @@ if (function_exists('variable_get')) {
     #loading img {
       transition: .4s all ease-in-out;
       width: 300px;
+      object-fit: cover;
       height: 300px;
       margin-bottom: 50px;
       border-radius: 50%;
