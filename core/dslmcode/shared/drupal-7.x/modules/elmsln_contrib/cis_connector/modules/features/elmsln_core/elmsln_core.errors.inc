@@ -30,6 +30,6 @@ function _elmsln_core_error_page($code) {
     break;
   }
   $output .= '<br/>✻ ✻ ✻</div></div>';
-  drupal_alter("elmsln_access_denied_output", $output);
+  drupal_alter("elmsln_access_denied_output", $output, $code);
   return $output;
 }
