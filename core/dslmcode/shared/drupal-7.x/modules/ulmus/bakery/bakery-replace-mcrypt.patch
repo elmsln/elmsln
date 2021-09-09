@@ -1,0 +1,107 @@
+diff --git a/core/dslmcode/shared/drupal-7.x/modules/ulmus/bakery/bakery.module b/core/dslmcode/shared/drupal-7.x/modules/ulmus/bakery/bakery.module
+index 8f3306475b..d673c6efc6 100644
+--- a/core/dslmcode/shared/drupal-7.x/modules/ulmus/bakery/bakery.module
++++ b/core/dslmcode/shared/drupal-7.x/modules/ulmus/bakery/bakery.module
+@@ -1668,21 +1668,14 @@ function _bakery_init_field_url($init) {
+  *   Encryped text.
+  */
+ function bakery_encrypt($text) {
+-  $key = variable_get('bakery_key', '');
+-
+-  $td = mcrypt_module_open('rijndael-128', '', 'ecb', '');
+-  $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
+-
+-  $key = substr($key, 0, mcrypt_enc_get_key_size($td));
+-
+-  mcrypt_generic_init($td, $key, $iv);
+-
+-  $data = mcrypt_generic($td, $text);
+-
+-  mcrypt_generic_deinit($td);
+-  mcrypt_module_close($td);
+-
+-  return $data;
++  // Nullpad data to even (128-bit) block size.
++  if ($remainder = strlen($text) % 16) {
++    $padding = 16 - $remainder;
++    $text .= str_repeat("\0",  $padding);
++  }
++  $key = bakery_get_private_key();
++  $cipher = bakery_get_cipher_string(strlen($key));
++  return openssl_encrypt($text, $cipher, $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
+ }
+ 
+ /**
+@@ -1695,21 +1688,60 @@ function bakery_encrypt($text) {
+  *   Decrypted text.
+  */
+ function bakery_decrypt($text) {
+-  $key = variable_get('bakery_key', '');
+-
+-  $td = mcrypt_module_open('rijndael-128', '', 'ecb', '');
+-  $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
+-
+-  $key = substr($key, 0, mcrypt_enc_get_key_size($td));
+-
+-  mcrypt_generic_init($td, $key, $iv);
++  $key = bakery_get_private_key();
++  $cipher = bakery_get_cipher_string(strlen($key));
++  return openssl_decrypt($text, $cipher, $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
++}
+ 
+-  $data = mdecrypt_generic($td, $text);
++/**
++ * Get private key.
++ *
++ * @return string
++ *   Private key for cookie validation, nullpadded to a size
++ *   supported by AES.
++ */
++function bakery_get_private_key() {
++  $key = variable_get('bakery_key', '');
++  $key_length = strlen($key);
+ 
+-  mcrypt_generic_deinit($td);
+-  mcrypt_module_close($td);
++  // Mimic mpcrypt behavior by nullpadding keys of incompatible size.
++  if (!in_array($key_length, array(16, 24, 32))) {
++    if ($key_length < 16) {
++      $key .= str_repeat("\0",  16 - $key_length);
++    }
++    else if ($key_length < 24) {
++      $key .= str_repeat("\0",  24 - $key_length);
++    }
++    else if ($key_length < 32) {
++      $key .= str_repeat("\0",  32 - $key_length);
++    }
++    else {
++      $key = substr($key, 0, 32);
++    }
++  }
++  return $key;
++}
+ 
+-  return $data;
++/**
++ * Load correct cipher depending on key length.
++ *
++ * @param integer $key_length
++ *   Length of key in bytes.
++ *
++ * @return string
++ *   OpenSSL cipher string.
++ */
++function bakery_get_cipher_string($key_length) {
++  switch ($key_length) {
++    case 16:
++      return 'aes-128-ecb';
++    case 24:
++      return 'aes-192-ecb';
++    case 32:
++      return 'aes-256-ecb';
++    default:
++      return FALSE;
++  }
+ }
+ 
+ /**
