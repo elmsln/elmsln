@@ -1,0 +1,22 @@
+diff --git a/restws_basic_auth/restws_basic_auth.module b/restws_basic_auth/restws_basic_auth.module
+index dfb0cdd..35de6c2 100644
+--- a/restws_basic_auth/restws_basic_auth.module
++++ b/restws_basic_auth/restws_basic_auth.module
+@@ -13,11 +13,15 @@
+ function restws_basic_auth_init() {
+   // Try to fill PHP_AUTH_USER & PHP_AUTH_PW with REDIRECT_HTTP_AUTHORIZATION
+   // for compatibility with Apache PHP CGI/FastCGI.
++  // This will first check to see if REDIRECT_HTTP_AUTHORIZATION contains the
++  // string "Basic", to avoid conflicts with other authorization methods.
+   // This requires the following line in your ".htaccess"-File:
+   // RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+   if (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) && !isset($_SERVER['PHP_AUTH_USER']) && !isset($_SERVER['PHP_AUTH_PW'])) {
+-    $authentication = base64_decode(substr($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], 6));
+-    list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', $authentication);
++    $matches = array();
++    if (preg_match('/^Basic\s+(.*)$/i', $_SERVER['REDIRECT_HTTP_AUTHORIZATION'], $matches)) {
++      list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode($matches[1]));
++    }
+   }
+   if (user_is_anonymous() && isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+     // Login only user names that match a pattern.

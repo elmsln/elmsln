@@ -79,7 +79,7 @@
  *
  * @ingroup themeable
  */
-  $logo = image_style_url('thumbnail', theme_get_setting('logo_path'));
+  $logo = _haxcms_get_logo('thumbnail');
   $baseURI = base_path();
   $siteAttributes = array();
   // write content to screen, wrapped in tag to do all the work
@@ -95,7 +95,7 @@
   if (isset($node->body)) {
     $contents = check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']);
   }
-  $slots = _haxcms_get_slots();
+  $slots = _haxcms_get_slots($node);
 ?>
 <div id="loading">
   <div class="messaging">

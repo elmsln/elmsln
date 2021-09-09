@@ -1,5 +1,6 @@
 const HAXCMS = require('../lib/HAXCMS.js');
-const HAXService = require('../lib/HAXService.js');
+const HAXAppStoreService = require('../lib/HAXAppStoreService.js');
+const AppStoreService = new HAXAppStoreService();
 /**
  * @OA\Get(
  *    path="/generateAppStore",
@@ -25,7 +26,7 @@ function generateAppStore(req, res) {
     HAXCMS.validateRequestToken(req.query['app-store-token'], 'appstore', req.query)
   ) {
     let apikeys = {};
-    let baseApps = HAXService.baseSupportedApps();
+    let baseApps = AppStoreService.baseSupportedApps();
     for (var key in baseApps) {
       if (
         HAXCMS.config.appStore.apiKeys[key] &&
@@ -34,7 +35,7 @@ function generateAppStore(req, res) {
         apikeys[key] = HAXCMS.config.appStore.apiKeys[key];
       }
     }
-    let appStore = HAXService.loadBaseAppStore(apikeys);
+    let appStore = AppStoreService.loadBaseAppStore(apikeys);
     // pull in the core one we supply, though only upload works currently
     tmp = HAXCMS.siteConnectionJSON();
     appStore.push(tmp);
@@ -42,12 +43,12 @@ function generateAppStore(req, res) {
     if (HAXCMS.config.appStore && HAXCMS.config.appStore.stax) {
         staxList = HAXCMS.config.appStore.stax;
     } else {
-        staxList = HAXService.loadBaseStax();
+        staxList = AppStoreService.loadBaseStax();
     }
     if (HAXCMS.config.appStore && HAXCMS.config.appStore.blox) {
         bloxList = HAXCMS.config.appStore.blox;
     } else {
-        bloxList = HAXService.loadBaseBlox();
+        bloxList = AppStoreService.loadBaseBlox();
     }
     if (HAXCMS.config.appStore && HAXCMS.config.appStore.autoloader) {
         autoloaderList = HAXCMS.config.appStore.autoloader;
@@ -58,7 +59,6 @@ function generateAppStore(req, res) {
         "meme-maker",
         "lrn-aside",
         "grid-plate",
-        "tab-list",
         "magazine-cover",
         "image-compare-slider",
         "license-element",
@@ -71,7 +71,6 @@ function generateAppStore(req, res) {
         "media-image",
         "lrndesign-blockquote",
         "a11y-gif-player",
-        "paper-audio-player",
         "wikipedia-query",
         "lrn-vocab",
         "full-width-image",

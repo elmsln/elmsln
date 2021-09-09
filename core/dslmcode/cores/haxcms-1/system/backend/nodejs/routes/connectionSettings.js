@@ -12,9 +12,9 @@ const HAXCMS = require('../lib/HAXCMS.js');
  *   )
  * )
  */
-function connectionSettings(req, res) {
+async function connectionSettings(req, res) {
   res.setHeader('Content-Type', 'application/javascript');
-  const themes = JSON.parse(fs.readFileSync(path.join(HAXCMS.coreConfigPath, "themes.json"), 'utf8'));
+  const themes = JSON.parse(await fs.readFileSync(path.join(HAXCMS.coreConfigPath, "themes.json"), 'utf8'));
   const baseAPIPath = HAXCMS.basePath + HAXCMS.apiBase;
   const returnData = JSON.stringify({
     getFormToken: HAXCMS.getRequestToken('form'),
@@ -22,6 +22,7 @@ function connectionSettings(req, res) {
       url: `${baseAPIPath}generateAppStore?app-store-token=${HAXCMS.getRequestToken('appstore')}`
     },
     themes: themes,
+    connectionSettings: `${baseAPIPath}connectionSettings`,
     login: `${baseAPIPath}login`,
     refreshUrl: `${baseAPIPath}refreshAccessToken`,
     logout: `${baseAPIPath}logout`,

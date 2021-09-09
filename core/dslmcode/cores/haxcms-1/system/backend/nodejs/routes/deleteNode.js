@@ -17,16 +17,16 @@ const HAXCMS = require('../lib/HAXCMS.js');
    *   )
    * )
    */
-  function deleteNode(req, res) {
-    let site = HAXCMS.loadSite(req.body['site']['name']);
+  async function deleteNode(req, res) {
+    let site = await HAXCMS.loadSite(req.body['site']['name']);
     // update the page's content, using manifest to find it
     // this ensures that writing is always to what the file system
     // determines to be the correct page
     if (page = site.loadNode(req.body['node']['id'])) {
-        if (site.deleteNode(page) === false) {
+        if (await site.deleteNode(page) === false) {
           res.send(500);
         } else {
-          site.gitCommit(
+          await site.gitCommit(
             'Page deleted: ' + page.title + ' (' + page.id + ')'
           );
           res.send(page);

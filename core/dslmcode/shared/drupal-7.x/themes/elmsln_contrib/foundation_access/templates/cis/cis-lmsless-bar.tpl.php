@@ -122,8 +122,10 @@
       <lrnsys-button id="lmsless-<?php print $service['machine_name'];?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="<?php print $activetool . $service['icon']; ?>-icon" button-class="black-text <?php print $activetool . $service['icon']; ?>-icon" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" hover-class="<?php print $hover;?>">
         <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <i class="material-icons"><?php print $service['icon']; ?></i>
+        <?php elseif ($service['machine_name'] == $network['active']['machine_name']): ?>
+          <simple-icon-lite icon="lrn:<?php print $service['icon'];?>" class="elmsln-hover-icon activetool"></simple-icon-lite>
         <?php else: ?>
-          <lrn-icon icon="<?php print $service['icon'];?>" class="elmsln-hover-icon"></lrn-icon>
+          <simple-icon-lite icon="lrn:<?php print $service['icon'];?>" class="elmsln-hover-icon"></simple-icon-lite>
         <?php endif; ?>
         <?php print $label; ?>
       </lrnsys-button>

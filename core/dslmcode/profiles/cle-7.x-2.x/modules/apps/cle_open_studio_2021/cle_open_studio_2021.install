@@ -1,0 +1,10 @@
+<?php
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
+function cle_open_studio_2021_install() {
+    // default to this app as it's the 2021 version
+    variable_set('site_frontpage', 'apps/elmsln-studio');
+}

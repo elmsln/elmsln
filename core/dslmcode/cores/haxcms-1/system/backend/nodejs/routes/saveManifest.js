@@ -20,7 +20,7 @@ const fs = require('fs-extra');
    */
   async function saveManifest(req, res) {
     // load the site from name
-    let site = HAXCMS.loadSite(req.body['site']['name']);
+    let site = await HAXCMS.loadSite(req.body['site']['name']);
     // standard form submit
     // @todo 
     // make the form point to a form submission endpoint with appropriate name
@@ -81,7 +81,7 @@ const fs = require('fs-extra');
           // support updating the domain CNAME value
           if (site.manifest.metadata.site.domain != domain) {
               site.manifest.metadata.site.domain = domain;
-              fs.writeFile(
+              fs.writeFileSync(
                   site.directory +
                       '/' +
                       site.manifest.site.name +
@@ -90,7 +90,7 @@ const fs = require('fs-extra');
               );
           }
       }
-      let hThemes = HAXCMS.getThemes();
+      let hThemes = await HAXCMS.getThemes();
       // look for a match so we can set the correct data
       for (var key in hThemes) {
         let theme = hThemes[key];
@@ -202,11 +202,11 @@ const fs = require('fs-extra');
       );
       site.manifest.metadata.site.updated = Date.now();
       // don't reorganize the structure
-      site.manifest.save(false);
-      site.gitCommit('Manifest updated');
+      await site.manifest.save(false);
+      await site.gitCommit('Manifest updated');
       // rebuild the files that twig processes
-      site.rebuildManagedFiles();
-      site.gitCommit('Managed files updated');
+      await site.rebuildManagedFiles();
+      await site.gitCommit('Managed files updated');
       // check git remote if it came across as a possible setting
       if ((req.body['manifest']['git']['manifest-metadata-site-git-url'])) {
         if (
@@ -227,10 +227,10 @@ const fs = require('fs-extra');
           req.body['manifest']['git']['manifest-metadata-site-git-url'],
           FILTER_SANITIZE_STRING
         );
-        site.manifest.save(false);
-        site.gitCommit('origin updated');
+        await site.manifest.save(false);
+        await site.gitCommit('origin updated');
       }
-      return site.manifest;
+      res.send(site.manifest);
     }
     else {
         res.send(403);

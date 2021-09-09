@@ -3649,7 +3649,6 @@ article ul.collection {
   padding: 0 !important;
   height: 3em;
   display: flex;
-  overflow-y: scroll;
 }
 .elmsln-more-items {
   list-style: none;
@@ -7425,7 +7424,7 @@ a.add-menu-drop {
   border-bottom: 2px solid #484848 !important;
   border-top: 2px solid #484848 !important;
   margin: 0 !important;
-  z-index: 2;
+  z-index: 1;
   position: relative;
   padding: 0 1em;
 }

@@ -6,7 +6,7 @@ version = VERSION
 core = 7.x
 files[] = tracker.test
 
-; Information added by Drupal.org packaging script on 2020-12-03
-version = "7.77"
+; Information added by Drupal.org packaging script on 2021-07-21
+version = "7.82"
 project = "drupal"
-datestamp = "1607003447"
+datestamp = "1626883669"

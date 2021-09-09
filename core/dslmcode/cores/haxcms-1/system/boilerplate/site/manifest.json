@@ -37,7 +37,8 @@
             "src": "{{ logo192x192 }}",
             "sizes": "192x192",
             "type": "image\/png",
-            "density": "4.0"
+            "density": "4.0",
+            "purpose": "any maskable"
         },
         {
             "src": "{{ logo512x512 }}",

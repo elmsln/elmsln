@@ -18,8 +18,8 @@ const filter_var = require('../lib/filter_var.js');
    *   )
    * )
    */
-  function saveNode(req, res) {
-    let site = HAXCMS.loadSite(req.body['site']['name']);
+  async function saveNode(req, res) {
+    let site = await HAXCMS.loadSite(req.body['site']['name']);
     let schema = [];
     if ((req.body['node']['body'])) {
       var body = req.body['node']['body'];
@@ -30,7 +30,7 @@ const filter_var = require('../lib/filter_var.js');
     }
     if ((req.body['node']['details'])) {
       var details = req.body['node']['details'];
-    }
+    }    
     // update the page's content, using manifest to find it
     // this ensures that writing is always to what the file system
     // determines to be the correct page
@@ -38,7 +38,7 @@ const filter_var = require('../lib/filter_var.js');
     if (page) {
       // convert web location for loading into file location for writing
       if ((body)) {
-        let bytes = page.writeLocation(
+        let writeSuccessful = await page.writeLocation(
           body,
           HAXCMS.HAXCMS_ROOT +
           '/' +
@@ -47,8 +47,8 @@ const filter_var = require('../lib/filter_var.js');
           site.name +
           '/'
         );
-        if (bytes === false) {
-            req.send(500);
+        if (writeSuccessful === false) {
+          res.send(500);
         } else {
             // sanity check
             if (!(page.metadata)) {
@@ -123,11 +123,11 @@ const filter_var = require('../lib/filter_var.js');
               }
             }
             page.metadata.contentDetails = contentDetails;
-            site.updateNode(page);
-            site.gitCommit(
+            await site.updateNode(page);
+            await site.gitCommit(
               'Page updated: ' + page.title + ' (' + page.id + ')'
             );
-            return bytes;
+            res.send(page);
         }
       } else if ((details)) {
         // update the updated timestamp
@@ -142,7 +142,7 @@ const filter_var = require('../lib/filter_var.js');
                     value = filter_var(value, FILTER_SANITIZE_STRING);
                     let cleanTitle = HAXCMS.cleanTitle(value);
                     if ((site.manifest.metadata.site.settings.pathauto) && site.manifest.metadata.site.settings.pathauto) {
-                        let newPath = 'pages/' + site.getUniqueLocationName(HAXCMS.cleanTitle(filter_var(details['title'], FILTER_SANITIZE_STRING)), page) + '/index.html';
+                        let newPath = 'pages/' + site.getUniqueSlugName(HAXCMS.cleanTitle(filter_var(details['title'], FILTER_SANITIZE_STRING)), page) + '/index.html';
                         site.renamePageLocation(
                             page.location,
                             newPath
@@ -157,7 +157,7 @@ const filter_var = require('../lib/filter_var.js');
                         ).replace('/index.html', '')
                         
                     ) {
-                        tmpTitle = site.getUniqueLocationName(
+                        tmpTitle = site.getUniqueSlugName(
                             cleanTitle, page
                         );
                         location = 'pages/' + tmpTitle + '/index.html';
@@ -241,8 +241,8 @@ const filter_var = require('../lib/filter_var.js');
                     break;
             }
         }
-        site.updateNode(page);
-        site.gitCommit(
+        await site.updateNode(page);
+        await site.gitCommit(
             'Page details updated: ' + page.title + ' (' + page.id + ')'
         );
         res.send(page);

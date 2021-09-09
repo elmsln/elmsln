@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * cle_cis_ux.strongarm.inc
@@ -9,6 +10,13 @@
  */
 function cle_cis_ux_strongarm() {
   $export = array();
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'imageinfo_cache_disable_on_demand_generation';
+  $strongarm->value = 0;
+  $export['imageinfo_cache_disable_on_demand_generation'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -43,6 +51,13 @@ function cle_cis_ux_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'imageinfo_cache_getimagesize';
+  $strongarm->value = 0;
+  $export['imageinfo_cache_getimagesize'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'imageinfo_cache_strip_image_token';
   $strongarm->value = 1;
   $export['imageinfo_cache_strip_image_token'] = $strongarm;
@@ -51,7 +66,7 @@ function cle_cis_ux_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'imageinfo_cache_use_httprl';
-  $strongarm->value = 1;
+  $strongarm->value = 0;
   $export['imageinfo_cache_use_httprl'] = $strongarm;
 
   return $export;

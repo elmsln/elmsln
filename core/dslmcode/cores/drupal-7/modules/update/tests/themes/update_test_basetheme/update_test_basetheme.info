@@ -3,7 +3,7 @@ description = Test theme which acts as a base theme for other test subthemes.
 core = 7.x
 hidden = TRUE
 
-; Information added by Drupal.org packaging script on 2020-12-03
-version = "7.77"
+; Information added by Drupal.org packaging script on 2021-07-21
+version = "7.82"
 project = "drupal"
-datestamp = "1607003447"
+datestamp = "1626883669"

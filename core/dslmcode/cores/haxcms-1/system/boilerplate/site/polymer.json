@@ -20,7 +20,6 @@
     "node_modules/@lrnwebcomponents/a11y-media-player/lib/screenfull/dist/screenfull.js",
     "node_modules/@lrnwebcomponents/img-pan-zoom/lib/openseadragon/build/openseadragon/openseadragon.js",
     "node_modules/@lrnwebcomponents/elmsln-apps/lib/*/*.js",
-    "node_modules/@lrnwebcomponents/wave-player/lib/wavesurfer.js/dist/wavesurfer.js",
     "node_modules/@webcomponents/webcomponentsjs/*.js",
     "node_modules/@webcomponents/webcomponentsjs/bundles/*.js",
     "node_modules/monaco-editor/min/**",
@@ -44,24 +43,6 @@
       ],
       "js": {
         "minify": false
-      },
-      "css": {
-        "minify": true
-      },
-      "html": {
-        "minify": true
-      },
-      "bundle": false
-    },
-    {
-      "name": "es6-amd",
-      "browserCapabilities": [
-        "es2015",
-        "modules"
-      ],
-      "js": {
-        "minify": false,
-        "transformModulesToAmd": true
       },
       "css": {
         "minify": true

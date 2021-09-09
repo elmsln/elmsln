@@ -47,13 +47,13 @@ function webcomponents_cmstags_menu() {
  * Access callback to verify that user can access the end point data
  */
 function _webcomponents_cmstags_access($type, $security_token) {
+  if ($type == 'token') {
+    return user_access('access content');
+  }
   // validate each security_token based on the type requested
   if (drupal_valid_token($security_token, 'webcomponents_cmstags_' . $type)) {
     $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
     switch ($type) {
-      case 'token':
-        return user_access('access content');
-      break;
       case 'block':
         // no real block access check to perform
         return user_access('access content');
@@ -132,6 +132,10 @@ function _webcomponents_cmstags_token_render($format) {
   );
   $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
   $token = $params['token'];
+  // force iframe render mode if nothing is suggested
+  if (strpos($token,'render=') === FALSE && strpos($token, 'ciscode') !== FALSE) {
+    $token = str_replace(']','|render=iframe]',$token);
+  }
   // set global to skip our drupal token processor!
   $GLOBALS['skip_drupal_token'] = TRUE;
   // see if we can generate a url from a simple token parse

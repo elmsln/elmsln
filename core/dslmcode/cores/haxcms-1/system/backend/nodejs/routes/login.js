@@ -9,7 +9,7 @@ function loginRoute(req, res)  {
     // _ paranoia ripping up my brain
     // test if this is a valid user login
     if (!HAXCMS.testLogin(u, p, true)) {
-      res.send(403);
+      res.sendStatus(403);
     }
     else {
         // set a refresh_token COOKIE that will ship w/ all calls automatically
@@ -25,11 +25,11 @@ function loginRoute(req, res)  {
   }
   // login end point requested yet a jwt already exists
   // this is something of a revalidate case
-  else if (req.body.jwt || res.query.jwt) {
-    res.send('"' + HAXCMS.validateJWT(req) + '"');
+  else if ((req.body && req.body != {} && req.body['jwt'] && req.body['jwt'] != null) || (res.query && res.query != {} && res.query['jwt'] && res.query['jwt'] != null)) {
+    res.send('"' + HAXCMS.validateJWT(req, res) + '"');
   }
   else {
-    res.send(403);
+    res.sendStatus(403);
   }
 }
 

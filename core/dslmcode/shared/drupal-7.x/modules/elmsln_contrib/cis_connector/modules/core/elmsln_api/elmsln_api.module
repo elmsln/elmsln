@@ -1327,7 +1327,19 @@ function _elmsln_api_request($request, $nonblocking = FALSE, $recursion = FALSE)
       dpm($address);
       dpm($options);
     }
-    if ($nonblocking) {
+    // @note the upgrade to PHP 7.4+ In early July found that all non-blocking calls
+    // never go through successfully. As a result, the following line was added
+    // to force all calls to use CURL calls when possible as they have the greatest
+    // level of compatibility in testing
+    $tmp = _cis_connector_make_request($address . 'elmsln.php', $options);
+    // allow other projects to react to this if we have
+    // a high enough bootstrap; nice thing is this will
+    // just do nothing if we don't
+    drupal_alter('elmsln_api_postrequest', $tmp);
+    if (isset($tmp->data)) {
+      return $tmp->data;
+    }
+    /*if ($nonblocking) {
       $options['blocking'] = FALSE;
       drupal_load('module', 'httprl');
       httprl_request($address . 'elmsln.php', $options);
@@ -1345,7 +1357,7 @@ function _elmsln_api_request($request, $nonblocking = FALSE, $recursion = FALSE)
       if (isset($tmp->data)) {
         return $tmp->data;
       }
-    }
+    }*/
   }
   return FALSE;
 }
@@ -1371,7 +1383,7 @@ function _elmsln_api_requests($requests, $nonblocking = FALSE, $recursion = FALS
 function _elmsln_api_nonblocking_requests($requests, $recursion = FALSE) {
   global $_elmsln_api_processing;
   if ($_elmsln_api_processing && !$recursion) {
-    return FALSE;
+   // return FALSE;
   }
   // loop through and queue the requests
   foreach ($requests as $request) {
@@ -1661,6 +1673,8 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
   if ($nonblocking && variable_get('cis_devel_nonblock', FALSE)) {
     $nonblocking = FALSE;
   }
+  // @note we no longer want nonblocking to exist
+  $nonblocking = FALSE;
   if ($nonblocking) {
     drupal_load('module', 'httprl');
   }
@@ -1738,8 +1752,7 @@ function _elmsln_api_network_request($requests, $api = '1', $nonblocking = FALSE
           //watchdog('course', $request['data']['__course_context']);
           //watchdog('whereitgoes', $bucket);
           //watchdog('allplacestogo', serialize($nonblock));
-          httprl_request($addresses[$bucket], $options);
-          $tmp = httprl_send_request();
+          $returned_data[] = _cis_connector_make_request($addresses[$bucket], $options);
         }
       }
     }
@@ -1833,8 +1846,7 @@ function _elmsln_api_authority_request($requests, $nonblocking = FALSE, $ignored
             'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
             'blocking' => FALSE,
           );
-          httprl_request($addresses[$bucket], $options);
-          $tmp = httprl_send_request();
+          $returned_data[] = _cis_connector_make_request($addresses[$bucket], $options);
         }
       }
     }

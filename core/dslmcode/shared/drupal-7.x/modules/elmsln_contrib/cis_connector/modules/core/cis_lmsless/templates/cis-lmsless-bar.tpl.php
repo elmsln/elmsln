@@ -19,7 +19,7 @@
   }
 ?>
 <div class="cis-lmsless-container cis-lmsless-bar <?php print $classes; ?>" <?php print $attributes; ?>>
-  <div class="cis-lmsless-item cis-lmsless-home"><?php print l('HOME', $front_page); ?></div>
+  <div class="cis-lmsless-item cis-lmsless-home"><?php print l('HOME', '<front>'); ?></div>
   <div class="cis-lmsless-item cis-lmsless-site-name"><?php print $site_name; ?></div>
   <div class="cis-lmsless-item cis-lmsless-active-section"> <?php print $section; ?></div>
   <select class="cis-lmsless-item cis-lmsless-bar-services">

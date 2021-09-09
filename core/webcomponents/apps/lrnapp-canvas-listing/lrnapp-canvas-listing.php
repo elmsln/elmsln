@@ -19,20 +19,22 @@ function _elmsln_canvas_course_list($machine_name, $app_route, $params, $args) {
     $response = $canvas->getCourse(NULL);
     // look for match in elmsln
     $courses = array();
-    foreach ($response as $data) {
-      $course_machine_name = _cis_helper_load_machine_name_by_access_string($data['sis_course_id']);
-      $course = array(
-        'name' => $data['name'],
-        'student_count' => $data['total_students'],
-        'image' => $data['image_download_url'],
-        'sis_course_id' => $data['sis_course_id'],
-        'workflow_state' => $data['workflow_state'],
-        'term' => $data['term']['name'],
-        'start' => $data['start_at'],
-        'end' => $data['end_at'],
-        'elmslnCourse' => $course_machine_name,
-      );
-      $courses[$data['sis_course_id']] = $course;
+    if (is_array($response)) {
+      foreach ($response as $data) {
+        $course_machine_name = _cis_helper_load_machine_name_by_access_string($data['sis_course_id']);
+        $course = array(
+          'name' => $data['name'],
+          'student_count' => $data['total_students'],
+          'image' => $data['image_download_url'],
+          'sis_course_id' => $data['sis_course_id'],
+          'workflow_state' => $data['workflow_state'],
+          'term' => $data['term']['name'],
+          'start' => $data['start_at'],
+          'end' => $data['end_at'],
+          'elmslnCourse' => $course_machine_name,
+        );
+        $courses[$data['sis_course_id']] = $course;
+      }
     }
     $nodes = _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'title');
     $elmslnCourses = array(

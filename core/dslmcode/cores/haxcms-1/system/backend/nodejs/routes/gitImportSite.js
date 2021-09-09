@@ -37,7 +37,7 @@ const filter_var = require('../lib/filter_var.js');
    *   )
    * )
    */
-  function gitImportSite(req, res) {
+  async function gitImportSite(req, res) {
     if (HAXCMS.validateRequestToken()) {
       if ((req.body['site']['git']['url'])) {
         repoUrl = req.body['site']['git']['url'];
@@ -55,20 +55,20 @@ const filter_var = require('../lib/filter_var.js');
           repo.set_remote("origin", repoUrl);
           repo.pull('origin', 'master');
           // load the site that we SHOULD have just pulled in
-          if (site = HAXCMS.loadSite(repo_path)) {
-            req.send({
+          if (site = await HAXCMS.loadSite(repo_path)) {
+            res.send({
               'manifest': site.manifest
             });
           }
           else {
-            req.send(500);
+            res.send(500);
           }
         }
       }
-      req.send(500);
+      res.send(500);
     }
     else {
-      req.send(403);
+      res.send(403);
     }
   }
   module.exports = gitImportSite;

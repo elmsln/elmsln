@@ -19,7 +19,9 @@ async function listSites (req, res) {
       author: 'me',
       description: 'All of my micro sites I know and love',
       license: 'by-sa',
-      metadata: {},
+      metadata: {
+        pageCount: 0
+      },
       items: []
     };
     // Loop through all the files in the temp directory
@@ -29,14 +31,16 @@ async function listSites (req, res) {
       const stat = fs.statSync(HAXCMS.HAXCMS_ROOT + 'sites/' + item)
       if (stat.isDirectory() && item != '.git') {
         try {
-          let site = JSON.parse(await fs.readFileSync(path.join(HAXCMS.HAXCMS_ROOT, `${HAXCMS.sitesDirectory}/${item}/site.json`), 'utf8'));
+          let site = JSON.parse(await fs.readFileSync(path.join(HAXCMS.HAXCMS_ROOT, `${HAXCMS.sitesDirectory}/${item}/site.json`),'utf8'));
           site.location = `${HAXCMS.basePath}${HAXCMS.sitesDirectory}/${item}/`;
+          site.slug = `${HAXCMS.basePath}${HAXCMS.sitesDirectory}/${item}/`;
           site.metadata.pageCount = site.items.length;
           delete site.items;
           returnData.items.push(site);  
         }
         catch(err) {
-          console.error(err)
+          // something without a site.json
+          //console.error(err);
         }
       }
     }

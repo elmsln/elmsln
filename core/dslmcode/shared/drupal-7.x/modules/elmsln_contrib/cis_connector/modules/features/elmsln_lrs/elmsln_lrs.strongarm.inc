@@ -30,7 +30,7 @@ function elmsln_lrs_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'tincanapi_function';
-  $strongarm->value = 'elmsln_core_tincanapi_send';
+  $strongarm->value = 'tincanapi_send';
   $export['tincanapi_function'] = $strongarm;
 
   $strongarm = new stdClass();

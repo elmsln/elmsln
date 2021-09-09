@@ -808,7 +808,7 @@ function foundation_access_preprocess_node__inherit__external_video(&$variables)
       else {
         $duration = $minute_format;
       }
-      $variables['duration'] = '<i class="material-icons text-black">access_time</i><em>' . $duration . '</em>';
+      $variables['duration'] = '<simple-icon-lite icon="device:access-time"></simple-icon-lite><em>' . $duration . '</em>';
     }
   }
 }

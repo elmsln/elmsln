@@ -1,48 +1,71 @@
 {
-  "configure": [
+  "fields": [
     {
-      "property": "title",
-      "description": "Title of the page",
-      "inputMethod": "textfield",
-      "required": true,
-      "icon": "editor:title"
-    },
-    {
-      "property": "published",
-      "title": "Published",
-      "description": "Uncheck box to hide content",
-      "inputMethod": "boolean"
-    },
-    {
-      "property": "location",
-      "description": "Location used in the URL",
-      "inputMethod": "textfield",
-      "required": true,
-      "icon": "device:gps-fixed"
-    },
-    {
-      "property": "description",
-      "description": "Description for the post",
-      "inputMethod": "textfield",
-      "required": false,
-      "icon": "editor:short-text"
-    }
-  ],
-  "advanced": [
-    {
-      "property": "created",
-      "description": "Created timestamp",
-      "inputMethod": "textfield",
-      "required": true,
-      "icon": "device:access-time"
-    },
-    {
-      "property": "theme",
-      "description": "Page theme",
-      "inputMethod": "select",
-      "required": false,
-      "icon": "editor:format-paint",
-      "options": {}
+    "property": "node",
+    "inputMethod": "tabs",
+    "properties": [
+      {
+        "property": "configure",
+        "title": "Configure",
+        "description": "Change node settings",
+        "properties": [
+          {
+            "property": "node-configure-title",
+            "title": "Title",
+            "description": "Main title for this page in menus",
+            "inputMethod": "textfield",
+            "required": true,
+            "icon": "editor:title"
+          },
+          {
+            "property": "node-configure-published",
+            "title": "Published",
+            "description": "Publishing status, un-check box to hide page",
+            "inputMethod": "boolean"
+          },
+          {
+            "property": "node-configure-slug",
+            "title": "Path",
+            "description": "What is displayed in the browser bar after your site name / URL",
+            "inputMethod": "textfield",
+            "required": true,
+            "icon": "device:gps-fixed"
+          },
+          {
+            "property": "node-configure-description",
+            "title": "Description",
+            "description": "Used for SEO purposes and in listings like search",
+            "inputMethod": "textfield",
+            "required": false,
+            "icon": "editor:short-text"
+          }
+        ]
+      },
+      {
+        "property": "advanced",
+        "title": "Advanced",
+        "description": "less common node settings",
+        "properties": [
+          {
+            "property": "node-advanced-created",
+            "title": "Created timestamp",
+            "description": "The computer time that this was created",
+            "inputMethod": "textfield",
+            "required": true,
+            "icon": "device:access-time"
+          },
+          {
+            "property": "node-advanced-theme",
+            "title": "Page theme",
+            "description": "Change the theme ONLY for this page, only do this if you mean to.",
+            "inputMethod": "select",
+            "required": false,
+            "icon": "editor:format-paint",
+            "options": {}
+          }
+        ]
+      }
+    ]
     }
   ]
 }

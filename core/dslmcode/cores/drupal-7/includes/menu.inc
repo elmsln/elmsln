@@ -317,7 +317,7 @@ define('MENU_PREFERRED_LINK', '1cf698d64d1aa4b83907cf6ed55db3a7f8e92c91');
  * actually exists. This list of 'masks' is built in menu_rebuild().
  *
  * @param $parts
- *   An array of path parts; for the above example, 
+ *   An array of path parts; for the above example,
  *   array('node', '12345', 'edit').
  *
  * @return
@@ -1504,13 +1504,25 @@ function menu_tree_check_access(&$tree, $node_links = array()) {
     $nids = array_keys($node_links);
     $select = db_select('node', 'n');
     $select->addField('n', 'nid');
-    $select->condition('n.status', 1);
+    // When a menu administrator who we know has permission to see unpublished
+    // nodes is administering the menu, included the unpublished nodes in the
+    // tree, with a special flag so that the Menu module can label them.
+    // Otherwise, exclude these nodes from the tree.
+    if (!empty($GLOBALS['menu_admin']) && user_access('bypass node access')) {
+      $select->addField('n', 'status');
+    }
+    else {
+      $select->condition('n.status', 1);
+    }
     $select->condition('n.nid', $nids, 'IN');
     $select->addTag('node_access');
-    $nids = $select->execute()->fetchCol();
-    foreach ($nids as $nid) {
-      foreach ($node_links[$nid] as $mlid => $link) {
-        $node_links[$nid][$mlid]['access'] = TRUE;
+    $node_objects = $select->execute()->fetchAll();
+    foreach ($node_objects as $node_object) {
+      foreach ($node_links[$node_object->nid] as $mlid => $link) {
+        $node_links[$node_object->nid][$mlid]['access'] = TRUE;
+        if (isset($node_object->status)) {
+          $node_links[$node_object->nid][$mlid]['node_unpublished'] = !$node_object->status;
+        }
       }
     }
   }
@@ -1877,7 +1889,7 @@ function menu_navigation_links($menu_name, $level = 0) {
   $router_item = menu_get_item();
   $links = array();
   foreach ($tree as $item) {
-    if (!$item['link']['hidden']) {
+    if ($item['link']['access'] && !$item['link']['hidden']) {
       $class = '';
       $l = $item['link']['localized_options'];
       $l['href'] = $item['link']['href'];
@@ -2604,7 +2616,7 @@ function menu_get_active_breadcrumb() {
 
     // Don't show a link to the current page in the breadcrumb trail.
     $end = end($active_trail);
-    if ($item['href'] == $end['href']) {
+    if (is_array($end) && $item['href'] == $end['href']) {
       array_pop($active_trail);
     }
 

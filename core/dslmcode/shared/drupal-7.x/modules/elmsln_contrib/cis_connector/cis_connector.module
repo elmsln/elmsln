@@ -1061,7 +1061,6 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
     'bucket' => &$bucket,
     'cached' => &$cached,
   );
-  drupal_alter('cis_prerequest', $alter);
   // trick to mash request into a single item
   $args = func_get_args();
   // options can be an array so need to implode on its own
@@ -1139,20 +1138,16 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
       // allow for direct http requests
       if ($bucket == 'none') {
         // queue request
-        httprl_request($url, $options);
-        // send the request off
-        $tmp = httprl_send_request();
-        $data = array_pop($tmp);
+        $data = _cis_connector_make_request($url, $options);
       }
       // look for settings for this bucket
       // @ignore druplart_conditional_assignment
       elseif ($settings = _cis_connector_build_registry($bucket)) {
         $address = _cis_connector_format_address($settings);
-        // queue the request
-        httprl_request($address . '/' . $url, $options);
-        // send the request off
-        $tmp = httprl_send_request();
-        $data = array_pop($tmp);
+        if (strpos($url, '/') !== 0) {
+          $url = '/' . $url;
+        }
+        $data = _cis_connector_make_request($address . $url, $options);
       }
       else {
         return FALSE;
@@ -1169,6 +1164,71 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
   drupal_alter('cis_postrequest', $alter);
 
   return $data;
+}
+
+/**
+ * Wrapper to leverage curl when possible to avoid potential socket connection
+ * issues with certain SSL connections
+ */
+function _cis_connector_make_request($url, $options = array()){
+  // support developers overloading the request method, specifically curl
+  // as some systems can have issues with SSL configuration and socket connections
+  if (function_exists('curl_init')) {
+    $headers = array();
+    if (isset($options['headers']) && is_array($options['headers'])) {
+      foreach ($options['headers'] as $property => $value) {
+        $headers[] = $property . ': ' . $value;
+      }
+    }
+    if (!isset($options['timeout'])) {
+      $options['timeout'] = 5000;
+    }
+    if (!isset($options['method'])) {
+      $options['method'] = "GET";
+    }
+    if (!isset($options['data'])) {
+      $options['data'] = "";
+    }
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => $url,
+      CURLOPT_RETURNTRANSFER => TRUE,
+      CURLOPT_HEADER => TRUE,
+      CURLOPT_VERBOSE => TRUE,
+      CURLOPT_ENCODING => "",
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT_MS => $options['timeout'],
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => strtoupper($options['method']),
+      CURLOPT_HTTPHEADER => $headers,
+      CURLOPT_POSTFIELDS => $options['data'],
+    ));
+    $return = curl_exec($curl);
+    $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+    $header = substr($return, 0, $header_size);
+    $rawheader = explode("\n", $header);
+    $body = substr($return, $header_size);
+    curl_close($curl);
+    $response = new stdClass();
+    $response->data = $body;
+    foreach ($rawheader as $header) {
+      if (strpos($header, 'Link: ') === 0) {
+        $response->headers['link'] = str_replace('Link: ', '', $header);
+      }
+    }
+  }
+  // support for httprl which is faster then core and does same thing
+  elseif (module_exists('httprl')) {
+    httprl_request($url, $options);
+    // send the request off
+    $tmp = httprl_send_request();
+    $response = array_pop($tmp);
+  }
+  else {
+    // original fallback
+    $response = drupal_http_request($url, $options);
+  }
+  return $response;
 }
 
 /**
@@ -1258,7 +1318,6 @@ function _cis_connection_prepare_entity($entity) {
         unset($ary[$key]);
       }
       elseif (is_array($val)) {
-        // @todo support multiple field values
         if (isset($val['und'][0]['value'])) {
           $ary[$key] = $val['und'][0]['value'];
         }
@@ -1290,7 +1349,6 @@ function _cis_connection_prepare_entity($entity) {
  *   saved and created in this site but should also
  *   be shipped off to another site via a web service
  *   call.
- * @todo review if this is something we want to continue supporting.
  */
 function _cis_connector_remote_entities($type = NULL, $bundle = NULL) {
   $items = module_invoke_all('cis_connected_entity');
@@ -1362,7 +1420,6 @@ function cis_connector_form_field_ui_field_edit_form_alter(&$form, &$form_state)
 /**
  * Implements hook_entity_presave().
  *
- * @todo review this concept as it may be making
  * too many assumptions about how entity save works
  * when distributed across systems.
  */
@@ -1372,7 +1429,7 @@ function cis_connector_entity_presave($entity, $type) {
   // ensure we have bundle keys at least after loading info
   if (isset($info['bundle keys']['bundle']) && isset($entity->{$info['bundle keys']['bundle']})) {
     $rem = _cis_connector_remote_entities($type, $entity->{$info['bundle keys']['bundle']});
-    // @todo this appears to be a glitch in RestWS
+    // @note this appears to be a glitch in RestWS
     // How could an item be submitted as annonymous if the user isn't?
 
     // don't allow annonymous submissions from outside system
@@ -1404,9 +1461,7 @@ function cis_connector_entity_presave($entity, $type) {
         if ($item['save'] == CIS_CONNECTOR_ENTITY_REMOTE_ONLY) {
           // try to wipe the entity and hope it doesn't cause an issue
           $entity = NULL;
-          // @todo May need to issue drupal_goto to truly
-          // hijack the operation. look into running this hook
-          // last to avoid possible issues with other projects
+
         }
       }
     }
@@ -1480,7 +1535,6 @@ function _cis_connector_simple_mail($to, $message_subject, $message_body, $from)
     // do something when successful
   }
   else {
-    // @todo do something if the mail fails
   }
 }
 

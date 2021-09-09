@@ -396,3 +396,20 @@ function elmsln_core_update_7035(&$sandbox) {
   module_disable(array("elmsln_voice", "voicecommander", "jwerty"));
   features_revert_module('elmsln_core');
 }
+
+/**
+ * Set weight of the My Funky Module module to 13.
+ */
+function elmsln_core_update_7036() {
+  db_update('system')
+  ->fields(array('weight' => -1000))
+  ->condition('name', 'restws_basic_auth', '=')
+  ->execute();
+}
+
+/**
+ * Our nonblocking calls have issue here. Let's just use what we know works
+ */
+function elmsln_core_update_7037(&$sandbox) {
+  variable_set('tincanapi_function', 'tincanapi_send');
+}

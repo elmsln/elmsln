@@ -18,8 +18,10 @@ function mooc_install() {
   _elmsln_installer_post_install_cleanup();
   // Allow visitor account creation with administrative approval.
   variable_set('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
-  // set home page to the table of contents
-  variable_set('site_frontpage', 'mooc/book-toc');
+  // we now use HAXcms as the default new render engine
+  variable_set('site_frontpage', 'haxcms');
+  variable_set('mooc_app_element', 'haxcms');
+  variable_set('node_admin_theme', TRUE);
   // make sure OG doesn't interfere with permissions
   variable_set('og_node_access_strict', FALSE);
   // drop the "book" content type as its confusing
@@ -348,4 +350,11 @@ function mooc_update_7027(&$sandbox) {
  */
 function mooc_update_7028(&$sandbox) {
   variable_set('og_node_access_strict', FALSE);
+}
+
+/**
+ * HAX to everyone
+ */
+function mooc_update_7029(&$sandbox) {
+  features_revert_module('mooc_hax');
 }

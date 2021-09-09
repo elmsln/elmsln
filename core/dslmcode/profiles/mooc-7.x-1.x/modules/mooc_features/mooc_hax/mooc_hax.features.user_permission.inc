@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * mooc_hax.features.user_permission.inc
@@ -9,6 +10,17 @@
  */
 function mooc_hax_user_default_permissions() {
   $permissions = array();
+
+  // Exported permission: 'administer haxcms settings'.
+  $permissions['administer haxcms settings'] = array(
+    'name' => 'administer haxcms settings',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'haxcms',
+  );
 
   // Exported permission: 'use hax'.
   $permissions['use hax'] = array(

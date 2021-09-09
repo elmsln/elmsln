@@ -1,4 +1,4 @@
-const HAXService = new class HAXService
+const HAXAppStoreService = new class HAXAppStoreService
 {
     /**
      * returns an array of app store definitions based
@@ -10,18 +10,28 @@ const HAXService = new class HAXService
     loadBaseAppStore(apikeys = {})
     {
         let json = [];
-        let jsonstring = '';
+        jsonstring = '';
         // youtube
         if (apikeys['youtube']) {
             jsonstring={
         "details": {
           "title": "Youtube",
-          "icon": "av:play-arrow",
+          "icon": "mdi-action:youtube-play",
           "color": "red",
           "author": "Google, Youtube LLC",
           "description": "The most popular online video sharing and remix site.",
           "status": "available",
-          "tags": ["video", "crowdsourced"]
+          "tags": ["video", "crowdsourced"],
+          "tos": [
+            {
+              title: "YouTube Terms of Service",
+              link: "https://www.youtube.com/t/terms"
+            },
+            {
+              title: "Google Privacy Policy",
+              link: "https://policies.google.com/privacy"
+            }
+          ]
         },
         "connection": {
             "protocol": "https",
@@ -957,7 +967,7 @@ const HAXService = new class HAXService
      */
     loadBaseBlox()
     {
-        let jsonstring = [
+        jsonstring = [
     {
       "details": {
         "title": "50% columns",
@@ -1151,7 +1161,7 @@ const HAXService = new class HAXService
      */
     loadBaseStax()
     {
-        let jsonstring = [{
+        jsonstring = [{
       "details": {
         "title": "Example Lesson",
         "author": "ELMS:LN",
@@ -1248,4 +1258,4 @@ const HAXService = new class HAXService
     }
 }
 
-module.exports = HAXService;
+module.exports = HAXAppStoreService;

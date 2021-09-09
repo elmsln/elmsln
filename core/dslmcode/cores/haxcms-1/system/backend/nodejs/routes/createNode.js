@@ -1,4 +1,5 @@
 const HAXCMS = require('../lib/HAXCMS.js');
+const JSONOutlineSchemaItem = require('../lib/JSONOutlineSchemaItem.js');
 /**
  * @OA\Post(
  *     path="/createNode",
@@ -68,38 +69,40 @@ const HAXCMS = require('../lib/HAXCMS.js');
  * )
  */
 async function createNode(req, res) {
-  let site = HAXCMS.loadSite(strtolower(req.body['site']['name']));
+  let site = await HAXCMS.loadSite(req.body['site']['name'].toLowerCase());
   // get a new item prototype
-  let item = HAXCMS.outlineSchema.newItem();
+  let item = new JSONOutlineSchemaItem();
   // set the title
-  item.title = req.body['node']['title'].replace("\n", '');
+  item['title'] = req.body['node']['title'].replace("\n", '');
   if ((req.body['node']['id']) && req.body['node']['id'] != '' && req.body['node']['id'] != null) {
       item.id = req.body['node']['id'];
   }
-  let cleanTitle = HAXCMS.cleanTitle(item.title);
+  let cleanTitle = HAXCMS.cleanTitle(item['title']);
   if ((req.body['node']['location']) && req.body['node']['location'] != '' && req.body['node']['location'] != null) {
-      cleanTitle = HAXCMS.cleanTitle(req.body['node']['location']);
+    cleanTitle = HAXCMS.cleanTitle(req.body['node']['location']);
   }
+  let slug = site.getUniqueSlugName(cleanTitle);
   // ensure this location doesn't exist already
-  item.location =
-      'pages/' + site.getUniqueLocationName(cleanTitle) + '/index.html';
-
+  item['location'] =
+      'pages/' + slug + '/index.html';
+      item['slug'] = slug;
   if ((req.body['indent']) && req.body['indent'] != '' && req.body['indent'] != null) {
-      item.indent = req.body['indent'];
+      item['indent'] = req.body['indent'];
   }
   if ((req.body['order']) && req.body['order'] != '' && req.body['order'] != null) {
-      item.order = req.body['order'];
+      item['order'] = req.body['order'];
   }
   if ((req.body['parent']) && req.body['parent'] != '' && req.body['parent'] != null) {
-      item.parent = req.body['parent'];
+      item['parent'] = req.body['parent'];
   } else {
-      item.parent = null;
+      item['parent'] = null;
   }
   if ((req.body['description']) && req.body['description'] != '' && req.body['description'] != null) {
-      item.description = req.body['description'].replace("\n", '');
+      item['description'] = req.body['description'].replace("\n", '');
   }
+  item['metadata'] = {};
   if ((req.body['order']) && req.body['metadata'] != '' && req.body['metadata'] != null) {
-      item.metadata = req.body['metadata'];
+      item['metadata'] = req.body['metadata'];
   }
   item.metadata.created = Date.now();
   item.metadata.updated = Date.now();
@@ -107,7 +110,7 @@ async function createNode(req, res) {
   // @todo fix logic here to actually create the page based on 1 call
   // this logic should be cleaned up in addPage to allow for
   // passing in arguments
-  site.recurseCopy(
+  await site.recurseCopy(
       HAXCMS.HAXCMS_ROOT + '/system/boilerplate/page/default',
       site.directory +
           '/' +
@@ -116,8 +119,8 @@ async function createNode(req, res) {
           item.location.replace('/index.html', '')
   );
   site.manifest.addItem(item);
-  site.manifest.save();
-  site.gitCommit('Page added:' + item.title + ' (' + item.id + ')');
-  req.send(item);
+  await site.manifest.save();
+  await site.gitCommit('Page added:' + item.title + ' (' + item.id + ')');
+  res.send(item);
 }
 module.exports = createNode;

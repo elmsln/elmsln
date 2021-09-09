@@ -27,6 +27,6 @@ const HAXCMS = require('../lib/HAXCMS.js');
         delete (response.values.appStore[key]);
       }
     }
-    return response;
+    retres.send(response);
   }
   module.exports = getConfig;

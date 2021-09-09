@@ -1,4 +1,5 @@
 <?php
+include_once '/var/www/elmsln/core/dslmcode/shared/drupal-7.x/modules/elmsln_contrib/cis_connector/modules/features/cis_section/src/CisSectionRosterProcessor.php';
 /**
  * @file
  * CIS Section Drush functions.

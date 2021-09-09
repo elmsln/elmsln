@@ -533,10 +533,20 @@ if (!function_exists('_drupal_session_open')) {
 
     if (drupal_session_started()) {
       $old_session_id = session_id();
+      // PHP 7.3 requires that we close session before setting new session ID.
+      $original_session_saving = drupal_save_session();
+      drupal_save_session(FALSE);
+      session_write_close();
+      drupal_session_started(FALSE);
     }
     session_id(drupal_random_key());
 
     if (isset($old_session_id)) {
+      // Preserve and restore user object, as starting session will reset it.
+      $original_user = $user;
+      drupal_session_start();
+      $user = $original_user;
+      drupal_save_session($original_session_saving);
       $params = session_get_cookie_params();
       $expire = $params['lifetime'] ? REQUEST_TIME + $params['lifetime'] : 0;
       setcookie(session_name(), session_id(), $expire, $params['path'], $params['domain'], $params['secure'], $params['httponly']);

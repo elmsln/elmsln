@@ -1,0 +1,42 @@
+diff --git a/vendor/zircote/swagger-php/src/Processors/ImportTraits.php b/vendor/zircote/swagger-php/src/Processors/ImportTraits.php
+index 2041b22..efd5500 100644
+--- a/vendor/zircote/swagger-php/src/Processors/ImportTraits.php
++++ b/vendor/zircote/swagger-php/src/Processors/ImportTraits.php
+@@ -25,9 +25,16 @@ public function __invoke(Analysis $analysis)
+                             continue;
+                         }
+                         foreach ($property->annotations as $annotation) {
+-                            if ($annotation instanceof Property && in_array($annotation->property, $existing) === false) {
+-                                $existing[] = $annotation->property;
+-                                $schema->merge([$annotation], true);
++                            $context = $annotation->_context;
++                            if ($annotation instanceof Property) {
++                                // Use the property names for @OA\Property()
++                                if ($annotation->property === UNDEFINED) {
++                                    $annotation->property = $context->property;
++                                }
++                                if (in_array($annotation->property, $existing) === false) {
++                                    $existing[] = $annotation->property;
++                                    $schema->merge([$annotation], true);
++                                }
+                             }
+                         }
+                     }
+diff --git a/vendor/zircote/swagger-php/src/StaticAnalyser.php b/vendor/zircote/swagger-php/src/StaticAnalyser.php
+index d65dd98..85040dc 100644
+--- a/vendor/zircote/swagger-php/src/StaticAnalyser.php
++++ b/vendor/zircote/swagger-php/src/StaticAnalyser.php
+@@ -270,7 +270,12 @@ protected function fromTokens($tokens, $parseContext)
+                     $parseContext->uses[$alias] = $target;
+ 
+                     // i'm in the case use trait
+-                    if ($alias == $target && $classDefinition) {
++                    $targetName = $target;
++                    if (strpos($targetName, '\\')) {
++                        $targetPieces = explode('\\', $targetName);
++                        $targetName = end($targetPieces);
++                    }
++                    if ($alias == $targetName && $classDefinition) {
+                         $classDefinition['traits'][] = $alias;
+                     }
+ 

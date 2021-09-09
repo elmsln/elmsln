@@ -12,5 +12,6 @@ features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[features_overrides][] = filter.textbook_editor.filters|webcomponents_cmstags
 features[features_overrides][] = filter.textbook_editor.filters|webcomponents_cmstags_jsonfix
+features[user_permission][] = administer haxcms settings
 features[user_permission][] = use hax
 features[variable][] = hax_autoload_element_list

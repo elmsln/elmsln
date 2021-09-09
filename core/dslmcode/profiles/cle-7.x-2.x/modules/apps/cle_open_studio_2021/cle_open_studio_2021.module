@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * @file
+ * Code for the CLE Open Studio
+ */
+
+/**
+ * Implements hook_wrapped_paths().
+ */
+function cle_open_studio_2021_wrapped_paths() {
+  $paths = array(
+    // don't wrap any app
+    'apps/*' => FALSE,
+  );
+  return $paths;
+}
+
+/**
+ * Implements hook_registry_files_alter().
+ */
+function cle_open_studio_2021_registry_files_alter(&$files, $modules) {
+  // Manually add here as this is a feature and the .info may get overridden.
+  $files[] = drupal_get_path('module', 'cle_open_studio_2021') . '/apps/services/LRNAppOpenStudioAssignmentService.php';
+  $files[] = drupal_get_path('module', 'cle_open_studio_2021') . '/apps/services/LRNAppOpenStudioCommentService.php';
+  $files[] = drupal_get_path('module', 'cle_open_studio_2021') . '/apps/services/LRNAppOpenStudioFileService.php';
+  $files[] = drupal_get_path('module', 'cle_open_studio_2021') . '/apps/services/LRNAppOpenStudioProjectService.php';
+  $files[] = drupal_get_path('module', 'cle_open_studio_2021') . '/apps/services/LRNAppOpenStudioSubmissionService.php';
+}
+
+/**
+ * Service function for apps to use to create, update and delete submissions
+ * @action
+ */
+function _cle_open_studio_2021_submission_service($action) {
+}
+
+/** 
+ * Implements hook_webcomponent_app_files_alter().
+ */
+function cle_open_studio_2021_webcomponent_app_files_alter(&$files) {
+  // ensure we don't register studio 2018 when 2021 is active
+  $remove = array(
+    "sites/all/libraries/webcomponents/apps/lrnapp-studio-dashboard/manifest.json",
+    "sites/all/libraries/webcomponents/apps/lrnapp-studio-kanban/manifest.json",
+    "sites/all/libraries/webcomponents/apps/lrnapp-open-studio/manifest.json",
+    "sites/all/libraries/webcomponents/apps/lrnapp-studio-instructor/manifest.json",
+  );
+  foreach ($remove as $path) {
+    if (array_search($path, $files) !== false) {
+      unset($files[array_search($path, $files)]);
+    }
+  }
+}
+
+/**
+ * Implements hook_webcomponent_render_alter().
+ */
+function cle_open_studio_2021_webcomponent_render_alter(&$vars, $app) {
+  if ($app['machine_name'] == 'elmsln-studio') {
+    unset($vars['properties']['base-path']);
+  }
+}
+/**
+ * Implements hook_webcomponents_app_deliver_output_alter().
+ * @param  string &$return text based output of the app
+ * @param  array $app      structure of the app
+ */
+function cle_open_studio_2021_webcomponents_app_deliver_output_alter(&$return, $app) {
+  // get the form to add to elmsln-studio output
+  if ($app['machine_name'] == 'elmsln-studio') {
+    $return = '
+    <style>
+    elmsln-studio {
+      margin: 0 16px;
+      display:block;
+    }
+    .r-header {
+      display:none;
+    }
+    </style>
+    <base href="' . base_path() . 'apps/elmsln-studio/" />
+    ' . $return;
+  }
+}

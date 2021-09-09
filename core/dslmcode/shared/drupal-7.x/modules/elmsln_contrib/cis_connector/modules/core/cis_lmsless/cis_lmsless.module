@@ -28,11 +28,20 @@ function cis_lmsless_permission() {
 function cis_lmsless_page_build(&$page) {
   // make sure they have access to view this
   if (user_access('view lmsless bar') && !path_is_admin(current_path())) {
-    // prevents cis_lmsless on haxcms loaded systems
+    // prevents cis_lmsless on haxcms loaded systems unless we have a setting saying otherwise
     if (function_exists('_is_haxcms_context') && _is_haxcms_context()) {
-
+      // still provide support for NOT including any of this stuff at all
+      // also support NOT injecting into the print view
+      if (variable_get("elmsln_haxcms_lmsless", TRUE) && !isset($_GET["format"])) {
+        drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless_haxcms.css');
+        $page['page_top']['cis_lmsless'] = array(
+          '#weight' => -10,
+          '#markup' => _cis_lmsless_assemble(),
+        );
+      }
     }
     else {
+      drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
       $page['page_top']['cis_lmsless'] = array(
         '#weight' => -10,
         '#markup' => _cis_lmsless_assemble(),
@@ -202,19 +211,39 @@ function _cis_lmsless_assemble_network() {
         });
       }
       $vars['services'] = $list;
-    }
+    }    
   }
   return $vars;
+
 }
 
+/**
+ * Implements hook_haxcms_get_logo_alter().
+ */
+function cis_lmsless_haxcms_get_logo_alter(&$path, $style) {
+  // try and pull centralized banner image if we use one
+  $uri = 'elmslnauthority://cis/banners/' . _cis_connector_course_context() .'.jpg';
+  if (file_exists(_elmsln_core_realpath($uri))) {
+    $path = file_create_url($uri);
+  }
+}
 /**
  * Callback to assemble the bar
  */
 function _cis_lmsless_assemble() {
   // assemble variables for theming
   $vars = _cis_lmsless_theme_vars();
-  drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless.css');
   return theme('cis_lmsless_bar', $vars);
+}
+
+function cis_lmsless_form_haxcms_settings_alter(&$form, &$form_state, $form_id) {
+  $form['elmsln_haxcms_lmsless'] = [
+    "#weight" => -1,
+    '#type' => 'checkbox',
+    '#title' => t('Top banner and links'),
+    '#default_value' => variable_get('elmsln_haxcms_lmsless', TRUE),
+    '#description' => t("Show the top banner as well as cross-network links"),
+  ];
 }
 
 /**
@@ -288,7 +317,41 @@ function _cis_lmsless_theme_vars() {
       'distro' => elmsln_core_get_profile_key(),
       'lmsless_classes' => $lmsless_classes,
       'course_context' => _cis_connector_course_context(),
+      'banner_image' => '',
     );
+
+    // get the banner for the course
+    // build the remote banner URI, this is the best solution for an image
+    $uri = 'elmslnauthority://cis/banners/' . _cis_connector_course_context() .'.jpg';
+    if (file_exists(_elmsln_core_realpath($uri))) {
+      $vars['banner_image'] = theme('image', array(
+        'path' => $uri,
+        'alt' => '',
+        'attributes' => array(
+          'class' => array('logo__img'),
+        ),
+      ));
+    }
+    // make sure we have a logo before trying to render a real one to screen
+    elseif (!empty($vars['logo']) && !empty(theme_get_setting('logo_path'))) {
+      $vars['banner_image'] = theme('image', array(
+        'path' => theme_get_setting('logo_path'),
+        'alt' => '',
+        'attributes' => array(
+          'class' => array('logo__img'),
+        ),
+      ));
+    }
+    else {
+      $logopath = drupal_get_path('theme', 'foundation_access') . '/logo.jpg';
+      $vars['banner_image'] = theme('image', array(
+        'path' => $logopath,
+        'alt' => '',
+        'attributes' => array(
+          'class' => array('logo__img'),
+        ),
+      ));
+    }
     // push this into variables on the page for usage
     drupal_add_js(array('cis_lmsless' => $lmsless_classes, 'distro' => elmsln_core_get_profile_key()), array('type' => 'setting'));
     // build in section context if we have one we can pull
@@ -441,7 +504,7 @@ function _cis_lmsless_theme_vars() {
       $vars['userpicturebig'] = $image;
     }
     else {
-      $vars['userpicturebig'] = '<paper-avatar label="' . $vars['username'] . '"></paper-avatar>';
+      $vars['userpicturebig'] = '<lrndesign-avatar label="' . $vars['username'] . '"></lrndesign-avatar>';
     }
     // support user banner
     $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/banners/' . $vars['username'] .'.jpg';

@@ -661,7 +661,34 @@ function _elmsln_core_data_access($etype, $entity) {
 }
 
 /**
+ * Implements hook_haxcms_node_content_response_alter().
+ */
+function elmsln_core_haxcms_node_content_response_alter(&$body) {
+  // https://github.com/elmsln/issues/issues/751 - haxcms fast enough we can safely render these faster client side
+  if (isset($body[0]['value']) && (strpos($body[0]['value'], "[ciscode|") !== false || strpos($body[0]['value'], "<cms-token") !== false)) {
+    $GLOBALS['skip_drupal_token'] = TRUE;
+    $regex = "/<cms-token token=\"ciscode(.*?)\"(.*?)><\/cms-token>/";
+    if (preg_match_all($regex, $body[0]['value'], $matches) !== false) {
+      foreach ($matches[0] as $key => $match) {
+        $fullToken = $match;
+        $token = "[ciscode" . $matches[1][$key] . "]";
+        $body[0]['value'] = str_replace($fullToken, $token, $body[0]['value']);
+      }
+    }
+    $regex = "/<cms-token token=\"elmsln_section(.*?)\"(.*?)><\/cms-token>/";
+    if (preg_match_all($regex, $body[0]['value'], $matches) !== false) {
+      foreach ($matches[0] as $key => $match) {
+        $fullToken = $match;
+        $token = "[elmsln_section" . $matches[1][$key] . "]";
+        $body[0]['value'] = str_replace($fullToken, $token, $body[0]['value']);
+      }
+    }
+  }
+}
+
+/**
  * Implementation of hook_node_view().
+ * @note this just applies to the legacy / ELMS / Drupal direct rendering
  */
 function elmsln_core_node_view($node, $view_mode, $langcode) {
   if ($view_mode == 'full' && $node->type == 'page' && module_exists('foundation_access_ux')) {
@@ -2249,7 +2276,35 @@ function elmsln_core_wrapped_paths() {
   );
   return $paths;
 }
-
+/**
+ * Implements hook_webcomponents_build_integration_markup_alter().
+ * This ensures that HAXcms's build script loads at the right times
+ */
+function elmsln_core_webcomponents_build_integration_markup_alter(&$markup) {
+  if (function_exists('_is_haxcms_context') && _is_haxcms_context()) {
+    // hide things that are in HAXcms that our course systems wont want
+    // @todo this could be how we add support for hiding search button
+    $markup .= "\n" . '
+    <style>
+      learn-two-theme::part(git-corner-btn),  
+      learn-two-theme::part(rss-btn) {
+        display: none;
+      }
+      clean-one::part(git-corner-btn),  
+      clean-one::part(rss-btn) {
+        display: none;
+      }
+      clean-two::part(footer-left),
+      clean-two::part(rss-btn),
+      clean-two::part(git-corner-btn) {
+        display: none;
+      }
+    </style>';
+    // @todo might need a script to ensure it is at the top of the UI or something
+    // that or modify the CSS to basically force certain containers to exist so that there's a space for those special linnk
+    
+  }
+}
 /**
  * Implements hook_webcomponents_base_path_alter().
  */
@@ -2586,6 +2641,13 @@ function _elmsln_core_get_sis_user_data($uid = NULL) {
 }
 
 /**
+ * Implements hook_haxcms_site_data_alter().
+ */
+function elmsln_core_haxcms_site_data_alter(&$site, $status) {
+  $site->title = variable_get('site_name', _cis_connector_course_context());
+}
+
+/**
  * Implements hook_hax_cms_hax_attributes_alter().
  */
 function elmsln_core_hax_cms_hax_attributes_alter(&$attributes) {
@@ -2621,7 +2683,7 @@ function elmsln_core_tokens_alter(&$replacements, $context) {
  */
 function elmsln_core_hax_app_store() {
   //global $base_url;
-  /*$parts = explode('://', $base_url);
+  $parts = explode('://', $base_url);
   // built in support when file_entity and restws is in place
   $json = '{
     "details": {
@@ -2668,7 +2730,11 @@ function elmsln_core_hax_app_store() {
               "type": "type"
             }
           }
-        },
+        }
+      }
+    }
+  }';
+  /*,
         "add": {
           "method": "POST",
           "endPoint": "elmsmedia-file-save/' . drupal_get_token('elmsln') . '",
@@ -2692,10 +2758,8 @@ function elmsln_core_hax_app_store() {
             }
           }
         }
-      }
-    }
-}';*/
- // return json_decode($json);
+  */
+  return json_decode($json);
 }
 
 /**

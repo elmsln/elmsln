@@ -17,15 +17,15 @@ const HAXCMS = require('../lib/HAXCMS.js');
    *   )
    * )
    */
-  function getNodeFields(req, res) {
+  async function getNodeFields(req, res) {
     if (HAXCMS.validateRequestToken(null, 'form')) {
-      let site = HAXCMS.loadSite(req.body['site']['name']);
+      let site = await HAXCMS.loadSite(req.body['site']['name']);
       if (page = site.loadNode(req.body['node']['id'])) {
         schema = site.loadNodeFieldSchema(page);
-        return schema;
+        res.send(schema);
       }
     } else {
-        req.send(403);
+      res.send(403);
     }
   }
   module.exports = getNodeFields;

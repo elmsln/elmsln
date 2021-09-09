@@ -34,26 +34,26 @@ const HAXCMS = require('../lib/HAXCMS.js');
    *   )
    * )
    */
-  function cloneSite(req, res) {
-    let site = HAXCMS.loadSite(req.body['site']['name']);
-    siteDirectoryPath = site.directory + '/' + site.manifest.metadata.site.name;
-    cloneName = HAXCMS.getUniqueName(site.name);
+  async function cloneSite(req, res) {
+    let site = await HAXCMS.loadSite(req.body['site']['name']);
+    let siteDirectoryPath = site.directory + '/' + site.manifest.metadata.site.name;
+    let cloneName = HAXCMS.getUniqueName(site.name);
     // ensure the path to the new folder is valid
-    fs.mirror(
+    await fs.mirror(
         HAXCMS.HAXCMS_ROOT + '/' + HAXCMS.sitesDirectory + '/' + site.name,
         HAXCMS.HAXCMS_ROOT + '/' + HAXCMS.sitesDirectory + '/' + cloneName
     );
     // we need to then load and rewrite the site name var or it will conflict given the name change
-    let site = HAXCMS.loadSite(cloneName);
-    site.manifest.metadata.site.name = cloneName;
-    site.save();
-    return {
+    let newSite = await HAXCMS.loadSite(cloneName);
+    newSite.manifest.metadata.site.name = cloneName;
+    await newSite.save();
+    res.send({
       'link':
         HAXCMS.basePath +
         HAXCMS.sitesDirectory +
         '/' +
         cloneName,
       'name': cloneName
-    };
+    });
   }
   module.exports = cloneSite;

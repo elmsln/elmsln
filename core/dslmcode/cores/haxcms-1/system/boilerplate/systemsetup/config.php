@@ -15,7 +15,7 @@ $HAXCMS->basePath = '/';
 // do development on the platform itself. Useful for testing output and
 // what not. this applies to ALL REQUESTS asking for it.
 //$HAXCMS->developerMode = TRUE;
-// use this flag for things that want annonymous page loads to work as they should
+// use this flag for things that want anonymous page loads to work as they should
 // but yet be able to debug things as an admin/authenticated user efficiently
 //$HAXCMS->developerModeAdminOnly = TRUE;
 // see system/backend/php/lib/HAXCMS.php for additional deeper options
