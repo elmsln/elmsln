@@ -17,6 +17,11 @@
  * @ingroup themeable
  */
 ?>
+<?php if ($messages): ?>
+  <div class="messages">
+    <?php print $messages; ?>
+  </div>
+<?php endif; ?>
 <div class="entity_iframe_container">
 <?php print $contents; ?>
 </div>
