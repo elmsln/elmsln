@@ -246,7 +246,7 @@ function cis_service_connection_block_section_context_changer_form() {
     // ONLY show things they have access to. Only do this after we've got a
     // mechanism for people to allow fellow instructors to access their stuff
     // as an alternate role.
-    $sections = cis_section_all_sections();
+    $sections = cis_section_all_sections(true, true);
     foreach ($sections as $key => $value) {
       $cisSectionData = _cis_connector_transaction('section', 'default', array(), $key);
       if (isset($cisSectionData['host_entity']['field_semester']['und'][0]['value'])) {
