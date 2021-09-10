@@ -287,6 +287,7 @@ function _mooc_helper_learning_pathway() {
     }
     else {
       $tree = $tree['below'];
+      drupal_alter('mooc_helper_book_outline', $tree);
       return theme('learning_pathway', array('tree' => $tree, 'lmsless_classes' => _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key())));
     }
   }
