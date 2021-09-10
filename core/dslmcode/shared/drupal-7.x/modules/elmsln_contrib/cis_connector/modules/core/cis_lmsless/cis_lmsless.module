@@ -571,7 +571,7 @@ function _cis_lmsless_theme_vars() {
         ),
       );
     }
-    if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
+    if (_cis_connector_role_groupings(array('staff','teacher')) || user_access('switch section context') || isset($_SESSION['masquerading'])) {
       // account for systems without sections (like authorities)
       if ($section) {
         // ensure they can see the section switcher link
@@ -584,7 +584,7 @@ function _cis_lmsless_theme_vars() {
       if (isset($_SESSION['masquerading'])) {
         $vars['masquerade_logout'] = '<lrnsys-button label="' . t('revert (@name)', array('@name' => $GLOBALS['user']->name)) . '" href="' . url('masquerade/unswitch', array('query' => array('destination' => current_path(), 'token' => drupal_get_token('masquerade/unswitch')))) . '" icon="supervisor-account" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
       }
-      else {
+      else if(_cis_connector_role_groupings(array('staff','teacher'))) {
         $tmp = module_invoke('masquerade', 'block_view', 'masquerade');
         $vars['masquerade'] = render($tmp['content']);
       }
