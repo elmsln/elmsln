@@ -30,31 +30,32 @@ $links = render($content['links']);
       </span>
     </div>
     <?php endif; ?>
-    <div class="pull-right">
-      <span class="post-created">
-        <?php if ($link_created): ?>
-        <a href="<?php print $thread_post_url; ?>" title="<?php print t('Permalink to this post'); ?>"><?php print $created; ?></a>
-        <?php else: ?>
-        <?php print $created; ?>
-        <?php endif; ?>
-      </span>
-      <?php if ($revisions): ?>
-       <span class="post-revisions"><?php print $revisions; ?></span>
-      <?php endif; ?>
-    </div>
   </div>
   <div class="clearfix">
     <div class="post-left post-user-profile text-center">
       <a href="#" tabindex="-1"><?php print $username; ?></a>
     </div>
     <div class="post-content post-left-offset">
-      <?php print render($content); ?>
-
-      <?php if ($links): ?>
-      <div class="clearfix">
-        <?php print $links; ?>
+      <div class="post-content-inner">
+        <div class="pull-right">
+          <span class="post-created">
+            <?php if ($link_created): ?>
+              <a href="<?php print $thread_post_url; ?>" title="<?php print t('Permalink to this post'); ?>"><?php print $created; ?></a>
+            <?php else: ?>
+              <?php print $created; ?>
+            <?php endif; ?>
+          </span>
+          <?php if ($revisions): ?>
+            <span class="post-revisions"><?php print $revisions; ?></span>
+          <?php endif; ?>
+        </div>
+        <?php print render($content); ?>
+        <?php if ($links): ?>
+          <div class="clearfix">
+            <?php print $links; ?>
+          </div>
+        <?php endif; ?>
       </div>
-      <?php endif; ?>
       <?php if ($view_mode != 'inline_reply'): ?>
       <div id="post-<?php print $post->post_id; ?>-replies" class="post-replies clearfix"></div>
     <?php endif; ?>
@@ -62,7 +63,7 @@ $links = render($content['links']);
   </div>
 </div>
 <?php if ($is_page && $belongs_to_thread): ?>
-<div class="post-return">
-  <a href="<?php print $thread_post_url; ?>"><?php print t('Return to thread'); ?></a>
-</div>
+  <div class="post-return">
+    <a href="<?php print $thread_post_url; ?>"><?php print t('Return to thread'); ?></a>
+  </div>
 <?php endif; ?>
