@@ -69,6 +69,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
         // ensure we are in the active outline before bothering to render anything
         if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0) {
           $vars = _mooc_helper_book_nav_build($globalnode);
+          drupal_alter('mooc_helper_book_nav_vars', $vars);
           // output contents by passing through the wrapper theme function
           $block['content'] = theme('book_sibling_nav_wrapper', $vars);
         }
@@ -301,6 +302,7 @@ function _mooc_helper_book_nav_build($globalnode) {
       }
       $nav_count++;
       $firstlevel = FALSE;
+      drupal_alter('mooc_helper_book_nav', $items, $nav_count);
       $breadcrumbs[] = theme('book_sibling_nav', array('parent' => $parents[$mlid] ,'items' => $items, 'count' => $nav_count));
     }
     $breadcrumbs = array_reverse($breadcrumbs);
