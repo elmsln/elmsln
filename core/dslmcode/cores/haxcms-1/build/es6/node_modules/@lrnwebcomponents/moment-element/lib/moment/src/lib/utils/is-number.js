@@ -1,0 +1,1 @@
+export default function isNumber(t){return"number"==typeof t||"[object Number]"===Object.prototype.toString.call(t)}

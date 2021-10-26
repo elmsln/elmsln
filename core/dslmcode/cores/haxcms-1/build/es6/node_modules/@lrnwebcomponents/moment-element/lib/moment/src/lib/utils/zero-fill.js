@@ -1,0 +1,1 @@
+export default function zeroFill(t,a,r){var e=""+Math.abs(t),n=a-e.length;return(t>=0?r?"+":"":"-")+Math.pow(10,Math.max(0,n)).toString().substr(1)+e}

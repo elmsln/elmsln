@@ -1,0 +1,1 @@
+export default function absRound(n){return n<0?-1*Math.round(-1*n):Math.round(n)}

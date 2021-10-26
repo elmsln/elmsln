@@ -1,0 +1,1 @@
+export default function isDate(t){return t instanceof Date||"[object Date]"===Object.prototype.toString.call(t)}

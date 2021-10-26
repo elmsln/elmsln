@@ -1,0 +1,1 @@
+export default function absFloor(o){return o<0?Math.ceil(o)||0:Math.floor(o)}
