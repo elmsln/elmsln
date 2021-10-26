@@ -932,7 +932,7 @@ function entityform_submission_page($entityform_type, $show_display_id = NULL, $
 
   // Remove master display.
   array_shift($display_ids);
-  $links = array();
+  $links = '';
   // Create links to other displays
   foreach ($display_ids as $display_id) {
     // Make sure this display is enabled

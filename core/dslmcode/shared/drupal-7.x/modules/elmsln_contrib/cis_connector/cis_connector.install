@@ -132,3 +132,13 @@ function cis_connector_requirements($phase) {
   }
   return $requirements;
 }
+
+/**
+ * Account for possible legacy systems where cis_connector table was not installed
+ * but then we later switched methodologies to deliver from DB for stability
+ */
+function cis_connector_update_7001() {
+  if (!db_table_exists('cache_cis_connector')) {
+    db_create_table('cache_cis_connector', drupal_get_schema_unprocessed('system', 'cache'));
+  }
+}

@@ -1,0 +1,13 @@
+diff --git a/entityform.module b/entityform.module
+index 167c8e0..92f4071 100644
+--- a/entityform.module
++++ b/entityform.module
+@@ -940,7 +940,7 @@ function entityform_submission_page($entityform_type, $show_display_id = NULL, $
+ 
+   // Remove master display.
+   array_shift($display_ids);
+-  $links = '';
++  $links = array();
+   // Create links to other displays
+   foreach ($display_ids as $display_id) {
+
