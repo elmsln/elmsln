@@ -85,6 +85,8 @@ function _hax_saveNodeStandalone($node, $token) {
   if ($_SERVER['REQUEST_METHOD'] == 'PUT' && drupal_valid_token($token, 'hax')) {
     // load the data from input stream
     $body = file_get_contents("php://input");
+    $process = true;
+    drupal_alter('hax_node_save', $node, $body, $process);
     $node->body['und'][0]['value'] = $body;
     if (!isset($node->body['und'][0]['format'])) {
       $node->body['und'][0]['format'] = filter_default_format();
@@ -96,7 +98,9 @@ function _hax_saveNodeStandalone($node, $token) {
     ));
     $node->log = t('saved via HAX');
     $node->revision = in_array('revision', $node_options);
-    node_save($node);
+    if($process){
+      node_save($node);
+    }
     // send back happy headers
     drupal_add_http_header('Content-Type', 'application/json');
     // define status
@@ -259,6 +263,7 @@ function _hax_node_form($node) {
 
   // deep developer function to allow full control over tag's properties
   drupal_alter('hax_cms_hax_attributes', $attributes);
+  drupal_alter('hax_node_content', $node);
   $content = '<cms-hax' . drupal_attributes($attributes) . '><template>'
   . check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])
   .'</template></cms-hax><style>hax-tray { z-index:1251;}</style>';
