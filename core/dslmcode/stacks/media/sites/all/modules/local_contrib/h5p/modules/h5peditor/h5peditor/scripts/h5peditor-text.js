@@ -68,8 +68,10 @@ ns.Text.prototype.change = function (callback) {
  * Create HTML for the text field.
  */
 ns.Text.prototype.createHtml = function () {
-  var input = ns.createText(this.value, this.field.maxLength, this.field.placeholder);
-  return ns.createFieldMarkup(this.field, input);
+  const id = ns.getNextFieldId(this.field);
+  const descriptionId = (this.field.description !== undefined ? ns.getDescriptionId(id) : undefined)
+  var input = ns.createText(this.value, this.field.maxLength, this.field.placeholder, id, descriptionId);
+  return ns.createFieldMarkup(this.field, input, id);
 };
 
 /**

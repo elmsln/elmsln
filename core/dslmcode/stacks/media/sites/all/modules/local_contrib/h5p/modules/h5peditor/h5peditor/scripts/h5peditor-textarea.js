@@ -45,7 +45,12 @@ ns.Textarea.prototype.appendTo = function ($wrapper) {
  * Create HTML for the text field.
  */
 ns.Textarea.prototype.createHtml = function () {
-  var input = '<textarea cols="30" rows="4"';
+  const id = ns.getNextFieldId(this.field);
+
+  var input = '<textarea cols="30" rows="4" id="' + id + '"';
+  if (this.field.description !== undefined) {
+    input += ' aria-describedby="' + ns.getDescriptionId(id) + '"';
+  }
   if (this.field.placeholder !== undefined) {
     input += ' placeholder="' + this.field.placeholder + '"';
   }
@@ -55,7 +60,7 @@ ns.Textarea.prototype.createHtml = function () {
   }
   input += '</textarea>';
 
-  return ns.createFieldMarkup(this.field, ns.createImportantDescription(this.field.important) + input);
+  return ns.createFieldMarkup(this.field, ns.createImportantDescription(this.field.important) + input, id);
 };
 
 /**

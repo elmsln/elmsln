@@ -6,7 +6,7 @@ window.ns = window.H5PEditor = window.H5PEditor || {};
  *
  * @class H5PEditor.Editor
  * @param {string} library
- * @param {Object} defaultParams
+ * @param {string} defaultParams
  * @param {Element} replace
  * @param {Function} iframeLoaded
  */
@@ -15,6 +15,14 @@ ns.Editor = function (library, defaultParams, replace, iframeLoaded) {
 
   // Library may return "0", make sure this doesn't return true in checks
   library = library && library != 0 ? library : '';
+
+  let parsedParams = {};
+  try {
+    parsedParams = JSON.parse(defaultParams);
+  }
+  catch (e) {
+    // Ignore failed parses, this should be handled elsewhere
+  }
 
   // Define iframe DOM Element through jQuery
   var $iframe = ns.$('<iframe/>', {
@@ -32,6 +40,18 @@ ns.Editor = function (library, defaultParams, replace, iframeLoaded) {
     'allowfullscreen': 'allowfullscreen',
     'allow': "fullscreen"
   });
+  const metadata = parsedParams.metadata;
+  let title = ''
+  if (metadata) {
+    if (metadata.a11yTitle) {
+      title = metadata.a11yTitle;
+    }
+    else if (metadata.title) {
+      title = metadata.title;
+    }
+  }
+  $iframe.attr('title', title);
+
 
   // The DOM element is often used directly
   var iframe = $iframe.get(0);
@@ -45,9 +65,11 @@ ns.Editor = function (library, defaultParams, replace, iframeLoaded) {
     if (!iframe.contentDocument) {
       return; // Not possible, iframe 'load' hasn't been triggered yet
     }
+    const language = metadata && metadata.defaultLanguage
+      ? metadata.defaultLanguage : ns.contentLanguage;
     iframe.contentDocument.open();
     iframe.contentDocument.write(
-      '<!doctype html><html>' +
+      '<!doctype html><html lang="' + language + '">' +
       '<head>' +
       ns.wrap('<link rel="stylesheet" href="', ns.assets.css, '">') +
       ns.wrap('<script src="', ns.assets.js, '"></script>') +
@@ -80,7 +102,7 @@ ns.Editor = function (library, defaultParams, replace, iframeLoaded) {
    * @private
    */
   var resize = function () {
-    if (!iframe.contentDocument.body || self.preventResize) {
+    if (!iframe.contentDocument || !iframe.contentDocument.body || self.preventResize) {
       return; // Prevent crashing when iframe is unloaded
     }
     if (iframe.clientHeight === iframe.contentDocument.body.scrollHeight &&
@@ -134,7 +156,8 @@ ns.Editor = function (library, defaultParams, replace, iframeLoaded) {
      * Trigger semi-fullscreen for $element.
      *
      * @param {jQuery} $element Element to put in semi-fullscreen
-     * @param {function} before Callback that runs after entering semi-fullscreen
+     * @param {function} before Callback that runs after entering
+     *   semi-fullscreen
      * @param {function} done Callback that runs after exiting semi-fullscreen
      * @return {function} Exit trigger
      */
@@ -230,7 +253,7 @@ ns.Editor = function (library, defaultParams, replace, iframeLoaded) {
 
   // Need to put this after the above replaceAll(), since that one makes Safari
   // 11 trigger a load event for the iframe
-  $iframe.load(load);
+  $iframe.on('load', load);
 
   // Populate iframe with the H5P Editor
   // (should not really be done until 'load', but might be here in case the iframe is reloaded?)
@@ -323,11 +346,6 @@ ns.Editor.prototype.getContent = function (submit, error) {
     }
     return;
   }
-
-  // Convert title to preserve html entities
-  const tmp = document.createElement('div');
-  tmp.innerHTML = content.title;
-  content.title = tmp.textContent; // WARNING: This is text, do NOT insert as HTML.
 
   library = new iframeEditor.ContentType(content.library);
   const upgradeLibrary = iframeEditor.ContentType.getPossibleUpgrade(library, this.selector.libraries.libraries !== undefined ? this.selector.libraries.libraries : this.selector.libraries);
@@ -566,7 +584,8 @@ ns.language = {};
  * @param {string} library The library name(machineName), or "core".
  * @param {string} key Translation string identifier.
  * @param {Object} [vars] Placeholders and values to replace in the text.
- * @returns {string} Translated string, or a text if string translation is missing.
+ * @returns {string} Translated string, or a text if string translation is
+ *   missing.
  */
 ns.t = function (library, key, vars) {
   if (ns.language[library] === undefined) {

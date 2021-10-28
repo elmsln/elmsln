@@ -89,11 +89,14 @@ H5PEditor.FileUploader = (function ($, EventDispatcher) {
       const input = document.createElement('input');
       input.type = 'file';
       input.setAttribute('accept', determineAllowedMimeTypes());
+      input.style='display:none';
       input.addEventListener('change', function () {
         // When files are selected, upload them
         self.uploadFiles(this.files);
+        document.body.removeChild(input);
       });
 
+      document.body.appendChild(input);
       // Open file selector
       input.click();
     };

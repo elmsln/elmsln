@@ -87,17 +87,16 @@ H5PEditor.ImageEditingPopup = (function ($, EventDispatcher) {
      * Set max width and height for image editing tool
      */
     var setDarkroomDimensions = function () {
-
       // Set max dimensions
       var dims = ImageEditingPopup.staticDimensions;
-      maxWidth = H5P.$body.get(0).offsetWidth - dims.backgroundPaddingWidth -
+      maxWidth = background.offsetWidth - dims.backgroundPaddingWidth -
         dims.darkroomPadding;
 
       // Only use 65% of screen height
       var maxScreenHeight = screen.height * dims.maxScreenHeightPercentage;
 
       // Calculate editor max height
-      var editorHeight = H5P.$body.get(0).offsetHeight -
+      var editorHeight = background.offsetHeight -
         dims.backgroundPaddingHeight - dims.popupHeaderHeight -
         dims.darkroomToolbarHeight - dims.darkroomPadding;
 
@@ -277,16 +276,7 @@ H5PEditor.ImageEditingPopup = (function ($, EventDispatcher) {
         darkroom.parentNode.removeChild(darkroom);
       }
 
-      // Set crossorigin attribute
-      var crossOrigin = H5P.getCrossOrigin(imgSrc);
-      if (crossOrigin) {
-        editingImage.crossOrigin = crossOrigin;
-      }
-      else {
-        editingImage.removeAttribute('crossorigin');
-      }
-
-      editingImage.src = imgSrc;
+      H5P.setSource(editingImage, imgSrc, H5PEditor.contentId);
       editingImage.onload = function () {
         createDarkroom();
         editingImage.onload = null;
@@ -304,12 +294,13 @@ H5PEditor.ImageEditingPopup = (function ($, EventDispatcher) {
      */
     this.show = function (offset, imageSrc) {
       H5P.$body.get(0).appendChild(background);
+      background.classList.remove('hidden');
       setDarkroomDimensions();
+      background.classList.add('hidden');
       if (imageSrc) {
-
         // Load image editing scripts dynamically
         if (!scriptsLoaded) {
-          editingImage.src = imageSrc;
+          H5P.setSource(editingImage, imageSrc, H5PEditor.contentId);
           loadScripts();
         }
         else {

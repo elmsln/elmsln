@@ -23,6 +23,9 @@ H5PEditor.SemanticStructure = (function ($) {
     // Support old editor libraries
     self.field = {};
 
+    const id = H5PEditor.getNextFieldId(field);
+    const descriptionId = (field.description !== undefined ? H5PEditor.getDescriptionId(id) : undefined)
+
     /**
      * Global instance variables.
      * @private
@@ -48,13 +51,14 @@ H5PEditor.SemanticStructure = (function ($) {
       // Create field label
       if (field.label !== 0) {
         // Add label
-        createLabel(self.label, field.optional).appendTo($wrapper);
+        createLabel(self.label, field.optional, id).appendTo($wrapper);
       }
 
       // Create description
       var $description;
       if (field.description !== undefined) {
         $description = $('<div/>', {
+          'id': descriptionId,
           'class': 'h5peditor-field-description',
           text: field.description,
           appendTo: $wrapper
@@ -247,6 +251,24 @@ H5PEditor.SemanticStructure = (function ($) {
       return field.name;
     };
 
+    /**
+     * Get the input id the label points to.
+     *
+     * @returns {String} Name of the current field
+     */
+    self.getId = function () {
+      return id;
+    };
+
+    /**
+     * Get the description id to point to.
+     *
+     * @returns {String} Name of the current field
+     */
+    self.getDescriptionId = function () {
+      return descriptionId;
+    };
+
     // Must be last
     init();
   }
@@ -262,8 +284,9 @@ H5PEditor.SemanticStructure = (function ($) {
    * @param {String} text
    * @returns {jQuery}
    */
-  var createLabel = function (text, optional) {
+  var createLabel = function (text, optional, id) {
     return $('<label/>', {
+      'for': id,
       'class': 'h5peditor-label' + (optional ? '' : ' h5peditor-required'),
       text: text
     });

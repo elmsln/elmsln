@@ -14,14 +14,12 @@
 
 .h5peditor-paste-button,
 .h5peditor-copy-button {
-  border: 1px solid #cdcdcd;
-  background: #f5f5f5;
+  border: 1px solid #deeeec;
   padding: 0.5em 0.75em 0.75em 0.5em;
   margin-left: 0.5em;
   border-radius: 0.25em;
   cursor: pointer;
   background: #f2faff;
-  border-color: #deeeec;
   line-height: 0.5em;
 
   &:hover {
@@ -31,8 +29,10 @@
     background-color: #deeffb
   }
   &.disabled {
-    opacity: 0.3;
-    cursor: auto;
+    color: #707070;
+    background-color: #f5f5f5;
+    border-color: #ededed;
+    cursor: not-allowed;
   }
 }
 
@@ -43,24 +43,34 @@
   font-size: 1.5em;
   position: relative;
   top: 0.2em;
-  color: #2d8ad6;
+  color: #2372b3;
 }
 .h5peditor-copy-button:before {
-  content: "\e905";
+  content: "\e90e";
 }
 .h5peditor-paste-button:before {
-  content: "\e90a";
+  content: "\e910";
+}
+.h5peditor-copy-button.disabled:before,
+.h5peditor-paste-button.disabled:before {
+  color: #707070;
+}
+.h5peditor-copy-button.disabled:before {
+  content: "\e90f";
+}
+.h5peditor-paste-button.disabled:before {
+  content: "\e911";
 }
 .h5p-hub .h5peditor-paste-button {
   font-family: $font-family;
   color: #fff;
-  border: solid 1px transparent;
+  border: solid 1px #9fc8f4;
   padding: 0 0.75em 0.5em 0.75em;
   background: transparent;
   line-height: 1;
   height: auto;
-  margin-top: 0.5em;
-  margin-right: 0.5em;
+  margin-top: 0.675em;
+  margin-right: 0.675em;
 
   &:hover {
     background: #4b5460;
@@ -70,9 +80,14 @@
     background: #434b55;
   }
   &.disabled {
-    border-color:transparent;
+    border-color: #30353d;
+    background: #30353d;
+    color: #c2c2c2;
   }
 }
 .h5p-hub .h5peditor-paste-button:before {
-  color: #68a9ed;
+  color: #9fc8f4;
+}
+.h5p-hub .h5peditor-paste-button.disabled:before {
+  color: #c3c3c3;
 }

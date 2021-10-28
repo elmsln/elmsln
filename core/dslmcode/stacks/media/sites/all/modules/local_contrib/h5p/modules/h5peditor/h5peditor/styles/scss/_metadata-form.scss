@@ -96,16 +96,16 @@
 }
 
 .h5p-metadata-button.inverted {
-  border: 2px solid #10a186;
-  color: #10a186;
+  border: 2px solid #0a715e;
+  color: #0a715e;
 }
 .h5p-metadata-button.inverted:hover {
-  border-color: #15b395;
-  color: #15b395;
+  border-color: #0d826c;
+  color: #0d826c;
 }
 .h5p-metadata-button.inverted:active {
-  border-color: #0f967d;
-  color: #0f967d;
+  border-color: #095345;
+  color: #095345;
 }
 
 .h5p-metadata-icon-button {
@@ -170,20 +170,20 @@
   }
 
   .h5p-save {
-    border: solid 2px #10a186;
+    border: solid 2px #0a715e;
     border-radius: 0.3rem;
     color: #fff;
-    background-color: #10a186;
+    background-color: #0a715e;
     padding: 0.75rem;
     white-space: nowrap;
   }
   .h5p-save:hover {
-    border-color: #15b395;
-    background-color: #15b395;
+    border-color: #0d826c;
+    background-color: #0d826c;
   }
   .h5p-save:active {
-    border-color: #0f967d;
-    background-color: #0f967d;
+    border-color: #095345;
+    background-color: #095345;
   }
 
   .h5peditor-label {
@@ -286,6 +286,47 @@
     > .field-name-source {
       width: 49%;
       margin-left: 1%;
+    }
+
+    .field-name-title label {
+      justify-content: space-between;
+
+      .a11y-title-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+
+        &:before {
+          font-family: 'h5p-metadata-icons';
+          content: "\e905";
+          margin-right: 0.5em;
+          font-size: 1.5em;
+          vertical-align: middle;
+        }
+
+        &:focus,
+        &:active,
+        &:hover {
+          border: none;
+        }
+        &:hover .h5p-a11y-title-text {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .field-name-a11yTitle {
+      transition: max-height 0.2s, margin 0.2s;
+      overflow: hidden;
+
+      &.hide {
+        max-height: 0;
+        margin: 0;
+      }
+
+      &.hidden {
+        display: none;
+      }
     }
   }
 

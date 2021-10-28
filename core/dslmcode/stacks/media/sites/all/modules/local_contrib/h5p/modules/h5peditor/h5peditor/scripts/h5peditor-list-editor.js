@@ -13,6 +13,8 @@ H5PEditor.ListEditor = (function ($) {
     var entity = list.getEntity();
     // Create list html
     var $list = $('<ul/>', {
+      id: list.getId(),
+      'aria-describedby': list.getDescriptionId(),
       'class': 'h5p-ul'
     });
 
@@ -322,7 +324,17 @@ H5PEditor.ListEditor = (function ($) {
 
         if (item.field.label !== 0) {
           // Try to find and move the label to the title bar
-          $content.children('.field').find('.h5peditor-label:first').removeClass('h5peditor-required').appendTo($titleBar);
+          const $label = $content.children('.field').find('.h5peditor-label:first');
+
+          if ($label.length !== 0) {
+            $titleBar.append($('<label/>', {
+              'class': 'h5peditor-label',
+              'for': $label.parent().attr('for'),
+              html: $label.html()
+            }));
+
+            $label.hide();
+          }
         }
       }
 

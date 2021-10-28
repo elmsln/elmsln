@@ -20,15 +20,65 @@ class H5PDrupal implements H5PFrameworkInterface {
   /**
    * Implements fetchExternalData
    */
-  public function fetchExternalData($url, $data = NULL, $blocking = TRUE, $stream = NULL) {
-    $options = array();
-    if (!empty($data)) {
-      $options['method'] = 'POST';
-      $options['headers'] = array(
+  public function fetchExternalData($url, $data = NULL, $blocking = TRUE, $stream = NULL, $allData = FALSE, $headers = array(), $files = array(), $method = 'POST') {
+    $options = array(
+      'headers' => $headers,
+    );
+
+    if (!empty($files)) {
+      // We have to use multipart form-data encoding with boundary since the
+      // old drupal http client does not natively support posting files
+      $boundary = md5(uniqid('', true));
+      $options['method'] = $method;
+      $encoded_data = '';
+      foreach ($data as $key => $value) {
+        if (empty($value)) {
+          continue;
+        }
+
+        if (is_array($value)) {
+          foreach ($value as $val) {
+            $encoded_data .= "--$boundary\r\n";
+            $encoded_data .= h5p_multipart_enc_text($key . '[]', $val);
+          }
+        }
+        else {
+          $encoded_data .= "--$boundary\r\n";
+          $encoded_data .= h5p_multipart_enc_text($key, $value);
+        }
+      }
+
+      // TODO: Should we check $_FILES[]['size'] (+ combiend size) before trying to post something we know is too large?
+      foreach ($files as $name => $file) {
+        if ($file === NULL) {
+          continue;
+        }
+        elseif (is_array($file['name'])) {
+          // Array of files uploaded (multiple)
+          for ($i = 0; $i < count($file['name']); $i++) {
+            $encoded_data .= "--$boundary\r\n";
+            $encoded_data .= h5p_multipart_enc_file($name . '[]', $file['tmp_name'][$i], $file['name'][$i], $file['type'][$i]);
+          }
+        }
+        else {
+          // Single file
+          $encoded_data .= "--$boundary\r\n";
+          $encoded_data .= h5p_multipart_enc_file($name, $file['tmp_name'], $file['name'], $file['type']);
+        }
+      }
+
+      $encoded_data .= "--$boundary--";
+      $options['data'] = $encoded_data;
+      $options['headers']['Content-Type'] = "multipart/form-data; boundary=$boundary";
+    }
+    elseif (!empty($data)) {
+      $options['method'] = $method;
+      $options['headers'] = array_merge(array(
         'Content-Type' => 'application/x-www-form-urlencoded'
-      );
+      ), $options['headers']);
       $options['data'] = drupal_http_build_query($data);
     }
+
     if ($stream) {
       @set_time_limit(0);
     }
@@ -41,7 +91,14 @@ class H5PDrupal implements H5PFrameworkInterface {
       return TRUE;
     }
 
-    if (isset($response->error)) {
+    if ($allData) {
+      return [
+        'status' => intval($response->code),
+        'data' => isset($response->data) ? $response->data : null,
+        'headers' => isset($response->headers) ? $response->headers : null,
+      ];
+    }
+    elseif (isset($response->error)) {
       $this->setErrorMessage(t($response->error), 'failed-fetching-external-data');
       return NULL;
     }
@@ -832,7 +889,11 @@ class H5PDrupal implements H5PFrameworkInterface {
               hn.year_to AS meta_year_to,
               hn.changes AS meta_changes,
               hn.author_comments AS meta_author_comments,
-              hn.default_language AS meta_default_language
+              hn.default_language AS meta_default_language,
+              hn.shared AS shared,
+              hn.synced AS synced,
+              hn.content_hub_id AS content_hub_id,
+              hn.a11y_title AS meta_a11y_title
       FROM {h5p_nodes} hn
       JOIN {node} n ON n.nid = hn.nid
       JOIN {h5p_libraries} hl ON hl.library_id = hn.main_library_id
@@ -848,7 +909,7 @@ class H5PDrupal implements H5PFrameworkInterface {
 
     // Build metadata object
     $content->metadata = array();
-    foreach(array('authors', 'source', 'license', 'license_version', 'license_extras' ,'year_from', 'year_to', 'changes', 'author_comments', 'default_language') as $value) {
+    foreach(array('authors', 'source', 'license', 'license_version', 'license_extras' ,'year_from', 'year_to', 'changes', 'author_comments', 'default_language', 'a11y_title') as $value) {
       $lookup = 'meta_' . $value;
       if (isset($content->$lookup)) {
         $content->metadata[$value] = $content->$lookup;
@@ -954,15 +1015,19 @@ class H5PDrupal implements H5PFrameworkInterface {
    * library. This means that the content dependencies will have to be rebuilt,
    * and the parameters refiltered.
    *
-   * @param int $library_id
+   * @param array $library_ids
    */
-  public function clearFilteredParameters($library_id) {
-    db_update('h5p_nodes')
-    ->fields(array(
-      'filtered' => '',
-    ))
-    ->condition('main_library_id', $library_id)
-    ->execute();
+  public function clearFilteredParameters($library_ids) {
+    db_query(
+      "UPDATE {h5p_nodes} AS n " .
+      "JOIN {h5p_nodes_libraries} AS l " .
+      "ON n.content_id = l.content_id " .
+      "SET n.filtered = '' " .
+      "WHERE l.library_id IN (:library_ids) ",
+      array(
+        ':library_ids' => $library_ids
+      )
+    );
 
     _drupal_flush_css_js();
     drupal_clear_js_cache();
@@ -1114,5 +1179,73 @@ class H5PDrupal implements H5PFrameworkInterface {
         ':minor' => $library['minorVersion']
       )
     )->fetchField();
+  }
+
+  /**
+   * Implements replaceContentHubMetadataCache
+   */
+  public function replaceContentHubMetadataCache($metadata, $lang = 'en') {
+    // Insert or update
+    db_merge('h5p_content_hub_metadata_cache')
+      ->key(array('language' => $lang))
+      ->fields(array(
+        'json' => $metadata,
+      ))
+      ->execute();
+  }
+
+  /**
+   * Implements libraryHasUpgrade
+   */
+  public function getContentHubMetadataCache($lang = 'en') {
+    $results = db_select('h5p_content_hub_metadata_cache', 'meta')
+      ->fields('meta', array('json'))
+      ->condition('language', $lang)
+      ->execute()
+      ->fetchAssoc();
+
+    return $results['json'];
+  }
+
+  /**
+   * Get when content hub metadata cache was last checked
+   *
+   * @param  string  $lang ISO 639-1 lang code
+   *
+   * @return string|null Returns time in RFC 7231 format
+   */
+  public function getContentHubMetadataChecked($lang = 'en') {
+    $results = db_select('h5p_content_hub_metadata_cache', 'meta')
+      ->fields('meta', array('last_checked'))
+      ->condition('language', $lang)
+      ->execute()
+      ->fetchField();
+
+    if (!empty($results)) {
+      $time = new DateTime();
+      $time->setTimestamp($results);
+      $results = $time->format("D, d M Y H:i:s \G\M\T");
+    }
+
+    return $results;
+  }
+
+  /**
+   * Set when content hub metadata cache was last checked
+   *
+   * @param  int|null  $time UNIX timestamp for when last check
+   * @param  string  $lang ISO 639-1 lang code
+   *
+   * @return bool
+   */
+  public function setContentHubMetadataChecked($time, $lang = 'en') {
+    db_update('h5p_content_hub_metadata_cache')
+      ->fields(array(
+        'last_checked' => $time,
+      ))
+      ->condition('language', $lang)
+      ->execute();
+
+    return true;
   }
 }

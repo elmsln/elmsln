@@ -24,6 +24,15 @@ function h5p_menu() {
     'file' => 'h5p.admin.inc',
   );
 
+  $items['admin/config/system/h5p/register'] = array(
+    'title' => 'Register with the H5P Hub',
+    'description' => 'Register site with content hub to enable sharing',
+    'page callback' => 'h5p_hub_registration',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'h5p.admin.inc',
+  );
+
   $items['admin/content/h5p'] = array(
     'title' => 'H5P Libraries',
     'description' => 'List, delete and get detailed info on the installed H5P libraries',
@@ -113,6 +122,83 @@ function h5p_menu() {
     'access callback' => 'h5p_content_user_data_access',
     'access arguments' => array(2),
     'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/config/system/h5p/register-account'] = array(
+    'title' => 'H5P Register Content Hub Account',
+    'page callback' => 'h5p_register_account',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
+    'file' => 'h5p.admin.inc',
+  );
+
+  $items['h5p/share/%node'] = array(
+    'title' => 'H5P Share',
+    'page callback' => 'h5p_share',
+    'page arguments' => array(2),
+    'access callback' => 'h5p_share_access',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['node/%node/h5p-publish'] = array(
+    'description' => 'Publish content to the content hub',
+    'title' => 'Share',
+    'page callback' => 'h5p_publish',
+    'page arguments' => array(1, 'publish'),
+    'access callback' => 'h5p_share_access',
+    'access arguments' => array(1, 'publish'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE,
+  );
+
+  $items['node/%node/h5p-edit'] = array(
+    'description' => 'Edit content details on the content hub',
+    'title' => 'Edit sharing info',
+    'page callback' => 'h5p_publish',
+    'page arguments' => array(1, 'edit'),
+    'access callback' => 'h5p_share_access',
+    'access arguments' => array(1, 'edit'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE,
+  );
+
+  $items['node/%node/h5p-unpublish'] = array(
+    'description' => 'Unpublish content from the content hub',
+    'title' => 'Unshare',
+    'page callback' => 'h5p_unpublish',
+    'page arguments' => array(1),
+    'access callback' => 'h5p_share_access',
+    'access arguments' => array(1, 'unpublish'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE,
+  );
+
+  $items['node/%node/h5p-sync'] = array(
+    'description' => 'Sync content changes to the content hub',
+    'title' => 'Sync changes',
+    'page callback' => 'h5p_sync_to_content_hub',
+    'page arguments' => array(1),
+    'access callback' => 'h5p_share_access',
+    'access arguments' => array(1, 'sync'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE,
+  );
+
+  $items['node/%node/h5p-waiting'] = array(
+    'description' => 'Waiting for content hub to process the content',
+    'title' => 'Sharing...',
+    'page callback' => 'h5p_wait_for_content_hub',
+    'page arguments' => array(1),
+    'access callback' => 'h5p_is_waiting_for_content_hub',
+    'access arguments' => array(1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE,
   );
 
   return $items;
@@ -248,6 +334,14 @@ function h5p_permission() {
       'title' => t('Embed enabled for own H5Ps'),
       'description' => t("The embed button will be available for H5Ps the user has access to edit even even if embed button is hidden by configuration settings. This won't have any effect if embed button is globally disabled"),
     ),
+    'share any h5p content' => array(
+      'title' => t('Share any H5P content'),
+      'description' => t('Share any H5P content in the H5P Hub.'),
+    ),
+    'share own h5p content' => array(
+      'title' => t('Share own H5P content'),
+      'description' => t('Share own H5P content in the H5P Hub.'),
+    ),
   );
 }
 
@@ -264,8 +358,6 @@ function h5p_form(&$node, $form_state) {
   // When a node is being translated, the original node is found in $node->translation_source
   // We need to use that to get metadata and other H5P-specific data
   $source_node = isset($node->translation_source) ? $node->translation_source : $node;
-
-  $type = node_type_get_type($node);
 
   $form['#validate'][] = 'h5p_form_validate';
 
@@ -620,9 +712,11 @@ function h5p_delete_h5p_content($content) {
 function h5p_load($nodes) {
   $h5p = _h5p_get_instance('core');
   foreach ($nodes as $nid => &$node) {
-    $content = $h5p->loadContent(h5p_get_content_id($node));
+    $id = h5p_get_content_id($node);
+    $content = $h5p->loadContent($id);
 
     if ($content !== NULL) {
+      $node->h5p_id = $id;
       $node->json_content = $content['params'];
       $node->main_library_id = $content['library']['id'];
       $node->embed_type = $content['embedType'];
@@ -631,6 +725,12 @@ function h5p_load($nodes) {
       $node->disable = $content['disable'];
       $node->h5p_slug = $content['slug'];
       $node->metadata = $content['metadata'];
+      $node->h5p_shared = $content['shared'];
+      $node->h5p_synced = $content['synced'];
+      $node->content_hub_id = $content['contentHubId'];
+      $node->h5p_default_language = isset($content['metadata']['defaultLanguage'])
+        ? $content['metadata']['defaultLanguage']
+        : 'en';
     }
   }
 }
@@ -650,7 +750,32 @@ function h5p_view($node, $view_mode = 'full') {
   }
   else {
     h5p_set_started(h5p_get_content_id($node));
+
+    // Check and update sync status if user can share the content and the state
+    //  can not have changed externally
+    if (!empty($node->content_hub_id)
+      && intval($node->h5p_synced) !== H5PContentHubSyncStatus::NOT_SYNCED
+      && h5p_share_access($node)
+    ) {
+      $core    = _h5p_get_instance('core');
+      $newState = $core->getHubContentStatus(
+        $node->content_hub_id,
+        $node->h5p_synced
+      );
+
+      if ($newState !== false) {
+        db_update('h5p_nodes')
+          ->fields(array(
+            'synced' => $newState,
+          ))
+          ->condition('content_id', $node->h5p_id)
+          ->execute();
+
+        $node->h5p_synced = $newState;
+      }
+    }
   }
+  
   $output = '<div class="h5p-iframe-wrapper"><iframe style="height:1px" src="' . url('h5p/embed/' . $node->nid, array('absolute' => TRUE)) . '" width=":w" height=":h" frameborder="0" scrolling="no" allowfullscreen="allowfullscreen"></iframe></div>';
   $output .= '<script src="' . h5p_get_resize_url() . '" charset="UTF-8"></script>';
 
@@ -723,15 +848,19 @@ function _h5p_process_shortcodes($text, $filter) {
 function _include_h5p($node) {
   $content_id = h5p_get_content_id($node);
   $embed = H5PCore::determineEmbedType($node->embed_type, $node->main_library['embedTypes']);
-
+  
   h5p_add_files_and_settings($node, $embed);
   if ($embed === 'div') {
-    $html = '<div class="h5p-content" data-content-id="' .  $content_id . '"></div>';
+    return '<div class="h5p-content" data-content-id="' .  $content_id . '"></div>';
   }
   else {
-    $html = '<div class="h5p-iframe-wrapper"><iframe id="h5p-iframe-' . $content_id . '" class="h5p-iframe" data-content-id="' . $content_id . '" style="height:1px" src="about:blank" frameBorder="0" scrolling="no"></iframe></div>';
+    $title = $node->title;
+    if (isset($node->metadata['a11yTitle'])) {
+      $title = $node->metadata['a11yTitle'];
+    }
+
+    return '<div class="h5p-iframe-wrapper"><iframe id="h5p-iframe-' . $content_id . '" class="h5p-iframe" data-content-id="' . $content_id . '" style="height:1px" src="about:blank" frameBorder="0" scrolling="no" allowfullscreen="allowfullscreen" allow="geolocation *; microphone *; camera *; midi *; encrypted-media *" title="' . $title . '"></iframe></div>';
   }
-  return $html;
 }
 
 /**
@@ -879,6 +1008,7 @@ function h5p_get_core_settings() {
     'hubIsEnabled' => variable_get('h5p_hub_is_enabled', TRUE) ? TRUE : FALSE,
     'reportingIsEnabled' => $enableReportingFeatures,
     'crossorigin' => variable_get('h5p_crossorigin', NULL),
+    'crossoriginCacheBuster' => variable_get('h5p_crossorigin_cache_buster', NULL),
     'libraryConfig' => $core->h5pF->getLibraryConfig(),
     'pluginCacheBuster' => '?' . variable_get('css_js_query_string', ''),
     'libraryUrl' => url(drupal_get_path('module', 'h5p') . '/library/js')
@@ -960,13 +1090,19 @@ function h5p_get_content_settings($content) {
   foreach ($results as $result) {
     $content_user_data[$result->sub_content_id][$result->data_id] = $result->data;
   }
+  $title = isset($content['metadata']['a11yTitle'])
+    ? $content['metadata']['a11yTitle']
+    : (isset($content['metadata']['title'])
+      ? $content['metadata']['title']
+      : ''
+    );
 
   return array(
     'library' => H5PCore::libraryToString($content['library']),
     'jsonContent' => $filtered,
     'fullScreen' => $content['library']['fullscreen'],
     'exportUrl' => h5p_get_export_path($content),
-    'embedCode' => '<iframe src="' . url('h5p/embed/' . $content['mainId'], array('absolute' => TRUE)) . '" width=":w" height=":h" frameborder="0" allowfullscreen="allowfullscreen"></iframe>',
+    'embedCode' => '<iframe src="' . url('h5p/embed/' . $content['mainId'], array('absolute' => TRUE)) . '" width=":w" height=":h" frameborder="0" allowfullscreen="allowfullscreen" allow="geolocation *; microphone *; camera *; midi *; encrypted-media *" title="' . $title . '"></iframe>',
     'resizeCode' => '<script src="' . h5p_get_resize_url() . '" charset="UTF-8"></script>',
     'mainId' => $content['mainId'],
     'url' => $content['url'],
@@ -1482,8 +1618,6 @@ function h5p_embed($nid = NULL) {
 
   $cache_buster = '?' . variable_get('css_js_query_string', '');
 
-  // Get core settings
-  $settings = h5p_get_core_settings();
   // TODO: The non-content specific settings could be apart of a combined
   // h5p-core.js file to avoid sending the same data multiple times.
 
@@ -1521,7 +1655,10 @@ function h5p_embed($nid = NULL) {
   $scripts = array_merge($scripts, $core->getAssetsUrls($files['scripts']));
   $styles = array_merge($styles, $core->getAssetsUrls($files['styles']));
 
-  $lang = $language->language;
+  // Note: $lang is used by library/embed.php
+  $lang = isset($node->metadata['defaultLanguage'])
+    ? $node->metadata['defaultLanguage']
+    : $language->language;
   // allow for appending output to this page
   $content['head'] = '';
   drupal_alter('embedded_h5p', $content['head'], $node);
@@ -1584,4 +1721,372 @@ function h5p_variable_set($name, $value) {
   if (variable_get($name) !== $value) {
     variable_set($name, $value);
   }
+}
+
+/**
+ * Function to multipart encode a uploaded file.
+ *
+ * @param string $name The form data name
+ * @param string $filepath Path to file location (tmp_name)
+ * @param string $filename Original file name (as posted)
+ * @param string $mimetype Original mime type (as posted)
+ *
+ * @return string A string with the mimetype and the file.
+ */
+function h5p_multipart_enc_file($name, $filepath, $filename, $mimetype = 'application/octet-stream') {
+  if (substr($filepath, 0, 1) === '@') {
+    $filepath = substr($filepath, 1);
+  }
+  $data = "Content-Disposition: form-data; name=\"$name\"; filename=\"$filename\"\r\n"; // "file" key.
+  $data .= "Content-Transfer-Encoding: binary\r\n";
+  $data .= "Content-Type: $mimetype\r\n\r\n";
+
+  // Add the encoded file
+  $data .= file_get_contents($filepath) . "\r\n";
+  return $data;
+}
+
+/**
+ * Function to encode text data.
+ *
+ * @param string $name
+ *   The name of the field.
+ * @param string $value
+ *   The value of the field.
+ *
+ * @return string
+ *   A string encoded text data.
+ */
+function h5p_multipart_enc_text($name, $value){
+  return "Content-Disposition: form-data; name=\"$name\"\r\n\r\n$value\r\n"; // TODO: Should we be using rawurlencode ?
+}
+
+/**
+ * Handler for access to sharing content on the hub
+ */
+function h5p_share_access($node, $context = NULL) {
+  global $user;
+
+  if ($node->type !== 'h5p_content') {
+    return FALSE; // Refuse access regardless of permissions
+  }
+  if ($context === 'publish' && $node->h5p_shared !== '0') {
+    return FALSE; // Cannot Publish unless content is unpublished
+  }
+  if (($context === 'edit' || $context === 'unpublish' || $context === 'sync') && (empty($node->content_hub_id) || $node->h5p_shared !== '1')) {
+    return FALSE; // Cannot Edit, Unpublish or Sync unless shared
+  }
+  if ($context === 'sync' && (intval($node->h5p_synced) === H5PContentHubSyncStatus::SYNCED || intval($node->h5p_synced) === H5PContentHubSyncStatus::WAITING)) {
+    return FALSE; // Cannot sync if already synced or sync in progress
+  }
+
+  if (user_access('share any h5p content') || (user_access('share own h5p content') && $user->uid === $node->uid)) {
+    return TRUE; // Access is granted due to right permissions
+  }
+  return FALSE; // Access was not granted
+}
+
+/**
+ * Handler for access to sharing content on the hub
+ */
+function h5p_share($node) {
+  if (!$_POST) { // Only support POST
+    return drupal_not_found();
+  }
+
+  if (!H5PCore::validToken('content_hub_token', filter_input(INPUT_POST, '_token'))) {
+    H5PCore::ajaxError(t('Invalid security token.'));
+    return;
+  }
+
+  if ($node->h5p_synced === H5PContentHubSyncStatus::WAITING) {
+    H5PCore::ajaxError(t('Content is being synced.'));
+    return;
+  }
+
+  // Add POST fields to redirect to Hub
+  $data = filter_input_array(INPUT_POST, array(
+    'title' => FILTER_UNSAFE_RAW,
+    'language' => FILTER_UNSAFE_RAW,
+    'level' => FILTER_UNSAFE_RAW,
+    'license' => FILTER_UNSAFE_RAW,
+    'license_version' => FILTER_UNSAFE_RAW,
+    'disciplines' => array(
+      'filter'    => FILTER_UNSAFE_RAW,
+      'flags'     => FILTER_REQUIRE_ARRAY,
+    ),
+    'keywords' => array(
+      'filter'    => FILTER_UNSAFE_RAW,
+      'flags'     => FILTER_REQUIRE_ARRAY,
+    ),
+    'summary' => FILTER_UNSAFE_RAW,
+    'description' => FILTER_UNSAFE_RAW,
+    'screenshot_alt_texts' => array(
+      'filter' => FILTER_UNSAFE_RAW,
+      'flags' => FILTER_REQUIRE_ARRAY,
+    ),
+    'remove_screenshots' => array(
+      'filter' => FILTER_UNSAFE_RAW,
+      'flags' => FILTER_REQUIRE_ARRAY,
+    ),
+    'remove_icon' => FILTER_UNSAFE_RAW,
+    'age' => FILTER_UNSAFE_RAW,
+  ));
+
+  // Find H5P content for node
+  $content = h5p_get_content($node);
+
+  // Determine export path and file size
+  $export = _h5p_get_h5p_path() . '/exports/' . ($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p';
+  $size = filesize($export);
+
+  // Prepare additional data to POST to Hub
+  $data['download_url'] = file_create_url($export);
+  $data['size'] = empty($size) ? -1 : $size;
+
+  // Add the icon and any screenshots
+  $files = array(
+    'icon' => !empty($_FILES['icon']) ? $_FILES['icon'] : NULL,
+    'screenshots' => !empty($_FILES['screenshots']) ? $_FILES['screenshots'] : NULL,
+  );
+
+  $core = _h5p_get_instance('core');
+  try {
+    $isEdit = !empty($node->content_hub_id);
+    $updateContent = intval($node->h5p_synced) === H5PContentHubSyncStatus::NOT_SYNCED && $isEdit;
+    if ($updateContent) {
+      // node has been edited since the last time it was published
+      $data['resync'] = 1;
+    }
+    $result = $core->hubPublishContent($data, $files, $isEdit ? $node->content_hub_id : NULL);
+
+    $fields = array(
+      'shared' => 1, // Content is always shared after sharing or editing
+    );
+    if (!$isEdit) {
+      $fields['content_hub_id'] = $result->content->id;
+      // Sync will not happen on 'edit info', only for 'publish' or 'sync'.
+      $fields['synced'] = H5PContentHubSyncStatus::WAITING;
+    }
+    else if ($updateContent) {
+      $fields['synced'] = H5PContentHubSyncStatus::WAITING;
+    }
+
+    // Store the content hub id
+    db_update('h5p_nodes')
+      ->fields($fields)
+      ->condition('content_id', h5p_get_content_id($node))
+      ->execute();
+
+    H5PCore::ajaxSuccess();
+  }
+  catch (Exception $e) {
+    H5PCore::ajaxError(!empty($e->errors) ? $e->errors : $e->getMessage());
+  }
+}
+
+/**
+ * Changes the class and css of h5p specific menu_local_task button
+ *
+ * @param array $variables Variables for menu_local_task button
+ */
+function h5p_preprocess_menu_local_task(&$variables) {
+  $link = &$variables['element']['#link'];
+  if (!isset($link['localized_options'])) {  // TODO: Check $link['access'] ?
+    return;
+  }
+
+  static $jsAdded = false;
+
+  if ($link['path'] === 'node/%/h5p-unpublish') {
+    $link['localized_options']['attributes'] = array(
+      'class' => array('h5p-content-hub-button', 'publishing', 'unpublish'),
+    );
+  }
+
+  if ($link['path'] === 'node/%/h5p-sync') {
+    $link['localized_options']['attributes'] = array(
+      'class' => array('h5p-content-hub-button', 'sync'),
+    );
+  }
+
+  if ($link['path'] === 'node/%/h5p-waiting') {
+    $link['localized_options']['attributes'] = array(
+      'class' => array('h5p-content-hub-button', 'waiting'),
+    );
+  }
+
+  if (!$jsAdded) {
+    $path = drupal_get_path('module', 'h5p');
+    $settings = array(
+      'h5pContentHub' => array(
+        'token' => H5PCore::createToken('content_hub_token'),
+      ),
+    );
+
+    drupal_add_js($settings, 'setting');
+    drupal_add_js("$path/scripts/h5p-integration.js");
+    $jsAdded = true;
+  }
+}
+
+/**
+ * Unpublish content
+ *
+ * @param object $node The node
+ * @param object $context Edit or share
+ */
+function h5p_publish($node, $context) {
+  global $user;
+
+  // Redirect to registration if we're not registered yet
+  $core = _h5p_get_instance('core');
+  if (empty($core->h5pF->getOption('hub_secret', ''))) {
+    if (user_access('administer site configuration')) {
+      drupal_goto('admin/config/system/h5p/register');
+    }
+    return t('Your site is not yet registered with the content hub. Please contact an administrator.');
+  }
+
+  // Try loading existing info from the HUB
+  try {
+    $hubcontent = !empty($node->content_hub_id) ? $core->hubRetrieveContent($node->content_hub_id) : NULL;
+  }
+  catch (Exception $e) {
+    $core->h5pF->setErrorMessage(!empty($e->errors) ? $e->errors : $e->getMessage());
+    drupal_goto("node/{$node->nid}");
+  }
+
+  if (empty($node->content_hub_id)) {
+    // Try to populate with license from content
+    $license = isset($node->metadata['license']) ? $node->metadata['license'] : null;
+    $licenseVersion = isset($license) && isset($node->metadata['licenseVersion'])
+      ? $node->metadata['licenseVersion']
+      : null;
+    $showCopyrightWarning = false;
+
+    // "Undisclosed" and "Copyright" licenses are not allowed on the content hub
+    if ($license === 'U') {
+      $license = null;
+    }
+
+    if ($license === 'C') {
+      $license = null;
+      $showCopyrightWarning = true;
+    }
+
+    $hubcontent = [
+      'license' => $license,
+      'licenseVersion' => $licenseVersion,
+      'showCopyrightWarning' => $showCopyrightWarning,
+    ];
+  }
+
+  // Add the sharing UI via JavaScripts and stylesheets
+  $path = drupal_get_path('module', 'h5p');
+  drupal_add_js("$path/library/js/h5p-hub-sharing.js");
+  drupal_add_js("$path/scripts/h5p-hub-sharing-behavior.js");
+  drupal_add_css("$path/library/styles/h5p-hub-sharing.css");
+  drupal_add_css("$path/library/styles/h5p.css");
+
+  $h5pcontent = h5p_get_content($node);
+  $settings = array(
+    'h5pContentHubPublish' => array(
+      'token' => H5PCore::createToken('content_hub_token'),
+      'publishURL' => url('h5p/share/' . $node->nid),
+      'returnURL' => url("node/{$node->nid}"),
+      'l10n' => $core->getLocalization(),
+      'metadata' => json_decode($core->getUpdatedContentHubMetadataCache($user->language)),
+      'title' => $h5pcontent['title'],
+      'contentType' => H5PCore::libraryToString($h5pcontent['library']),
+      'language' => !empty($user->language) ? $user->language : 'en',
+      'hubContent' => $hubcontent,
+      'context' => $context,
+    ),
+  );
+  drupal_add_js($settings, 'setting');
+
+  return '<div id="h5p-publish">Waiting for JavaScript...</div>';
+}
+
+/**
+ * Unpublish content
+ *
+ * @param object $node The node
+ */
+function h5p_unpublish($node) {
+  if (!$_POST) {
+    return drupal_not_found();
+  }
+
+  if (H5PCore::validToken('content_hub_token', filter_input(INPUT_POST, '_token'))) {
+    $core = _h5p_get_instance('core');
+    $success = $core->hubUnpublishContent($node->content_hub_id);
+    if ($success) {
+      db_update('h5p_nodes')
+        ->fields(array('shared' => 0))
+        ->condition('content_id', $node->h5p_id)
+        ->execute();
+    }
+  }
+  else {
+    $msg = $this->h5pF->t('Could not unpublish content because token was invalid. Please try again.');
+    $this->h5pF->setErrorMessage($msg);
+  }
+
+  drupal_goto("node/{$node->nid}");
+}
+
+/**
+ * Syncs content to the content hub
+ *
+ * @param object $node The node
+ */
+function h5p_sync_to_content_hub($node) {
+  if (!$_POST) {
+    return drupal_not_found();
+  }
+  if (H5PCore::validToken('content_hub_token', filter_input(INPUT_POST, '_token'))) {
+    $core = _h5p_get_instance('core');
+    $slug = !empty($node->h5p_slug) ? $node->h5p_slug . '-' : '';
+    $h5pName = $slug . $node->h5p_id . '.h5p';
+    $exportPath = _h5p_get_h5p_path() . '/exports/' . $h5pName;
+    $exportUrl = file_create_url($exportPath);
+    $hubId = $node->content_hub_id;
+    $success = $core->hubSyncContent($hubId, $exportUrl);
+
+    if ($success) {
+      db_update('h5p_nodes')
+        ->fields(array('synced' => H5PContentHubSyncStatus::WAITING))
+        ->condition('content_id', $node->h5p_id)
+        ->execute();
+    }
+  }
+  else {
+    $msg = $this->h5pF->t('Could not sync content because token was invalid. Please try again.');
+    $this->h5pF->setErrorMessage($msg);
+  }
+
+  drupal_goto("node/{$node->nid}");
+}
+
+/**
+ * Shows "waiting" tab when content is waiting to be processed by content hub
+ *
+ * @param $node
+ *
+ * @return bool Returns true if content is waiting to be processed
+ */
+function h5p_is_waiting_for_content_hub($node) {
+  return $node->type === 'h5p_content' && intval($node->h5p_synced) === H5PContentHubSyncStatus::WAITING;
+}
+
+/**
+ * Allows showing an empty MENU_LOCAL_TASK with waiting text...
+ *
+ * @param $node
+ */
+function h5p_wait_for_content_hub($node) {
+  // This does nothing, it is just there to enable the waiting tab for the node
+  drupal_goto("node/{$node->nid}");
 }

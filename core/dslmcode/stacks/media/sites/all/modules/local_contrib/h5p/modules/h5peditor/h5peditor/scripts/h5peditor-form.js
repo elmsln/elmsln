@@ -18,8 +18,8 @@ ns.Form = function (library, startLanguages, defaultLanguage) {
             ns.t('core', 'commonFieldsDescription') +
           '</p>' +
           '<div class="h5peditor-language-switcher">' +
-            '<span class="language-label">' + ns.t('core', 'language') + ':</span>' +
-            '<select>' +
+            '<label class="language-label" for="h5peditor-language-switcher">' + ns.t('core', 'language') + ':</label>' +
+            '<select id="h5peditor-language-switcher">' +
               '<option value="-">' + ns.t('core', 'noLanguagesSupported') + '</option>' +
             '</select>' +
           '</div>' +
@@ -33,20 +33,30 @@ ns.Form = function (library, startLanguages, defaultLanguage) {
   );
   this.$common = this.$form.find('.common > .fields');
 
+  if (ns.FullscreenBar !== undefined) {
+    // Exception from rules
+    if (library.indexOf('H5P.CoursePresentation') === -1 &&
+        library.indexOf('H5P.BranchingScenario') === -1 &&
+        library.indexOf('H5P.InteractiveVideo') === -1) {
+      ns.FullscreenBar(this.$form, library);
+    }
+  }
+
   // Add title expand/collapse button
-  ns.$('<div/>', {
+  self.$commonButton = ns.$('<div/>', {
     'class': 'h5peditor-label',
+    'aria-expanded': 'false',
     title: ns.t('core', 'expandCollapse'),
     role: 'button',
     tabIndex: 0,
     html: '<span class="icon"></span>' + ns.t('core', 'commonFields'),
     on: {
       click: function () {
-        self.$common.parent().toggleClass('collapsed');
+        toggleCommonFields();
       },
       keypress: function (event) {
         if ((event.charCode || event.keyCode) === 32) {
-          self.$common.parent().toggleClass('collapsed');
+          toggleCommonFields();
           event.preventDefault();
         }
       }
@@ -66,6 +76,16 @@ ns.Form = function (library, startLanguages, defaultLanguage) {
   if (defaultLanguage) {
     ns.defaultLanguage = defaultLanguage;
   }
+
+  /**
+   * Toggle common fields group visibility
+   */
+  const toggleCommonFields = function () {
+    const expandedValue = self.$common.parent().hasClass('collapsed')
+      ? 'true' : 'false';
+    self.$commonButton.attr('aria-expanded', expandedValue);
+    self.$common.parent().toggleClass('collapsed');
+  };
 
   /**
    * Create options DOM elements
@@ -149,10 +169,16 @@ ns.Form = function (library, startLanguages, defaultLanguage) {
       }
       if (semantics[i].fields !== undefined && semantics[i].fields.length &&
           translation[i].fields !== undefined && translation[i].fields.length) {
-        findFieldDefaultTranslation(field, semantics[i].fields, translation[i].fields);
+        const found1 = findFieldDefaultTranslation(field, semantics[i].fields, translation[i].fields);
+        if (found1 !== undefined) {
+          return found1;
+        }
       }
       if (semantics[i].field !== undefined && translation[i].field !== undefined) {
-        findFieldDefaultTranslation(field, [semantics[i].field], [translation[i].field]);
+        const found2 = findFieldDefaultTranslation(field, [semantics[i].field], [translation[i].field]);
+        if (found2 !== undefined) {
+          return found2;
+        }
       }
     }
   };
@@ -194,7 +220,7 @@ ns.Form = function (library, startLanguages, defaultLanguage) {
     // Figure out what we actually need to load
     const loadLibs = [];
     for (let li in ns.libraryCache) {
-      if (ns.libraryCache[li].translation[lang] === undefined) {
+      if (ns.libraryCache[li] === 0 || ns.libraryCache[li].translation[lang] === undefined) {
         loadLibs.push(li);
       }
     }
@@ -268,11 +294,12 @@ ns.Form = function (library, startLanguages, defaultLanguage) {
   $switcher.change(function (e) {
     // Create confirmation dialog
     const confirmDialog = new H5P.ConfirmationDialog({
-      headerText: ns.t('core', 'changeLanguage', {':language': ns.supportedLanguages[this.value]}),
+      headerText: ns.t('core', 'changeLanguage', {':language': (ns.supportedLanguages[this.value] ? ns.supportedLanguages[this.value] : this.value.toLocaleUpperCase())}),
       dialogText: ns.t('core', 'thisWillPotentially'),
     }).appendTo(document.body);
     confirmDialog.on('confirmed', function () {
       const lang = ns.defaultLanguage = $switcher.val();
+      const humanLang = (ns.supportedLanguages[lang] ? ns.supportedLanguages[lang] : lang.toLocaleUpperCase());
 
       // Update chosen default language for main content and sub-content
       self.metadata.defaultLanguage = lang;
@@ -281,8 +308,8 @@ ns.Form = function (library, startLanguages, defaultLanguage) {
       // Figure out if all libraries were supported
       if (!isSupportedByAll(lang)) {
         // Show a warning message
-        $notice.children('.first').html(ns.t('core', 'notAllTextsChanged', {':language': ns.supportedLanguages[lang]}));
-        $notice.children('.last').html(ns.t('core', 'contributeTranslations', {':language': ns.supportedLanguages[lang], ':url': 'https://h5p.org/contributing#translating'}));
+        $notice.children('.first').html(ns.t('core', 'notAllTextsChanged', {':language': humanLang}));
+        $notice.children('.last').html(ns.t('core', 'contributeTranslations', {':language': humanLang, ':url': 'https://h5p.org/contributing#translating'}));
         $notice.addClass('show');
       }
       else {
@@ -385,6 +412,11 @@ ns.Form.prototype.remove = function () {
  */
 ns.Form.prototype.processSemantics = function (semantics, defaultParams, metadata) {
   this.metadata = (metadata ? metadata : defaultParams.metadata || {});
+
+  // Set language initially used
+  if (!this.metadata.defaultLanguage) {
+    this.metadata.defaultLanguage = ns.defaultLanguage;
+  }
 
   if (ns.enableMetadata(this.currentLibrary)) {
     this.metadataForm = new ns.MetadataForm(this, this.metadata, this.$form.children('.tree'), true);

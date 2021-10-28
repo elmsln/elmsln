@@ -1,5 +1,5 @@
 .h5p-confirmation-dialog-background {
-  position: absolute;
+  position: fixed;
   height: 100%;
   width: 100%;
   left: 0;
@@ -115,4 +115,69 @@ button.h5p-confirmation-dialog-exit:hover {
   content: "\e601";
   margin-top: -6px;
   display: inline-block;
+}
+
+.h5p-confirmation-dialog-popup.offline .h5p-confirmation-dialog-buttons {
+  float: none;
+  text-align: center;
+}
+
+.h5p-confirmation-dialog-popup.offline .count-down {
+  font-family: Arial;
+  margin-top: 0.15em;
+  color: #000;
+}
+
+.h5p-confirmation-dialog-popup.offline .h5p-confirmation-dialog-confirm-button:before {
+  content: "\e90b";
+  font-weight: normal;
+  vertical-align: text-bottom;
+}
+
+.throbber-wrapper {
+  display: none;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  background: rgba(44, 44, 44, 0.9);
+}
+
+.throbber-wrapper.show {
+  display: block;
+}
+
+.throbber-wrapper .throbber-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.throbber-wrapper .sending-requests-throbber{
+  position: absolute;
+  top: 7em;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.throbber-wrapper .sending-requests-throbber:before {
+  display: block;
+  font-family: 'H5P';
+  content: "\e90b";
+  color: white;
+  font-size: 10em;
+  animation: request-throbber 1.5s infinite linear;
+}
+
+@keyframes request-throbber {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
 }

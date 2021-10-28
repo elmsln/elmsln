@@ -36,6 +36,11 @@ var ns = H5PEditor;
 
     // Required for assets
     ns.baseUrl = Drupal.settings.basePath;
+    ns.enableContentHub = Drupal.settings.h5peditor.enableContentHub;
+
+    H5PIntegration.Hub = {
+      contentSearchUrl: Drupal.settings.h5peditor.hub.contentSearchUrl
+    };
 
     $type.change(function () {
       if ($type.filter(':checked').val() === 'upload') {
