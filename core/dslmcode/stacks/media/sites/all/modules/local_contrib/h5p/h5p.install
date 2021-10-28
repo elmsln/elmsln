@@ -614,7 +614,33 @@ function h5p_schema() {
         'description' => 'Default language for common fields',
         'type' => 'varchar',
         'length' => 32
-      )
+      ),
+      'shared' => array(
+        'description' => 'Shared status for the content hub',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'synced' => array(
+        'description' => 'Sync status with the content hub',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+      ),
+      'content_hub_id' => array(
+        'description' => 'Id of the content on the content hub used for sync',
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => TRUE,
+      ),
+      'a11y_title' => array(
+        'description' => 'Title for assistive technologies',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE
+      ),
     ),
     'primary key' => array('content_id'),
     'indexes' => array(
@@ -817,6 +843,26 @@ function h5p_schema() {
       ),
     ),
     'primary key' => array('type', 'library_name', 'library_version')
+  );
+
+  $schema['h5p_content_hub_metadata_cache'] = array(
+    'description' => 'JSON representation of the content hub metadata cache',
+    'fields' => array(
+      'language' => array(
+        'description' => 'Language of metadata',
+        'type' => 'varchar',
+        'length' => 31,
+      ),
+      'json' => array(
+        'description' => 'Metadata as JSON',
+        'type'        => 'text',
+        'size'        => 'big',
+      ),
+      'last_checked' => array(
+        'description' => 'Last time metadata was checked.',
+        'type' => 'int',
+      ),
+    )
   );
 
   return $schema;
@@ -1796,6 +1842,71 @@ function h5p_update_7122() {
       'description' => 'Default language for common fields',
       'type' => 'varchar',
       'length' => 32
+    ));
+  }
+}
+
+/**
+ * Add content hub metadata cache
+ */
+function h5p_update_7123() {
+  if (!db_table_exists('h5p_content_hub_metadata_cache')) {
+    db_create_table('h5p_content_hub_metadata_cache', array(
+      'description' => 'JSON representation of the content hub metadata cache',
+      'fields'      => array(
+        'language' => array(
+          'description' => 'Language of metadata',
+          'type'        => 'varchar',
+          'length'      => 31,
+        ),
+        'json' => array(
+          'description' => 'Metadata as JSON',
+          'type'        => 'text',
+          'size'        => 'big',
+        ),
+        'last_checked' => array(
+          'description' => 'Last time metadata was checked.',
+          'type' => 'int',
+        ),
+      ),
+    ));
+  }
+
+  if (!db_field_exists('h5p_nodes', 'shared')) {
+    db_add_field('h5p_nodes', 'shared', array(
+      'description' => 'Shared status for the content hub',
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'unsigned'    => true,
+      'not null'    => true,
+      'default'     => 0,
+    ));
+  }
+
+  if (!db_field_exists('h5p_nodes', 'synced')) {
+    db_add_field('h5p_nodes', 'synced', array(
+      'description' => 'Sync status with the content hub',
+      'type'        => 'int',
+      'size'        => 'tiny',
+      'unsigned'    => true,
+    ));
+  }
+
+  if (!db_field_exists('h5p_nodes', 'content_hub_id')) {
+    db_add_field('h5p_nodes', 'content_hub_id', array(
+      'description' => 'Id of the content on the content hub used for sync',
+      'type'        => 'int',
+      'size'        => 'big',
+      'unsigned'    => true,
+    ));
+  }
+
+  if (!db_field_exists('h5p_nodes', 'a11y_title')) {
+    db_add_field('h5p_nodes', 'a11y_title', array(
+      'description' => 'Title for assistive technologies',
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => false,
     ));
   }
 }

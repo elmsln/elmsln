@@ -209,4 +209,14 @@ interface H5PFileStorage {
    * @return string Relative path
    */
   public function getUpgradeScript($machineName, $majorVersion, $minorVersion);
+
+  /**
+   * Store the given stream into the given file.
+   *
+   * @param string $path
+   * @param string $file
+   * @param resource $stream
+   * @return bool
+   */
+  public function saveFileFromZip($path, $file, $stream);
 }

@@ -3,13 +3,25 @@
 /* Custom H5P font to use for icons. */
 @font-face {
   font-family: 'h5p';
-  src:    url('../fonts/h5p-core-20.eot?cb8kvi');
-  src:    url('../fonts/h5p-core-20.eot?cb8kvi#iefix') format('embedded-opentype'),
-  url('../fonts/h5p-core-20.ttf?cb8kvi') format('truetype'),
-  url('../fonts/h5p-core-20.woff?cb8kvi') format('woff'),
-  url('../fonts/h5p-core-20.svg?cb8kvi#h5p') format('svg');
+  src:  url('../fonts/h5p-core-27.eot?9pg14');
+  src:  url('../fonts/h5p-core-27.eot?9pg14#iefix') format('embedded-opentype'),
+  url('../fonts/h5p-core-27.ttf?9pg14') format('truetype'),
+  url('../fonts/h5p-core-27.woff?9pg14') format('woff'),
+  url('../fonts/h5p-core-27.svg?9pg14#h5p-core-27') format('svg');
   font-weight: normal;
   font-style: normal;
+}
+
+@font-face {
+  font-family: 'h5p-hub-publish';
+  src: url('../fonts/h5p-hub-publish.eot?wy8ylc');
+  src: url('../fonts/h5p-hub-publish.eot?wy8ylc#iefix') format('embedded-opentype'),
+  url('../fonts/h5p-hub-publish.ttf?wy8ylc') format('truetype'),
+  url('../fonts/h5p-hub-publish.woff?wy8ylc') format('woff'),
+  url('../fonts/h5p-hub-publish.svg?wy8ylc#h5p-hub') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
 }
 
 html.h5p-iframe, html.h5p-iframe > body {
@@ -199,13 +211,13 @@ div.h5p-fullscreen {
   background: none;
   padding: 0 0.75em 0 0.25em;
   vertical-align: top;
-  color: #999;
+  color: #707070;
   text-decoration: none;
   outline: none;
-  line-height: 23px;
+  line-height: 22px;
 }
 .h5p-actions > .h5p-button:hover {
-  color: #666;
+  color: #333;
 }
 .h5p-actions > .h5p-button:active,
 .h5p-actions > .h5p-button:focus,
@@ -223,8 +235,8 @@ div.h5p-fullscreen {
 .h5p-actions > .h5p-button:before {
   font-family: 'H5P';
   font-size: 20px;
-  line-height: 20px;
-  vertical-align: top;
+  line-height: 23px;
+  vertical-align: bottom;
   padding-right: 0;
 }
 .h5p-actions > .h5p-button.h5p-export:before {
@@ -306,10 +318,11 @@ div.h5p-fullscreen {
 .h5p-embed-dialog .h5p-inner,
 .h5p-reuse-dialog .h5p-inner,
 .h5p-content-user-data-reset-dialog .h5p-inner {
-  width: 316px;
+  min-width: 316px;
+  max-width: 400px;
   left: 50%;
   top: 50%;
-  margin: 0 0 0 -158px;
+  transform: translateX(-50%);
 }
 .h5p-embed-dialog .h5p-embed-code-container,
 .h5p-embed-size {
@@ -366,10 +379,6 @@ div.h5p-fullscreen {
 }
 .h5p-popup-dialog .h5p-close {
   cursor: pointer;
-}
-.h5p-popup-dialog .h5p-close:after {
-  font-family: 'H5P';
-  content: "\e894";
   font-size: 2em;
   position: absolute;
   right: 0;
@@ -381,6 +390,10 @@ div.h5p-fullscreen {
   cursor: pointer;
   text-indent: -0.065em;
   z-index: 3
+}
+.h5p-popup-dialog .h5p-close:after {
+  font-family: 'H5P';
+  content: "\e894";
 }
 .h5p-popup-dialog .h5p-close:hover:after,
 .h5p-popup-dialog .h5p-close:focus:after {
@@ -411,7 +424,6 @@ div.h5p-fullscreen {
 .h5p-expander {
   cursor: pointer;
   font-size: 1.125em;
-  outline: none;
   margin: 0.5em 0 0;
   display: inline-block;
 }
@@ -542,6 +554,25 @@ div.h5p-fullscreen {
   opacity: 0;
   visibility: hidden;
 }
+.h5p-content code,
+.h5peditor code {
+  color: #3d3d3d;
+  background: #e0e0e0;
+  border-radius: 2px;
+  padding: 0 5px;
+}
+.h5p-content pre > code,
+.h5peditor pre > code {
+  background-color: #fafafa;
+  padding: 5px;
+  display: block;
+  line-height: normal;
+  border: 1px solid #c7c7c7;
+  border-left-width: 4px;
+  max-width: 100%;
+  white-space: pre;
+  overflow: auto;
+}
 
 
 /* This is loaded as part of Core and not Editor since this needs to be outside the editor iframe */
@@ -558,4 +589,35 @@ div.h5p-fullscreen {
 iframe.h5peditor-semi-fullscreen {
   background: #fff;
   z-index: 100001;
+}
+
+.h5p-content.using-mouse *:not(textarea):focus {
+  outline: none !important;
+}
+
+.h5p-content-hub-button:before {
+  font-family: "h5p";
+  margin-right: 0.5em;
+  font-size: 0.7em;
+  line-height: 1;
+}
+
+.h5p-content-hub-button.unpublish:before {
+  content: "\e916";
+}
+
+.h5p-content-hub-button.waiting:before,
+.h5p-content-hub-button.sync:before {
+  content: "\e917";
+}
+
+.h5p-content-hub-button.waiting:before {
+  display: inline-block;
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  to {
+    transform: rotate(360deg);
+  }
 }

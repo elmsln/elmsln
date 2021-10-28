@@ -42,7 +42,7 @@ function h5p_tincan_bridge_view() {
     global $base_url;
 
     $data = json_decode($_POST['statement'], TRUE);
-    $data['send'] = true;
+    $send = true;
     // Regularize object id with node syntax
     $data['object']['id'] = $base_url . '/node/' . $_POST['nid'];
     $nid = $_POST['nid'];
@@ -51,10 +51,10 @@ function h5p_tincan_bridge_view() {
     $hook = 'tincanapi_ajax_data_alter';
     foreach (module_implements($hook) as $module) {
       $function = $module . '_' . $hook;
-      $function('h5p_tincan_bridge', $data, $_POST);
+      $function('h5p_tincan_bridge', $data, $_POST, $send);
     }
 
-    if($data['send']){
+    if($send){
       tincanapi_send("statements", "POST", $data);
     }
   }

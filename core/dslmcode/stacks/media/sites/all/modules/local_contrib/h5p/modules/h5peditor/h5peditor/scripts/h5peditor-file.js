@@ -19,6 +19,7 @@ ns.File = function (parent, field, params, setValue) {
   this.params = params;
   this.setValue = setValue;
   this.library = parent.library + '/' + field.name;
+  this.id = ns.getNextFieldId(field);
 
   if (params !== undefined) {
     this.copyright = params.copyright;
@@ -111,7 +112,7 @@ ns.File.prototype.appendTo = function ($wrapper) {
       '<a href="#" class="h5p-close" title="' + ns.t('core', 'close') + '"></a>' +
     '</div>';
 
-  var html = ns.createFieldMarkup(this.field, fileHtml);
+  var html = ns.createFieldMarkup(this.field, fileHtml, this.id);
 
   var $container = ns.$(html).appendTo($wrapper);
   this.$copyrightButton = $container.find('.h5p-copyright-button');
@@ -225,11 +226,16 @@ ns.File.prototype.addFile = function () {
   var that = this;
 
   if (this.params === undefined) {
-    this.$file.html(
-      '<a href="#" class="add" title="' + ns.t('core', 'addFile') + '">' +
-        '<div class="h5peditor-field-file-upload-text">' + ns.t('core', 'add') + '</div>' +
-      '</a>'
-    ).children('.add').click(function () {
+
+    let html = '<a href="#" id="' + this.id + '" class="add"';
+    if (this.field.description !== undefined) {
+      html += ' aria-describedby="' + ns.getDescriptionId(this.id) + '"';
+    }
+    html += ' title="' + ns.t('core', 'addFile') + '">' +
+      '<div class="h5peditor-field-file-upload-text">' + ns.t('core', 'add') + '</div>' +
+    '</a>'
+
+    this.$file.html(html).children('.add').click(function () {
       that.openFileSelector();
       return false;
     });
@@ -250,7 +256,17 @@ ns.File.prototype.addFile = function () {
     thumbnail = ns.fileIcon;
   }
 
-  this.$file.html('<a href="#" title="' + ns.t('core', 'changeFile') + '" class="thumbnail"><img ' + (thumbnail.width === undefined ? '' : ' width="' + thumbnail.width + '"') + 'height="' + thumbnail.height + '" alt="' + (this.field.label === undefined ? '' : this.field.label) + '"/><a href="#" class="remove" title="' + ns.t('core', 'removeFile') + '"></a></a>').children(':eq(0)').click(function () {
+  var fileHtmlString = '<a href="#" id="' + this.id + '" title="' + ns.t('core', 'changeFile') + '" class="thumbnail"';
+  if (this.field.description !== undefined) {
+    fileHtmlString += ' aria-describedby="' + ns.getDescriptionId(this.id) + '"';
+  }
+  fileHtmlString += '><img ' +
+      (thumbnail.width === undefined ? '' : ' width="' + thumbnail.width + '"') +
+      'height="' + thumbnail.height + '"  '+
+      'alt="' + (this.field.label === undefined ? '' : this.field.label) + '"/></a>' +
+    '<a href="#" class="remove" title="' + ns.t('core', 'removeFile') + '"></a>';
+
+  this.$file.html(fileHtmlString).children(':eq(0)').click(function () {
     that.openFileSelector();
     return false;
   }).children('img').attr('src', thumbnail.path).end().next().click(function () {

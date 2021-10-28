@@ -95,8 +95,17 @@ class H5peditorFile {
       return FALSE;
     }
 
+    $whitelist = explode(' ', $this->interface->getWhitelist(
+      FALSE,
+      H5PCore::$defaultContentWhitelist,
+      H5PCore::$defaultLibraryWhitelistExtras
+    ));
+
     // Check if mime type is allowed.
-    if ((isset($this->field->mimes) && !in_array($this->type, $this->field->mimes)) || substr($this->extension, 0, 3) === 'php') {
+    $isValidMime = !isset($this->field->mimes) || in_array($this->type, $this->field->mimes);
+    $isPhp = substr($this->extension, 0, 3) === 'php';
+    $isWhitelisted = in_array(strtolower($this->extension), $whitelist);
+    if (!$isValidMime || !$isWhitelisted || $isPhp) {
       $this->result->error = $this->interface->t("File type isn't allowed.");
       return FALSE;
     }

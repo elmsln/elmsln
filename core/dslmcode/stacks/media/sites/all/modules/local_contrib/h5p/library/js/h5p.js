@@ -136,6 +136,8 @@ H5P.init = function (target) {
     // Create new instance.
     var instance = H5P.newRunnable(library, contentId, $container, true, {standalone: true});
 
+    H5P.offlineRequestQueue = new H5P.OfflineRequestQueue({instance: instance});
+
     // Check if we should add and display a fullscreen button for this H5P.
     if (contentData.fullScreen == 1 && H5P.fullscreenSupported) {
       H5P.jQuery(
@@ -361,13 +363,26 @@ H5P.init = function (target) {
 
     // Resize content.
     H5P.trigger(instance, 'resize');
+
+    // Logic for hiding focus effects when using mouse
+    $element.addClass('using-mouse');
+    $element.on('mousedown keydown keyup', function (event) {
+      $element.toggleClass('using-mouse', event.type === 'mousedown');
+    });
+
+    if (H5P.externalDispatcher) {
+      H5P.externalDispatcher.trigger('initialized');
+    }
   });
 
   // Insert H5Ps that should be in iframes.
   H5P.jQuery('iframe.h5p-iframe:not(.h5p-initialized)', target).each(function () {
     var contentId = H5P.jQuery(this).addClass('h5p-initialized').data('content-id');
+    const contentData = H5PIntegration.contents['cid-' + contentId];
+    const language = contentData && contentData.metadata && contentData.metadata.defaultLanguage
+      ? contentData.metadata.defaultLanguage : 'en';
     this.contentDocument.open();
-    this.contentDocument.write('<!doctype html><html class="h5p-iframe"><head>' + H5P.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
+    this.contentDocument.write('<!doctype html><html class="h5p-iframe" lang="' + language + '"><head>' + H5P.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
     this.contentDocument.close();
   });
 };
@@ -668,52 +683,140 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
   }
 };
 
-/**
- * Find the path to the content files based on the id of the content.
- * Also identifies and returns absolute paths.
- *
- * @param {string} path
- *   Relative to content folder or absolute.
- * @param {number} contentId
- *   ID of the content requesting the path.
- * @returns {string}
- *   Complete URL to path.
- */
-H5P.getPath = function (path, contentId) {
+(function () {
+  /**
+   * Helper for adding a query parameter to an existing path that may already
+   * contain one or a hash.
+   *
+   * @param {string} path
+   * @param {string} parameter
+   * @return {string}
+   */
+  H5P.addQueryParameter = function (path, parameter) {
+    let newPath, secondSplit;
+    const firstSplit = path.split('?');
+    if (firstSplit[1]) {
+      // There is already an existing query
+      secondSplit = firstSplit[1].split('#');
+      newPath = firstSplit[0] + '?' + secondSplit[0] + '&';
+    }
+    else {
+      // No existing query, just need to take care of the hash
+      secondSplit = firstSplit[0].split('#');
+      newPath = secondSplit[0] + '?';
+    }
+    newPath += parameter;
+    if (secondSplit[1]) {
+      // Add back the hash
+      newPath += '#' + secondSplit[1];
+    }
+    return newPath;
+  };
+
+  /**
+   * Helper for setting the crossOrigin attribute + the complete correct source.
+   * Note: This will start loading the resource.
+   *
+   * @param {Element} element DOM element, typically img, video or audio
+   * @param {Object} source File object from parameters/json_content (created by H5PEditor)
+   * @param {number} contentId Needed to determine the complete correct file path
+   */
+  H5P.setSource = function (element, source, contentId) {
+    let path = source.path;
+
+    const crossOrigin = H5P.getCrossOrigin(source);
+    if (crossOrigin) {
+      element.crossOrigin = crossOrigin;
+
+      if (H5PIntegration.crossoriginCacheBuster) {
+        // Some sites may want to add a cache buster in case the same resource
+        // is used elsewhere without the crossOrigin attribute
+        path = H5P.addQueryParameter(path, H5PIntegration.crossoriginCacheBuster);
+      }
+    }
+    else {
+      // In case this element has been used before.
+      element.removeAttribute('crossorigin');
+    }
+
+    element.src = H5P.getPath(path, contentId);
+  };
+
+  /**
+   * Check if the given path has a protocol.
+   *
+   * @private
+   * @param {string} path
+   * @return {string}
+   */
   var hasProtocol = function (path) {
     return path.match(/^[a-z0-9]+:\/\//i);
   };
 
-  if (hasProtocol(path)) {
-    return path;
-  }
-
-  var prefix;
-  var isTmpFile = (path.substr(-4,4) === '#tmp');
-  if (contentId !== undefined && !isTmpFile) {
-    // Check for custom override URL
-    if (H5PIntegration.contents !== undefined &&
-        H5PIntegration.contents['cid-' + contentId]) {
-      prefix = H5PIntegration.contents['cid-' + contentId].contentUrl;
+  /**
+   * Get the crossOrigin policy to use for img, video and audio tags on the current site.
+   *
+   * @param {Object|string} source File object from parameters/json_content - Can also be URL(deprecated usage)
+   * @returns {string|null} crossOrigin attribute value required by the source
+   */
+  H5P.getCrossOrigin = function (source) {
+    if (typeof source !== 'object') {
+      // Deprecated usage.
+      return H5PIntegration.crossorigin && H5PIntegration.crossoriginRegex && source.match(H5PIntegration.crossoriginRegex) ? H5PIntegration.crossorigin : null;
     }
-    if (!prefix) {
-      prefix = H5PIntegration.url + '/content/' + contentId;
+
+    if (H5PIntegration.crossorigin && !hasProtocol(source.path)) {
+      // This is a local file, use the local crossOrigin policy.
+      return H5PIntegration.crossorigin;
+      // Note: We cannot use this for all external sources since we do not know
+      // each server's individual policy. We could add support for a list of
+      // external sources and their policy later on.
     }
-  }
-  else if (window.H5PEditor !== undefined) {
-    prefix = H5PEditor.filesPath;
-  }
-  else {
-    return;
-  }
+  };
 
-  if (!hasProtocol(prefix)) {
-    // Use absolute urls
-    prefix = window.location.protocol + "//" + window.location.host + prefix;
-  }
+  /**
+   * Find the path to the content files based on the id of the content.
+   * Also identifies and returns absolute paths.
+   *
+   * @param {string} path
+   *   Relative to content folder or absolute.
+   * @param {number} contentId
+   *   ID of the content requesting the path.
+   * @returns {string}
+   *   Complete URL to path.
+   */
+  H5P.getPath = function (path, contentId) {
+    if (hasProtocol(path)) {
+      return path;
+    }
 
-  return prefix + '/' + path;
-};
+    var prefix;
+    var isTmpFile = (path.substr(-4,4) === '#tmp');
+    if (contentId !== undefined && !isTmpFile) {
+      // Check for custom override URL
+      if (H5PIntegration.contents !== undefined &&
+          H5PIntegration.contents['cid-' + contentId]) {
+        prefix = H5PIntegration.contents['cid-' + contentId].contentUrl;
+      }
+      if (!prefix) {
+        prefix = H5PIntegration.url + '/content/' + contentId;
+      }
+    }
+    else if (window.H5PEditor !== undefined) {
+      prefix = H5PEditor.filesPath;
+    }
+    else {
+      return;
+    }
+
+    if (!hasProtocol(prefix)) {
+      // Use absolute urls
+      prefix = window.location.protocol + "//" + window.location.host + prefix;
+    }
+
+    return prefix + '/' + path;
+  };
+})();
 
 /**
  * THIS FUNCTION IS DEPRECATED, USE getPath INSTEAD
@@ -930,7 +1033,7 @@ H5P.t = function (key, vars, ns) {
 H5P.Dialog = function (name, title, content, $element) {
   /** @alias H5P.Dialog# */
   var self = this;
-  var $dialog = H5P.jQuery('<div class="h5p-popup-dialog h5p-' + name + '-dialog">\
+  var $dialog = H5P.jQuery('<div class="h5p-popup-dialog h5p-' + name + '-dialog" role="dialog" tabindex="-1">\
                               <div class="h5p-inner">\
                                 <h2>' + title + '</h2>\
                                 <div class="h5p-scroll-content">' + content + '</div>\
@@ -938,16 +1041,26 @@ H5P.Dialog = function (name, title, content, $element) {
                               </div>\
                             </div>')
     .insertAfter($element)
-    .click(function () {
+    .click(function (e) {
+      if (e && e.originalEvent && e.originalEvent.preventClosing) {
+        return;
+      }
+
       self.close();
     })
     .children('.h5p-inner')
-      .click(function () {
-        return false;
+      .click(function (e) {
+        e.originalEvent.preventClosing = true;
       })
       .find('.h5p-close')
         .click(function () {
           self.close();
+        })
+        .keypress(function (e) {
+          if (e.which === 13 || e.which === 32) {
+            self.close();
+            return false;
+          }
         })
         .end()
       .find('a')
@@ -968,6 +1081,7 @@ H5P.Dialog = function (name, title, content, $element) {
       $dialog.addClass('h5p-open'); // Fade in
       // Triggering an event, in case something has to be done after dialog has been opened.
       H5P.jQuery(self).trigger('dialog-opened', [$dialog]);
+      $dialog.focus();
     }, 1);
   };
 
@@ -979,6 +1093,8 @@ H5P.Dialog = function (name, title, content, $element) {
     setTimeout(function () {
       $dialog.remove();
       H5P.jQuery(self).trigger('dialog-closed', [$dialog]);
+      $element.attr('tabindex', '-1');
+      $element.focus();
     }, 200);
   };
 };
@@ -1259,11 +1375,11 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size, instance)
       var $expander = H5P.jQuery(this);
       var $content = $expander.next();
       if ($content.is(':visible')) {
-        $expander.removeClass('h5p-open').text(H5P.t('showAdvanced'));
+        $expander.removeClass('h5p-open').text(H5P.t('showAdvanced')).attr('aria-expanded', 'true');
         $content.hide();
       }
       else {
-        $expander.addClass('h5p-open').text(H5P.t('hideAdvanced'));
+        $expander.addClass('h5p-open').text(H5P.t('hideAdvanced')).attr('aria-expanded', 'false');
         $content.show();
       }
       $dialog.find('.h5p-embed-code-container').each(function () {
@@ -1274,6 +1390,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size, instance)
     $dialog.find('.h5p-expander').click(expand).keypress(function (event) {
       if (event.keyCode === 32) {
         expand.apply(this);
+        return false;
       }
     });
   }).on('dialog-closed', function () {
@@ -2065,14 +2182,18 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
     };
 
     // Post the results
-    H5P.jQuery.post(H5PIntegration.ajax.setFinished, {
+    const data = {
       contentId: contentId,
       score: score,
       maxScore: maxScore,
       opened: toUnix(H5P.opened[contentId]),
       finished: toUnix(new Date()),
       time: time
-    });
+    };
+    H5P.jQuery.post(H5PIntegration.ajax.setFinished, data)
+      .fail(function () {
+        H5P.offlineRequestQueue.add(H5PIntegration.ajax.setFinished, data);
+      });
   }
 };
 
@@ -2300,19 +2421,6 @@ H5P.createTitle = function (rawTitle, maxLength) {
         }
       });
     }
-  };
-
-  /**
-   * Get crossorigin option that is set for site. Usefull for setting crossorigin policy for elements.
-   *
-   * @returns {string|null} Returns the string that should be set as crossorigin policy for elements or null if
-   * no policy is set.
-   */
-  H5P.getCrossOrigin = function (url) {
-    var crossorigin = H5PIntegration.crossorigin;
-    var urlRegex = H5PIntegration.crossoriginRegex;
-
-    return crossorigin && urlRegex && url.match(urlRegex) ? crossorigin : null;
   };
 
   /**
@@ -2546,7 +2654,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
     // Update file URLs and reset content Ids
     recursiveUpdate(clipboardData.specific, function (path) {
       var isTmpFile = (path.substr(-4, 4) === '#tmp');
-      if (!isTmpFile && clipboardData.contentId) {
+      if (!isTmpFile && clipboardData.contentId && !path.match(/^https?:\/\//i)) {
         // Comes from existing content
 
         if (H5PEditor.contentId) {

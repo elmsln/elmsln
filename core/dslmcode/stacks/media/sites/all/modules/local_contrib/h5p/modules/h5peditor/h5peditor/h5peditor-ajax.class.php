@@ -20,6 +20,11 @@ abstract class H5PEditorEndpoints {
   const CONTENT_TYPE_CACHE = 'content-type-cache';
 
   /**
+   * Endpoint for retrieving the currently stored content hub metadata cache
+   */
+  const CONTENT_HUB_METADATA_CACHE = 'content-hub-metadata-cache';
+
+  /**
    * Endpoint for installing libraries from the Content Type Hub
    */
   const LIBRARY_INSTALL = 'library-install';
@@ -39,6 +44,16 @@ abstract class H5PEditorEndpoints {
    * Endpoint for retrieveing translation files
    */
   const TRANSLATIONS = 'translations';
+
+  /**
+   * Endpoint for filtering parameters.
+   */
+  const FILTER = 'filter';
+
+  /**
+   * Endpoint for installing libraries from the Content Type Hub
+   */
+  const GET_HUB_CONTENT = 'get-hub-content';
 }
 
 
@@ -101,6 +116,13 @@ class H5PEditorAjax {
         H5PCore::ajaxSuccess($this->getContentTypeCache(!$this->isContentTypeCacheUpdated()), TRUE);
         break;
 
+      case H5PEditorEndpoints::CONTENT_HUB_METADATA_CACHE:
+        if (!$this->isHubOn()) return;
+        header('Cache-Control: no-cache');
+        header('Content-Type: application/json; charset=utf-8');
+        print '{"success":true,"data":' . $this->core->getUpdatedContentHubMetadataCache(func_get_arg(1)) . '}';
+        break;
+
       case H5PEditorEndpoints::LIBRARY_INSTALL:
         if (!$this->isPostRequest()) return;
 
@@ -132,6 +154,19 @@ class H5PEditorAjax {
       case H5PEditorEndpoints::TRANSLATIONS:
         $language = func_get_arg(1);
         H5PCore::ajaxSuccess($this->editor->getTranslations($_POST['libraries'], $language));
+        break;
+
+      case H5PEditorEndpoints::FILTER:
+        $token = func_get_arg(1);
+        if (!$this->isValidEditorToken($token)) return;
+        $this->filter(func_get_arg(2));
+        break;
+
+      case H5PEditorEndpoints::GET_HUB_CONTENT:
+        if (!$this->isPostRequest() || !$this->isValidEditorToken(func_get_arg(1))) {
+          return;
+        }
+        $this->getHubContent(func_get_arg(2), func_get_arg(3));
         break;
     }
   }
@@ -178,25 +213,40 @@ class H5PEditorAjax {
     $file = $this->saveFileTemporarily($uploadFilePath, TRUE);
     if (!$file) return;
 
-    // These has to be set instead of sending parameteres to the validation function.
-    if (!$this->isValidPackage()) return;
+    $this->processContent($contentId);
+  }
 
-    // Install any required dependencies
+  /**
+   * Process H5P content from local H5P package.
+   *
+   * @param integer $contentId The Local Content ID / vid. TODO Remove when JI-366 is fixed
+   */
+  private function processContent($contentId) {
+    // Check if the downloaded package is valid
+    if (!$this->isValidPackage()) {
+      return; // Validation errors
+    }
+
+    // Install any required dependencies (libraries) from the package
+    // (if permission allows it, of course)
     $storage = new H5PStorage($this->core->h5pF, $this->core);
     $storage->savePackage(NULL, NULL, TRUE);
 
     // Make content available to editor
-    $content = $this->core->fs->moveContentDirectory(
-      $this->core->h5pF->getUploadedH5pFolderPath(),
-      $contentId
-    );
+    $files = $this->core->fs->moveContentDirectory($this->core->h5pF->getUploadedH5pFolderPath(), $contentId);
 
     // Clean up
     $this->storage->removeTemporarilySavedFiles($this->core->h5pF->getUploadedH5pFolderPath());
 
+    // Mark all files as temporary
+    // TODO: Uncomment once moveContentDirectory() is fixed. JI-366
+    /*foreach ($files as $file) {
+      $this->storage->markFileForCleanup($file, 0);
+    }*/
+
     H5PCore::ajaxSuccess(array(
-      'h5p' => json_decode($content->h5pJson),
-      'content' => json_decode($content->contentJson),
+      'h5p' => $this->core->mainJsonData,
+      'content' => $this->core->contentJsonData,
       'contentTypes' => $this->getContentTypeCache()
     ));
   }
@@ -269,6 +319,39 @@ class H5PEditorAjax {
 
     // Successfully installed. Refresh content types
     H5PCore::ajaxSuccess($this->getContentTypeCache());
+  }
+
+  /**
+   * End-point for filter parameter values according to semantics.
+   *
+   * @param {string} $libraryParameters
+   */
+  private function filter($libraryParameters) {
+    $libraryParameters = json_decode($libraryParameters);
+    if (!$libraryParameters) {
+      H5PCore::ajaxError($this->core->h5pF->t('Could not parse post data.'), 'NO_LIBRARY_PARAMETERS');
+      exit;
+    }
+
+    // Filter parameters and send back to client
+    $validator = new H5PContentValidator($this->core->h5pF, $this->core);
+    $validator->validateLibrary($libraryParameters, (object) array('options' => array($libraryParameters->library)));
+    H5PCore::ajaxSuccess($libraryParameters);
+  }
+
+  /**
+   * Download and use content from the HUB
+   *
+   * @param integer $hubId The Hub Content ID
+   * @param integer $localContentId The Local Content ID
+   */
+  private function getHubContent($hubId, $localContentId) {
+    // Download H5P file
+    if (!$this->callHubEndpoint(H5PHubEndpoints::CONTENT . '/' . $hubId . '/export')) {
+      return; // Download failed
+    }
+
+    $this->processContent($localContentId);
   }
 
   /**
