@@ -73,14 +73,17 @@ ns.Number.prototype.appendTo = function ($wrapper) {
  * Create HTML for the field.
  */
 ns.Number.prototype.createHtml = function () {
-  var input = ns.createText((this.field.unit && this.value !== undefined ? (this.value + ' ' + this.field.unit) : this.value), 15);
+  const id = ns.getNextFieldId(this.field);
+  const descriptionId = (this.field.description !== undefined ? ns.getDescriptionId(id) : undefined)
+  const value = this.field.unit && this.value !== undefined ? (this.value + ' ' + this.field.unit) : this.value;
+  var input = ns.createText(value, 15, undefined, id, descriptionId);
   /* TODO: Add back in when FF gets support for input:range....
    *if (this.field.min !== undefined && this.field.max !== undefined && this.field.step !== undefined) {
     input = '<input type="range" min="' + this.field.min + '" max="' + this.field.max + '" step="' + this.field.step + '"' + (this.value === undefined ? '' : ' value="' + this.value + '"') + '/>' + input;
   }
    */
 
-  return ns.createFieldMarkup(this.field, input);
+  return ns.createFieldMarkup(this.field, input, id);
 };
 
 /**
@@ -112,28 +115,34 @@ ns.Number.prototype.validate = function () {
     // Field must have a value
     this.$errors.append(ns.createError(ns.t('core', 'requiredProperty', {':property': ns.t('core', 'numberField')})));
   }
-  else if (decimals && !value.match(new RegExp('^-?[0-9]+(.|,)[0-9]{1,}$'))) {
-    this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': propertyName})));
-  }
-  else if (!decimals && !value.match(new RegExp('^-?[0-9]+$'))) {
-    this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': propertyName})));
-  }
   else {
-    if (decimals) {
-      value = parseFloat(value.replace(',', '.'));
+    var isInt = value.match(new RegExp('^-?[0-9]+$'));
+    if (decimals && !isInt && !value.match(new RegExp('^-?[0-9]+(.|,)[0-9]{1,' + decimals + '}$'))) {
+      this.$errors.append(ns.createError(ns.t('core', 'illegalDecimalNumber', {
+        ':property': propertyName,
+        ':decimals': decimals
+      })));
+    }
+    else if (!decimals && !isInt) {
+      this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': propertyName})));
     }
     else {
-      value = parseInt(value);
-    }
+      if (decimals) {
+        value = parseFloat(value.replace(',', '.'));
+      }
+      else {
+        value = parseInt(value);
+      }
 
-    if (this.field.max !== undefined && value > this.field.max) {
-      this.$errors.append(ns.createError(ns.t('core', 'exceedsMax', {':property': propertyName, ':max': this.field.max})));
-    }
-    else if (this.field.min !== undefined && value < this.field.min) {
-      this.$errors.append(ns.createError(ns.t('core', 'belowMin', {':property': propertyName, ':min': this.field.min})));
-    }
-    else if (this.field.step !== undefined && value % this.field.step)  {
-      this.$errors.append(ns.createError(ns.t('core', 'outOfStep', {':property': propertyName, ':step': this.field.step})));
+      if (this.field.max !== undefined && value > this.field.max) {
+        this.$errors.append(ns.createError(ns.t('core', 'exceedsMax', {':property': propertyName, ':max': this.field.max})));
+      }
+      else if (this.field.min !== undefined && value < this.field.min) {
+        this.$errors.append(ns.createError(ns.t('core', 'belowMin', {':property': propertyName, ':min': this.field.min})));
+      }
+      else if (this.field.step !== undefined && value % this.field.step)  {
+        this.$errors.append(ns.createError(ns.t('core', 'outOfStep', {':property': propertyName, ':step': this.field.step})));
+      }
     }
   }
 

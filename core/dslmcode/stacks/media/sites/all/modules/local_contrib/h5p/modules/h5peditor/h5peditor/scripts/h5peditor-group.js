@@ -82,6 +82,7 @@ ns.Group.prototype.appendTo = function ($wrapper) {
   // Add title expand/collapse button
   this.$title = ns.$('<div/>', {
     'class': 'title',
+    'aria-expanded': 'false',
     title: ns.t('core', 'expandCollapse'),
     role: 'button',
     tabIndex: 0,
@@ -194,8 +195,16 @@ ns.Group.prototype.toggle = function () {
  * Expand the given group.
  */
 ns.Group.prototype.expand = function () {
-  this.$group.addClass('expanded');
-  this.trigger('expanded');
+  this.$title.attr('aria-expanded', 'true');
+  // Set timeout is necessary because aria-expanded status is not announced
+  // when the :before element changes content because Firefox
+  // re-creates the accessible element..
+  // @see https://github.com/nvaccess/nvda/issues/8341
+  // Should be fixeed by Firefox 70 (https://bugzilla.mozilla.org/show_bug.cgi?id=686400)
+  setTimeout(function () {
+    this.trigger('expanded');
+    this.$group.addClass('expanded');
+  }.bind(this), 100);
 };
 
 /**
@@ -210,8 +219,17 @@ ns.Group.prototype.collapse = function () {
     }
   }
   if (valid) {
-    this.$group.removeClass('expanded');
-    this.trigger('collapsed');
+    this.$title.attr('aria-expanded', 'false');
+    // Set timeout is necessary because aria-expanded status is not announced
+    // when the :before element changes content because Firefox
+    // re-creates the accessible element..
+    // @see https://github.com/nvaccess/nvda/issues/8341
+    // Should be fixeed by Firefox 70 (https://bugzilla.mozilla.org/show_bug.cgi?id=686400)
+    setTimeout(function () {
+      this.trigger('collapsed');
+      this.$group.removeClass('expanded');
+    }.bind(this), 100);
+
   }
 };
 
@@ -295,7 +313,7 @@ ns.Group.prototype.setSummary = function (summary) {
   // Parse html
   var summaryTextNode = ns.$.parseHTML(summary);
 
-  if (summaryTextNode !== null) {
+  if (summaryTextNode !== null && summaryTextNode.length) {
     summaryText = summaryTextNode[0].nodeValue;
   }
 

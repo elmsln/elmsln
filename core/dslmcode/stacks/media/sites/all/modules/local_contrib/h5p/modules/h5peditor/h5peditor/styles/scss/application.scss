@@ -358,13 +358,21 @@ a {
 
         &:before {
           font-family: 'H5P';
-          content: "\e904";
           position: absolute;
-          color: #dd0505;
           left: 0;
-          top: 0.075em;
+          top: 0.083em;
           font-size: 3.8em;
           line-height: 1;
+        }
+
+        &.video:before {
+          content: "\e904";
+          color: #dd0505;
+        }
+
+        &.audio:before {
+          content: "\e913";
+          color: #747275;
         }
 
         input {
@@ -396,10 +404,17 @@ a {
 
           &:after {
             font-family: "H5P";
-            content: "\e903";
             line-height: 1.4em;
             font-size: 3.5em;
             color: #bbb;
+          }
+
+          &.video:after {
+            content: "\e903";
+          }
+
+          &.audio:after {
+            content: "\e914";
           }
         }
 
@@ -587,7 +602,7 @@ a {
         font-size: 2em;
         position: absolute;
         left: 0.3em;
-        top: 0.08em;
+        top: 0.1em;
       }
     }
     .remove {
@@ -907,9 +922,20 @@ a {
     }
   }
 
-  &[disabled] {
-    cursor: default;
-    opacity: 0.6;
+  &[disabled],
+  &[aria-disabled="true"] {
+    background: #f5f5f5;
+    color: #707171;
+    border-color: #eeeeee;
+    cursor: not-allowed;
+
+    &:before {
+      font-family: $icon-font-family;
+      content: "\e912";
+      color: #707171;
+      margin-right: 0.5em;
+      vertical-align: top;
+    }
   }
 }
 .h5peditor-field-description,
@@ -1003,9 +1029,29 @@ a {
 
 .h5peditor-form {
   position: relative;
-  padding: 20px;
   background: $form-background;
   border: 1px solid $form-border-color;
+
+  &.h5peditor-form-manager {
+    > .tree,
+    > .common,
+    > .field {
+      max-width: 918px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+  }
+
+  &.h5peditor-semi-fullscreen {
+    margin: 0;
+    position: fixed;
+    overflow-y: scroll;
+    margin-top: 40px;
+    padding-bottom: 40px;
+    box-sizing: border-box;
+    background: #fff;
+    height: calc(100% - 40px);
+  }
 }
 
 .h5peditor-label {
@@ -1028,35 +1074,38 @@ a {
 .h5p-tutorial-url,
 .h5p-example-url {
   font-size: 1em;
-  color: #2284cd;
+  color: #2270B9;
   display: inline-block;
   line-height: 1;
   height: 2em;
-  margin-right: 20px;
-  margin-bottom: 11px;
-}
-.h5p-example-url {
-
-}
-
-.h5p-tutorial-url:before {
-  font-family: $icon-font-family;
-  content: "\e907";
-  font-size: 1.5em;
-  position: relative;
-  top: .2em;
-  left: .2em;
   margin-right: 10px;
+  padding-right: 10px;
+  padding-bottom: 2px;
+  margin-bottom: 8px;
+  border: 1px solid transparent;
+
+  &:focus {
+    border-color: #bbdae8;
+  }
+  &:active {
+    border-color: #1C70BA;
+  }
 }
 
+.h5p-tutorial-url:before,
 .h5p-example-url:before {
   font-family: $icon-font-family;
-  content: "\e906";
   font-size: 1.5em;
   position: relative;
-  top: .2em;
-  left: .2em;
+  top: 0.15em;
+  left: 0.2em;
   margin-right: 10px;
+}
+.h5p-tutorial-url:before {
+  content: "\e907";
+}
+.h5p-example-url:before {
+  content: "\e906";
 }
 
 .h5peditor-widget-select {
@@ -1205,6 +1254,7 @@ a {
 @import "metadata-changelog-widget";
 @import "metadata-author-widget";
 @import "copy-paste";
+@import "fullscreen-bar";
 
 .h5peditor .h5peditor-language-switcher {
   float: right;

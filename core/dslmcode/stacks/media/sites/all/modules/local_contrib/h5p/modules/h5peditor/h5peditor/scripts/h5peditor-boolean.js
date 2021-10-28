@@ -34,10 +34,17 @@ ns.Boolean = function (parent, field, params, setValue) {
  * Create HTML for the boolean field.
  */
 ns.Boolean.prototype.createHtml = function () {
-  var checked = (this.value !== undefined && this.value) ? ' checked' : '';
-  var content = '<input type="checkbox"' + checked + ' />';
-
-  return ns.createBooleanFieldMarkup(this.field, content);
+  const id = ns.getNextFieldId(this.field);
+  const checked = (this.value !== undefined && this.value) ? ' checked' : '';
+  let content = '<input id="' + id + '" type="checkbox"';
+  if (this.field.description !== undefined) {
+    content += ' aria-describedby="' + ns.getDescriptionId(id) + '"';
+  }
+  if (this.value !== undefined && this.value) {
+    content += ' checked';
+  }
+  content += '/>';
+  return ns.createBooleanFieldMarkup(this.field, content, id);
 };
 
 /**
