@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8">
   <title><?php print $content['title']; ?></title>
-  <?php print $content['head']; ?>
   <?php for ($i = 0, $s = count($scripts); $i < $s; $i++): ?>
     <script src="<?php print $scripts[$i]; ?>"></script>
   <?php endfor; ?>
