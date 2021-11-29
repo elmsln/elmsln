@@ -44,18 +44,15 @@ $conf['hax_autoload_element_list'] = '{
   "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
   "self-check": "@lrnwebcomponents/self-check/self-check.js",
   "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
-  "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
-  "task-list": "@lrnwebcomponents/task-list/task-list.js",
   "video-player": "@lrnwebcomponents/video-player/video-player.js",
   "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js",
   "lrndesign-gallery": "@lrnwebcomponents\/lrndesign-gallery\/lrndesign-gallery.js",
   "lrndesign-timeline": "@lrnwebcomponents\/lrndesign-timeline\/lrndesign-timeline.js",
   "html-block": "@lrnwebcomponents\/html-block\/html-block.js",
-  "user-action": "@lrnwebcomponents\/user-action\/user-action.js",
   "date-card": "@lrnwebcomponents/date-card/date-card.js",
   "service-card": "@lrnwebcomponents/service-card/service-card.js",
-  "rss-items": "@lrnwebcomponents/rss-items/rss-items.js",
-  "cms-token": "@lrnwebcomponents/cms-hax/lib/cms-token.js"
+  "cms-token": "@lrnwebcomponents/cms-hax/lib/cms-token.js",
+  "page-break": "@lrnwebcomponents/page-break/page-break.js"
 }';
 // fix for core change in 7.50+
 $conf['x_frame_options'] = '';
