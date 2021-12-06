@@ -1306,12 +1306,12 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
   $query_params = drupal_get_query_parameters();
   $changed = FALSE;
   // course
-  if (isset($query_params['elmsln_active_course']) && $course = $query_params['elmsln_active_course']) {
+  /*if (isset($query_params['elmsln_active_course']) && $course = $query_params['elmsln_active_course']) {
     $_SESSION['cis_course_context'] = $course;
     // Remove the active section query parameter and proceed to the url
     //unset($query_params['elmsln_active_course']);
     //$changed = TRUE;
-  }
+  }*/
   if (isset($query_params['elmsln_active_section']) && $section_id = $query_params['elmsln_active_section']) {
     // get a list of allowed sections for this user
     $sections = array();
@@ -1401,7 +1401,7 @@ function elmsln_core_url_outbound_alter(&$path, &$options, $original_path) {
         $current_course = _cis_connector_course_context();
         if (isset($current_course) && $current_course) {
           // append the section context query parameter to the outgoing url
-          $options['query']['elmsln_active_course'] = $current_course;
+          //$options['query']['elmsln_active_course'] = $current_course;
         }
         // keep masquerade context
         if (isset($_SESSION['masquerading'])) {

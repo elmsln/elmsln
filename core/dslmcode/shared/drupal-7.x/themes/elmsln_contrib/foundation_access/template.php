@@ -368,7 +368,7 @@ function foundation_access_preprocess_page(&$variables) {
     // check for setting course context
     $current_course = _cis_connector_course_context();
     if (isset($current_course) && $current_course) {
-      $url_options['query']['elmsln_active_course'] = $current_course;
+      //$url_options['query']['elmsln_active_course'] = $current_course;
     }
     $current_page = url(current_path(), $url_options);
 
