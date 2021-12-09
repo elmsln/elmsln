@@ -201,6 +201,7 @@ function _mooc_content_render_options() {
     $content .= '<a tabindex="-1" target="_blank" href="' . base_path() . 'printpdf/' . $node->nid . '" class="accessible-grey-text"><paper-item>' . t('PDF') . '</paper-item></a>';
   }
   $content .='</paper-listbox></paper-menu-button>';
+  drupal_alter('mooc_content_render_options', $content);
   return $content;
 }
 
