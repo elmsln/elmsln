@@ -3,7 +3,17 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
-- ...
+
+Imagecache Actions 7.x-1.13
+---------------------------
+- [#3255527] by loze, fietserwin: Notice: Undefined property:
+  stdClass::$extension in image_imagemagick_imagecache_autorotate().
+
+Imagecache Actions 7.x-1.12
+---------------------------
+- [#3151871]: by DamienMcKenna: EXIF autorotate support for remote images.
+- [#3117901] by jacob.embree: Curly brace syntax for accessing array elements and
+  string offsets has been deprecated in PHP 7.4.
 
 Imagecache Actions 7.x-1.11
 ---------------------------

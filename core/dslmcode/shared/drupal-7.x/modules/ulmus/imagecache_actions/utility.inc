@@ -445,16 +445,16 @@ function imagecache_actions_calculate_offset($keyword, $value, $base_size, $laye
  *   A string specifing an RGB color in the formats:
  *   '#ABC','ABC','#ABCD','ABCD','#AABBCC','AABBCC','#AABBCCDD','AABBCCDD'
  *
- * @return array
+ * @return array|false
  *   An array with four elements for red, green, blue, and alpha.
  */
 function imagecache_actions_hex2rgba($hex) {
   $hex = ltrim($hex, '#');
   if (preg_match('/^[0-9a-f]{3}$/i', $hex)) {
     // 'FA3' is the same as 'FFAA33' so r=FF, g=AA, b=33
-    $r = str_repeat($hex{0}, 2);
-    $g = str_repeat($hex{1}, 2);
-    $b = str_repeat($hex{2}, 2);
+    $r = str_repeat($hex[0], 2);
+    $g = str_repeat($hex[1], 2);
+    $b = str_repeat($hex[2], 2);
     $a = '0';
   }
   elseif (preg_match('/^[0-9a-f]{6}$/i', $hex)) {
@@ -468,10 +468,10 @@ function imagecache_actions_hex2rgba($hex) {
   }
   elseif (preg_match('/^[0-9a-f]{4}$/i', $hex)) {
     // 'FA37' is the same as 'FFAA3377' so r=FF, g=AA, b=33, a=77
-    $r = str_repeat($hex{0}, 2);
-    $g = str_repeat($hex{1}, 2);
-    $b = str_repeat($hex{2}, 2);
-    $a = str_repeat($hex{3}, 2);
+    $r = str_repeat($hex[0], 2);
+    $g = str_repeat($hex[1], 2);
+    $b = str_repeat($hex[2], 2);
+    $a = str_repeat($hex[3], 2);
   }
   else {
     // error: invalid hex string, @todo: set form error.

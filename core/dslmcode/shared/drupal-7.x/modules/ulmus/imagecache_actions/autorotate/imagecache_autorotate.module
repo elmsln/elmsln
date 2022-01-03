@@ -131,8 +131,26 @@ function image_gd_imagecache_autorotate(stdClass $image) {
   }
 
   // Read and check result.
-  $exif = @exif_read_data(drupal_realpath($image->source));
-  if ($exif === FALSE && $image->extension === 'jpg') {
+  $path = drupal_realpath($image->source);
+  if ($path) {
+    $exif = @exif_read_data($path);
+  }
+  else {
+    // drupal_realpath and exif fail for remote file systems like S3.
+    // Copy to a local temporary folder and retry.
+    $base = drupal_basename($image->source);
+    $uniq = md5(microtime() . $image->source);
+    $path = file_directory_temp() . '/' . $uniq . '-' . $base;
+    file_unmanaged_copy($image->source, $path);
+    $exif = @exif_read_data($path);
+
+    // Cleanup so we don't leave files behind.
+    // The server would get them later on a reboot, but who knows when that
+    // would be.
+    file_unmanaged_delete($path);
+  }
+
+  if ($exif === FALSE) {
     watchdog('imagecache_actions', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function returned FALSE.')));
     return FALSE;
   }
@@ -211,7 +229,7 @@ function image_imagemagick_imagecache_autorotate(stdClass $image) {
           break;
       }
     }
-    elseif ($exif === FALSE && $image->extension === 'jpg') {
+    elseif ($exif === FALSE && $image->info['extension'] === 'jpg') {
       watchdog('imagecache_actions', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function returned FALSE.')));
     }
   }

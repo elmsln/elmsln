@@ -717,11 +717,17 @@ function _haxcms_saveNode($token) {
       $postData = json_decode($postData, TRUE);
       // body post
       if (isset($postData['node']['body'])) {
+        // @todo need to process body to find page-break tag and remove it from output
+        // if it's found we also need to update title, publishing (hidden or published if not there)
+        // and locked status (made up meta data?)
+        // IF for some reason these do not exist or item-id !== mlid of this item, just ignore the info
+        // and lob off the tag. This avoids any possible issues while we mess w/ this further.
         $node->body['und'][0]['value'] = $postData['node']['body'];
         if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
           $node->body['und'][0]['format'] = filter_default_format();
         }
       }
+      // @todo currently not supported bc UI hides this
       else if (isset($postData['node']['details'])) {
         // @todo support other fields
         if (isset($postData['node']['details']['title'])) {

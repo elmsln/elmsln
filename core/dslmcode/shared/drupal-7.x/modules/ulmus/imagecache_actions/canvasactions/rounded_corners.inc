@@ -152,8 +152,8 @@ function image_gd_roundedcorners($image, $action) {
     }
 
     // key can be 'tl', 'tr', 'bl', 'br'.
-    $is_bottom = ($key{0} == 'b');
-    $is_right = ($key{1} == 'r');
+    $is_bottom = ($key[0] == 'b');
+    $is_right = ($key[1] == 'r');
 
     // dx and dy are in "continuous coordinates",
     // and mark the distance of the pixel middle to the image border.
