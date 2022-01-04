@@ -115,8 +115,8 @@ function _outline_designer_book_admin_form_alter(&$form, $form_state, $form_id, 
 
   $od_path = drupal_get_path('module', 'outline_designer');
   // unset things so that the form renders with everything stripped off
-  $form["#submit"] = '';
-  $form["save"] = '';
+  $form["#submit"] = array();
+  $form["save"] = array();
   $rendered_items = module_invoke_all('outline_designer_form_overlay');
   $render = implode('', $rendered_items);
   $form["table"]['#suffix'] = theme('outline_designer_overlay_suffix', array('render' => $render));
