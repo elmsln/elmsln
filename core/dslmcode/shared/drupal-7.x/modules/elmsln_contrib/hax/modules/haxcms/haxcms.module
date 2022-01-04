@@ -505,8 +505,8 @@ function _haxcms_login() {
           // form token to validate form submissions as unique to the session
           $settings->getFormToken = drupal_get_token('hax');
           // @todo comment in when we fully implement the above UX and test it more thoroughly
-          //$settings->createNodePath = $path . 'createNode/' . drupal_get_token('hax');
-          //$settings->deleteNodePath = $path . 'deleteNode/' . drupal_get_token('hax');
+          $settings->createNodePath = $path . 'createNode/' . drupal_get_token('hax');
+          $settings->deleteNodePath = $path . 'deleteNode/' . drupal_get_token('hax');
           $settings->getUserDataPath = $path . 'getUserData/' . drupal_get_token('hax');
           // not an actual jwt but fakes it correctly for session based Drupal to function
           $settings->jwt = drupal_get_token('hax');
@@ -708,7 +708,7 @@ function _haxcms_pageBreakParser($body = '<page-break></page-break>') {
   // match all pages + content
   preg_match_all("/(<page-break(.*?)><\/page-break>)((?:.|\n)*?)(?=<page-break)/", $body, $matches);
   foreach($matches[0] as $i => $match) {
-    $content = "<div " . str_replace('published ', 'published="published" ', str_replace('locked ', 'locked="locked" ', $matches[2][$i])) . "></div>";
+    $content = "<div " . str_replace('path-auto ', 'path-auto="path-auto" ', str_replace('published ', 'published="published" ', str_replace('locked ', 'locked="locked" ', $matches[2][$i]))) . "></div>";
     try {
       $attrs = current((array) new SimpleXMLElement($content));
     }
@@ -743,40 +743,63 @@ function _haxcms_saveNode($token) {
         // and locked status (made up meta data?)
         // IF for some reason these do not exist or item-id !== mlid of this item, just ignore the info
         // and lob off the tag. This avoids any possible issues while we mess w/ this further.
-        $pageData = _haxcms_pageBreakParser($body);
+        $pageData = _haxcms_pageBreakParser($postData['node']['body']);
+        $body = $postData['node']['body'];
+
         // check if we have a page-break; if not (we always should) then we skip these steps
         // this would imply the user deleted it manually which is bad but we won't fail them :0
-        if (count($pageData[0]) > 0) {
-          $body = $data['content'];
+        if (count($pageData) > 0) {
+          // rips off the page breaks while keeping content
+          // @todo in the future make new pages off of this
+          $body = '';
+          foreach($pageData as $data) {
+            $body .= $data['content'];
+          }
+          // now just work against the 1st one for the node and ignore the rest
           $data = $pageData[0];
           if (isset($data["attributes"]["title"]) && $node->title != $data["attributes"]["title"]) {
             $node->title = $data["attributes"]["title"];
           }
-          if (isset($data["attributes"]["slug"]) && $node->path != $data["attributes"]["slug"]) {
-            $node->path = $data["attributes"]["slug"];
-          }
+          $newSlug = '';
+          // ignore setting path if it's just node/123
+          if (isset($data["attributes"]["slug"]) && $data["attributes"]["slug"] != '' && strpos( $data["attributes"]["slug"] , 'node/' ) !== 0) {
+            $alias = drupal_lookup_path('alias', $data["attributes"]["slug"]);
+            // create the alias if it's not a node path and it doesn't have a match here yet
+            if (!$alias) {
+              $pathObj = array(
+                "source" => 'node/' . $node->nid,
+                "alias" => $data["attributes"]["slug"]
+              );
+              path_save($pathObj);
+              $newSlug = $data["attributes"]["slug"];
+            }
+          } 
           // use hidden nodes if it exists; or fallback to actual published status in drupal node
           if (module_exists("hidden_nodes")) {
-            if (isset($data["attributes"]["published"]) && $node->hidden != $data["attributes"]["published"]) {
-              $node->hidden = $data["attributes"]["published"];
+            if (isset($data["attributes"]["published"])) {
+              $node->hidden = 0;
+            }
+            else {
+              $node->hidden = 1;
             }
           }
           else {
-            if (isset($data["attributes"]["published"]) && $node->published != $data["attributes"]["published"]) {
-              $node->published = $data["attributes"]["published"];
+            if (isset($data["attributes"]["published"])) {
+              $node->status = 1;
+            }
+            else {
+              $node->status = 0;
             }
           }
-          // @todo add support for changing parents
-          /*
+          // support for changing parent / plid
           if (isset($data["attributes"]["parent"]) && $node->book["plid"] != $data["attributes"]["parent"]) {
             $node->book["plid"] = str_replace('mlid-', '', $data["attributes"]["parent"]);
           }
-          // @todo add support for changing order
-          if (isset($data["attributes"]["order"]) && $node->book["parent"] != $data["attributes"]["order"]) {
+          // support for changing order / weight
+          if (isset($data["attributes"]["order"])) {
             $node->book["weight"] = (int)$data["attributes"]["order"];
           }
-          // Drupal manages depth so we do not work on the depth value at all
-           */
+          // @note Drupal manages depth so we do not work on the depth value at all
         }
         $node->body['und'][0]['value'] = $body;
         if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
@@ -813,6 +836,10 @@ function _haxcms_saveNode($token) {
   drupal_add_http_header('Content-Type', 'application/json');
   // define status
   drupal_add_http_header('Status', $status);
+  // helps w/ front end routing if path changed
+  if ($newSlug != '') {
+    $node->slug = $newSlug;
+  }
   $return = array(
     'status' => $status,
     'message' => $message,
@@ -980,6 +1007,13 @@ function _haxcms_loadJOS($book, $returnSite = false) {
       $page = node_load(str_replace('node/', '', $bookData['link_path']));
       $item->metadata->created = $page->created;
       $item->metadata->updated = $page->changed;
+      // use hidden nodes if it exists; or fallback to actual published status in drupal node
+      if (module_exists("hidden_nodes")) {
+        $item->metadata->published = ($page->hidden) ? false : true;
+      }
+      else {
+        $item->metadata->published = ($page->status) ? true : false;
+      }
       $item->location = base_path() . "haxapi/getNodeContent/" . $page->nid;
       drupal_alter('haxcms_site_item', $item, $bookData, $book);
       array_push($site->items, $item);
