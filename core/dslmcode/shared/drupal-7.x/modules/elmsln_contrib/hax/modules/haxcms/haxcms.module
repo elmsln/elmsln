@@ -702,7 +702,28 @@ function _haxcms_deleteNode($token) {
   print drupal_json_output($return);
   exit;
 }
-
+function _haxcms_pageBreakParser($body = '<page-break></page-break>') {
+  $body .= '<page-break FAKEENDCAP></page-break>';
+  $pageData = [];
+  // match all pages + content
+  preg_match_all("/(<page-break(.*?)><\/page-break>)((?:.|\n)*?)(?=<page-break)/", $body, $matches);
+  foreach($matches[0] as $i => $match) {
+    $content = "<div " . str_replace('published ', 'published="published" ', str_replace('locked ', 'locked="locked" ', $matches[2][$i])) . "></div>";
+    try {
+      $attrs = current((array) new SimpleXMLElement($content));
+    }
+    catch(Exception $e) {
+      $attrs = array();
+    }
+    $pageData[$i] = array(
+        "content" => $matches[3][$i],
+        // this assumes that the attributes are well formed; make sure front end did this
+        // even for boolean attributes
+        "attributes" => $attrs
+    );
+  }
+  return $pageData;
+}
 /**
  * Callback to save just the body field.
  */
@@ -722,12 +743,47 @@ function _haxcms_saveNode($token) {
         // and locked status (made up meta data?)
         // IF for some reason these do not exist or item-id !== mlid of this item, just ignore the info
         // and lob off the tag. This avoids any possible issues while we mess w/ this further.
-        $node->body['und'][0]['value'] = $postData['node']['body'];
+        $pageData = _haxcms_pageBreakParser($body);
+        // check if we have a page-break; if not (we always should) then we skip these steps
+        // this would imply the user deleted it manually which is bad but we won't fail them :0
+        if (count($pageData[0]) > 0) {
+          $body = $data['content'];
+          $data = $pageData[0];
+          if (isset($data["attributes"]["title"]) && $node->title != $data["attributes"]["title"]) {
+            $node->title = $data["attributes"]["title"];
+          }
+          if (isset($data["attributes"]["slug"]) && $node->path != $data["attributes"]["slug"]) {
+            $node->path = $data["attributes"]["slug"];
+          }
+          // use hidden nodes if it exists; or fallback to actual published status in drupal node
+          if (module_exists("hidden_nodes")) {
+            if (isset($data["attributes"]["published"]) && $node->hidden != $data["attributes"]["published"]) {
+              $node->hidden = $data["attributes"]["published"];
+            }
+          }
+          else {
+            if (isset($data["attributes"]["published"]) && $node->published != $data["attributes"]["published"]) {
+              $node->published = $data["attributes"]["published"];
+            }
+          }
+          // @todo add support for changing parents
+          /*
+          if (isset($data["attributes"]["parent"]) && $node->book["plid"] != $data["attributes"]["parent"]) {
+            $node->book["plid"] = str_replace('mlid-', '', $data["attributes"]["parent"]);
+          }
+          // @todo add support for changing order
+          if (isset($data["attributes"]["order"]) && $node->book["parent"] != $data["attributes"]["order"]) {
+            $node->book["weight"] = (int)$data["attributes"]["order"];
+          }
+          // Drupal manages depth so we do not work on the depth value at all
+           */
+        }
+        $node->body['und'][0]['value'] = $body;
         if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
           $node->body['und'][0]['format'] = filter_default_format();
         }
       }
-      // @todo currently not supported bc UI hides this
+      // @note currently not supported bc UI hides this
       else if (isset($postData['node']['details'])) {
         // @todo support other fields
         if (isset($postData['node']['details']['title'])) {
