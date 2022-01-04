@@ -45,8 +45,8 @@ Drupal.behaviors.outline_designer_book = {
     }
   });
   //set the active node id everytime an edit icon is clicked on
-  $('.outline_designer_edit_button a paper-button', context).bind('click',function(e){
-    Drupal.outline_designer.set_active($(this)[0].parentNode.parentNode.id.replace('node-', '').replace('-icon', ''));
+  $('.outline_designer_edit_button', context).bind('click',function(e){
+    Drupal.outline_designer.set_active($(this)[0].id.replace('node-', '').replace('-icon', ''));
   });
   //whenever you doubleclick on a title, switch it to the rename state
   $("#book-outline span.od_title_span", context).bind('dblclick',function(e){
