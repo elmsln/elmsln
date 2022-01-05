@@ -654,12 +654,15 @@ function _haxcms_createNode($token) {
       if (node_access('create', $node->type)) {
         node_save($node);
         // allow front end to set path if defined
+        $nodePath = 'node/' . $node->nid;
         if (isset($nodeData['location']) && $nodeData['location'] != '' && $nodeData['location'] != NULL) {
           $pathMap = array("source" => 'node/' . $node->nid, "alias" => $nodeData['location']);
           path_save($pathMap);
+          $nodePath = $nodeData['location'];
         }
         $status = 200;
         $message = t('Node created!');
+        $node->slug = $nodePath;
       }
     }
   }
