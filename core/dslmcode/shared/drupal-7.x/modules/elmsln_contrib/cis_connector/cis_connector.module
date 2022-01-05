@@ -1197,6 +1197,7 @@ function _cis_connector_make_request($url, $options = array()){
       CURLOPT_VERBOSE => TRUE,
       CURLOPT_ENCODING => "",
       CURLOPT_MAXREDIRS => 10,
+      CURLOPT_SSL_VERIFYPEER => FALSE,
       CURLOPT_TIMEOUT_MS => $options['timeout'],
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => strtoupper($options['method']),

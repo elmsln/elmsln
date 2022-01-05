@@ -112,6 +112,7 @@ class Canvas {
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
         CURLOPT_TIMEOUT => 10,
+        CURLOPT_SSL_VERIFYPEER => FALSE,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => strtoupper($options['method']),
         CURLOPT_HTTPHEADER => $headers,
