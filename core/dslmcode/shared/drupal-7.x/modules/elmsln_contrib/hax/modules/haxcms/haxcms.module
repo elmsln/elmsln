@@ -836,7 +836,8 @@ function _haxcms_saveNode($token) {
   drupal_add_http_header('Content-Type', 'application/json');
   // define status
   drupal_add_http_header('Status', $status);
-  // helps w/ front end routing if path changed
+  // helps w/ front end routing if path changed but also for API consistency w/ HAXcms
+  $node->slug = 'node/' . $node->nid;
   if ($newSlug != '') {
     $node->slug = $newSlug;
   }
