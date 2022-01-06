@@ -148,6 +148,16 @@ define('HTTPRL_NON_BLOCKING_FCLOSE_DELAY', 0);
 define('HTTPRL_SERVER_PORT', '');
 
 /**
+ * Just for loopback 127.0.0.1; ignore SSL errors allowing the connection.
+ */
+define('HTTPRL_LOOPBACK_IGNORE_SSL_ERRORS', TRUE);
+
+/**
+ * If on 64bit system give php 3 GB of ram for async callbacks.
+ */
+define('HTTPRL_ASYNC_MEM_LIMIT', '3G');
+
+/**
  * Implements hook_url_inbound_alter().
  */
 function httprl_url_inbound_alter(&$path, $original_path, $path_language) {
@@ -1013,6 +1023,14 @@ function httprl_establish_stream_connection(&$result) {
       $timeout += $result->options['connect_timeout'];
     }
 
+    // Check for timeout here in the connection loop.
+    $now_time = microtime(TRUE);
+    $running_time = $now_time - $start_time;
+    if ($running_time > $timeout) {
+      break;
+    }
+    ini_set('default_socket_timeout', $timeout);
+
     // Open the connection.
     if (empty($result->options['context'])) {
       $result->fp = @stream_socket_client($result->socket, $errno, $errstr, $timeout, $result->flags);
@@ -1299,7 +1317,7 @@ function httprl_send_request($results = NULL) {
       continue;
     }
 
-    if (!empty($result->cached)) {
+    if (!empty($result->cached->url)) {
       // Used the cached data.
       $output[$result->cached->url] = $result->cached;
       unset($responses[$id]);
@@ -2304,6 +2322,16 @@ function httprl_queue_background_callback(&$args, &$result = NULL) {
     'blocking' => $mode,
     'method' => 'POST',
   );
+
+  if (empty($callback_options['context']) && httprl_variable_get('httprl_loopback_ignore_ssl_errors', HTTPRL_LOOPBACK_IGNORE_SSL_ERRORS)) {
+    // Set context for loopback 127.0.0.1 to ignore any SSL issues.
+    $drupal_ssl_context_options = array(
+      'verify_peer' => FALSE,
+      'verify_peer_name' => FALSE,
+      'allow_self_signed' => TRUE,
+    );
+    $options['context'] = stream_context_create(['ssl' => $drupal_ssl_context_options]);
+  }
   if (isset($callback_options['printed'])) {
     $options['internal_states']['background_function_printed'] = &$callback_options['printed'];
   }

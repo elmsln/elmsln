@@ -1,0 +1,278 @@
+diff --git a/examples/httprl.examples.php b/examples/httprl.examples.php
+index 1590869..cb28940 100644
+--- a/examples/httprl.examples.php
++++ b/examples/httprl.examples.php
+@@ -12,10 +12,10 @@ Request http://drupal.org/.
+ // Queue up the request.
+ httprl_request('http://drupal.org/');
+ // Execute request.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ 
+ // Echo out the results.
+-echo httprl_pr($response);
++echo httprl_pr($request);
+ ?>
+ 
+ 
+@@ -25,11 +25,11 @@ Request http://drupal.org/robots.txt and save it to tmp folder.
+ // Queue up the request.
+ httprl_request('http://drupal.org/robots.txt');
+ // Execute request.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ 
+ // Save file if we got a 200 back.
+-if ($response['http://drupal.org/robots.txt']->code == 200) {
+-  file_put_contents('/tmp/robots.txt', $response['http://drupal.org/robots.txt']->data);
++if ($request['http://drupal.org/robots.txt']->code == 200) {
++  file_put_contents('/tmp/robots.txt', $request['http://drupal.org/robots.txt']->data);
+ }
+ ?>
+ 
+@@ -51,17 +51,17 @@ $url_node = httprl_build_url_self('node');
+ httprl_request($url_front, $options);
+ httprl_request($url_node, $options);
+ // Execute requests.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ 
+ // Echo out the results.
+-echo httprl_pr($response);
++echo httprl_pr($request);
+ ?>
+ 
+ 
+ **Non Blocking HTTP Operations**
+ 
+ Request 10 URLs in a non blocking manner on this server. Checkout watchdog as
+-this should generate 10 404s and the $response object won't contain much info.
++this should generate 10 404s and the $request object won't contain much info.
+ 
+ <?php
+ // Set the blocking mode.
+@@ -80,10 +80,10 @@ for ($i=1; $i <= $max; $i++) {
+   httprl_request($url, $options);
+ }
+ // Execute requests.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ 
+ // Echo out the results.
+-echo httprl_pr($response);
++echo httprl_pr($request);
+ ?>
+ 
+ 
+@@ -110,10 +110,10 @@ for ($i=1; $i <= $max; $i++) {
+ // Queue up the requests.
+ httprl_request($urls, $options);
+ // Execute requests.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ 
+ // Echo out the results.
+-echo httprl_pr($response);
++echo httprl_pr($request);
+ ?>
+ 
+ 
+@@ -143,10 +143,10 @@ for ($i=1; $i <= $max; $i++) {
+ // Queue up the requests.
+ httprl_request($urls, $options);
+ // Execute requests.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ 
+ // Echo out the results.
+-echo httprl_pr($response);
++echo httprl_pr($request);
+ ?>
+ 
+ 
+@@ -180,10 +180,10 @@ for ($i=1; $i <= $max; $i++) {
+ // Queue up the requests.
+ httprl_request($urls, $options);
+ // Execute requests.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ 
+ // Echo out the results.
+-echo httprl_pr($response);
++echo httprl_pr($request);
+ ?>
+ 
+ 
+@@ -214,7 +214,7 @@ $url_front = httprl_build_url_self();
+ // Queue up the request.
+ httprl_request($url_front, $options);
+ // Execute request.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ 
+ // Echo returned value from function callback.
+ echo $x;
+@@ -247,7 +247,7 @@ $url_front = httprl_build_url_self();
+ // Queue up the request.
+ httprl_request($url_front, $options);
+ // Execute request.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ 
+ // Echo returned value from function callback.
+ echo $x;
+@@ -285,7 +285,7 @@ $url_front = httprl_build_url_self();
+ // Queue up the request.
+ httprl_request($url_front, $options);
+ // Execute request.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ 
+ // Echo what was returned and printed from function callback.
+ echo $x . "<br />\n";
+@@ -318,10 +318,10 @@ $options = array(
+ httprl_request($urls, $options);
+ 
+ // Execute requests.
+-$response = httprl_send_request();
++$requests = httprl_send_request();
+ 
+ // Print what was done.
+-echo httprl_pr($response);
++echo httprl_pr($requests);
+ 
+ function need_two_good_results($id, &$responses) {
+   static $counter = 0;
+@@ -380,9 +380,9 @@ $url_front = httprl_build_url_self();
+ // Queue up the request.
+ httprl_request($url_front, $options);
+ // Execute request.
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ // Echo what was returned.
+-echo httprl_pr($response);
++echo httprl_pr($request);
+ ?>
+ 
+ 
+@@ -425,17 +425,17 @@ $options = array(
+ httprl_request($urls, $options);
+ // Execute request.
+ echo round(timer_read('page')/1000, 3) . " - Time taken to get requests ready.<br> \n";
+-$response = httprl_send_request();
+-echo strtoupper(var_export($response, TRUE)) . " - Output from first httprl_send_request() call<br> \n";
++$request = httprl_send_request();
++echo strtoupper(var_export($request, TRUE)) . " - Output from first httprl_send_request() call<br> \n";
+ 
+ echo round(timer_read('page')/1000, 3) . " - Time taken to send out all fwrites().<br> \n";
+ sleep(2);
+ echo round(timer_read('page')/1000, 3) . " - Time taken for sleep(2).<br> \n";
+ 
+-$response = httprl_send_request();
++$request = httprl_send_request();
+ echo round(timer_read('page')/1000, 3) . " - Time taken for all freads().<br> \n";
+ echo "Output from second httprl_send_request() below:<br> \n<br> \n";
+-echo httprl_pr($response);
++echo httprl_pr($request);
+ ?>
+ 
+ 
+diff --git a/httprl.async.inc b/httprl.async.inc
+index c0d3942..91e10f4 100644
+--- a/httprl.async.inc
++++ b/httprl.async.inc
+@@ -88,6 +88,19 @@ function httprl_async_page() {
+     }
+   }
+ 
++  // If on 64bit system give php 3 GB of ram.
++  if (PHP_INT_SIZE > 4) {
++    $current_memory_limit = @ini_get('memory_limit');
++    $current_size = parse_size($memory_limit);
++
++    $new_memory_limit = httprl_variable_get('httprl_async_mem_limit', HTTPRL_ASYNC_MEM_LIMIT)
++    $new_size = parse_size($new_memory_limit);
++
++    if ($new_size > $current_size) {
++      @ini_set('memory_limit', $new_memory_limit);
++    }
++  }
++
+   // Run the function.
+   if (!empty($_POST['function'])) {
+     $data = httprl_run_function($_POST['function'], $args);
+diff --git a/httprl.install b/httprl.install
+index fe30a7e..5e96251 100644
+--- a/httprl.install
++++ b/httprl.install
+@@ -322,7 +322,7 @@ function httprl_install_http_test($mode, $blocking = FALSE, $depth = 0) {
+         && ip2long($hostname) === FALSE
+         && httprl_variable_get('httprl_server_hostname', FALSE) != $hostname
+         ) {
+-      $msg = $t('The "Host name of the server to send all self server requests to" setting needs to be changed to @hostname on the <a href="@url">configuration page</a>,', array(
++      $msg = $t('The "IP Address to send all self server requests to" setting needs to be changed to @hostname on the <a href="@url">configuration page</a>,', array(
+         '@url' => url('admin/config/development/httprl'),
+         '@hostname' => $hostname,
+       ));
+diff --git a/httprl.module b/httprl.module
+index bb1bed7..146856a 100644
+--- a/httprl.module
++++ b/httprl.module
+@@ -147,6 +147,16 @@ define('HTTPRL_NON_BLOCKING_FCLOSE_DELAY', 0);
+  */
+ define('HTTPRL_SERVER_PORT', '');
+ 
++/**
++ * Just for loopback 127.0.0.1; ignore SSL errors allowing the connection.
++ */
++define('HTTPRL_LOOPBACK_IGNORE_SSL_ERRORS', TRUE);
++
++/**
++ * If on 64bit system give php 3 GB of ram for async callbacks.
++ */
++define('HTTPRL_ASYNC_MEM_LIMIT', '3G');
++
+ /**
+  * Implements hook_url_inbound_alter().
+  */
+@@ -1044,6 +1054,14 @@ function httprl_establish_stream_connection(&$result) {
+       $timeout += $result->options['connect_timeout'];
+     }
+ 
++    // Check for timeout here in the connection loop.
++    $now_time = microtime(TRUE);
++    $running_time = $now_time - $start_time;
++    if ($running_time > $timeout) {
++      break;
++    }
++    ini_set('default_socket_timeout', $timeout);
++
+     // Open the connection.
+     if (empty($result->options['context'])) {
+       $result->fp = @stream_socket_client($result->socket, $errno, $errstr, $timeout, $result->flags);
+@@ -1334,7 +1352,7 @@ function httprl_send_request($results = NULL) {
+       continue;
+     }
+ 
+-    if (!empty($result->cached)) {
++    if (!empty($result->cached->url)) {
+       // Used the cached data.
+       $output[$result->cached->url] = $result->cached;
+       unset($responses[$id]);
+@@ -2368,6 +2386,16 @@ function httprl_queue_background_callback(&$args, &$result = NULL) {
+     'method' => 'POST',
+     'referrer' => 'TRUE',
+   );
++
++  if (empty($callback_options['context']) && httprl_variable_get('httprl_loopback_ignore_ssl_errors', HTTPRL_LOOPBACK_IGNORE_SSL_ERRORS)) {
++    // Set context for loopback 127.0.0.1 to ignore any SSL issues.
++    $drupal_ssl_context_options = array(
++      'verify_peer' => FALSE,
++      'verify_peer_name' => FALSE,
++      'allow_self_signed' => TRUE,
++    );
++    $options['context'] = stream_context_create(['ssl' => $drupal_ssl_context_options]);
++  }
+   if (isset($callback_options['printed'])) {
+     $options['internal_states']['background_function_printed'] = &$callback_options['printed'];
+   }

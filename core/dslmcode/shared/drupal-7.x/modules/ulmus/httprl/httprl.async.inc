@@ -88,6 +88,19 @@ function httprl_async_page() {
     }
   }
 
+  // If on 64bit system give php 3 GB of ram.
+  if (PHP_INT_SIZE > 4) {
+    $current_memory_limit = @ini_get('memory_limit');
+    $current_size = parse_size($memory_limit);
+
+    $new_memory_limit = httprl_variable_get('httprl_async_mem_limit', HTTPRL_ASYNC_MEM_LIMIT);
+    $new_size = parse_size($new_memory_limit);
+
+    if ($new_size > $current_size) {
+      @ini_set('memory_limit', $new_memory_limit);
+    }
+  }
+
   // Run the function.
   if (!empty($_POST['function'])) {
     $data = httprl_run_function($_POST['function'], $args);
