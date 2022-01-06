@@ -1171,9 +1171,16 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
  * issues with certain SSL connections
  */
 function _cis_connector_make_request($url, $options = array()){
+  // support for httprl which is faster then core and does same thing
+  if (module_exists('httprl')) {
+    httprl_request($url, $options);
+    // send the request off
+    $tmp = httprl_send_request();
+    $response = array_pop($tmp);
+  }
   // support developers overloading the request method, specifically curl
   // as some systems can have issues with SSL configuration and socket connections
-  if (function_exists('curl_init')) {
+  elseif (function_exists('curl_init')) {
     $headers = array();
     if (isset($options['headers']) && is_array($options['headers'])) {
       foreach ($options['headers'] as $property => $value) {
@@ -1217,13 +1224,6 @@ function _cis_connector_make_request($url, $options = array()){
         $response->headers['link'] = str_replace('Link: ', '', $header);
       }
     }
-  }
-  // support for httprl which is faster then core and does same thing
-  elseif (module_exists('httprl')) {
-    httprl_request($url, $options);
-    // send the request off
-    $tmp = httprl_send_request();
-    $response = array_pop($tmp);
   }
   else {
     // original fallback
