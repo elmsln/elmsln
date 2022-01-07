@@ -1,6 +1,11 @@
 [mysqld]
 ; ELMSLN recommendations ;
 
+; Emoji support via large utf ;
+innodb_large_prefix=true
+innodb_file_format=barracuda
+innodb_file_per_table=true
+
 ; From real world testing ;
 table_definition_cache = 4000
 table_open_cache = 512
