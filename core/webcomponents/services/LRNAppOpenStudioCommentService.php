@@ -261,7 +261,8 @@ class LRNAppOpenStudioCommentService {
         if ($payload->attributes->body) {
           $format = 'student_format';
           $comment->status = COMMENT_PUBLISHED;
-          $payload->attributes->body = _transliteration_process($payload->attributes->body);
+          // emoji's now supported so no reason to do this
+          //$payload->attributes->body = _transliteration_process($payload->attributes->body);
           $comment->comment_body[LANGUAGE_NONE][0] = array(
             'format' => $format,
             'value' => $payload->attributes->body,
