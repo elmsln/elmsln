@@ -709,7 +709,9 @@ function _haxcms_pageBreakParser($body = '<page-break></page-break>') {
   $body .= '<page-break FAKEENDCAP></page-break>';
   $pageData = [];
   // match all pages + content
-  preg_match_all("/(<page-break(.*?)><\/page-break>)((?:.|\n)*?)(?=<page-break)/", $body, $matches);
+  //preg_match_all("/(<page-break(.*?)><\/page-break>)((?:.|\n)*?)(?=<page-break)/", $body, $matches);
+  // match all page break tags for the sake of doing so
+  preg_match_all("/(<page-break(.*?)><\/page-break>)/", $body, $matches);
   foreach($matches[0] as $i => $match) {
     $content = "<div " . str_replace('path-auto ', 'path-auto="path-auto" ', str_replace('published ', 'published="published" ', str_replace('locked ', 'locked="locked" ', $matches[2][$i]))) . "></div>";
     try {
@@ -719,7 +721,6 @@ function _haxcms_pageBreakParser($body = '<page-break></page-break>') {
       $attrs = array();
     }
     $pageData[$i] = array(
-        "content" => $matches[3][$i],
         // this assumes that the attributes are well formed; make sure front end did this
         // even for boolean attributes
         "attributes" => $attrs
@@ -752,12 +753,10 @@ function _haxcms_saveNode($token) {
         // check if we have a page-break; if not (we always should) then we skip these steps
         // this would imply the user deleted it manually which is bad but we won't fail them :0
         if (count($pageData) > 0) {
-          // rips off the page breaks while keeping content
           // @todo in the future make new pages off of this
-          $body = '';
-          foreach($pageData as $data) {
-            $body .= $data['content'];
-          }
+          // forcibly remove page-break from output of body. this way we got the data needed
+          // without incorrectly losing material with a bad regex
+          $body = preg_replace("/(<page-break(.*?)><\/page-break>)/", "",$body);  
           // now just work against the 1st one for the node and ignore the rest
           $data = $pageData[0];
           if (isset($data["attributes"]["title"]) && $node->title != $data["attributes"]["title"]) {
@@ -778,7 +777,9 @@ function _haxcms_saveNode($token) {
             }
           } 
           // use hidden nodes if it exists; or fallback to actual published status in drupal node
-          if (module_exists("hidden_nodes")) {
+          // @todo when we sure up the regex work then we can tackle this
+          // this is not a common use case but needs fixed
+          /*if (module_exists("hidden_nodes")) {
             if (isset($data["attributes"]["published"])) {
               $node->hidden = 0;
             }
@@ -793,7 +794,7 @@ function _haxcms_saveNode($token) {
             else {
               $node->status = 0;
             }
-          }
+          }*/
           // support for changing parent / plid
           if (isset($data["attributes"]["parent"]) && $node->book["plid"] != $data["attributes"]["parent"]) {
             $node->book["plid"] = str_replace('mlid-', '', $data["attributes"]["parent"]);
