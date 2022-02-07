@@ -216,6 +216,7 @@ function _mooc_content_render_content() {
     if (module_exists('mooc_content_theming')) {
       $content .= _mooc_content_theming_banner_block($node);
     }
+    drupal_alter("haxcms_node_content_response", $node->body);
     $content_ary = node_view($node);
     // ax contextual links as we don't use this paradigm :)
     unset($content_ary['#contextual_links']);
@@ -248,6 +249,7 @@ function _mooc_content_render_content() {
       if (module_exists('mooc_content_theming')) {
         $content .= _mooc_content_theming_banner_block($node);
       }
+      drupal_alter("haxcms_node_content_response", $node->body);
       $content .= drupal_render(node_view($node));
     }
   }
