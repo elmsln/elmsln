@@ -14,6 +14,8 @@ class LRNAppOpenStudioCommentService {
     $comment->language = LANGUAGE_NONE;
     $comment->nid = $data['nid'];
     $comment->pid = $data['pid'];
+    $comment->notify = 2;
+    $comment->notify_type = 2;
     if (user_access('post comments')) {
       try {
         comment_save($comment);
