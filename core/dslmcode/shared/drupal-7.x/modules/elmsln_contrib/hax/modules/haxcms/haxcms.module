@@ -632,6 +632,21 @@ function _haxcms_createNode($token) {
       $node->type = $type;
       node_object_prepare($node);
       
+      $node->title = $nodeData['title'];
+      $node->uid = $GLOBALS['user']->uid;
+      // default to setting parent language if set, otherwise none
+      $node->language = isset($parent->language) ? $parent->language : LANGUAGE_NONE;
+      // copy over book structure
+      $node->book['weight'] = $postData['order'];
+      $node->book['plid'] = $parent->book['mlid'];
+      $node->book['bid'] = $parent->book['bid'];
+      // minor support for OG
+      if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
+        $node->og_group_ref = $parent->og_group_ref;
+      }
+      $node->book['menu_name'] = $parent->book['menu_name'];
+      $node->book['module'] = $parent->book['module'];
+
       // support for duplicating the content of another item
       if (isset($nodeData['duplicate'])) {
         // verify we can load this id
@@ -641,22 +656,9 @@ function _haxcms_createNode($token) {
           if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
             $node->body['und'][0]['format'] = filter_default_format();
           }
+          $node->book['weight'] = $nodeToDuplicate->book['weight'] - 1;
         }
       }
-      $node->title = $nodeData['title'];
-      $node->uid = $GLOBALS['user']->uid;
-      // default to setting parent language if set, otherwise none
-      $node->language = isset($parent->language) ? $parent->language : LANGUAGE_NONE;
-      // copy over book structure
-      $node->book['weight'] = -15;
-      $node->book['plid'] = $parent->book['mlid'];
-      $node->book['bid'] = $parent->book['bid'];
-      // minor support for OG
-      if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
-        $node->og_group_ref = $parent->og_group_ref;
-      }
-      $node->book['menu_name'] = $parent->book['menu_name'];
-      $node->book['module'] = $parent->book['module'];
       // leave a trace that haxcms processed this
       $node->_haxcms = TRUE;
       // allow other projects to jump in as needed for this very specific node save context
