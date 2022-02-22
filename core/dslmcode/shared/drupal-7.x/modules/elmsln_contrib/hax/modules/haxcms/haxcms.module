@@ -623,7 +623,7 @@ function _haxcms_createNode($token) {
     $status = 500;
     $message = t('Node creation failed!');
     // parent node is required or we don't know where to place this item
-    if ($link = menu_link_load(str_replace('mlid-', '', $nodeData['parentId']))) {
+    if ($link = menu_link_load(str_replace('mlid-', '', $postData['parent']))) {
       $parent = node_load(str_replace('node/', '', $link['link_path']));
       // load this from an actual setting / default setting
       // default to the parent's type
@@ -631,6 +631,18 @@ function _haxcms_createNode($token) {
       // set the node
       $node->type = $type;
       node_object_prepare($node);
+      
+      // support for duplicating the content of another item
+      if (isset($nodeData['duplicate'])) {
+        // verify we can load this id
+        if ($linkToDuplicate = menu_link_load(str_replace('mlid-', '', $nodeData['duplicate']))) {
+          $nodeToDuplicate = node_load(str_replace('node/', '', $linkToDuplicate['link_path']));
+          $node->body['und'][0]['value'] = $nodeToDuplicate->body['und'][0]['value'];
+          if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
+            $node->body['und'][0]['format'] = filter_default_format();
+          }
+        }
+      }
       $node->title = $nodeData['title'];
       $node->uid = $GLOBALS['user']->uid;
       // default to setting parent language if set, otherwise none
