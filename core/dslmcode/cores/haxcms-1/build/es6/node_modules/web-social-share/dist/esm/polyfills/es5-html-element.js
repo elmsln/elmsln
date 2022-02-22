@@ -1,0 +1,1 @@
+!function(){if("undefined"!=typeof window&&void 0!==window.Reflect&&void 0!==window.customElements){var t=HTMLElement;window.HTMLElement=function(){return Reflect.construct(t,[],this.constructor)},HTMLElement.prototype=t.prototype,HTMLElement.prototype.constructor=HTMLElement,Object.setPrototypeOf(HTMLElement,t)}}();
