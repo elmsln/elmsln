@@ -622,9 +622,18 @@ function _haxcms_createNode($token) {
     $nodeData = $postData['node'];
     $status = 500;
     $message = t('Node creation failed!');
+    $parent = NULL;
     // parent node is required or we don't know where to place this item
     if ($link = menu_link_load(str_replace('mlid-', '', $postData['parent']))) {
       $parent = node_load(str_replace('node/', '', $link['link_path']));
+    }
+    else {
+      // totally possible to be null still. allow other modules to figure out what active is
+      // in elmsln this will be section cvontextr in mooc distro.
+      drupal_alter('haxcms_root_node_loader', $parent);
+    }
+    // should be able to get either of these
+    if ($parent != null) {
       // load this from an actual setting / default setting
       // default to the parent's type
       $type = variable_get('book_child_type', $parent->type);
