@@ -647,7 +647,7 @@ function _haxcms_createNode($token) {
       $node->language = isset($parent->language) ? $parent->language : LANGUAGE_NONE;
       // copy over book structure
       $node->book['weight'] = $postData['order'];
-      $node->book['plid'] = $parent->book['mlid'];
+      $node->book['plid'] = $postData['parent'] != null ? $parent->book['mlid'] : null;
       $node->book['bid'] = $parent->book['bid'];
       // minor support for OG
       if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
