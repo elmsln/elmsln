@@ -167,6 +167,8 @@ function _webcomponents_cmstags_token_render($format) {
     'editEndpoint' => $url,
     'editText' => t('Edit this content'),
   );
+  // allow developers to override the content
+  drupal_alter('webcomponents_cmstags_response', $return);
   // output the response as json
   print drupal_json_output($return);
   exit;
