@@ -83,6 +83,8 @@ if (isset($conf['restws_basic_auth_user_regex'])) {
 $conf['restws_basic_auth_user_regex'] = '/.*/';
 // httprl setting to avoid really long timeouts
 $conf['httprl_install_lock_time'] = 1;
+// default timeout for certain cis_filter requests
+$conf['cis_filter_query_timeout'] = 5000;
 // a sane batch size, change this downstream if on limited resources or wanting more per run
 $conf['cis_section_roster_processor_batch_size'] = 500;
 // COMMENT ALL THIS OUT IF YOU NEED TO REINSTALL A SITE FOR SOME REASON
