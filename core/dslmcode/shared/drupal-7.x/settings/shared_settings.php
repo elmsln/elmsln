@@ -106,7 +106,7 @@ $conf['cache_class_cache_entity_node'] = 'DrupalDatabaseCache';
 $conf['cache_class_cache_menu'] = 'DrupalDatabaseCache';
 
 // pathcache settings
-$conf['path_inc'] = 'sites/all/modules/ulmus/pathcache/path.inc';
+//$conf['path_inc'] = 'sites/all/modules/ulmus/pathcache/path.inc';
 // apdqc lock file
 $conf['lock_inc'] = 'sites/all/modules/ulmus/apdqc/apdqc.lock.inc';
 // apdqc session file
