@@ -52,7 +52,7 @@ function mooc_helper_haxcms_slots($node) {
       'id' => 'elmsln-node-edit',
     ),
     array(
-      'path' => 'admin/content/book/' . $node->nid,
+      'path' => 'admin/content/book/' . $node->book['nid'],
       'title' => t('Outline designer'),
       'icon' => 'hax:site-map',
       'id' => 'elmsln-outline-designer',
