@@ -118,10 +118,7 @@ function mooc_helper_haxcms_slots($node) {
       $slots .= '
       <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '">
         <app-hax-user-menu-button
-        tabindex="-1"
-          constrast="4"
-          dark
-          accent-color="grey"
+          tabindex="-1"
           icon="' . $item['icon'] . '"
           label="' . $item['title'] . '"
         ></app-hax-user-menu-button>
