@@ -14,10 +14,10 @@
   haxcms-site-editor-ui:not(:defined) {
       display: none;
   }
-  haxcms-site-editor-ui:part(logoutbtn),
-  haxcms-site-editor-ui:part(outlinebutton),
-  haxcms-site-editor-ui:part(newjourneybtn),
-  haxcms-site-editor-ui:part(manifestbtn) {
+  haxcms-site-editor-ui::part(logoutbtn),
+  haxcms-site-editor-ui::part(outlinebutton),
+  haxcms-site-editor-ui::part(newjourneybtn),
+  haxcms-site-editor-ui::part(manifestbtn) {
     display: none !important;
   }
 
