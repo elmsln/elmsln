@@ -15,7 +15,7 @@
       display: none;
   }
   haxcms-site-editor-ui::part(logoutbtn),
-  haxcms-site-editor-ui::part(outlinebutton),
+  haxcms-site-editor-ui::part(outlinebtn),
   haxcms-site-editor-ui::part(newjourneybtn),
   haxcms-site-editor-ui::part(manifestbtn) {
     display: none !important;
