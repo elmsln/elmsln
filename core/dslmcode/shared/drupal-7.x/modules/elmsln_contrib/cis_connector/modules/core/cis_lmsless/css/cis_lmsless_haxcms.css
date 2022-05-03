@@ -19,12 +19,12 @@
   haxcms-site-editor-ui::part(newjourneybtn),
   haxcms-site-editor-ui::part(manifestbtn),
   haxcms-site-editor-ui::part(hax-logo),
-  haxcms-site-editor-ui::part(manifestbtn)
+  haxcms-site-editor-ui::part(detailsbtn)
    {
     display: none !important;
   }
   haxcms-site-editor-ui::part(top-bar) {
-    top: 100px;
+    top: 160px;
   }
   .elmsln-modal-content ul,
   .elmsln-modal-content ol {
@@ -1224,15 +1224,14 @@ simple-modal::part(titlebar) {
     width: 100%;
     margin: 0;
     position: relative;
-    height: 98px;
     z-index: -1;
 }
 
 .header-image-container img {
     display: block;
-    top: 0px;
     min-height: 160px;
     height: auto;
+    top: 0;
     max-width: 100%;
     max-height: 250px;
     position: fixed;
@@ -1241,24 +1240,17 @@ simple-modal::part(titlebar) {
     overflow: hidden;
 }
 
-#etb-course-nav {
-    margin: 0;
-    padding: 0;
-    margin-top: -64px;
-    height: auto;
-    min-height: 44px;
-}
-
 .etb-course-nav-inner {
     float: left;
 }
 
-@media screen and (min-width: 992px){
+@media screen and (min-width: 992px) {
   #etb-course-nav {
-      margin-top: -48px !important;
+      margin-top: -50px !important;
       min-height: 45px !important;
   }
 }
+
 @media only screen and (min-width: 1.063em){
   .elmsln-user-profile-menu-item lrndesign-avatar {
       padding: 4px;
