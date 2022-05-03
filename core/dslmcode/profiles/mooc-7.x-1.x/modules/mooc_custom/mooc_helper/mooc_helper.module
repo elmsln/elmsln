@@ -44,54 +44,62 @@ function mooc_helper_haxcms_root_node_loader_alter(&$node) {
  * Implements hook_haxcms_slots().
  */
 function mooc_helper_haxcms_slots($node) {
-  $ary = array(
-    array(
-      'path' => 'node/' . $node->nid . '/edit',
-      'title' => t('Edit page details'),
-      'icon' => 'hax:page-details',
-      'id' => 'elmsln-node-edit',
-    ),
-    array(
-      'path' => 'admin/content/book/' . $node->book['bid'],
-      'title' => t('Outline designer'),
-      'icon' => 'hax:site-map',
-      'id' => 'elmsln-outline-designer',
-    ),
-    array(
-      'path' => 'admin/config/content/haxcms',
-      'title' => t('Theme settings'),
-      'icon' => 'hax:site-settings',
-      'id' => 'elmsln-haxcms-settings',
-    )
-  );
-  // slight hack but allows mooc to have a bit of a compatibility mode with haxcms
-  // bc the two have slight style variations if you are authenticated
-  $slots = '';
-  foreach ($ary as $key => $item) {
-    if ($key === 0) {
-      $slots .= '
-      <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" class="injected-haxcms-btn" slot="haxcms-site-editor-ui-suffix-buttons">
-        <simple-icon-button
-        tabindex="-1"
-          constrast="4"
-          dark
-          accent-color="grey"
-          icon="' . $item['icon'] . '"
-          title="' . $item['title'] . '"
-        ></simple-icon-button>
-      </a>
-    ';
-    }
-    else {
-      $slots .= '
-      <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" slot="haxcms-site-editor-ui-main-menu">
-        <app-hax-user-menu-button
+  $slots = '<span style="
+  font-weight: bold;
+  margin-left: 12px;
+  font-size: 18px;
+  vertical-align: bottom;
+  line-height: 48px;"
+  slot="haxcms-site-editor-ui-topbar-character-button">' . $GLOBALS['user']->name . '</span>';
+  if (user_access('use hax')) {
+    $ary = array(
+      array(
+        'path' => 'node/' . $node->nid . '/edit',
+        'title' => t('Edit page details'),
+        'icon' => 'hax:page-details',
+        'id' => 'elmsln-node-edit',
+      ),
+      array(
+        'path' => 'admin/content/book/' . $node->book['bid'],
+        'title' => t('Outline designer'),
+        'icon' => 'hax:site-map',
+        'id' => 'elmsln-outline-designer',
+      ),
+      array(
+        'path' => 'admin/config/content/haxcms',
+        'title' => t('Theme settings'),
+        'icon' => 'hax:site-settings',
+        'id' => 'elmsln-haxcms-settings',
+      )
+    );
+    // slight hack but allows mooc to have a bit of a compatibility mode with haxcms
+    // bc the two have slight style variations if you are authenticated
+    foreach ($ary as $key => $item) {
+      if ($key === 0) {
+        $slots .= '
+        <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" class="injected-haxcms-btn" slot="haxcms-site-editor-ui-suffix-buttons">
+          <simple-icon-button
           tabindex="-1"
-          icon="' . $item['icon'] . '"
-          label="' . $item['title'] . '"
-        ></app-hax-user-menu-button>
-      </a>
-    ';
+            constrast="4"
+            dark
+            accent-color="grey"
+            icon="' . $item['icon'] . '"
+            title="' . $item['title'] . '"
+          ></simple-icon-button>
+        </a>
+      ';
+      }
+      else {
+        $slots .= '
+        <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" slot="haxcms-site-editor-ui-main-menu">
+          <app-hax-user-menu-button
+            tabindex="-1"
+            icon="' . $item['icon'] . '"
+            label="' . $item['title'] . '"
+          ></app-hax-user-menu-button>
+        </a>
+      ';
+      }
     }
   }
   return $slots;
@@ -701,6 +709,7 @@ function mooc_helper_page_build(&$page) {
   }
   if (function_exists('_is_haxcms_context') && _is_haxcms_context()) {
     drupal_add_js(drupal_get_path('module', 'mooc_helper') . '/js/haxcms-elms-js-bridge.js');
+    drupal_add_css(drupal_get_path('module', 'mooc_helper') . '/css/mooc_helper_haxcms.css');
   }
 }
 

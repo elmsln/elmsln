@@ -34,6 +34,7 @@ function cis_lmsless_page_build(&$page) {
       // also support NOT injecting into the print view
       if (variable_get("elmsln_haxcms_lmsless", TRUE) && !isset($_GET["format"])) {
         drupal_add_css(drupal_get_path('module', 'cis_lmsless') . '/css/cis_lmsless_haxcms.css');
+        drupal_add_js(drupal_get_path('module', 'cis_lmsless') . '/js/cis_lmsless_haxcms.js');
         $page['page_top']['cis_lmsless'] = array(
           '#weight' => -10,
           '#markup' => _cis_lmsless_assemble(),

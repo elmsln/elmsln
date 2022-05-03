@@ -17,15 +17,6 @@
   haxcms-site-editor-ui {
     position: relative;
   }
-  haxcms-site-editor-ui::part(logoutbtn),
-  haxcms-site-editor-ui::part(outlinebtn),
-  haxcms-site-editor-ui::part(newjourneybtn),
-  haxcms-site-editor-ui::part(manifestbtn),
-  haxcms-site-editor-ui::part(hax-logo),
-  haxcms-site-editor-ui::part(detailsbtn)
-   {
-    display: none !important;
-  }
   haxcms-site-editor-ui::part(top-bar) {
     --bg-color: transparent;
   }
