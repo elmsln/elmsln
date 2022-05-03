@@ -17,10 +17,15 @@
   haxcms-site-editor-ui::part(logoutbtn),
   haxcms-site-editor-ui::part(outlinebtn),
   haxcms-site-editor-ui::part(newjourneybtn),
-  haxcms-site-editor-ui::part(manifestbtn) {
+  haxcms-site-editor-ui::part(manifestbtn),
+  haxcms-site-editor-ui::part(hax-logo),
+  haxcms-site-editor-ui::part(manifestbtn)
+   {
     display: none !important;
   }
-
+  haxcms-site-editor-ui::part(top-bar) {
+    top: 100px;
+  }
   .elmsln-modal-content ul,
   .elmsln-modal-content ol {
     margin: 0;
@@ -1225,7 +1230,7 @@ simple-modal::part(titlebar) {
 
 .header-image-container img {
     display: block;
-    top: 50px;
+    top: 0px;
     min-height: 160px;
     height: auto;
     max-width: 100%;

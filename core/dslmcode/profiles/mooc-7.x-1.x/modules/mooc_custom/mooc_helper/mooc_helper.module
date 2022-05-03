@@ -66,23 +66,31 @@ function mooc_helper_haxcms_slots($node) {
   );
   // slight hack but allows mooc to have a bit of a compatibility mode with haxcms
   // bc the two have slight style variations if you are authenticated
-  $slots = '<div slot="haxcms-site-editor-ui-suffix-buttons" style="display:grid;">
-  <style>
+  $slots = '
+  <style slot="haxcms-site-editor-ui-suffix-buttons">
   .injected-haxcms-btn {
-    display: inline-flex;
-    background: black;
-    border-radius: 50%;
-    padding: 8px;
-    margin: 2px 4px;
-    box-shadow: 0 5px 5px rgb(0 0 0 / 70%);
-    height: 40px;
-    width: 40px;
-    box-sizing: border-box;
+
   }
   .injected-haxcms-btn simple-icon-button
   {
-    --simple-icon-height: 24px;
+    vertical-align: text-bottom;
+    display: inline-flex;
     --simple-icon-width: 24px;
+    --simple-icon-height: 24px;
+    border-radius: 50%;
+    border: none;
+    background-color: black;
+    color: white;
+    text-align: center;
+    line-height: 40px;
+    min-width: unset;
+    padding: 0px;
+    margin: 4px 2px;
+    width: 40px;
+    height: 40px;
+    transition: all 0.2s ease-in-out 0s;
+    position: relative;
+    box-shadow: rgb(0 0 0 / 14%) 0px 8px 10px 1px, rgb(0 0 0 / 12%) 0px 3px 14px 2px, rgb(0 0 0 / 40%) 0px 5px 5px -3px;
   }
   .injected-haxcms-btn:hover,
   .injected-haxcms-btn:focus,
@@ -94,7 +102,7 @@ function mooc_helper_haxcms_slots($node) {
   foreach ($ary as $key => $item) {
     if ($key === 0) {
       $slots .= '
-      <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" class="injected-haxcms-btn">
+      <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" class="injected-haxcms-btn" slot="haxcms-site-editor-ui-suffix-buttons">
         <simple-icon-button
         tabindex="-1"
           constrast="4"
@@ -104,13 +112,11 @@ function mooc_helper_haxcms_slots($node) {
           title="' . $item['title'] . '"
         ></simple-icon-button>
       </a>
-      </div>
-      <div slot="haxcms-site-editor-ui-main-menu">
     ';
     }
     else {
       $slots .= '
-      <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '">
+      <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" slot="haxcms-site-editor-ui-main-menu">
         <app-hax-user-menu-button
           tabindex="-1"
           icon="' . $item['icon'] . '"
@@ -120,7 +126,6 @@ function mooc_helper_haxcms_slots($node) {
     ';
     }
   }
-  $slots .= '</div>';
   return $slots;
 }
 
