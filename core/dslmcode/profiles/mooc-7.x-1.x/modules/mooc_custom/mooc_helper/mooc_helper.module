@@ -66,39 +66,7 @@ function mooc_helper_haxcms_slots($node) {
   );
   // slight hack but allows mooc to have a bit of a compatibility mode with haxcms
   // bc the two have slight style variations if you are authenticated
-  $slots = '
-  <style slot="haxcms-site-editor-ui-suffix-buttons">
-  .injected-haxcms-btn {
-
-  }
-  .injected-haxcms-btn simple-icon-button
-  {
-    vertical-align: text-bottom;
-    display: inline-flex;
-    --simple-icon-width: 24px;
-    --simple-icon-height: 24px;
-    border-radius: 50%;
-    border: none;
-    background-color: black;
-    color: white;
-    text-align: center;
-    line-height: 40px;
-    min-width: unset;
-    padding: 0px;
-    margin: 4px 2px;
-    width: 40px;
-    height: 40px;
-    transition: all 0.2s ease-in-out 0s;
-    position: relative;
-    box-shadow: rgb(0 0 0 / 14%) 0px 8px 10px 1px, rgb(0 0 0 / 12%) 0px 3px 14px 2px, rgb(0 0 0 / 40%) 0px 5px 5px -3px;
-  }
-  .injected-haxcms-btn:hover,
-  .injected-haxcms-btn:focus,
-  .injected-haxcms-btn:active {
-    background-color: var(--haxcms-color, blue);
-    color: #ffffff;
-  }
-  </style>';
+  $slots = '';
   foreach ($ary as $key => $item) {
     if ($key === 0) {
       $slots .= '
