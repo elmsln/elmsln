@@ -68,12 +68,6 @@ function mooc_helper_haxcms_slots($node) {
   // bc the two have slight style variations if you are authenticated
   $slots = '<div slot="haxcms-site-editor-ui-suffix-buttons" style="display:grid;">
   <style>
-  #etb-course-nav,
-  #etb-network-nav {
-    left: 48px;
-    position: relative;
-    max-width: calc(100% - 48px) !important;
-  }
   .injected-haxcms-btn {
     display: inline-flex;
     background: black;

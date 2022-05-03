@@ -929,6 +929,7 @@
     background: #fff;
     color: #222;
     cursor: auto;
+    top: 50px;
     font-style: normal;
     font-weight: normal;
     line-height: 1.5;
@@ -1218,13 +1219,13 @@ simple-modal::part(titlebar) {
     width: 100%;
     margin: 0;
     position: relative;
-    height: 64px;
+    height: 98px;
     z-index: -1;
 }
 
 .header-image-container img {
     display: block;
-    top: 0;
+    top: 50px;
     min-height: 160px;
     height: auto;
     max-width: 100%;
