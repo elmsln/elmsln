@@ -1,1 +1,1 @@
-import"../node_modules/@lrnwebcomponents/haxcms-elements/lib/core/site-list/haxcms-site-listing.js";
+import"../node_modules/@lrnwebcomponents/app-hax/app-hax.js";

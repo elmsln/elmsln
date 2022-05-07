@@ -1,3 +1,3 @@
-define(["../node_modules/@lrnwebcomponents/haxcms-elements/lib/core/site-list/haxcms-site-listing.js"], function (_haxcmsSiteListing) {
+define(["../node_modules/@lrnwebcomponents/app-hax/app-hax.js"], function (_appHax) {
   "use strict";
 });
