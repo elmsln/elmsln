@@ -3212,7 +3212,7 @@ function menu_link_save(&$item, $existing_item = array(), $parent_candidates = a
         'external' => $item['external'],
         'has_children' => $item['has_children'],
         'expanded' => $item['expanded'],
-        'weight' => $item['weight'],
+        'weight' => (int) $item['weight'],
         'module' => $item['module'],
         'link_title' => $item['link_title'],
         'options' => serialize($item['options']),
@@ -3276,7 +3276,7 @@ function menu_link_save(&$item, $existing_item = array(), $parent_candidates = a
         'external' => $item['external'],
         'has_children' => $item['has_children'],
         'expanded' => $item['expanded'],
-        'weight' => $item['weight'],
+        'weight' => (int) $item['weight'],
         'depth' => $item['depth'],
         'p1' => $item['p1'],
         'p2' => $item['p2'],
@@ -3919,7 +3919,7 @@ function _menu_router_save($menu, $masks) {
       'type' => $item['type'],
       'description' => $item['description'],
       'position' => $item['position'],
-      'weight' => $item['weight'],
+      'weight' => (int) $item['weight'],
       'include_file' => $item['include file'],
     ));
 

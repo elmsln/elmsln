@@ -871,8 +871,14 @@ class DeleteQuery extends Query implements QueryConditionInterface {
     $query = $comments . 'DELETE FROM {' . $this->connection->escapeTable($this->table) . '} ';
 
     if (count($this->condition)) {
-
-      $this->condition->compile($this->connection, $this);
+      try {
+        $this->condition->compile($this->connection, $this);
+      }
+      // PHP does not allow exceptions to be thrown in __toString(), so trigger
+      // a fatal error instead.
+      catch (InvalidQueryConditionOperatorException $e) {
+        drupal_trigger_fatal_error($e->getMessage());
+      }
       $query .= "\nWHERE " . $this->condition;
     }
 
@@ -1239,7 +1245,14 @@ class UpdateQuery extends Query implements QueryConditionInterface {
     $query = $comments . 'UPDATE {' . $this->connection->escapeTable($this->table) . '} SET ' . implode(', ', $update_fields);
 
     if (count($this->condition)) {
-      $this->condition->compile($this->connection, $this);
+      try {
+        $this->condition->compile($this->connection, $this);
+      }
+      // PHP does not allow exceptions to be thrown in __toString(), so trigger
+      // a fatal error instead.
+      catch (InvalidQueryConditionOperatorException $e) {
+        drupal_trigger_fatal_error($e->getMessage());
+      }
       // There is an implicit string cast on $this->condition.
       $query .= "\nWHERE " . $this->condition;
     }
@@ -1732,6 +1745,7 @@ class DatabaseCondition implements QueryConditionInterface, Countable {
    * size of its conditional array minus one, because one element is the
    * conjunction.
    */
+  #[\ReturnTypeWillChange]
   public function count() {
     return count($this->conditions) - 1;
   }
@@ -1824,6 +1838,8 @@ class DatabaseCondition implements QueryConditionInterface, Countable {
 
   /**
    * Implements QueryConditionInterface::compile().
+   *
+   * @throws InvalidQueryConditionOperatorException
    */
   public function compile(DatabaseConnection $connection, QueryPlaceholderInterface $queryPlaceholder) {
     // Re-compile if this condition changed or if we are compiled against a
@@ -1854,6 +1870,12 @@ class DatabaseCondition implements QueryConditionInterface, Countable {
             $arguments += $condition['field']->arguments();
           }
           else {
+            // If the operator contains an invalid character, throw an
+            // exception to protect against SQL injection attempts.
+            if (stripos($condition['operator'], 'UNION') !== FALSE || strpbrk($condition['operator'], '[-\'"();') !== FALSE) {
+              throw new InvalidQueryConditionOperatorException('Invalid characters in query operator: ' . $condition['operator']);
+            }
+
             // For simplicity, we treat all operators as the same data structure.
             // In the typical degenerate case, this won't get changed.
             $operator_defaults = array(

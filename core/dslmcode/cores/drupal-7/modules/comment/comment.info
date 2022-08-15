@@ -9,7 +9,7 @@ files[] = comment.test
 configure = admin/content/comment
 stylesheets[all][] = comment.css
 
-; Information added by Drupal.org packaging script on 2021-07-21
-version = "7.82"
+; Information added by Drupal.org packaging script on 2022-07-20
+version = "7.91"
 project = "drupal"
-datestamp = "1626883669"
+datestamp = "1658334256"

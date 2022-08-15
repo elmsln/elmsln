@@ -8,7 +8,7 @@
 /**
  * The current system version.
  */
-define('VERSION', '7.82');
+define('VERSION', '7.91');
 
 /**
  * Core API compatibility.
@@ -359,6 +359,7 @@ abstract class DrupalCacheArray implements ArrayAccess {
   /**
    * Implements ArrayAccess::offsetExists().
    */
+  #[\ReturnTypeWillChange]
   public function offsetExists($offset) {
     return $this->offsetGet($offset) !== NULL;
   }
@@ -366,6 +367,7 @@ abstract class DrupalCacheArray implements ArrayAccess {
   /**
    * Implements ArrayAccess::offsetGet().
    */
+  #[\ReturnTypeWillChange]
   public function offsetGet($offset) {
     if (isset($this->storage[$offset]) || array_key_exists($offset, $this->storage)) {
       return $this->storage[$offset];
@@ -378,6 +380,7 @@ abstract class DrupalCacheArray implements ArrayAccess {
   /**
    * Implements ArrayAccess::offsetSet().
    */
+  #[\ReturnTypeWillChange]
   public function offsetSet($offset, $value) {
     $this->storage[$offset] = $value;
   }
@@ -385,6 +388,7 @@ abstract class DrupalCacheArray implements ArrayAccess {
   /**
    * Implements ArrayAccess::offsetUnset().
    */
+  #[\ReturnTypeWillChange]
   public function offsetUnset($offset) {
     unset($this->storage[$offset]);
   }
@@ -803,14 +807,17 @@ function drupal_settings_initialize() {
     // HTTP_HOST can be modified by a visitor, but we already sanitized it
     // in drupal_settings_initialize().
     if (!empty($_SERVER['HTTP_HOST'])) {
-      $cookie_domain = $_SERVER['HTTP_HOST'];
-      // Strip leading periods, www., and port numbers from cookie domain.
-      $cookie_domain = ltrim($cookie_domain, '.');
-      if (strpos($cookie_domain, 'www.') === 0) {
-        $cookie_domain = substr($cookie_domain, 4);
-      }
-      $cookie_domain = explode(':', $cookie_domain);
-      $cookie_domain = '.' . $cookie_domain[0];
+      $cookie_domain = _drupal_get_cookie_domain($_SERVER['HTTP_HOST']);
+    }
+
+    // Drupal 7.83 included a security improvement whereby www. is no longer
+    // stripped from the cookie domain. However, this can cause problems with
+    // existing session cookies where some users are left unable to login. In
+    // order to avoid that, prepend a leading dot to the session_name that was
+    // derived from the base_url when a www. subdomain is in use.
+    // @see https://www.drupal.org/project/drupal/issues/2522002
+    if (strpos($session_name, 'www.') === 0) {
+      $session_name = '.' . $session_name;
     }
   }
   // Per RFC 2109, cookie domains must contain at least one dot other than the
@@ -829,6 +836,24 @@ function drupal_settings_initialize() {
   }
   $prefix = ini_get('session.cookie_secure') ? 'SSESS' : 'SESS';
   session_name($prefix . substr(hash('sha256', $session_name), 0, 32));
+}
+
+/**
+ * Derive the cookie domain to use for session cookies.
+ *
+ * @param $host
+ *   The value of the HTTP host name.
+ *
+ * @return
+ *   The string to use as a cookie domain.
+ */
+function _drupal_get_cookie_domain($host) {
+  $cookie_domain = $host;
+  // Strip leading periods and port numbers from cookie domain.
+  $cookie_domain = ltrim($cookie_domain, '.');
+  $cookie_domain = explode(':', $cookie_domain);
+  $cookie_domain = '.' . $cookie_domain[0];
+  return $cookie_domain;
 }
 
 /**
@@ -1155,6 +1180,31 @@ function _drupal_trigger_error_with_delayed_logging($error_msg, $error_type = E_
   $delay_logging = TRUE;
   trigger_error($error_msg, $error_type);
   $delay_logging = FALSE;
+}
+
+/**
+ * Invoke trigger_error() using a fatal error that will terminate the request.
+ *
+ * Normally, Drupal's error handler does not terminate script execution on
+ * user-level errors, even if the error is of type E_USER_ERROR. This function
+ * triggers an error of type E_USER_ERROR that is explicitly forced to be a
+ * fatal error which terminates script execution.
+ *
+ * @param string $error_msg
+ *   The error message to trigger. As with trigger_error() itself, this is
+ *   limited to 1024 bytes; additional characters beyond that will be removed.
+ *
+ * @see _drupal_error_handler_real()
+ */
+function drupal_trigger_fatal_error($error_msg) {
+  $fatal_error = &drupal_static(__FUNCTION__, FALSE);
+  $fatal_error = TRUE;
+  trigger_error($error_msg, E_USER_ERROR);
+  $fatal_error = FALSE;
+  // The standard Drupal error handler should have treated this as a fatal
+  // error and already ended the page request. But in case another error
+  // handler is being used, terminate execution explicitly here also.
+  exit;
 }
 
 /**
@@ -1552,7 +1602,7 @@ function drupal_page_header() {
  */
 function drupal_serve_page_from_cache(stdClass $cache) {
   // Negotiate whether to use compression.
-  $page_compression = !empty($cache->data['page_compressed']);
+  $page_compression = !empty($cache->data['page_compressed']) && !empty($cache->data['body']);
   $return_compressed = $page_compression && isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE;
 
   // Get headers set in hook_boot(). Keys are lower-case.
@@ -1855,7 +1905,7 @@ function format_string($string, array $args = array()) {
  * @ingroup sanitization
  */
 function check_plain($text) {
-  return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+  return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
 }
 
 /**
@@ -1883,7 +1933,7 @@ function check_plain($text) {
  *   TRUE if the text is valid UTF-8, FALSE if not.
  */
 function drupal_validate_utf8($text) {
-  if (strlen($text) == 0) {
+  if (strlen((string) $text) == 0) {
     return TRUE;
   }
   // With the PCRE_UTF8 modifier 'u', preg_match() fails silently on strings
@@ -2265,7 +2315,7 @@ function drupal_random_bytes($count)  {
   // $random_state does not use drupal_static as it stores random bytes.
   static $random_state, $bytes, $has_openssl;
 
-  $missing_bytes = $count - strlen($bytes);
+  $missing_bytes = $count - strlen((string) $bytes);
 
   if ($missing_bytes > 0) {
     // PHP versions prior 5.3.4 experienced openssl_random_pseudo_bytes()

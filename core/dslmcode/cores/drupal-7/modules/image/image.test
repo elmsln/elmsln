@@ -31,7 +31,12 @@ class ImageFieldTestCase extends DrupalWebTestCase {
   protected $admin_user;
 
   function setUp() {
-    parent::setUp('image');
+    $modules = func_get_args();
+    if (isset($modules[0]) && is_array($modules[0])) {
+      $modules = $modules[0];
+    }
+    $modules[] = 'image';
+    parent::setUp($modules);
     $this->admin_user = $this->drupalCreateUser(array('access content', 'access administration pages', 'administer site configuration', 'administer content types', 'administer nodes', 'create article content', 'edit any article content', 'delete any article content', 'administer image styles', 'administer fields'));
     $this->drupalLogin($this->admin_user);
   }
@@ -378,6 +383,11 @@ class ImageStylesPathAndUrlTestCase extends DrupalWebTestCase {
     $directory = $scheme . '://styles/' . $this->style_name . '/' . $scheme . '/' . $this->randomName();
     $this->drupalGet(file_create_url($directory . '/' . $this->randomName()));
     $this->assertFalse(file_exists($directory), 'New directory was not created in the filesystem when requesting an unauthorized image.');
+
+    // Check that requesting a partial image style path returns access denied.
+    $partial_url = $scheme . '://styles/' . $this->style_name . '/';
+    $this->drupalGet(file_create_url($partial_url) . '/');
+    $this->assertResponse(403, 'Access was denied to a partial image style path.');
   }
 }
 
@@ -566,6 +576,10 @@ class ImageAdminStylesUnitTest extends ImageFieldTestCase {
       'description' => 'Tests creation, deletion, and editing of image styles and effects at the UI level.',
       'group' => 'Image',
     );
+  }
+
+  function setUp() {
+    parent::setUp('image_module_test', 'image_module_styles_test');
   }
 
   /**
@@ -887,6 +901,18 @@ class ImageAdminStylesUnitTest extends ImageFieldTestCase {
 
     $this->drupalGet('node/' . $nid);
     $this->assertRaw(check_plain(image_style_url('thumbnail', $node->{$field_name}[LANGUAGE_NONE][0]['uri'])), format_string('Image displayed using style replacement style.'));
+  }
+
+  /**
+   * Test disabling a module providing an effect in use by an image style.
+   */
+  function testOrphanedEffect() {
+    // This will not check whether anything depends on the module.
+    module_disable(array('image_module_test'), FALSE);
+    $this->drupalGet('admin/config/media/image-styles');
+    $this->assertText('Test Image Style', 'Image style with an orphaned effect displayed in the list of styles.');
+    $image_log = db_query_range('SELECT message FROM {watchdog} WHERE type = :type ORDER BY wid DESC', 0, 1, array(':type' => 'image'))->fetchField();
+    $this->assertEqual('Image style %style_name has an effect %effect_name with no definition.', $image_log, 'A watchdog message was logged for the broken image style effect');
   }
 }
 

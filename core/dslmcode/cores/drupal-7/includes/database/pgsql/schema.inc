@@ -13,6 +13,13 @@
 class DatabaseSchema_pgsql extends DatabaseSchema {
 
   /**
+   * PostgreSQL's temporary namespace name.
+   *
+   * @var string
+   */
+  protected $tempNamespaceName;
+
+  /**
    * A cache of information about blob columns and sequences of tables.
    *
    * This is collected by DatabaseConnection_pgsql->queryTableInformation(),
@@ -22,6 +29,64 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
    * @var array
    */
   protected $tableInformation = array();
+
+  /**
+   * The maximum allowed length for index, primary key and constraint names.
+   *
+   * Value will usually be set to a 63 chars limit but PostgreSQL allows
+   * to higher this value before compiling, so we need to check for that.
+   *
+   * @var int
+   */
+  protected $maxIdentifierLength;
+
+  /**
+   * Make sure to limit identifiers according to PostgreSQL compiled in length.
+   *
+   * PostgreSQL allows in standard configuration identifiers no longer than 63
+   * chars for table/relation names, indexes, primary keys, and constraints. So
+   * we map all identifiers that are too long to drupal_base64hash_tag, where
+   * tag is one of:
+   *   - idx for indexes
+   *   - key for constraints
+   *   - pkey for primary keys
+   *   - seq for sequences
+   *
+   * @param string $table_identifier_part
+   *   The first argument used to build the identifier string. This usually
+   *   refers to a table/relation name.
+   * @param string $column_identifier_part
+   *   The second argument used to build the identifier string. This usually
+   *   refers to one or more column names.
+   * @param string $tag
+   *   The identifier tag. It can be one of 'idx', 'key', 'pkey' or 'seq'.
+   *
+   * @return string
+   *   The index/constraint/pkey identifier.
+   */
+  protected function ensureIdentifiersLength($table_identifier_part, $column_identifier_part, $tag) {
+    $info = $this->getPrefixInfo($table_identifier_part);
+    $table_identifier_part = $info['table'];
+
+    // Filters out potentially empty $column_identifier_part to ensure
+    // compatibility with old naming convention (see prefixNonTable()).
+    $identifiers = array_filter(array($table_identifier_part, $column_identifier_part, $tag));
+    $identifierName = implode('_', $identifiers);
+
+    // Retrieve the max identifier length which is usually 63 characters
+    // but can be altered before PostgreSQL is compiled so we need to check.
+    if (empty($this->maxIdentifierLength)) {
+      $this->maxIdentifierLength = $this->connection->query("SHOW max_identifier_length")->fetchField();
+    }
+
+    if (strlen($identifierName) > $this->maxIdentifierLength) {
+      $saveIdentifier = 'drupal_' . $this->hashBase64($identifierName) . '_' . $tag;
+    }
+    else {
+      $saveIdentifier = $identifierName;
+    }
+    return $saveIdentifier;
+  }
 
   /**
    * Fetch the list of blobs and sequences used on a table.
@@ -39,23 +104,47 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
   public function queryTableInformation($table) {
     // Generate a key to reference this table's information on.
     $key = $this->connection->prefixTables('{' . $table . '}');
-    if (!strpos($key, '.')) {
+
+    // Take into account that temporary tables are stored in a different schema.
+    // \DatabaseConnection::generateTemporaryTableName() sets 'db_temporary_'
+    // prefix to all temporary tables.
+    if (strpos($key, '.') === FALSE && strpos($table, 'db_temporary_') === FALSE) {
       $key = 'public.' . $key;
+    }
+    else {
+      $key = $this->getTempNamespaceName() . '.' . $key;
     }
 
     if (!isset($this->tableInformation[$key])) {
-      // Split the key into schema and table for querying.
-      list($schema, $table_name) = explode('.', $key);
       $table_information = (object) array(
         'blob_fields' => array(),
         'sequences' => array(),
       );
-      // Don't use {} around information_schema.columns table.
-      $result = $this->connection->query("SELECT column_name, data_type, column_default FROM information_schema.columns WHERE table_schema = :schema AND table_name = :table AND (data_type = 'bytea' OR (numeric_precision IS NOT NULL AND column_default LIKE :default))", array(
-        ':schema' => $schema,
-        ':table' => $table_name,
-        ':default' => '%nextval%',
+
+      // The bytea columns and sequences for a table can be found in
+      // pg_attribute, which is significantly faster than querying the
+      // information_schema. The data type of a field can be found by lookup
+      // of the attribute ID, and the default value must be extracted from the
+      // node tree for the attribute definition instead of the historical
+      // human-readable column, adsrc.
+      $sql = <<<'EOD'
+SELECT pg_attribute.attname AS column_name, format_type(pg_attribute.atttypid, pg_attribute.atttypmod) AS data_type, pg_get_expr(pg_attrdef.adbin, pg_attribute.attrelid) AS column_default
+FROM pg_attribute
+LEFT JOIN pg_attrdef ON pg_attrdef.adrelid = pg_attribute.attrelid AND pg_attrdef.adnum = pg_attribute.attnum
+WHERE pg_attribute.attnum > 0
+AND NOT pg_attribute.attisdropped
+AND pg_attribute.attrelid = :key::regclass
+AND (format_type(pg_attribute.atttypid, pg_attribute.atttypmod) = 'bytea'
+OR pg_get_expr(pg_attrdef.adbin, pg_attribute.attrelid) LIKE 'nextval%')
+EOD;
+      $result = $this->connection->query($sql, array(
+        ':key' => $key,
       ));
+
+      if (empty($result)) {
+        return $table_information;
+      }
+
       foreach ($result as $column) {
         if ($column->data_type == 'bytea') {
           $table_information->blob_fields[$column->column_name] = TRUE;
@@ -71,6 +160,19 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
       $this->tableInformation[$key] = $table_information;
     }
     return $this->tableInformation[$key];
+  }
+
+  /**
+   * Gets PostgreSQL's temporary namespace name.
+   *
+   * @return string
+   *   PostgreSQL's temporary namespace anme.
+   */
+  protected function getTempNamespaceName() {
+    if (!isset($this->tempNamespaceName)) {
+      $this->tempNamespaceName = $this->connection->query('SELECT nspname FROM pg_namespace WHERE oid = pg_my_temp_schema()')->fetchField();
+    }
+    return $this->tempNamespaceName;
   }
 
   /**
@@ -124,11 +226,11 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
 
     $sql_keys = array();
     if (isset($table['primary key']) && is_array($table['primary key'])) {
-      $sql_keys[] = 'PRIMARY KEY (' . implode(', ', $table['primary key']) . ')';
+      $sql_keys[] = 'CONSTRAINT ' . $this->ensureIdentifiersLength($name, '', 'pkey') . ' PRIMARY KEY (' . implode(', ', $table['primary key']) . ')';
     }
     if (isset($table['unique keys']) && is_array($table['unique keys'])) {
       foreach ($table['unique keys'] as $key_name => $key) {
-        $sql_keys[] = 'CONSTRAINT ' . $this->prefixNonTable($name, $key_name, 'key') . ' UNIQUE (' . implode(', ', $key) . ')';
+        $sql_keys[] = 'CONSTRAINT ' . $this->ensureIdentifiersLength($name, $key_name, 'key') . ' UNIQUE (' . implode(', ', $key) . ')';
       }
     }
 
@@ -312,6 +414,68 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
     return implode(', ', $return);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function tableExists($table) {
+    // In PostgreSQL "unquoted names are always folded to lower case."
+    // @see DatabaseSchema_pgsql::buildTableNameCondition().
+    $prefixInfo = $this->getPrefixInfo(strtolower($table), TRUE);
+
+    return (bool) $this->connection->query("SELECT 1 FROM pg_tables WHERE schemaname = :schema AND tablename = :table", array(':schema' => $prefixInfo['schema'], ':table' => $prefixInfo['table']))->fetchField();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function findTables($table_expression) {
+    $individually_prefixed_tables = $this->connection->getUnprefixedTablesMap();
+    $default_prefix = $this->connection->tablePrefix();
+    $default_prefix_length = strlen($default_prefix);
+    $tables = array();
+
+    // Load all the tables up front in order to take into account per-table
+    // prefixes. The actual matching is done at the bottom of the method.
+    $results = $this->connection->query("SELECT tablename FROM pg_tables WHERE schemaname = :schema", array(':schema' => $this->defaultSchema));
+    foreach ($results as $table) {
+      // Take into account tables that have an individual prefix.
+      if (isset($individually_prefixed_tables[$table->tablename])) {
+        $prefix_length = strlen($this->connection->tablePrefix($individually_prefixed_tables[$table->tablename]));
+      }
+      elseif ($default_prefix && substr($table->tablename, 0, $default_prefix_length) !== $default_prefix) {
+        // This table name does not start the default prefix, which means that
+        // it is not managed by Drupal so it should be excluded from the result.
+        continue;
+      }
+      else {
+        $prefix_length = $default_prefix_length;
+      }
+
+      // Remove the prefix from the returned tables.
+      $unprefixed_table_name = substr($table->tablename, $prefix_length);
+
+      // The pattern can match a table which is the same as the prefix. That
+      // will become an empty string when we remove the prefix, which will
+      // probably surprise the caller, besides not being a prefixed table. So
+      // remove it.
+      if (!empty($unprefixed_table_name)) {
+        $tables[$unprefixed_table_name] = $unprefixed_table_name;
+      }
+    }
+
+    // Need to use strtolower on the table name as it was used previously by
+    // DatabaseSchema_pgsql::buildTableNameCondition().
+    // @see https://www.drupal.org/project/drupal/issues/3262341
+    $table_expression = strtolower($table_expression);
+
+    // Convert the table expression from its SQL LIKE syntax to a regular
+    // expression and escape the delimiter that will be used for matching.
+    $table_expression = str_replace(array('%', '_'), array('.*?', '.'), preg_quote($table_expression, '/'));
+    $tables = preg_grep('/^' . $table_expression . '$/i', $tables);
+
+    return $tables;
+  }
+
   function renameTable($table, $new_name) {
     if (!$this->tableExists($table)) {
       throw new DatabaseSchemaObjectDoesNotExistException(t("Cannot rename @table to @table_new: table @table doesn't exist.", array('@table' => $table, '@table_new' => $new_name)));
@@ -328,10 +492,31 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
     // rename them when renaming the table.
     $indexes = $this->connection->query('SELECT indexname FROM pg_indexes WHERE schemaname = :schema AND tablename = :table', array(':schema' => $old_schema, ':table' => $old_table_name));
     foreach ($indexes as $index) {
-      if (preg_match('/^' . preg_quote($old_full_name) . '_(.*)$/', $index->indexname, $matches)) {
+      // Get the index type by suffix, e.g. idx/key/pkey
+      $index_type = substr($index->indexname, strrpos($index->indexname, '_') + 1);
+
+      // If the index is already rewritten by ensureIdentifiersLength() to not
+      // exceed the 63 chars limit of PostgreSQL, we need to take care of that.
+      // Example (drupal_Gk7Su_T1jcBHVuvSPeP22_I3Ni4GrVEgTYlIYnBJkro_idx).
+      if (strpos($index->indexname, 'drupal_') !== FALSE) {
+        preg_match('/^drupal_(.*)_' . preg_quote($index_type) . '/', $index->indexname, $matches);
         $index_name = $matches[1];
-        $this->connection->query('ALTER INDEX ' . $index->indexname . ' RENAME TO {' . $new_name . '}_' . $index_name);
       }
+      else {
+        if ($index_type == 'pkey') {
+          // Primary keys do not have a specific name in D7.
+          $index_name = '';
+        }
+        else {
+          // Make sure to remove the suffix from index names, because
+          // ensureIdentifiersLength() will add the suffix again and thus
+          // would result in a wrong index name.
+          preg_match('/^' . preg_quote($old_full_name) . '_(.*)_' . preg_quote($index_type) . '/', $index->indexname, $matches);
+          $index_name = $matches[1];
+        }
+      }
+
+      $this->connection->query('ALTER INDEX ' . $index->indexname . ' RENAME TO ' . $this->ensureIdentifiersLength($new_name, $index_name, $index_type));
     }
 
     // Now rename the table.
@@ -414,9 +599,20 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
     $this->connection->query('ALTER TABLE {' . $table . '} ALTER COLUMN "' . $field . '" DROP DEFAULT');
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function fieldExists($table, $column) {
+    // In PostgreSQL "unquoted names are always folded to lower case."
+    // @see DatabaseSchema_pgsql::buildTableNameCondition().
+    $prefixInfo = $this->getPrefixInfo(strtolower($table));
+
+    return (bool) $this->connection->query("SELECT 1 FROM pg_attribute WHERE attrelid = :key::regclass AND attname = :column AND NOT attisdropped AND attnum > 0", array(':key' => $prefixInfo['schema'] . '.' . $prefixInfo['table'], ':column' => $column))->fetchField();
+  }
+
   public function indexExists($table, $name) {
-    // Details http://www.postgresql.org/docs/8.3/interactive/view-pg-indexes.html
-    $index_name = '{' . $table . '}_' . $name . '_idx';
+    // Details https://www.postgresql.org/docs/10/view-pg-indexes.html
+    $index_name = $this->ensureIdentifiersLength($table, $name, 'idx');
     return (bool) $this->connection->query("SELECT 1 FROM pg_indexes WHERE indexname = '$index_name'")->fetchField();
   }
 
@@ -429,7 +625,18 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
    *   The name of the constraint (typically 'pkey' or '[constraint]_key').
    */
   protected function constraintExists($table, $name) {
-    $constraint_name = '{' . $table . '}_' . $name;
+    // ensureIdentifiersLength() expects three parameters, thus we split our
+    // constraint name in a proper name and a suffix.
+    if ($name == 'pkey') {
+      $suffix = $name;
+      $name = '';
+    }
+    else {
+      $pos = strrpos($name, '_');
+      $suffix = substr($name, $pos + 1);
+      $name = substr($name, 0, $pos);
+    }
+    $constraint_name = $this->ensureIdentifiersLength($table, $name, $suffix);
     return (bool) $this->connection->query("SELECT 1 FROM pg_constraint WHERE conname = '$constraint_name'")->fetchField();
   }
 
@@ -441,7 +648,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
       throw new DatabaseSchemaObjectExistsException(t("Cannot add primary key to table @table: primary key already exists.", array('@table' => $table)));
     }
 
-    $this->connection->query('ALTER TABLE {' . $table . '} ADD PRIMARY KEY (' . implode(',', $fields) . ')');
+    $this->connection->query('ALTER TABLE {' . $table . '} ADD CONSTRAINT ' . $this->ensureIdentifiersLength($table, '', 'pkey') . ' PRIMARY KEY (' . implode(',', $fields) . ')');
   }
 
   public function dropPrimaryKey($table) {
@@ -449,7 +656,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
       return FALSE;
     }
 
-    $this->connection->query('ALTER TABLE {' . $table . '} DROP CONSTRAINT ' . $this->prefixNonTable($table, 'pkey'));
+    $this->connection->query('ALTER TABLE {' . $table . '} DROP CONSTRAINT ' . $this->ensureIdentifiersLength($table, '', 'pkey'));
     return TRUE;
   }
 
@@ -461,7 +668,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
       throw new DatabaseSchemaObjectExistsException(t("Cannot add unique key @name to table @table: unique key already exists.", array('@table' => $table, '@name' => $name)));
     }
 
-    $this->connection->query('ALTER TABLE {' . $table . '} ADD CONSTRAINT "' . $this->prefixNonTable($table, $name, 'key') . '" UNIQUE (' . implode(',', $fields) . ')');
+    $this->connection->query('ALTER TABLE {' . $table . '} ADD CONSTRAINT "' . $this->ensureIdentifiersLength($table, $name, 'key') . '" UNIQUE (' . implode(',', $fields) . ')');
   }
 
   public function dropUniqueKey($table, $name) {
@@ -469,7 +676,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
       return FALSE;
     }
 
-    $this->connection->query('ALTER TABLE {' . $table . '} DROP CONSTRAINT "' . $this->prefixNonTable($table, $name, 'key') . '"');
+    $this->connection->query('ALTER TABLE {' . $table . '} DROP CONSTRAINT "' . $this->ensureIdentifiersLength($table, $name, 'key') . '"');
     return TRUE;
   }
 
@@ -489,7 +696,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
       return FALSE;
     }
 
-    $this->connection->query('DROP INDEX ' . $this->prefixNonTable($table, $name, 'idx'));
+    $this->connection->query('DROP INDEX ' . $this->ensureIdentifiersLength($table, $name, 'idx'));
     return TRUE;
   }
 
@@ -580,7 +787,7 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
   }
 
   protected function _createIndexSql($table, $name, $fields) {
-    $query = 'CREATE INDEX "' . $this->prefixNonTable($table, $name, 'idx') . '" ON {' . $table . '} (';
+    $query = 'CREATE INDEX "' . $this->ensureIdentifiersLength($table, $name, 'idx') . '" ON {' . $table . '} (';
     $query .= $this->_createKeySql($fields) . ')';
     return $query;
   }
@@ -614,4 +821,36 @@ class DatabaseSchema_pgsql extends DatabaseSchema {
       return $this->connection->query('SELECT obj_description(oid, ?) FROM pg_class WHERE relname = ?', array('pg_class', $info['table']))->fetchField();
     }
   }
+
+  /**
+   * Calculates a base-64 encoded, PostgreSQL-safe sha-256 hash per PostgreSQL
+   * documentation: 4.1. Lexical Structure.
+   *
+   * @param $data
+   *   String to be hashed.
+   *
+   * @return string
+   *   A base-64 encoded sha-256 hash, with + and / replaced with _ and any =
+   *   padding characters removed.
+   */
+  protected function hashBase64($data) {
+    // Ensure lowercase as D7's pgsql driver does not quote identifiers
+    // consistently, and they are therefore folded to lowercase by PostgreSQL.
+    $hash = strtolower(base64_encode(hash('sha256', $data, TRUE)));
+    // Modify the hash so it's safe to use in PostgreSQL identifiers.
+    return strtr($hash, array('+' => '_', '/' => '_', '=' => ''));
+  }
+
+  /**
+   * Build a condition to match a table name against a standard information_schema.
+   *
+   * In PostgreSQL "unquoted names are always folded to lower case." The pgsql
+   * driver does not quote table names, so they are therefore always lowercase.
+   *
+   * @see https://www.postgresql.org/docs/14/sql-syntax-lexical.html
+   */
+  protected function buildTableNameCondition($table_name, $operator = '=', $add_prefix = TRUE) {
+    return parent::buildTableNameCondition(strtolower($table_name), $operator, $add_prefix);
+  }
+
 }

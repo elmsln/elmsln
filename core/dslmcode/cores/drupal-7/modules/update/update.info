@@ -6,7 +6,7 @@ core = 7.x
 files[] = update.test
 configure = admin/reports/updates/settings
 
-; Information added by Drupal.org packaging script on 2021-07-21
-version = "7.82"
+; Information added by Drupal.org packaging script on 2022-07-20
+version = "7.91"
 project = "drupal"
-datestamp = "1626883669"
+datestamp = "1658334256"

@@ -1,0 +1,12 @@
+name = System Admin Test
+description = 'Support module for testing system.admin.inc.'
+package = Only For Testing
+version = VERSION
+core = 7.x
+hidden = FALSE
+configure = config/broken
+
+; Information added by Drupal.org packaging script on 2022-07-20
+version = "7.91"
+project = "drupal"
+datestamp = "1658334256"
