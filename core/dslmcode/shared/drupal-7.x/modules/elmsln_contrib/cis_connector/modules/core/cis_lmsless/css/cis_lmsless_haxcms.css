@@ -16,44 +16,33 @@
   }
   haxcms-site-editor-ui {
     position: relative;
+    background-color: #eaeaea;
+  }
+  .haxcms-no-hax haxcms-site-editor-ui {
+    display:none !important;
   }
   haxcms-site-editor-ui::part(top-bar) {
     --bg-color: transparent;
   }
-
-  haxcms-site-editor-ui .injected-haxcms-btn {
+  haxcms-site-editor-ui a {
     display: inline-flex;
-    width: 40px;
-    height: 40px;
-    vertical-align: top;
-    margin-top: 4px;
-  }
-  haxcms-site-editor-ui .injected-haxcms-btn simple-icon-button
-  {
-    display: inline-flex;
-    --simple-icon-width: 24px;
-    --simple-icon-height: 24px;
-    border-radius: 50%;
-    border: none;
-    background-color: var(--simple-colors-default-theme-accent-5);
-    color: var(--simple-colors-default-theme-grey-1);
-    text-align: center;
-    line-height: 40px;
-    min-width: 40px;
-    padding: 0px;
-    width: 40px;
-    height: 40px;
-    transition: all 0.2s ease-in-out 0s;
+    color: var(--simple-colors-default-theme-grey-12) !important;
     position: relative;
-    box-shadow: rgb(0 0 0 / 14%) 0px 8px 10px 1px, rgb(0 0 0 / 12%) 0px 3px 14px 2px, rgb(0 0 0 / 40%) 0px 5px 5px -3px;
+    text-decoration: none;
   }
-  haxcms-site-editor-ui .injected-haxcms-btn simple-icon-button:hover,
-  haxcms-site-editor-ui .injected-haxcms-btn simple-icon-button:focus,
-  haxcms-site-editor-ui .injected-haxcms-btn simple-icon-button:active {
-    background-color: var(--haxcms-color, blue);
-    color: #ffffff;
+  haxcms-site-editor-ui a:hover,
+  haxcms-site-editor-ui a:focus,
+  haxcms-site-editor-ui a:active
+  haxcms-site-editor-ui simple-toolbar-menu:hover,
+  haxcms-site-editor-ui simple-toolbar-menu:focus,
+  haxcms-site-editor-ui simple-toolbar-menu:active {
+    background-color: var(--hax-ui-background-color-accent);
+    color: var(--hax-ui-color);
   }
-
+  /** hide the user menu for editor UI **/
+  haxcms-site-editor-ui::part(app-hax-user-menu) {
+    display:none !important;
+  }
   
   .elmsln-modal-content ul,
   .elmsln-modal-content ol {

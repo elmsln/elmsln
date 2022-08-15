@@ -41,12 +41,24 @@ function mooc_helper_haxcms_root_node_loader_alter(&$node) {
 }
 
 /**
+ * Implements hook_preprocess_html().
+ */
+function mooc_helper_preprocess_html(&$vars) {
+  if (user_access('use hax')) {
+    $vars['classes_array'][] = 'haxcms-use-hax';
+  }
+  else {
+    $vars['classes_array'][] = 'haxcms-no-hax';    
+  }
+}
+
+/**
  * Implements hook_haxcms_slots().
  */
 function mooc_helper_haxcms_slots($node) {
   $slots = '<span style="
   font-weight: bold;
-  margin-left: 12px;
+  margin-left: 24px;
   font-size: 18px;
   vertical-align: bottom;
   line-height: 48px;"
@@ -55,7 +67,7 @@ function mooc_helper_haxcms_slots($node) {
     $ary = array(
       array(
         'path' => 'node/' . $node->nid . '/edit',
-        'title' => t('Edit page details'),
+        'title' => t('Legacy edit'),
         'icon' => 'hax:page-details',
         'id' => 'elmsln-node-edit',
       ),
@@ -77,26 +89,37 @@ function mooc_helper_haxcms_slots($node) {
     foreach ($ary as $key => $item) {
       if ($key === 0) {
         $slots .= '
-        <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" class="injected-haxcms-btn" slot="haxcms-site-editor-ui-suffix-buttons">
-          <simple-icon-button
-          tabindex="-1"
-            constrast="4"
-            dark
-            accent-color="grey"
-            icon="' . $item['icon'] . '"
-            title="' . $item['title'] . '"
-          ></simple-icon-button>
+        <a
+          id="' . $item['id'] . '" 
+          href="' . base_path() . $item['path'] . '"
+          class="injected-haxcms-btn"
+          slot="haxcms-site-editor-ui-suffix-buttons"
+        >
+        <simple-toolbar-button
+          icon="' . $item['icon'] . '" 
+          label="' . $item['title'] . '"
+          icon-position="top" 
+          tabindex="-1" 
+          show-text-label 
+          align-vertical="center" 
+          align-horizontal="center"
+        ></simple-toolbar-button>
         </a>
       ';
       }
       else {
         $slots .= '
-        <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" slot="haxcms-site-editor-ui-main-menu">
-          <app-hax-user-menu-button
-            tabindex="-1"
+        <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" slot="haxcms-site-editor-ui-suffix-buttons" class="injected-haxcms-btn"
+        >
+          <simple-toolbar-button
             icon="' . $item['icon'] . '"
             label="' . $item['title'] . '"
-          ></app-hax-user-menu-button>
+            tabindex="-1"
+            icon-position="top" 
+            show-text-label 
+            align-vertical="center" 
+            align-horizontal="center"    
+          ></simple-toolbar-button>
         </a>
       ';
       }
