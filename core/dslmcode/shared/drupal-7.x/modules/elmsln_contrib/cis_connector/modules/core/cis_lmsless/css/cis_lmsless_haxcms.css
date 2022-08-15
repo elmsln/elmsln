@@ -1352,6 +1352,11 @@ simple-modal::part(titlebar) {
     min-height: calc(100vh - 130px);
     --site-menu-map-menu-height: calc(100vh - 260px);
   }
+  haxcms-site-builder clean-one::part(pdf-page-btn),
+  haxcms-site-builder clean-one::part(print-branch-btn) {
+    display: none !important;
+  }
+  
   haxcms-site-builder clean-one::part(qr-code-btn) {
     top: 140px;
     right: 20px;
