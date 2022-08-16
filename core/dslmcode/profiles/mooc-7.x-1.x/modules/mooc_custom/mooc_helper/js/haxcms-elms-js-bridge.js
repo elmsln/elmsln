@@ -1,3 +1,13 @@
+// forcibly disable sounds and darkmode
+if (window.localStorage) {
+  try {
+    localStorage.setItem('app-hax-soundStatus', "false");
+    localStorage.setItem('app-hax-darkMode', "false");  
+  }
+  catch(e) {
+    // do nothing, in a secure context
+  }
+}
 /**
  * behavior to make sure select lists are applied every time we do an ajax reload.
  */

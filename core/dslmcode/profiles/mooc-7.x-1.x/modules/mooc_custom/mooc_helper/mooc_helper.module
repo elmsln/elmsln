@@ -66,10 +66,9 @@ function mooc_helper_haxcms_slots($node) {
   if (user_access('use hax')) {
     $ary = array(
       array(
-        'path' => 'node/' . $node->nid . '/edit',
-        'title' => t('Legacy edit'),
-        'icon' => 'hax:page-details',
-        'id' => 'elmsln-node-edit',
+        'title' => t('More options'),
+        'icon' => 'hax:settings',
+        'id' => 'elmsln-administer-edit',
       ),
       array(
         'path' => 'admin/content/book/' . $node->book['bid'],
@@ -78,52 +77,110 @@ function mooc_helper_haxcms_slots($node) {
         'id' => 'elmsln-outline-designer',
       ),
       array(
+        'path' => 'node/' . $node->nid . '/edit',
+        'title' => t('Legacy editor'),
+        'icon' => 'hax:page-details',
+        'id' => 'elmsln-node-edit',
+      ),
+      array(
         'path' => 'admin/config/content/haxcms',
         'title' => t('Theme settings'),
-        'icon' => 'hax:site-settings',
+        'icon' => 'icons:settings-brightness',
         'id' => 'elmsln-haxcms-settings',
-      )
+      ),
     );
+    // only push these if we have the theme wrapper in place so they can click
+    // to these menu items without having to hit their original counterparts
+    if (variable_get("elmsln_haxcms_lmsless", TRUE)) {
+      array_push($ary,      array(
+        'path' => '#',
+        'selector' => '#elmsln-change-section-modal div',
+        'title' => t('Change section'),
+        'icon' => 'icons:perm-identity',
+        'id' => 'haxcms-elmsln-change-section',
+      ),
+      array(
+        'path' => '#',
+        'selector' => '#elmsln-masquerade-modal div',
+        'title' => t('Impersonate account'),
+        'icon' => 'icons:supervisor-account',
+        'id' => 'haxcms-elmsln-impersonate',
+      ),
+      array(
+        'path' => '#',
+        'selector' => '.elmsln-course-title-inner',
+        'title' => t('Other settings'),
+        'icon' => 'icons:settings-applications',
+        'id' => 'haxcms-elmsln-other-settings',
+      ));
+    }
+    else {
+      array_push($ary,array(
+        'path' => 'admin/config/system/service-settings',
+        'title' => t('Other settings'),
+        'icon' => 'icons:settings-applications',
+        'id' => 'haxcms-elmsln-other-settings',
+      ));
+    }
     // slight hack but allows mooc to have a bit of a compatibility mode with haxcms
     // bc the two have slight style variations if you are authenticated
     foreach ($ary as $key => $item) {
       if ($key === 0) {
         $slots .= '
-        <a
-          id="' . $item['id'] . '" 
-          href="' . base_path() . $item['path'] . '"
-          class="injected-haxcms-btn"
-          slot="haxcms-site-editor-ui-suffix-buttons"
-        >
-        <simple-toolbar-button
-          icon="' . $item['icon'] . '" 
-          label="' . $item['title'] . '"
-          icon-position="top" 
-          tabindex="-1" 
-          show-text-label 
-          align-vertical="center" 
-          align-horizontal="center"
-        ></simple-toolbar-button>
-        </a>
+        <simple-toolbar-menu 
+        id="' . $item['id'] . '" 
+        icon="' . $item['icon'] . '" 
+        label="' . $item['title'] . '"
+        show-text-label="" 
+        icon-position="top" 
+        tabindex="0" 
+        align-vertical="center" 
+        align-horizontal="center" 
+        position="bottom" 
+        position-align="start" 
+        slot="haxcms-site-editor-ui-suffix-buttons"
+        tooltip-direction="top">
       ';
       }
       else {
-        $slots .= '
-        <a id="' . $item['id'] . '" href="' . base_path() . $item['path'] . '" slot="haxcms-site-editor-ui-suffix-buttons" class="injected-haxcms-btn"
-        >
-          <simple-toolbar-button
-            icon="' . $item['icon'] . '"
-            label="' . $item['title'] . '"
-            tabindex="-1"
-            icon-position="top" 
-            show-text-label 
-            align-vertical="center" 
-            align-horizontal="center"    
-          ></simple-toolbar-button>
-        </a>
-      ';
+        if ($item['path'] == '#') {
+          $slots .= '
+            <simple-toolbar-button
+            id="' . $item['id'] . '" 
+            class="injected-haxcms-btn"
+              icon="' . $item['icon'] . '"
+              label="' . $item['title'] . '"
+              tabindex="-1"
+              icon-position="left" 
+              show-text-label 
+              align-vertical="center"
+              align-horizontal="left"
+              onclick="javascript:document.querySelector(\'' . $item['selector'] . '\').click();"
+            ></simple-toolbar-button>
+        ';
+        }
+        else {
+          $slots .= '
+          <a 
+            id="' . $item['id'] . '" 
+            href="' . base_path() . $item['path'] . '"
+            class="injected-haxcms-btn"
+          >
+            <simple-toolbar-button
+              icon="' . $item['icon'] . '"
+              label="' . $item['title'] . '"
+              tabindex="-1"
+              icon-position="left" 
+              show-text-label 
+              align-vertical="center" 
+              align-horizontal="left"    
+            ></simple-toolbar-button>
+          </a>
+        ';
+        }
       }
     }
+    $slots .= "</simple-toolbar-menu>";
   }
   return $slots;
 }

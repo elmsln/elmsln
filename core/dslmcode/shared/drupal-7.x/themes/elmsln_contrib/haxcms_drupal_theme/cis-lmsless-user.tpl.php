@@ -23,7 +23,7 @@
   <?php if (isset($user_section)) : ?>
   <li><div class="divider"></div></li>
   <li>
-    <lrnsys-dialog header="<?php print t('Change section');?>">
+    <lrnsys-dialog id="elmsln-change-section-modal" header="<?php print t('Change section');?>">
       <div slot="button" class="lrnsys-dialog-button">
         <simple-icon icon="perm-identity"></simple-icon>
         <span><?php print t('Change section');?></span>
@@ -37,7 +37,7 @@
   <?php if (!empty($masquerade)) : ?>
     <li><div class="divider"></div></li>
   <li>
-    <lrnsys-dialog header="<?php print t('Impersonate account');?>">
+    <lrnsys-dialog id="elmsln-masquerade-modal" header="<?php print t('Impersonate account');?>">
       <div slot="button" class="lrnsys-dialog-button">
         <simple-icon icon="supervisor-account"></simple-icon>
         <span><?php print t('Impersonate account');?></span>

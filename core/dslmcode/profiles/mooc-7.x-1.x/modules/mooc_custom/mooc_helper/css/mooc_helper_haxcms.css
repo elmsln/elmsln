@@ -7,3 +7,44 @@ haxcms-site-editor-ui::part(detailsbtn)
  {
   display: none !important;
 }
+haxcms-site-editor-ui a {
+  display: block;
+  color: var(--simple-colors-default-theme-grey-12) !important;
+  position: relative;
+  text-decoration: none;
+}
+haxcms-site-editor-ui simple-toolbar-button.injected-haxcms-btn {
+  display: block;
+}
+haxcms-site-editor-ui simple-toolbar-menu:hover,
+haxcms-site-editor-ui simple-toolbar-menu:focus,
+haxcms-site-editor-ui simple-toolbar-menu:active {
+  background-color: var(--hax-ui-background-color-accent);
+  color: var(--hax-ui-color);
+}
+
+haxcms-site-builder clean-one::part(pdf-page-btn),
+haxcms-site-builder clean-one::part(print-branch-btn),
+haxcms-site-builder clean-one::part(qr-code-btn) {
+  display: none !important;
+}
+
+
+haxcms-site-editor-ui:not(:defined) {
+  display: none;
+}
+haxcms-site-editor-ui {
+position: relative;
+background-color: #eaeaea;
+}
+.haxcms-no-hax haxcms-site-editor-ui {
+display:none !important;
+}
+haxcms-site-editor-ui::part(top-bar) {
+--bg-color: transparent;
+}
+
+/** hide the user menu for editor UI **/
+haxcms-site-editor-ui::part(app-hax-user-menu) {
+  display:none !important;
+}

@@ -10,38 +10,8 @@
   simple-modal:not(:defined),
   simple-drawer:not(:defined),
   lrnsys-dialog:not(:defined),
-  lrnsys-drawer:not(:defined),
-  haxcms-site-editor-ui:not(:defined) {
+  lrnsys-drawer:not(:defined) {
       display: none;
-  }
-  haxcms-site-editor-ui {
-    position: relative;
-    background-color: #eaeaea;
-  }
-  .haxcms-no-hax haxcms-site-editor-ui {
-    display:none !important;
-  }
-  haxcms-site-editor-ui::part(top-bar) {
-    --bg-color: transparent;
-  }
-  haxcms-site-editor-ui a {
-    display: inline-flex;
-    color: var(--simple-colors-default-theme-grey-12) !important;
-    position: relative;
-    text-decoration: none;
-  }
-  haxcms-site-editor-ui a:hover,
-  haxcms-site-editor-ui a:focus,
-  haxcms-site-editor-ui a:active
-  haxcms-site-editor-ui simple-toolbar-menu:hover,
-  haxcms-site-editor-ui simple-toolbar-menu:focus,
-  haxcms-site-editor-ui simple-toolbar-menu:active {
-    background-color: var(--hax-ui-background-color-accent);
-    color: var(--hax-ui-color);
-  }
-  /** hide the user menu for editor UI **/
-  haxcms-site-editor-ui::part(app-hax-user-menu) {
-    display:none !important;
   }
   
   .elmsln-modal-content ul,
@@ -1026,13 +996,26 @@
   }
   #etb-course-nav .top-bar-right-actions ul {
     padding: 0;
+    margin: 0;
     text-align: right;
     display: flex;
     float:right;
     justify-content: flex-end;
   }
+  #etb-course-nav .top-bar-right-actions ul lrnsys-drawer {
+    height: 64px;
+    opacity: .8;
+    transition: .3s linear all;
+    -webkit-transition: .3s linear all;
+    -moz-transition: .3s linear all;
+    -ms-transition: .3s linear all;
+    -o-transition: .3s linear all;
+    background-color: black;
+  }
   #etb-course-nav .top-bar li lrnsys-button {
     opacity: .8;
+    height: 64px;
+    background-color: black;
     transition: .3s linear all;
     -webkit-transition: .3s linear all;
     -moz-transition: .3s linear all;
@@ -1291,6 +1274,9 @@ simple-modal::part(titlebar) {
     .hide-on-med-and-down {
       display: none !important;
     }
+    .header-image-container {
+      margin-top: -50px;
+    }
   }
   
   @media only screen and (min-width: 601px) {
@@ -1351,11 +1337,6 @@ simple-modal::part(titlebar) {
   haxcms-site-builder > :first-child {
     min-height: calc(100vh - 130px);
     --site-menu-map-menu-height: calc(100vh - 260px);
-  }
-  haxcms-site-builder clean-one::part(pdf-page-btn),
-  haxcms-site-builder clean-one::part(print-branch-btn),
-  haxcms-site-builder clean-one::part(qr-code-btn) {
-    display: none !important;
   }
   haxcms-site-builder clean-one {
     --clean-one-site-menu-height: calc(100vh - 190px);
