@@ -280,7 +280,7 @@ class GitRepo {
 	 * @param   string  command to run
 	 * @return  string
 	 */
-	protected function run_command($command) {
+	protected function run_command($command, $skip_fail = true) {
 		$descriptorspec = array(
 			1 => array('pipe', 'w'),
 			2 => array('pipe', 'w'),
@@ -314,7 +314,9 @@ class GitRepo {
 		}
 
 		$status = trim(proc_close($resource));
-		if ($status) throw new Exception($stderr);
+		if ($status && !$skip_fail) {
+            throw new Exception($stderr);
+        }
 
 		return $stdout;
 	}
