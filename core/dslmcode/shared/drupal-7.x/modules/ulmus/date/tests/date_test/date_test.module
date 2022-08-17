@@ -32,7 +32,7 @@ function date_test_sample_form($form, &$form_state) {
       'hour' => 7,
       'minute' => 0,
       'second' => 0,
-      'ampm' => 'am'
+      'ampm' => 'am',
     ),
   );
 

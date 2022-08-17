@@ -1,71 +1,87 @@
 <?php
+
 /**
  * @file
- * Date validation tests.
+ * Validate date field values.
  */
-class DateValidationTestCase extends DateFieldBasic {
+
+/**
+ * Validate date field values.
+ */
+class DateValidationTestCase extends DateFieldTestBase {
 
   /**
-   * @todo.
+   * Date Validation.
    */
   public static function getInfo() {
     return array(
       'name' => 'Date Validation',
       'description' => 'Test date validation.',
-      'group' => 'Date',
+      'group' => 'date',
     );
   }
 
   /**
-   * @todo.
+   * Create text date field.
+   *
+   * Attempts to create text date field stored as a date with default settings
+   * from input which is not valid).
    */
   public function testValidation() {
-    // Attempts to create text date field stored as a date with default settings
-    // (from input which is not valid).
     foreach (array('date', 'datestamp', 'datetime') as $field_type) {
-      foreach (array('date_select', 'date_popup', 'date_text') as $widget_type) {
-        $field_name = 'field_test';
-        $label = 'Test';
-        $options = array(
-          'label' => $label,
-          'field_name' => $field_name,
-          'field_type' => $field_type,
-          'widget_type' => $widget_type,
-          'input_format' => 'm/d/Y - H:i',
-        );
-        $this->createDateField($options);
-
-        // Malformed date test won't work on date_select, which won't allow
-        // invalid input.
-        if ($widget_type != 'date_select') {
-          $this->malFormedDate($field_name, $field_type, $widget_type);
-        }
-
-        $this->wrongGranularity($field_name, $field_type, $widget_type);
-        $this->deleteDateField($label);
+      foreach (array('date_select', 'date_text') as $widget_type) {
+        $this->checkDateField($field_type, $widget_type, TRUE);
+        return;
       }
     }
   }
 
   /**
-   * @todo.
+   * {@inheritdoc}
    */
-  function malFormedDate($field_name, $field_type, $widget_type) {
-    // Tests that date field filters improper dates.
+  protected function checkDateField($field_type, $widget_type, $delete_when_done = TRUE) {
+    $field_name = 'field_test';
+    $label = 'Test';
+    $options = array(
+      'label' => $label,
+      'field_name' => $field_name,
+      'field_type' => $field_type,
+      'widget_type' => $widget_type,
+      'input_format' => 'm/d/Y - H:i',
+    );
+    $this->createDateField($options);
+
+    // Malformed date test won't work on date_select, which won't allow
+    // invalid input.
+    if ($widget_type !== 'date_select') {
+      $this->malFormedDate($field_name, $field_type, $widget_type);
+    }
+
+    $this->wrongGranularity($field_name, $field_type, $widget_type);
+
+    if ($delete_when_done) {
+      $this->deleteDateField($label);
+    }
+  }
+
+  /**
+   * Tests that date field filters improper dates.
+   */
+  public function malFormedDate($field_name, $field_type, $widget_type) {
     $edit = array();
-    $edit['title'] = $this->randomName(8);
-    $edit['body[und][0][value]'] = $this->randomName(16);
-    if ($widget_type == 'date_select') {
+    $edit['title'] = self::randomName(8);
+    $edit['body[und][0][value]'] = self::randomName(16);
+    if ($widget_type === 'date_select') {
       $edit[$field_name . '[und][0][value][year]'] = '2011';
       $edit[$field_name . '[und][0][value][month]'] = '15';
       $edit[$field_name . '[und][0][value][day]'] = '49';
       $edit[$field_name . '[und][0][value][hour]'] = '10';
       $edit[$field_name . '[und][0][value][minute]'] = '30';
     }
-    elseif ($widget_type == 'date_text') {
+    elseif ($widget_type === 'date_text') {
       $edit[$field_name . '[und][0][value][date]'] = '15/49/2011 - 10:30';
     }
-    elseif ($widget_type == 'date_popup') {
+    elseif ($widget_type === 'date_popup') {
       $edit[$field_name . '[und][0][value][date]'] = '15/49/2011';
       $edit[$field_name . '[und][0][value][time]'] = '10:30';
     }
@@ -76,17 +92,17 @@ class DateValidationTestCase extends DateFieldBasic {
     $this->assertText('The day is invalid.', "Correctly blocked invalid day for a $field_type field using the $widget_type widget.");
 
     // Test two-digit entry for year where 4-digit is expected.
-    if ($widget_type == 'date_select') {
+    if ($widget_type === 'date_select') {
       $edit[$field_name . '[und][0][value][year]'] = '11';
       $edit[$field_name . '[und][0][value][month]'] = '12';
       $edit[$field_name . '[und][0][value][day]'] = '10';
       $edit[$field_name . '[und][0][value][hour]'] = '10';
       $edit[$field_name . '[und][0][value][minute]'] = '30';
     }
-    elseif ($widget_type == 'date_text') {
+    elseif ($widget_type === 'date_text') {
       $edit[$field_name . '[und][0][value][date]'] = '12/10/11 - 10:30';
     }
-    elseif ($widget_type == 'date_popup') {
+    elseif ($widget_type === 'date_popup') {
       $edit[$field_name . '[und][0][value][date]'] = '12/10/11';
       $edit[$field_name . '[und][0][value][time]'] = '10:30';
     }
@@ -97,17 +113,17 @@ class DateValidationTestCase extends DateFieldBasic {
     $this->assertText($should_be, "Correctly blocked two digit year for a $field_type field using the $widget_type widget.");
 
     // Test invalid hour/minute entry for time.
-    if ($widget_type == 'date_select') {
+    if ($widget_type === 'date_select') {
       $edit[$field_name . '[und][0][value][year]'] = '2011';
       $edit[$field_name . '[und][0][value][month]'] = '12';
       $edit[$field_name . '[und][0][value][day]'] = '10';
       $edit[$field_name . '[und][0][value][hour]'] = '29';
       $edit[$field_name . '[und][0][value][minute]'] = '95';
     }
-    elseif ($widget_type == 'date_text') {
+    elseif ($widget_type === 'date_text') {
       $edit[$field_name . '[und][0][value][date]'] = '12/10/2011 - 29:95';
     }
-    elseif ($widget_type == 'date_popup') {
+    elseif ($widget_type === 'date_popup') {
       $edit[$field_name . '[und][0][value][date]'] = '12/10/2011';
       $edit[$field_name . '[und][0][value][time]'] = '29:95';
     }
@@ -118,28 +134,26 @@ class DateValidationTestCase extends DateFieldBasic {
     $this->assertText($should_be, "Correctly blocked invalid hour for a $field_type field using the $widget_type widget.");
     $should_be = 'The minute is invalid.';
     $this->assertText($should_be, "Correctly blocked invalid minute for a $field_type field using the $widget_type widget.");
-
   }
 
   /**
-   * @todo.
+   * Create a node with incorrect granularity, missing time.
    */
   public function wrongGranularity($field_name, $field_type, $widget_type) {
-    // Create a node with incorrect granularity -- missing time.
     $edit = array();
-    $edit['title'] = $this->randomName(8);
-    $edit['body[und][0][value]'] = $this->randomName(16);
-    if ($widget_type == 'date_select') {
+    $edit['title'] = self::randomName(8);
+    $edit['body[und][0][value]'] = self::randomName(16);
+    if ($widget_type === 'date_select') {
       $edit[$field_name . '[und][0][value][year]'] = '2011';
       $edit[$field_name . '[und][0][value][month]'] = '12';
       $edit[$field_name . '[und][0][value][day]'] = '10';
       $edit[$field_name . '[und][0][value][hour]'] = '';
       $edit[$field_name . '[und][0][value][minute]'] = '';
     }
-    elseif ($widget_type == 'date_text') {
+    elseif ($widget_type === 'date_text') {
       $edit[$field_name . '[und][0][value][date]'] = '12/10/2011';
     }
-    elseif ($widget_type == 'date_popup') {
+    elseif ($widget_type === 'date_popup') {
       $edit[$field_name . '[und][0][value][date]'] = '12/10/2011';
       $edit[$field_name . '[und][0][value][time]'] = '';
     }
@@ -148,4 +162,5 @@ class DateValidationTestCase extends DateFieldBasic {
     $this->assertNoText($should_not_be, "Correctly blocked creation of node with missing time for a $field_type field using the $widget_type widget.");
     $this->assertText('invalid', "Marked form with missing time as invalid for a $field_type field using the $widget_type widget.");
   }
+
 }

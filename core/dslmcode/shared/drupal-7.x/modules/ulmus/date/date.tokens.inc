@@ -62,8 +62,8 @@ function date_tokens($type, $tokens, array $data = array(), array $options = arr
         date_timezone_set($date, timezone_open($item['timezone']));
       }
       $timestamp = !empty($date) ? date_format_date($date, 'custom', 'U') : '';
-      // Generate the token replacements, using the date token type provided
-      // by system.module.
+      // Generate the token replacements, using the date token type provided by
+      // system.module.
       $replacements += token_generate('date', $date_tokens, array('date' => $timestamp), $options);
     }
   }

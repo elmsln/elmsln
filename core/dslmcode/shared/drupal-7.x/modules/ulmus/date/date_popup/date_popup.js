@@ -1,7 +1,9 @@
 /**
- * Attaches the calendar behavior to all required fields
+ * @file
+ * Attaches the calendar behavior to all required fields.
  */
-(function($) {
+
+(function ($) {
   function makeFocusHandler(e) {
     if (!$(this).hasClass('date-popup-init')) {
       var datePopup = e.data;
@@ -10,14 +12,12 @@
         case 'datepicker':
           $(this)
             .datepicker(datePopup.settings)
-            .addClass('date-popup-init');
-          $(this).click(function(){
-            $(this).focus();
-          });
+            .addClass('date-popup-init')
+            .focus();
           if (datePopup.settings.syncEndDate) {
-            $('.start-date-wrapper').each(function(){
+            $('.start-date-wrapper').each(function () {
               var start_date_wrapper = this;
-              $(this).find('input:eq(0)').change(function(){
+              $(this).find('input:eq(0)').change(function () {
                 $(start_date_wrapper).next('.end-date-wrapper').find('input:eq(0)').val($(this).val());
               });
             });
@@ -27,10 +27,8 @@
         case 'timeEntry':
           $(this)
             .timeEntry(datePopup.settings)
-            .addClass('date-popup-init');
-          $(this).click(function(){
-            $(this).focus();
-          });
+            .addClass('date-popup-init')
+            .focus();
           break;
 
         case 'timepicker':
@@ -54,10 +52,8 @@
           datePopup.settings.startTime = new Date(datePopup.settings.startTime);
           $(this)
             .timepicker(datePopup.settings)
-            .addClass('date-popup-init');
-          $(this).click(function(){
-            $(this).focus();
-          });
+            .addClass('date-popup-init')
+            .focus();
           break;
       }
     }
@@ -66,8 +62,9 @@
   Drupal.behaviors.date_popup = {
     attach: function (context) {
       for (var id in Drupal.settings.datePopup) {
-        $('#'+ id).bind('focus', Drupal.settings.datePopup[id], makeFocusHandler);
+        $('#' + id).bind('focus', Drupal.settings.datePopup[id], makeFocusHandler);
       }
     }
   };
+
 })(jQuery);

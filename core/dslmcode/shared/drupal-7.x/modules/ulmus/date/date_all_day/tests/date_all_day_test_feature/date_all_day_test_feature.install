@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Uninstall functions for the Date All Day Test Feature module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function date_all_day_test_feature_uninstall() {
+  // Delete the bundled content type.
+  node_type_delete('date_all_day_test');
+  variable_del('node_preview_date_all_day_test_feature');
+  node_types_rebuild();
+  menu_rebuild();
+}

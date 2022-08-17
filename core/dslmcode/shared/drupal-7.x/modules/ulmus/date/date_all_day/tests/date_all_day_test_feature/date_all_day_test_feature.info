@@ -1,0 +1,20 @@
+name = Date All Day Test Feature
+description = Example content type for testing the Date All Day module.
+core = 7.x
+package = Date/Time
+dependencies[] = date:date
+dependencies[] = date:date_all_day
+dependencies[] = features:features
+features[features_api][] = api:2
+features[field_base][] = body
+features[field_base][] = field_date_all_day
+features[field_instance][] = node-date_all_day_test-body
+features[field_instance][] = node-date_all_day_test-field_date_all_day
+features[node][] = date_all_day_test
+hidden = 1
+
+; Information added by Drupal.org packaging script on 2022-08-04
+version = "7.x-2.13"
+core = "7.x"
+project = "date"
+datestamp = "1659633190"

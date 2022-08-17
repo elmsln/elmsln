@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Custom feature for testing the Date Repeat module.
+ */
+
+include_once 'date_repeat_test_feature.features.inc';

@@ -5,33 +5,55 @@
  * Test Date Repeat form.
  */
 
+/**
+ * Test Date Repeat form.
+ */
 class DateRepeatFormTestCase extends DrupalWebTestCase {
-  protected $privileged_user;
 
+  /**
+   * Drupal privileged users.
+   *
+   * @var object|false
+   */
+  protected $privilegedUser;
+
+  /**
+   * Date repeat forms test.
+   */
   public static function getInfo() {
     return array(
       'name' => t('Date Repeat Form'),
-      'description' => t('Test Date Repeat form.') ,
-      'group' => t('Date'),
+      'description' => t('Test Date Repeat form.'),
+      'group' => 'date',
     );
   }
 
   /**
-   * Implements setUp().
+   * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(array $modules = array()) {
     // Load the date_repeat module.
-    parent::setUp('field', 'field_ui', 'date_api', 'date_repeat', 'date', 'date_popup', 'date_repeat_field');
+    $modules[] = 'field';
+    $modules[] = 'field_ui';
+    $modules[] = 'date_api';
+    $modules[] = 'date_repeat';
+    $modules[] = 'date';
+    $modules[] = 'date_popup';
+    $modules[] = 'date_repeat_field';
+    parent::setUp($modules);
 
     // Create and log in our privileged user.
-    $this->privileged_user = $this->drupalCreateUser(array(
-      'administer content types', 'administer nodes', 'bypass node access', 'view date repeats', 'administer fields'
+    $this->privilegedUser = $this->drupalCreateUser(array(
+      'administer content types', 'administer nodes', 'bypass node access', 'view date repeats', 'administer fields',
     ));
-    $this->drupalLogin($this->privileged_user);
+    $this->drupalLogin($this->privilegedUser);
 
     variable_set('date_format_short', 'Y-m-d H:i');
   }
 
+  /**
+   * Test the Date Repeat form.
+   */
   public function testDateRepeatForm() {
     $edit = array();
     $edit['name'] = 'Date';
@@ -44,7 +66,8 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
     $widget_options = array(
       'date_select' => 'select',
       'date_text' => 'text',
-      'date_popup' => 'popup');
+      'date_popup' => 'popup',
+    );
 
     foreach ($widget_options as $widget => $options) {
       // Daily tests
@@ -84,8 +107,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
       $form_edit = $this->dateForm($options, 'daily_1', FALSE, 'exclude_include');
       $this->verifyDateForm($form_edit);
 
-      // Weekly tests
-
+      // Weekly tests.
       $form_edit = $this->dateForm($options, 'weekly_1');
       $this->verifyDateForm($form_edit);
 
@@ -110,8 +132,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
       $form_edit = $this->dateForm($options, 'weekly_4', TRUE);
       $this->verifyDateForm($form_edit);
 
-      // Monthly tests
-
+      // Monthly tests.
       $form_edit = $this->dateForm($options, 'monthly_1');
       $this->verifyDateForm($form_edit);
 
@@ -148,8 +169,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
       $form_edit = $this->dateForm($options, 'monthly_6', TRUE);
       $this->verifyDateForm($form_edit);
 
-      // Yearly tests
-
+      // Yearly tests.
       $form_edit = $this->dateForm($options, 'yearly_1');
       $this->verifyDateForm($form_edit);
 
@@ -190,13 +210,14 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
     }
   }
 
-  function dateForm($options, $test_id = NULL, $is_count = FALSE, $exclude_include = NULL) {
-    // Tests that date field functions properly.
+  /**
+   * Tests date field functions.
+   */
+  public function dateForm($options, $test_id = NULL, $is_count = FALSE, $exclude_include = NULL) {
     $edit = array();
     $edit['title'] = $this->randomName(8);
     $edit['body[und][0][value]'] = $this->randomName(16);
     $current_year = date('Y');
-
 
     switch ($options) {
       case 'select':
@@ -206,59 +227,67 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
         $edit['field_test[und][0][value][hour]'] = '10';
         $edit['field_test[und][0][value][minute]'] = '30';
         break;
+
       case 'text':
         $edit['field_test[und][0][value][date]'] = format_string('!year-10-07 10:30', array('!year' => $current_year));
         break;
+
       case 'popup':
         $edit['field_test[und][0][value][date]'] = format_string('!year-10-07', array('!year' => $current_year));
         $edit['field_test[und][0][value][time]'] = '10:30';
         break;
     }
 
-    // Tests that Date repeat settings function properly
+    // Tests that Date repeat settings function properly.
     if ($test_id !== NULL) {
       $edit['field_test[und][0][show_repeat_settings]'] = TRUE;
       $count = 5;
 
       switch ($test_id) {
-        // Daily test cases
+        // Daily test cases.
         case 'daily_1':
           $edit['field_test[und][0][rrule][FREQ]'] = 'DAILY';
           $edit['field_test[und][0][rrule][daily][byday_radios]'] = 'INTERVAL';
           $edit['field_test[und][0][rrule][daily][INTERVAL_child]'] = 2;
           break;
+
         case 'daily_2':
           $edit['field_test[und][0][rrule][FREQ]'] = 'DAILY';
           $edit['field_test[und][0][rrule][daily][byday_radios]'] = 'every_weekday';
           break;
+
         case 'daily_3':
           $edit['field_test[und][0][rrule][FREQ]'] = 'DAILY';
           $edit['field_test[und][0][rrule][daily][byday_radios]'] = 'every_mo_we_fr';
           break;
+
         case 'daily_4':
           $edit['field_test[und][0][rrule][FREQ]'] = 'DAILY';
           $edit['field_test[und][0][rrule][daily][byday_radios]'] = 'every_tu_th';
           break;
 
-        // Weekly test cases
+        // Weekly test cases.
         case 'weekly_1':
           $edit['field_test[und][0][rrule][FREQ]'] = 'WEEKLY';
           $edit['field_test[und][0][rrule][weekly][BYDAY][MO]'] = TRUE;
           $edit['field_test[und][0][rrule][weekly][BYDAY][WE]'] = TRUE;
           $edit['field_test[und][0][rrule][weekly][BYDAY][TH]'] = TRUE;
           break;
+
         case 'weekly_2':
           $edit['field_test[und][0][rrule][FREQ]'] = 'WEEKLY';
           $edit['field_test[und][0][rrule][weekly][INTERVAL]'] = 1;
           $edit['field_test[und][0][rrule][weekly][BYDAY][MO]'] = TRUE;
           $edit['field_test[und][0][rrule][weekly][BYDAY][FR]'] = TRUE;
           break;
+
         case 'weekly_3':
           $edit['field_test[und][0][rrule][FREQ]'] = 'WEEKLY';
           $edit['field_test[und][0][rrule][weekly][INTERVAL]'] = 2;
           $edit['field_test[und][0][rrule][weekly][BYDAY][TU]'] = TRUE;
           $edit['field_test[und][0][rrule][weekly][BYDAY][TH]'] = TRUE;
           break;
+
         case 'weekly_4':
           $edit['field_test[und][0][rrule][FREQ]'] = 'WEEKLY';
           $edit['field_test[und][0][rrule][weekly][INTERVAL]'] = 10;
@@ -269,13 +298,14 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           $edit['field_test[und][0][rrule][weekly][BYDAY][FR]'] = TRUE;
           break;
 
-        // Monthly test cases
+        // Monthly test cases.
         case 'monthly_1':
           $edit['field_test[und][0][rrule][FREQ]'] = 'MONTHLY';
           $edit['field_test[und][0][rrule][monthly][day_month]'] = 'BYDAY_BYMONTH';
           $edit['field_test[und][0][rrule][monthly][BYDAY_BYMONTH_child][BYDAY_COUNT]'] = '+1';
           $edit['field_test[und][0][rrule][monthly][BYDAY_BYMONTH_child][BYDAY_DAY]'] = 'FR';
           break;
+
         case 'monthly_2':
           $edit['field_test[und][0][rrule][FREQ]'] = 'MONTHLY';
           $edit['field_test[und][0][rrule][monthly][day_month]'] = 'BYDAY_BYMONTH';
@@ -288,6 +318,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           $edit['field_test[und][0][rrule][monthly][BYDAY_BYMONTH_child][BYMONTH][9]'] = TRUE;
           $edit['field_test[und][0][rrule][monthly][BYDAY_BYMONTH_child][BYMONTH][11]'] = TRUE;
           break;
+
         case 'monthly_3':
           $edit['field_test[und][0][rrule][FREQ]'] = 'MONTHLY';
           $edit['field_test[und][0][rrule][monthly][day_month]'] = 'BYDAY_BYMONTH';
@@ -296,11 +327,13 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           $edit['field_test[und][0][rrule][monthly][BYDAY_BYMONTH_child][BYMONTH][6]'] = TRUE;
           $edit['field_test[und][0][rrule][monthly][BYDAY_BYMONTH_child][BYMONTH][12]'] = TRUE;
           break;
+
         case 'monthly_4':
           $edit['field_test[und][0][rrule][FREQ]'] = 'MONTHLY';
           $edit['field_test[und][0][rrule][monthly][day_month]'] = 'BYMONTHDAY_BYMONTH';
           $edit['field_test[und][0][rrule][monthly][BYMONTHDAY_BYMONTH_child][BYMONTHDAY]'] = '10';
           break;
+
         case 'monthly_5':
           $edit['field_test[und][0][rrule][FREQ]'] = 'MONTHLY';
           $edit['field_test[und][0][rrule][monthly][day_month]'] = 'BYMONTHDAY_BYMONTH';
@@ -309,6 +342,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           $edit['field_test[und][0][rrule][monthly][BYMONTHDAY_BYMONTH_child][BYMONTH][2]'] = TRUE;
           $edit['field_test[und][0][rrule][monthly][BYMONTHDAY_BYMONTH_child][BYMONTH][3]'] = TRUE;
           break;
+
         case 'monthly_6':
           $edit['field_test[und][0][rrule][FREQ]'] = 'MONTHLY';
           $edit['field_test[und][0][rrule][monthly][day_month]'] = 'BYMONTHDAY_BYMONTH';
@@ -318,13 +352,14 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           $edit['field_test[und][0][rrule][monthly][BYMONTHDAY_BYMONTH_child][BYMONTH][6]'] = TRUE;
           break;
 
-        // Yearly test cases
+        // Yearly test cases.
         case 'yearly_1':
           $edit['field_test[und][0][rrule][FREQ]'] = 'YEARLY';
           $edit['field_test[und][0][rrule][yearly][day_month]'] = 'BYDAY_BYMONTH';
           $edit['field_test[und][0][rrule][yearly][BYDAY_BYMONTH_child][BYDAY_COUNT]'] = '+1';
           $edit['field_test[und][0][rrule][yearly][BYDAY_BYMONTH_child][BYDAY_DAY]'] = 'FR';
           break;
+
         case 'yearly_2':
           $edit['field_test[und][0][rrule][FREQ]'] = 'YEARLY';
           $edit['field_test[und][0][rrule][yearly][INTERVAL]'] = 2;
@@ -338,6 +373,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           $edit['field_test[und][0][rrule][yearly][BYDAY_BYMONTH_child][BYMONTH][9]'] = TRUE;
           $edit['field_test[und][0][rrule][yearly][BYDAY_BYMONTH_child][BYMONTH][11]'] = TRUE;
           break;
+
         case 'yearly_3':
           $edit['field_test[und][0][rrule][FREQ]'] = 'YEARLY';
           $edit['field_test[und][0][rrule][yearly][INTERVAL]'] = 3;
@@ -347,11 +383,13 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           $edit['field_test[und][0][rrule][yearly][BYDAY_BYMONTH_child][BYMONTH][6]'] = TRUE;
           $edit['field_test[und][0][rrule][yearly][BYDAY_BYMONTH_child][BYMONTH][12]'] = TRUE;
           break;
+
         case 'yearly_4':
           $edit['field_test[und][0][rrule][FREQ]'] = 'YEARLY';
           $edit['field_test[und][0][rrule][yearly][day_month]'] = 'BYMONTHDAY_BYMONTH';
           $edit['field_test[und][0][rrule][yearly][BYMONTHDAY_BYMONTH_child][BYMONTHDAY]'] = '10';
           break;
+
         case 'yearly_5':
           $edit['field_test[und][0][rrule][FREQ]'] = 'YEARLY';
           $edit['field_test[und][0][rrule][yearly][INTERVAL]'] = 2;
@@ -361,6 +399,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           $edit['field_test[und][0][rrule][yearly][BYMONTHDAY_BYMONTH_child][BYMONTH][2]'] = TRUE;
           $edit['field_test[und][0][rrule][yearly][BYMONTHDAY_BYMONTH_child][BYMONTH][3]'] = TRUE;
           break;
+
         case 'yearly_6':
           $edit['field_test[und][0][rrule][FREQ]'] = 'YEARLY';
           $edit['field_test[und][0][rrule][yearly][INTERVAL]'] = 3;
@@ -372,7 +411,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
           break;
       }
 
-      // Test COUNT or UNTIL (default)
+      // Test COUNT or UNTIL (default).
       if ($is_count) {
         $edit['field_test[und][0][rrule][range_of_repeat]'] = 'COUNT';
         $edit['field_test[und][0][rrule][count_child]'] = $count;
@@ -382,12 +421,12 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
         $date = array(
           'year' => $current_year + 1,
           'month' => '10',
-          'day' => '07'
+          'day' => '07',
         );
         $edit += $this->formatDateForRRULEInputs('field_test[und][0][rrule][until_child]', $options, $date);
       }
 
-      // Test date exceptions and/or additions
+      // Test date exceptions and/or additions.
       if ($exclude_include !== NULL) {
         $exclude_include_edit = array();
         switch ($exclude_include) {
@@ -396,25 +435,27 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
             $date = array(
               'year' => $current_year,
               'month' => '10',
-              'day' => '07'
+              'day' => '07',
             );
             $exclude_include_edit += $this->formatDateForRRULEInputs('field_test[und][0][rrule][exceptions][EXDATE][0]', $options, $date);
             break;
+
           case 'include':
             $exclude_include_edit['field_test[und][0][rrule][show_additions]'] = TRUE;
             $date = array(
               'year' => $current_year + 3,
               'month' => '10',
-              'day' => '07'
+              'day' => '07',
             );
             $exclude_include_edit += $this->formatDateForRRULEInputs('field_test[und][0][rrule][additions][RDATE][0]', $options, $date);
             break;
+
           case 'exclude_include':
             $exclude_include_edit['field_test[und][0][rrule][show_exceptions]'] = TRUE;
             $date = array(
               'year' => $current_year,
               'month' => '10',
-              'day' => '07'
+              'day' => '07',
             );
             $exclude_include_edit += $this->formatDateForRRULEInputs('field_test[und][0][rrule][exceptions][EXDATE][0]', $options, $date);
 
@@ -422,7 +463,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
             $date = array(
               'year' => $current_year + 3,
               'month' => '10',
-              'day' => '07'
+              'day' => '07',
             );
             $exclude_include_edit += $this->formatDateForRRULEInputs('field_test[und][0][rrule][additions][RDATE][0]', $options, $date);
             break;
@@ -434,11 +475,14 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
     $this->drupalPost('node/add/date', $edit, t('Save'));
     $this->assertText($edit['body[und][0][value]'], 'Test node has been created');
 
-    // Return the settings for later use in verification
+    // Return the settings for later use in verification.
     return $edit;
   }
 
-  function verifyDateForm($edit) {
+  /**
+   * Verify date forms.
+   */
+  public function verifyDateForm($edit) {
     $title = $edit['title'];
     $node = $this->drupalGetNodeByTitle($title);
 
@@ -452,11 +496,14 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
     $this->assertRaw(t('Date %title has been deleted.', array('%title' => $title)), t('Deleted Date content.'));
   }
 
-  function createDateField($type, $widget, $display_all_day = FALSE) {
+  /**
+   * Test date field creation.
+   */
+  public function createDateField($type, $widget, $display_all_day = FALSE) {
     $edit = array();
     $edit['fields[_add_new_field][label]'] = 'Test';
     $edit['fields[_add_new_field][field_name]'] = 'test';
-    $edit['fields[_add_new_field][weight]'] = '-4';
+    $edit['fields[_add_new_field][weight]'] = '-100';
     $edit['fields[_add_new_field][type]'] = $type;
     $edit['fields[_add_new_field][widget_type]'] = $widget;
 
@@ -469,9 +516,9 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
     switch ($widget) {
       case 'select':
       case 'popup':
-      $instance_edit['instance[widget][settings][year_range][years_back]'] = '-5';
-      $instance_edit['instance[widget][settings][year_range][years_forward]'] = '+5';
-      break;
+        $instance_edit['instance[widget][settings][year_range][years_back]'] = '-5';
+        $instance_edit['instance[widget][settings][year_range][years_forward]'] = '+5';
+        break;
     }
 
     if ($display_all_day) {
@@ -494,14 +541,20 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
     $this->assertFieldByXPath('//table[@id="field-overview"]//td[1]', $label, t('Field was created and appears in the overview page.'));
   }
 
-  function deleteDateField() {
+  /**
+   * Test date field removal.
+   */
+  public function deleteDateField() {
     $this->drupalGet('admin/structure/types/manage/date/fields');
     $this->clickLink('delete');
     $this->drupalPost(NULL, NULL, t('Delete'));
     $this->assertText(t('The field Test has been deleted from the Date content type.'), t('Removed date field.'));
   }
 
-  function formatDateForRRULEInputs($form_field_name, $date_widget_type, $date) {
+  /**
+   * Date repeat RRULE test.
+   */
+  public function formatDateForRruleInputs($form_field_name, $date_widget_type, $date) {
     $return = array();
 
     switch ($date_widget_type) {
@@ -510,7 +563,9 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
         $return["{$form_field_name}[datetime][month]"] = $date['month'];
         $return["{$form_field_name}[datetime][day]"] = ltrim($date['day'], '0');
         break;
+
       case 'text':
+
       case 'popup':
         $return["{$form_field_name}[datetime][date]"] = "{$date['year']}-{$date['month']}-{$date['day']}";
         break;
@@ -518,4 +573,5 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
 
     return $return;
   }
+
 }

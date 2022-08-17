@@ -1,0 +1,518 @@
+<?php
+
+/**
+ * @file
+ * Tests date filter handler in Views.
+ */
+
+/**
+ * Test Date views filter functions.
+ */
+class DateViewsFilterTestCase extends DateFieldTestBase {
+
+  /**
+   * Date Views filter Test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Date Views - Filter Test',
+      'description' => 'Tests date filter handler in Views, including Date Popup fields.',
+      'group' => 'Date Views',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    $modules[] = 'views_ui';
+    $modules[] = 'date_views';
+    $modules[] = 'date_popup';
+    parent::setUp($modules);
+
+    // Initialize values.
+    $this->initialize();
+
+    // Reset/rebuild all data structures after enabling the modules.
+    $this->resetAll();
+
+    // Create a date field.
+    $this->createDateField();
+
+    // Create sample nodes.
+    $this->createDateContent();
+  }
+
+  /**
+   * Initialize test values.
+   */
+  public function initialize() {
+    $this->config_url = 'admin/structure/views/nojs/config-item/test_date_filters/default/filter';
+    $this->extra_url = 'admin/structure/views/nojs/config-item-extra/test_date_filters/default/filter';
+
+    // This is used in views configuration and on the view page.
+    variable_set('date_format_short', 'Y-m-d H:i');
+
+    if ($this->privilegedUser) {
+      // Add required permissions.
+      $roles = $this->privilegedUser->roles;
+      unset($roles[2]);
+      $rid = key($roles);
+      $permissions = array('administer views'/*, 'administer site configuration'*/);
+      user_role_grant_permissions($rid, $permissions);
+    }
+  }
+
+  /**
+   * Adds a date field to a node bundle.
+   */
+  public function createDateField($values = array()) {
+    // Create a date field.
+    $values = array(
+      'label' => 'Sample date',
+      'widget_type' => 'date_select',
+      'field_name' => 'sample_date',
+      'field_type' => 'datetime',
+      'input_format' => 'm/d/Y - H:i:s',
+      'granularity' => array('year', 'month', 'day'),
+    );
+    parent::createDateField($values);
+  }
+
+  /**
+   * Saves content with a date field.
+   */
+  public function createDateContent() {
+    $years = range(date('Y') - 3, date('Y') + 3);
+    foreach ($years as $year) {
+      for ($month = 1; $month < 13; $month++) {
+        $node = array(
+          'type' => 'story',
+          'title' => "Story from $year-$month-01",
+          'uid' => '1',
+        );
+        $node['sample_date']['und'][0]['value'] = "$year-$month-01";
+        node_save((object) $node);
+      }
+    }
+  }
+
+  /**
+   * Creates a view with a date filter for each date widget type.
+   */
+  public function createDateFilterView() {
+    if ($view = views_get_view('test_date_filters')) {
+      // Delete view, then recreate it in a known state.
+      views_delete_view($view);
+    }
+
+    // Create the view.
+    $view = new view();
+    $view->name = 'test_date_filters';
+    $view->description = '';
+    $view->tag = 'default';
+    $view->base_table = 'node';
+    $view->human_name = 'Test date filters';
+    $view->core = 7;
+    $view->api_version = '3.0';
+    $view->disabled = FALSE;
+
+    /* Display: Master */
+    $handler = $view->new_display('default', 'Master', 'default');
+    $handler->display->display_options['title'] = 'Date filters';
+    $handler->display->display_options['use_more_always'] = FALSE;
+    $handler->display->display_options['access']['type'] = 'none';
+    $handler->display->display_options['cache']['type'] = 'none';
+    $handler->display->display_options['query']['type'] = 'views_query';
+    $handler->display->display_options['exposed_form']['type'] = 'basic';
+    $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
+    $handler->display->display_options['pager']['type'] = 'full';
+    $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+    $handler->display->display_options['style_plugin'] = 'table';
+    $handler->display->display_options['style_options']['columns'] = array(
+      'nid' => 'nid',
+      'title' => 'title',
+      'sample_date' => 'sample_date',
+    );
+    $handler->display->display_options['style_options']['default'] = '-1';
+    $handler->display->display_options['style_options']['info'] = array(
+      'nid' => array(
+        'sortable' => 0,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+      ),
+      'title' => array(
+        'sortable' => 0,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+      ),
+      'sample_date' => array(
+        'sortable' => 1,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+      ),
+    );
+    /* Field: Content: Nid */
+    $handler->display->display_options['fields']['nid']['id'] = 'nid';
+    $handler->display->display_options['fields']['nid']['table'] = 'node';
+    $handler->display->display_options['fields']['nid']['field'] = 'nid';
+    /* Field: Content: Title */
+    $handler->display->display_options['fields']['title']['id'] = 'title';
+    $handler->display->display_options['fields']['title']['table'] = 'node';
+    $handler->display->display_options['fields']['title']['field'] = 'title';
+    $handler->display->display_options['fields']['title']['label'] = '';
+    $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+    $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+    /* Field: Content: Sample date */
+    $handler->display->display_options['fields']['sample_date']['id'] = 'sample_date';
+    $handler->display->display_options['fields']['sample_date']['table'] = 'field_data_sample_date';
+    $handler->display->display_options['fields']['sample_date']['field'] = 'sample_date';
+    $handler->display->display_options['fields']['sample_date']['settings'] = array(
+      'format_type' => 'short',
+      'custom_date_format' => '',
+      'fromto' => 'both',
+      'multiple_number' => '',
+      'multiple_from' => '',
+      'multiple_to' => '',
+      'show_remaining_days' => 0,
+      'show_repeat_rule' => 'show',
+    );
+    /* Filter criterion: Content: Type */
+    $handler->display->display_options['filters']['type']['id'] = 'type';
+    $handler->display->display_options['filters']['type']['table'] = 'node';
+    $handler->display->display_options['filters']['type']['field'] = 'type';
+    $handler->display->display_options['filters']['type']['value'] = array(
+      'story' => 'story',
+    );
+    $handler->display->display_options['filters']['type']['group'] = 1;
+    /* Filter criterion: Content: Sample date (sample_date) */
+    $handler->display->display_options['filters']['sample_date_select']['id'] = 'sample_date_select';
+    $handler->display->display_options['filters']['sample_date_select']['table'] = 'field_data_sample_date';
+    $handler->display->display_options['filters']['sample_date_select']['field'] = 'sample_date_value';
+    $handler->display->display_options['filters']['sample_date_select']['group'] = 1;
+    $handler->display->display_options['filters']['sample_date_select']['exposed'] = TRUE;
+    $handler->display->display_options['filters']['sample_date_select']['expose']['operator_id'] = 'sample_date_select_op';
+    $handler->display->display_options['filters']['sample_date_select']['expose']['label'] = 'Select filter';
+    $handler->display->display_options['filters']['sample_date_select']['expose']['operator'] = 'sample_date_select_op';
+    $handler->display->display_options['filters']['sample_date_select']['expose']['identifier'] = 'sample_date_select';
+    $handler->display->display_options['filters']['sample_date_select']['expose']['remember_roles'] = array(
+      2 => 0,
+      1 => 0,
+    );
+    $handler->display->display_options['filters']['sample_date_select']['granularity'] = 'month';
+    $handler->display->display_options['filters']['sample_date_select']['year_range'] = '-2:+2';
+    /* Filter criterion: Content: Sample date (sample_date) */
+    $handler->display->display_options['filters']['sample_date_text']['id'] = 'sample_date_text';
+    $handler->display->display_options['filters']['sample_date_text']['table'] = 'field_data_sample_date';
+    $handler->display->display_options['filters']['sample_date_text']['field'] = 'sample_date_value';
+    $handler->display->display_options['filters']['sample_date_text']['group'] = 1;
+    $handler->display->display_options['filters']['sample_date_text']['exposed'] = TRUE;
+    $handler->display->display_options['filters']['sample_date_text']['expose']['operator_id'] = 'sample_date_text_op';
+    $handler->display->display_options['filters']['sample_date_text']['expose']['label'] = 'Text filter';
+    $handler->display->display_options['filters']['sample_date_text']['expose']['operator'] = 'sample_date_text_op';
+    $handler->display->display_options['filters']['sample_date_text']['expose']['identifier'] = 'sample_date_text';
+    $handler->display->display_options['filters']['sample_date_text']['expose']['remember_roles'] = array(
+      2 => 0,
+      1 => 0,
+    );
+    $handler->display->display_options['filters']['sample_date_text']['granularity'] = 'month';
+    $handler->display->display_options['filters']['sample_date_text']['form_type'] = 'date_text';
+    $handler->display->display_options['filters']['sample_date_text']['year_range'] = '-2:+2';
+    /* Filter criterion: Content: Sample date (sample_date) */
+    $handler->display->display_options['filters']['sample_date_popup']['id'] = 'sample_date_popup';
+    $handler->display->display_options['filters']['sample_date_popup']['table'] = 'field_data_sample_date';
+    $handler->display->display_options['filters']['sample_date_popup']['field'] = 'sample_date_value';
+    $handler->display->display_options['filters']['sample_date_popup']['group'] = 1;
+    $handler->display->display_options['filters']['sample_date_popup']['exposed'] = TRUE;
+    $handler->display->display_options['filters']['sample_date_popup']['expose']['operator_id'] = 'sample_date_popup_op';
+    $handler->display->display_options['filters']['sample_date_popup']['expose']['label'] = 'Popup filter';
+    $handler->display->display_options['filters']['sample_date_popup']['expose']['operator'] = 'sample_date_popup_op';
+    $handler->display->display_options['filters']['sample_date_popup']['expose']['identifier'] = 'sample_date_popup';
+    $handler->display->display_options['filters']['sample_date_popup']['expose']['remember_roles'] = array(
+      2 => 0,
+      1 => 0,
+    );
+    $handler->display->display_options['filters']['sample_date_popup']['granularity'] = 'month';
+    $handler->display->display_options['filters']['sample_date_popup']['form_type'] = 'date_popup';
+    $handler->display->display_options['filters']['sample_date_popup']['year_range'] = '-2:+2';
+
+    /* Display: Page */
+    $handler = $view->new_display('page', 'Page', 'page_samples');
+    $handler->display->display_options['path'] = 'test-date-filter';
+    $handler->display->display_options['menu']['type'] = 'normal';
+    $handler->display->display_options['menu']['title'] = 'Date filters';
+    $handler->display->display_options['menu']['weight'] = '0';
+    $handler->display->display_options['menu']['context'] = 0;
+    $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+    $view->save();
+  }
+
+  /**
+   * Test date filters.
+   */
+  public function testDateFilters() {
+    if (!$this->loggedInUser) {
+      return;
+    }
+
+    try {
+      $this->checkSelectFilter();
+      $this->checkTextFilter('sample_date_text');
+      $this->checkTextFilter('sample_date_popup');
+
+      // @todo Seems to be a bug in popup code that reuses the last filter value
+      // so that query condition is invalid.
+      // DATE_FORMAT(field_data_sample_date.sample_date_value, '%Y') = '2018-06'
+      $this->validateFilters();
+    }
+    catch (Exception $e) {
+    }
+
+    if ($this->loggedInUser) {
+      $this->drupalLogout();
+    }
+  }
+
+  /**
+   * Test date filter using select widget.
+   */
+  public function checkSelectFilter() {
+    // Restore the view.
+    $this->createDateFilterView();
+
+    $year = (string) (date('Y') - 1);
+    $month = '06';
+    $filter = 'sample_date_select';
+
+    // Set the filter value.
+    $edit = array(
+      'options[value][value_group][value][year]' => $year,
+      'options[value][value_group][value][month]' => substr($month, -1),
+    );
+    $this->setFilter($filter, $edit);
+
+    // Inspect the table.
+    $this->checkTable(1, $year);
+
+    // Inspect the filter value.
+    $this->checkSelect($filter, 'year', $year);
+    $this->checkSelect($filter, 'month', substr($month, -1));
+
+    // Change granularity.
+    $this->setGranularity($filter, 'year');
+
+    // Inspect the table.
+    $this->checkTable(10, $year);
+
+    // Inspect the filter value.
+    $this->checkSelect($filter, 'year', $year);
+  }
+
+  /**
+   * Test date filter using text or popup widget.
+   *
+   * @param string $filter
+   *   Filter name.
+   */
+  public function checkTextFilter($filter) {
+    // Restore the view.
+    $this->createDateFilterView();
+
+    $year = (string) (date('Y') - 1);
+    $month = '06';
+
+    // Set the filter value.
+    $edit = array(
+      'options[value][value_group][value][date]' => "$year-$month",
+    );
+    $this->setFilter($filter, $edit);
+
+    // Inspect the table.
+    $this->checkTable(1, $year);
+
+    // Inspect the filter value.
+    $this->checkTextField($filter, "$year-$month");
+
+    // Change granularity.
+    $this->setGranularity($filter, 'year');
+
+    // Set the filter value.
+    // This is not necessary with the text widget but is with the popup widget.
+    // The popup element retains the first value and the views query uses it.
+    $edit = array(
+      'options[value][value_group][value][date]' => "$year",
+    );
+    $this->setFilter($filter, $edit);
+
+    // Inspect the table.
+    $this->checkTable(10, $year);
+
+    // Inspect the filter value.
+    $this->checkTextField($filter, $year);
+  }
+
+  /**
+   * Test date filter validation using all widgets.
+   */
+  public function validateFilters() {
+    // Restore the view.
+    $this->createDateFilterView();
+
+    $year = (string) (date('Y') - 1);
+    $month = '06';
+
+    // Set the filter values.
+    $edit = array(
+      'sample_date_select[value][year]' => $year,
+      'sample_date_text[value][date]' => $year,
+      'sample_date_popup[value][date]' => $year,
+    );
+
+    // View the page.
+    // The views exposed form uses a GET method not POST.
+    $options = array('query' => $edit);
+    $this->drupalGet('test-date-filter', $options);
+
+    $messages = array(
+      'The value input for field Select filter is invalid',
+      'The month is missing',
+      'The value input for field Text filter is invalid',
+      "The value $year does not match the expected format",
+      'The value input for field Popup filter is invalid',
+      "The value $year does not match the expected format",
+    );
+    foreach ($messages as $message) {
+      $this->assertText($message, "Found error message: {$message}");
+    }
+  }
+
+  /**
+   * Set value of a date filter.
+   *
+   * @param string $filter
+   *   Filter name.
+   * @param string $edit
+   *   The associative array of form input values.
+   */
+  public function setFilter($filter, $edit) {
+    // Load view configuration dialog.
+    $this->drupalGet($this->config_url . '/' . $filter);
+    $this->drupalPost(NULL, $edit, t('Apply'));
+
+    // Save the view.
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Save'));
+  }
+
+  /**
+   * Set granularity of a date filter.
+   *
+   * @param string $filter
+   *   Filter name.
+   * @param string $granularity
+   *   The granularity value.
+   */
+  public function setGranularity($filter, $granularity) {
+    // Load view configuration dialog.
+    $this->drupalGet($this->extra_url . '/' . $filter);
+    $edit = array(
+      'options[granularity]' => $granularity,
+    );
+    $this->drupalPost(NULL, $edit, t('Apply'));
+
+    // Save the view.
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Save'));
+  }
+
+  /**
+   * Inspect the select field[s] of a date filter.
+   *
+   * @param string $filter
+   *   Filter name.
+   * @param string $part
+   *   Date part.
+   * @param string $expected
+   *   The expected field value.
+   */
+  public function checkSelect($filter, $part, $expected) {
+    // Inspect the filter value.
+    $xpath = '//select[@name="' . $filter . '[value][' . $part . ']"]';
+    $elements = $this->xpath($xpath);
+    if (is_array($elements)) {
+      $select = $elements[0];
+      $value = $this->getSelectedItem($select);
+      $this->assertEqual($value, $expected, "Filter contains $expected");
+    }
+    else {
+      $this->assertTrue(FALSE, "Filter does NOT contain $expected");
+    }
+  }
+
+  /**
+   * Inspect the text field of a date filter.
+   *
+   * @param string $filter
+   *   Filter name.
+   * @param string $expected
+   *   The expected field value.
+   */
+  public function checkTextField($filter, $expected) {
+    // Inspect the filter value.
+    $xpath = '//input[@name="' . $filter . '[value][date]"]';
+    $elements = $this->xpath($xpath);
+    if (is_array($elements)) {
+      $value = (array) $elements[0];
+      $value = $value['@attributes']['value'];
+      $this->assertEqual($value, $expected, "Filter contains $expected");
+    }
+    else {
+      $this->assertTrue(FALSE, "Filter does NOT contain $expected");
+    }
+  }
+
+  /**
+   * Inspect contents of view output table.
+   *
+   * @param int $count
+   *   Expected number of rows in table.
+   * @param string $year
+   *   Expected year value in cells of table.
+   */
+  public function checkTable($count, $year) {
+    // View the page.
+    $this->drupalGet('test-date-filter');
+
+    // Count rows in table.
+    $xpath = '//table[contains(@class, "views-table")]//tbody//tr';
+    $elements = $this->xpath($xpath);
+    if (is_array($elements)) {
+      $this->assertEqual(count($elements), $count, "Table contains $count rows for $year");
+    }
+    else {
+      $this->assertTrue(FALSE, "Table is empty for $year");
+    }
+
+    // Check values in table.
+    // views-field views-field-sample-date.
+    $xpath = '//td[contains(@class, "views-field-sample-date")]//span';
+    $elements = $this->xpath($xpath);
+    if (is_array($elements)) {
+      foreach ($elements as $key => $element) {
+        $row = $key + 1;
+        $this->assertTrue(strpos((string) $element, $year) !== FALSE, "Year in row $row is $year");
+      }
+    }
+    else {
+      $this->assertTrue(FALSE, "Table rows are empty for $year");
+    }
+  }
+
+}

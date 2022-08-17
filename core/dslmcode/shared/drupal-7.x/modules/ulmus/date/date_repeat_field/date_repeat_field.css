@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Custom CSS for the Date Repeat Field module.
+ */
+
 .date-repeat-input {
   float: left; /* LTR */
   margin-right: 5px; /* LTR */

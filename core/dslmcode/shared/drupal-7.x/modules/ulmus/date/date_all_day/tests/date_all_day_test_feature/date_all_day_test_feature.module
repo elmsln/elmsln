@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Migration integration for Date All Day Test Example.
+ */
+
+include_once 'date_all_day_test_feature.features.inc';

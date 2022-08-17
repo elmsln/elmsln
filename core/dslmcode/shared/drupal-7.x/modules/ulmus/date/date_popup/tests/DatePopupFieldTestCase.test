@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * Test the custom field functionality provided by the Date Popup module.
+ */
+
+/**
+ * Test the custom field functionality provided by the Date Popup module.
+ */
+class DatePopupFieldTestCase extends DateFieldTestBase {
+
+  /**
+   * Define this test class.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Date Popup'),
+      'description' => t('Test the custom functionality of the Date Popup module.'),
+      'group' => 'date',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    $modules[] = 'date_popup';
+    parent::setUp($modules);
+
+    // Don't load the time picker.
+    // @todo Add test coverage for the time picker.
+    variable_set('date_popup_timepicker', 'none');
+  }
+
+  /**
+   * Test the field settings.
+   */
+  public function testField() {
+    // Test all base field types.
+    foreach (array('date', 'datestamp', 'datetime') as $field_type) {
+      // Add a Date Popup field to the 'story' content type, but don't remove
+      // it.
+      $this->checkDateField($field_type, 'date_popup', FALSE);
+
+      // Load the node form.
+      $this->drupalGet('node/add/story');
+      $this->assertResponse(200);
+
+      // Confirm the date field is present.
+      $this->assertFieldByName('field_test_date_popup[und][0][value][date]');
+      $this->assertFieldByName('field_test_date_popup[und][0][value][time]');
+
+      // Confirm the JS and CSS files were requested.
+      $this->assertRaw('date/date_popup/jquery.timeentry.pack.js');
+      $this->assertRaw('date/date_popup/themes/datepicker.1.7.css');
+      $this->assertRaw('date/date_popup/themes/jquery.timeentry.css');
+
+      // Now delete the field.
+      $this->deleteDateField('Test');
+    }
+  }
+
+}

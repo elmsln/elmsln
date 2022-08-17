@@ -1,0 +1,267 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for Date API functions.
+ */
+
+/**
+ * Unit tests for Date API functions.
+ */
+class DateApiUnitTestCase extends DrupalUnitTestCase {
+
+  /**
+   * Date API unit tests.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Date API unit tests'),
+      'description' => t('Unit test coverage for Date API functions.'),
+      'group' => 'date',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    drupal_load('module', 'date_api');
+    parent::setUp();
+  }
+
+  /**
+   * Tests for date_is_all_day().
+   */
+  public function testDateIsAllDay() {
+    // Two empty strings, this should always return FALSE.
+    $string1 = '';
+    $string2 = '';
+    $response = date_is_all_day($string1, $string2);
+    $this->assertFalse($response, 'Two empty strings cannot represent an all-day date pair.');
+
+    // Two random date strings do not make an all-day pair.
+    $string1 = '2021-02-25 01:01:01';
+    $string2 = '2021-02-25 23:00:00';
+    $response = date_is_all_day($string1, $string2);
+    $this->assertFalse($response, 'Two random date strings do not make an "all day" pair.');
+
+    // It is not a valid "all day" date pair to start one second after midnight
+    // and end on midnight the next day.
+    $string1 = '2021-02-25 00:00:01';
+    $string2 = '2021-02-26 00:00:00';
+    $response = date_is_all_day($string1, $string2);
+    $this->assertFalse($response, 'Does not mark dates as "all day" if the first is 1 second after midnight on day 1 and the other is midnight on day 2.');
+
+    // A valid "all day" date pair when the granularity is 1, regardless of the
+    // unit.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:59:59';
+
+    // The granularity option must be one of a limited set of strings.
+    $response = date_is_all_day($string1, $string2, 'mango');
+    $this->assertFalse($response, 'The granularity argument must be one of a limited set of strings, so "mango" will not work.');
+
+    // A valid "all day" date pair starts at midnight and ends one second before
+    // midnight, both on the same day.
+    $response = date_is_all_day($string1, $string2);
+    $this->assertTrue($response, 'An "all day" date pair must start at midnight and end one time unit before midnight of the next day.');
+
+    // Confirm the granularity option works with seconds.
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertTrue($response, 'End time is 23:59:59 and granularity is set to "second".');
+
+    // Confirm the granularity option works with minutes.
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertTrue($response, 'End time is 23:59:59 and granularity is set to "minute".');
+
+    // Confirm the granularity option works with hours.
+    $response = date_is_all_day($string1, $string2, 'hour');
+    $this->assertTrue($response, 'End time is 23:59:59 and granularity is set to "hour".');
+
+    // Test the "increment" argument with a unit of 1.
+    $response = date_is_all_day($string1, $string2, 'second', 1);
+    $this->assertTrue($response, 'End time is 23:59:59 and granularity is set to 1 "second".');
+    $response = date_is_all_day($string1, $string2, 'minute', 1);
+    $this->assertTrue($response, 'End time is 23:59:59 and granularity is set to 1 "minute".');
+    $response = date_is_all_day($string1, $string2, 'hour', 1);
+    $this->assertTrue($response, 'End time is 23:59:59 and granularity is set to 1 "hour".');
+
+    // Test the "increment" argument with a unit of 15.
+    $response = date_is_all_day($string1, $string2, 'second', 15);
+    $this->assertTrue($response, 'End time is 23:59:59 and granularity is set to 15 "second".');
+    $response = date_is_all_day($string1, $string2, 'minute', 15);
+    $this->assertTrue($response, 'End time is 23:59:59 and granularity is set to 15 "minute".');
+    $response = date_is_all_day($string1, $string2, 'hour', 15);
+    $this->assertTrue($response, 'End time is 23:59:59 and granularity is set to 15 "hour".');
+
+    // A datetime pair ending at 23:59:00.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:59:00';
+
+    // This pair will only be valid when the granularity is "minute" or "hour".
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, 'Not valid with an end time of 23:59:00 and granularity is set to "second".');
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertTrue($response, '23:59:00 is a valid end time if the granularity is set to "minute".');
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertTrue($response, '23:59:00 is a valid end time if the granularity is set to "hour".');
+
+    // A datetime pair ending at 23:59:24. This is to confirm that segments of
+    // the time, after the granularity option, are ignored.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:59:24';
+
+    // This pair will only be valid when the granularity is "minute" or "hour".
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, 'Not valid with an end time of 23:59:24 and granularity is set to "second".');
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertTrue($response, '23:59:24 is a valid end time if the granularity is set to "minute".');
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertTrue($response, '23:59:24 is a valid end time if the granularity is set to "hour".');
+
+    // A datetime pair ending at 23:00:00.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:00:00';
+
+    // This pair will only be valid when the granularity is "minute" or "hour".
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, 'Not valid with an end time of 23:00:00 and granularity is set to "second".');
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertFalse($response, 'Not valid with an end time of 23:00:00 and granularity is set to "minute".');
+    $response = date_is_all_day($string1, $string2, 'hour');
+    $this->assertTrue($response, '23:00:00 is a valid end time if the granularity is set to "hour".');
+
+    // A datetime pair ending at 23:13:00.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:13:00';
+
+    // This pair will only be valid when the granularity is "minute" or "hour".
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, 'Not valid with an end time of 23:13:00 and granularity is set to "second".');
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertFalse($response, 'Not valid with an end time of 23:13:00 and granularity is set to "minute".');
+    $response = date_is_all_day($string1, $string2, 'hour');
+    $this->assertTrue($response, '23:00:00 is a valid end time if the granularity is set to "hour".');
+
+    // A datetime pair ending at 23:59:55.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:59:55';
+
+    // Test the "increment" argument with 5 seconds.
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, '23:59:55 is not a valid end time when the increment is set to 1 second.');
+    $response = date_is_all_day($string1, $string2, 'second', 5);
+    $this->assertTrue($response, '23:59:55 is a valid end time when the increment is set to 5 seconds.');
+    $response = date_is_all_day($string1, $string2, 'minute', 5);
+    $this->assertTrue($response, '23:59:55 is a valid end time when the increment is set to 5 minutes.');
+    $response = date_is_all_day($string1, $string2, 'hour', 5);
+    $this->assertTrue($response, '23:59:55 is a valid end time when the increment is set to 5 hours.');
+
+    // A datetime pair ending at 23:55:00.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:55:00';
+
+    // Test the "increment" argument with 5 seconds.
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, '23:55:00 is not a valid end time when the increment is set to 1 second.');
+    $response = date_is_all_day($string1, $string2, 'second', 5);
+    $this->assertFalse($response, '23:55:00 is not a valid end time when the increment is set to 5 seconds.');
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertFalse($response, '23:55:00 is not a valid end time when the increment is set to 1 minute.');
+    $response = date_is_all_day($string1, $string2, 'minute', 5);
+    $this->assertTrue($response, '23:55:00 is a valid end time when the increment is set to 5 minutes.');
+    $response = date_is_all_day($string1, $string2, 'hour', 5);
+    $this->assertTrue($response, '23:55:00 is a valid end time when the increment is set to 5 hours.');
+
+    // A datetime pair ending at 23:59:50.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:59:50';
+
+    // Test the "increment" argument with 5 seconds.
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, '23:59:50 is not a valid end time when the increment is set to 1 second.');
+    $response = date_is_all_day($string1, $string2, 'second', 10);
+    $this->assertTrue($response, '23:59:50 is a valid end time when the increment is set to 10 seconds.');
+    $response = date_is_all_day($string1, $string2, 'minute', 10);
+    $this->assertTrue($response, '23:59:50 is a valid end time when the increment is set to 10 minutes.');
+    $response = date_is_all_day($string1, $string2, 'hour', 10);
+    $this->assertTrue($response, '23:59:50 is a valid end time when the increment is set to 10 hours.');
+
+    // A datetime pair ending at 23:50:00.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:50:00';
+
+    // Test the "increment" argument with 5 seconds.
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, '23:50:00 is not a valid end time when the increment is set to 1 second.');
+    $response = date_is_all_day($string1, $string2, 'second', 10);
+    $this->assertFalse($response, '23:50:00 is not a valid end time when the increment is set to 10 seconds.');
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertFalse($response, '23:50:00 is not a valid end time when the increment is set to 1 minute.');
+    $response = date_is_all_day($string1, $string2, 'minute', 10);
+    $this->assertTrue($response, '23:50:00 is a valid end time when the increment is set to 10 minutes.');
+    $response = date_is_all_day($string1, $string2, 'hour', 10);
+    $this->assertTrue($response, '23:50:00 is a valid end time when the increment is set to 10 hours.');
+
+    // A datetime pair ending at 23:59:45.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:59:45';
+
+    // Test the "increment" argument with 5 seconds.
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, '23:59:45 is not a valid end time when the increment is set to 1 second.');
+    $response = date_is_all_day($string1, $string2, 'second', 15);
+    $this->assertTrue($response, '23:59:45 is a valid end time when the increment is set to 15 seconds.');
+    $response = date_is_all_day($string1, $string2, 'minute', 15);
+    $this->assertTrue($response, '23:59:45 is a valid end time when the increment is set to 15 minutes.');
+    $response = date_is_all_day($string1, $string2, 'hour', 15);
+    $this->assertTrue($response, '23:59:45 is a valid end time when the increment is set to 15 hours.');
+
+    // A datetime pair ending at 23:45:00.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:45:00';
+
+    // Test the "increment" argument with 5 seconds.
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, '23:45:00 is not a valid end time when the increment is set to 1 second.');
+    $response = date_is_all_day($string1, $string2, 'second', 15);
+    $this->assertFalse($response, '23:45:00 is not a valid end time when the increment is set to 15 seconds.');
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertFalse($response, '23:45:00 is not a valid end time when the increment is set to 1 minute.');
+    $response = date_is_all_day($string1, $string2, 'minute', 15);
+    $this->assertTrue($response, '23:45:00 is a valid end time when the increment is set to 15 minutes.');
+    $response = date_is_all_day($string1, $string2, 'hour', 15);
+    $this->assertTrue($response, '23:45:00 is a valid end time when the increment is set to 15 hours.');
+
+    // A datetime pair ending at 23:59:30.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:59:30';
+
+    // Test the "increment" argument with 5 seconds.
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, '23:59:30 is not a valid end time when the increment is set to 1 second.');
+    $response = date_is_all_day($string1, $string2, 'second', 30);
+    $this->assertTrue($response, '23:59:30 is a valid end time when the increment is set to 30 seconds.');
+    $response = date_is_all_day($string1, $string2, 'minute', 30);
+    $this->assertTrue($response, '23:59:30 is a valid end time when the increment is set to 30 minutes.');
+    $response = date_is_all_day($string1, $string2, 'hour', 30);
+    $this->assertTrue($response, '23:59:30 is a valid end time when the increment is set to 30 hours.');
+
+    // A datetime pair ending at 23:30:00.
+    $string1 = '2021-02-25 00:00:00';
+    $string2 = '2021-02-25 23:30:00';
+
+    // Test the "increment" argument with 5 seconds.
+    $response = date_is_all_day($string1, $string2, 'second');
+    $this->assertFalse($response, '23:30:00 is not a valid end time when the increment is set to 1 second.');
+    $response = date_is_all_day($string1, $string2, 'second', 30);
+    $this->assertFalse($response, '23:30:00 is not a valid end time when the increment is set to 30 seconds.');
+    $response = date_is_all_day($string1, $string2, 'minute');
+    $this->assertFalse($response, '23:30:00 is not a valid end time when the increment is set to 1 minute.');
+    $response = date_is_all_day($string1, $string2, 'minute', 30);
+    $this->assertTrue($response, '23:30:00 is a valid end time when the increment is set to 30 minutes.');
+    $response = date_is_all_day($string1, $string2, 'hour', 30);
+    $this->assertTrue($response, '23:30:00 is a valid end time when the increment is set to 30 hours.');
+  }
+
+}

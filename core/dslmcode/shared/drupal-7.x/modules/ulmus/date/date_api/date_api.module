@@ -3,9 +3,10 @@
 /**
  * @file
  * This module will make the date API available to other modules.
- * Designed to provide a light but flexible assortment of functions
- * and constants, with more functionality in additional files that
- * are not loaded unless other modules specifically include them.
+ *
+ * Designed to provide a light but flexible assortment of functions and
+ * constants, with more functionality in additional files that are not loaded
+ * unless other modules specifically include them.
  */
 
 /**
@@ -14,9 +15,9 @@
  * Includes standard date types, format strings, strict regex strings for ISO
  * and DATETIME formats (seconds are optional).
  *
- * The loose regex will find any variety of ISO date and time, with or
- * without time, with or without dashes and colons separating the elements,
- * and with either a 'T' or a space separating date and time.
+ * The loose regex will find any variety of ISO date and time, with or without
+ * time, with or without dashes and colons separating the elements, and with
+ * either a 'T' or a space separating date and time.
  */
 define('DATE_ISO', 'date');
 define('DATE_UNIX', 'datestamp');
@@ -68,7 +69,6 @@ function date_help($path, $arg) {
       $output .= '<h2>More Information</h2><p>' . t('Complete documentation for the Date and Date API modules is available at <a href="@link">http://drupal.org/node/92460</a>.', array('@link' => 'http://drupal.org/node/262062')) . '</p>';
 
       return $output;
-
   }
 }
 
@@ -83,41 +83,54 @@ function date_api_status() {
 
   $value = variable_get('date_default_timezone');
   if (isset($value)) {
-    $success_messages[] = $t('The timezone has been set to <a href="@regional_settings">@timezone</a>.', array('@regional_settings' => url('admin/config/regional/settings'), '@timezone' => $value));
+    $success_messages[] = $t('The timezone has been set to <a href="@regional_settings">@timezone</a>.', array(
+      '@regional_settings' => url('admin/config/regional/settings'),
+      '@timezone' => $value,
+    ));
   }
   else {
-    $error_messages[] = $t('The Date API requires that you set up the <a href="@regional_settings">site timezone</a> to function correctly.', array('@regional_settings' => url('admin/config/regional/settings')));
+    $error_messages[] = $t('The Date API requires that you set up the <a href="@regional_settings">site timezone</a> to function correctly.', array(
+      '@regional_settings' => url('admin/config/regional/settings'),
+    ));
   }
 
   $value = variable_get('date_first_day');
   if (isset($value)) {
     $days = date_week_days();
-    $success_messages[] = $t('The first day of the week has been set to <a href="@regional_settings">@day</a>.', array('@regional_settings' => url('admin/config/regional/settings'), '@day' => $days[$value]));
+    $success_messages[] = $t('The first day of the week has been set to <a href="@regional_settings">@day</a>.', array(
+      '@regional_settings' => url('admin/config/regional/settings'),
+      '@day' => $days[$value],
+    ));
   }
   else {
-    $error_messages[] = $t('The Date API requires that you set up the <a href="@regional_settings">site first day of week settings</a> to function correctly.', array('@regional_settings' => url('admin/config/regional/settings')));
+    $error_messages[] = $t('The Date API requires that you set up the <a href="@regional_settings">site first day of week settings</a> to function correctly.', array(
+      '@regional_settings' => url('admin/config/regional/settings'),
+    ));
   }
 
   $value = variable_get('date_format_medium');
   if (isset($value)) {
     $now = date_now();
-    $success_messages[] = $t('The medium date format type has been set to @value. You may find it helpful to add new format types like Date, Time, Month, or Year, with appropriate formats, at <a href="@regional_date_time">Date and time</a> settings.', array('@value' => $now->format($value), '@regional_date_time' => url('admin/config/regional/date-time')));
+    $success_messages[] = $t('The medium date format type has been set to @value. You may find it helpful to add new format types like Date, Time, Month, or Year, with appropriate formats, at <a href="@regional_date_time">Date and time</a> settings.', array(
+      '@value' => $now->format($value),
+      '@regional_date_time' => url('admin/config/regional/date-time'),
+    ));
   }
   else {
-    $error_messages[] = $t('The Date API requires that you set up the <a href="@regional_date_time">system date formats</a> to function correctly.', array('@regional_date_time' => url('admin/config/regional/date-time')));
+    $error_messages[] = $t('The Date API requires that you set up the <a href="@regional_date_time">system date formats</a> to function correctly.', array(
+      '@regional_date_time' => url('admin/config/regional/date-time'),
+    ));
   }
 
   return array('errors', $error_messages, 'success' => $success_messages);
-
 }
 
 /**
  * Implements hook_menu().
- *
- * Creates a 'Date API' section on the administration page for Date
- * modules to use for their configuration and settings.
  */
 function date_api_menu() {
+  // Creates a 'Date API' section on the administration page for Date modules
+  // to use for their configuration and settings.
   $items['admin/config/date'] = array(
     'title' => 'Date API',
     'description' => 'Settings for modules the use the Date API.',
@@ -132,8 +145,10 @@ function date_api_menu() {
 }
 
 /**
- * Extend PHP DateTime class with granularity handling, merge functionality and
- * slightly more flexible initialization parameters.
+ * Extend PHP DateTime class.
+ *
+ * Adds granularity handling, merge functionality and slightly more flexible
+ * initialization parameters.
  *
  * This class is a Drupal independent extension of the >= PHP 5.2 DateTime
  * class.
@@ -150,7 +165,7 @@ class DateObject extends DateTime {
     'hour',
     'minute',
     'second',
-    'timezone'
+    'timezone',
   );
   private $serializedTime;
   private $serializedTimezone;
@@ -175,6 +190,7 @@ class DateObject extends DateTime {
   /**
    * Re-builds the object using local variables.
    */
+  #[\ReturnTypeWillChange]
   public function __wakeup() {
     $this->__construct($this->serializedTime, new DateTimeZone($this->serializedTimezone));
   }
@@ -200,7 +216,7 @@ class DateObject extends DateTime {
    *   PHP date() type format for parsing. Doesn't support timezones; if you
    *   have a timezone, send NULL and the default constructor method will
    *   hopefully parse it. $format is recommended in order to use negative or
-   *   large years, which php's parser fails on.
+   *   large years, which PHP's parser fails on.
    */
   public function __construct($time = 'now', $tz = NULL, $format = NULL) {
     $this->timeOnly = FALSE;
@@ -221,7 +237,7 @@ class DateObject extends DateTime {
     // Special handling for Unix timestamps expressed in the local timezone.
     // Create a date object in UTC and convert it to the local timezone. Don't
     // try to turn things like '2010' with a format of 'Y' into a timestamp.
-    if (is_numeric($time) && (empty($format) || $format == 'U')) {
+    if (!is_array($time) && preg_match('`^-?\d+$`', $time) && (empty($format) || $format == 'U')) {
       // Assume timestamp.
       $time = "@" . $time;
       $date = new DateObject($time, 'UTC');
@@ -294,7 +310,8 @@ class DateObject extends DateTime {
       if (preg_match('/[a-zA-Z]/', $tz->getName())) {
         $this->setTimezone($tz);
       }
-      // We have no information about the timezone so must fallback to a default.
+      // We have no information about the timezone so must fallback to a
+      // default.
       else {
         $this->setTimezone(new DateTimeZone("UTC"));
         $this->errors['timezone'] = t('No valid timezone name was provided.');
@@ -305,13 +322,13 @@ class DateObject extends DateTime {
   /**
    * Merges two date objects together using the current date values as defaults.
    *
-   * @param object $other
+   * @param DateObject $other
    *   Another date object to merge with.
    *
-   * @return object
+   * @return DateObject
    *   A merged date object.
    */
-  public function merge(FeedsDateTime $other) {
+  public function merge(DateObject $other) {
     $other_tz = $other->getTimezone();
     $this_tz = $this->getTimezone();
     // Figure out which timezone to use for combination.
@@ -351,6 +368,7 @@ class DateObject extends DateTime {
    * @param bool $force
    *   Whether or not to skip a date with no time. Defaults to FALSE.
    */
+  #[\ReturnTypeWillChange]
   public function setTimezone($tz, $force = FALSE) {
     // PHP 5.2.6 has a fatal error when setting a date's timezone to itself.
     // http://bugs.php.net/bug.php?id=45038
@@ -378,16 +396,17 @@ class DateObject extends DateTime {
    * Overrides base format function, formats this date according to its
    * available granularity, unless $force'ed not to limit to granularity.
    *
-   * @TODO Add translation into this so translated names will be provided.
+   * @todo Add translation into this so translated names will be provided.
    *
    * @param string $format
    *   A date format string.
    * @param bool $force
    *   Whether or not to limit the granularity. Defaults to FALSE.
    *
-   * @return string|false
+   * @return string|bool
    *   Returns the formatted date string on success or FALSE on failure.
    */
+  #[\ReturnTypeWillChange]
   public function format($format, $force = FALSE) {
     return parent::format($force ? $format : date_limit_format($format, $this->granularity));
   }
@@ -465,15 +484,16 @@ class DateObject extends DateTime {
   public function validGranularity($granularity = NULL, $flexible = FALSE) {
     $true = $this->hasGranularity() && (!$granularity || $flexible || $this->hasGranularity($granularity));
     if (!$true && $granularity) {
+      $allowed_values = array(
+        'second',
+        'minute',
+        'hour',
+        'day',
+        'month',
+        'year',
+      );
       foreach ((array) $granularity as $part) {
-        if (!$this->hasGranularity($part) && in_array($part, array(
-          'second',
-          'minute',
-          'hour',
-          'day',
-          'month',
-          'year')
-        )) {
+        if (!$this->hasGranularity($part) && in_array($part, $allowed_values)) {
           switch ($part) {
             case 'second':
               $this->errors[$part] = t('The second is missing.');
@@ -536,7 +556,7 @@ class DateObject extends DateTime {
    * @param array $granularity
    *   An array of date parts.
    */
-  public function limitGranularity($granularity) {
+  public function limitGranularity(array $granularity) {
     foreach ($this->granularity as $key => $val) {
       if ($val != 'timezone' && !in_array($val, $granularity)) {
         unset($this->granularity[$key]);
@@ -615,10 +635,16 @@ class DateObject extends DateTime {
     $regex1 = str_replace('a', '(.)', $regex1);
     preg_match('`^' . $regex1 . '$`', stripslashes($format), $letters);
     array_shift($letters);
-    // Extract values.
-    $regex2 = preg_replace($patterns, $repl2, $format_regexp, 1);
-    $regex2 = str_replace('A', '(AM|PM)', $regex2);
-    $regex2 = str_replace('a', '(am|pm)', $regex2);
+
+    $ampm_upper = date_ampm_options(FALSE, TRUE);
+    $ampm_lower = date_ampm_options(FALSE, FALSE);
+    $regex2 = strtr(
+      preg_replace($patterns, $repl2, $format_regexp, 1),
+      array(
+        'A' => '(' . preg_quote($ampm_upper['am'], '`') . '|' . preg_quote($ampm_upper['pm'], '`') . ')',
+        'a' => '(' . preg_quote($ampm_lower['am'], '`') . '|' . preg_quote($ampm_lower['pm'], '`') . ')',
+      )
+    );
     preg_match('`^' . $regex2 . '$`u', $date, $values);
     array_shift($values);
     // If we did not find all the values for the patterns in the format, abort.
@@ -642,12 +668,18 @@ class DateObject extends DateTime {
         case 'j':
           $final_date['day'] = intval($value);
           $this->addGranularity('day');
+          if (empty($value)) {
+            $this->errors['day'] = t('The day is invalid.');
+          }
           break;
 
         case 'n':
         case 'm':
           $final_date['month'] = intval($value);
           $this->addGranularity('month');
+          if (empty($value)) {
+            $this->errors['month'] = t('The month is invalid.');
+          }
           break;
 
         case 'F':
@@ -678,8 +710,11 @@ class DateObject extends DateTime {
           break;
 
         case 'a':
+          $ampm = ($value == $ampm_lower['am'] ? 'am' : 'pm');
+          break;
+
         case 'A':
-          $ampm = strtolower($value);
+          $ampm = ($value == $ampm_upper['am'] ? 'am' : 'pm');
           break;
 
         case 'g':
@@ -712,11 +747,14 @@ class DateObject extends DateTime {
 
       }
     }
-    if (isset($ampm) && $ampm == 'pm' && $final_date['hour'] < 12) {
-      $final_date['hour'] += 12;
-    }
-    elseif (isset($ampm) && $ampm == 'am' && $final_date['hour'] == 12) {
-      $final_date['hour'] -= 12;
+
+    if (isset($ampm)) {
+      if ($ampm == 'pm' && $final_date['hour'] < 12) {
+        $final_date['hour'] += 12;
+      }
+      elseif ($ampm == 'am' && $final_date['hour'] == 12) {
+        $final_date['hour'] -= 12;
+      }
     }
 
     // Blank becomes current time, given TZ.
@@ -732,14 +770,13 @@ class DateObject extends DateTime {
     $this->errors += $this->arrayErrors($final_date);
     $granularity = drupal_map_assoc($this->granularity);
 
-    // If the input value is '0000-00-00', PHP's date class will later
-    // incorrectly convert it to something like '-0001-11-30' if we do setDate()
-    // here. If we don't do setDate() here, it will default to the current date
-    // and we will lose any way to tell that there was no date in the orignal
-    // input values. So set a flag we can use later to tell that this date
-    // object was created using only time values, and that the date values are
-    // artifical.
-    if (empty($final_date['year']) && empty($final_date['month']) && empty($final_date['day'])) {
+    // If the input year value is empty or '0000', PHP's date class will later
+    // incorrectly convert it if we do setDate() here. If we don't do setDate()
+    // here, it will default to the current date and we will lose any way to
+    // tell that there was no date in the original input value(s). So set a
+    // flag we can use later to tell that this date object was created using
+    // only time values, and that the date values are artificial.
+    if (empty($final_date['year'])) {
       $this->timeOnly = TRUE;
     }
     elseif (empty($this->errors)) {
@@ -756,10 +793,10 @@ class DateObject extends DateTime {
       $this->setDate($final_date['year'], $final_date['month'], $final_date['day']);
     }
 
-    if (!isset($final_date['hour']) && !isset($final_date['minute']) && !isset($final_date['second'])) {
+    if (empty($final_date['hour']) && empty($final_date['minute']) && empty($final_date['second'])) {
       $this->dateOnly = TRUE;
     }
-    elseif (empty($this->errors)) {
+    if (empty($this->errors)) {
       $this->setTime($final_date['hour'], $final_date['minute'], $final_date['second']);
     }
     return $this;
@@ -797,7 +834,7 @@ class DateObject extends DateTime {
    *   (optional) Whether to force a full date by filling in missing values.
    *   Defaults to FALSE.
    */
-  public function toISO($arr, $full = FALSE) {
+  public function toISO(array $arr, $full = FALSE) {
     // Add empty values to avoid errors. The empty values must create a valid
     // date or we will get date slippage, i.e. a value of 2011-00-00 will get
     // interpreted as November of 2010 by PHP.
@@ -933,7 +970,7 @@ class DateObject extends DateTime {
    * @return array
    *   An array of error messages, keyed by date part.
    */
-  public function arrayErrors($arr) {
+  public function arrayErrors(array $arr) {
     $errors = array();
     $now = date_now();
     $default_month = !empty($arr['month']) ? $arr['month'] : $now->format('n');
@@ -998,8 +1035,8 @@ class DateObject extends DateTime {
   public function difference($date2_in, $measure = 'seconds', $absolute = TRUE) {
     // Create cloned objects or original dates will be impacted by the
     // date_modify() operations done in this code.
-    $date1 = clone($this);
-    $date2 = clone($date2_in);
+    $date1 = clone $this;
+    $date2 = clone $date2_in;
     if (is_object($date1) && is_object($date2)) {
       $diff = date_format($date2, 'U') - date_format($date1, 'U');
       if ($diff == 0) {
@@ -1086,6 +1123,7 @@ class DateObject extends DateTime {
     }
     return NULL;
   }
+
 }
 
 /**
@@ -1102,8 +1140,8 @@ class DateObject extends DateTime {
  * @return bool
  *   TRUE if the element is effectively hidden, FALSE otherwise.
  */
-function date_hidden_element($element) {
-  // @TODO What else needs to be tested to see if dates are hidden or disabled?
+function date_hidden_element(array $element) {
+  // @todo What else needs to be tested to see if dates are hidden or disabled?
   if ((isset($element['#access']) && empty($element['#access']))
     || !empty($element['#programmed'])
     || in_array($element['#type'], array('hidden', 'value'))) {
@@ -1286,7 +1324,6 @@ function date_week_days_abbr($required = FALSE, $refresh = TRUE, $length = 3) {
 
     default:
       $context = '';
-      break;
   }
   foreach (date_week_days_untranslated() as $key => $day) {
     $weekdays[$key] = t(substr($day, 0, $length), array(), array('context' => $context));
@@ -1304,7 +1341,7 @@ function date_week_days_abbr($required = FALSE, $refresh = TRUE, $length = 3) {
  * @return array
  *   An array of weekdays reordered to match the first day of the week.
  */
-function date_week_days_ordered($weekdays) {
+function date_week_days_ordered(array $weekdays) {
   $first_day = variable_get('date_first_day', 0);
   if ($first_day > 0) {
     for ($i = 1; $i <= $first_day; $i++) {
@@ -1459,12 +1496,38 @@ function date_seconds($format = 's', $required = FALSE, $increment = 1) {
  *   An array of AM and PM options.
  */
 function date_ampm($required = FALSE) {
-  $none = array('' => '');
-  $ampm = array(
-    'am' => t('am', array(), array('context' => 'ampm')),
-    'pm' => t('pm', array(), array('context' => 'ampm')),
-  );
-  return !$required ? $none + $ampm : $ampm;
+  $ampm = date_ampm_options(FALSE, FALSE);
+
+  return !$required ? array('' => '') + $ampm : $ampm;
+}
+
+/**
+ * Constructs an array of AM and PM options without empty option.
+ *
+ * @param bool $key_upper
+ *   If TRUE then the array key will be uppercase.
+ * @param bool $label_upper
+ *   If TRUE then the array value will be uppercase.
+ *
+ * @return array
+ *   An array of AM and PM options.
+ */
+function date_ampm_options($key_upper, $label_upper) {
+  $am = $key_upper ? 'AM' : 'am';
+  $pm = $key_upper ? 'PM' : 'pm';
+
+  if ($label_upper) {
+    return array(
+      $am => t('AM', array(), array('context' => 'ampm')),
+      $pm => t('PM', array(), array('context' => 'ampm')),
+    );
+  }
+  else {
+    return array(
+      $am => t('am', array(), array('context' => 'ampm')),
+      $pm => t('pm', array(), array('context' => 'ampm')),
+    );
+  }
 }
 
 /**
@@ -1543,7 +1606,7 @@ function date_granularity_names() {
  * @param array $granularity
  *   An array of date parts.
  */
-function date_granularity_sorted($granularity) {
+function date_granularity_sorted(array $granularity) {
   return array_intersect(array(
     'year',
     'month',
@@ -1596,7 +1659,7 @@ function date_granularity_array_from_precision($precision) {
  * @return string
  *   The most precise element in a granularity array.
  */
-function date_granularity_precision($granularity_array) {
+function date_granularity_precision(array $granularity_array) {
   $input = date_granularity_sorted($granularity_array);
   return array_pop($input);
 }
@@ -1742,24 +1805,38 @@ function date_format_date($date, $type = 'medium', $format = '', $langcode = NUL
     $c = $format[$i];
     switch ($c) {
       case 'l':
-        $datestring .= t($date->format('l'), array(), array('context' => '', 'langcode' => $langcode));
+        $datestring .= t($date->format('l'), array(), array(
+          'context' => '',
+          'langcode' => $langcode,
+        ));
         break;
 
       case 'D':
-        $datestring .= t($date->format('D'), array(), array('context' => '', 'langcode' => $langcode));
+        $datestring .= t($date->format('D'), array(), array(
+          'context' => '',
+          'langcode' => $langcode,
+        ));
         break;
 
       case 'F':
-        $datestring .= t($date->format('F'), array(), array('context' => 'Long month name', 'langcode' => $langcode));
+        $datestring .= t($date->format('F'), array(), array(
+          'context' => 'Long month name',
+          'langcode' => $langcode,
+        ));
         break;
 
       case 'M':
-        $datestring .= t($date->format('M'), array(), array('langcode' => $langcode));
+        $datestring .= t($date->format('M'), array(), array(
+          'langcode' => $langcode,
+        ));
         break;
 
       case 'A':
       case 'a':
-        $datestring .= t($date->format($c), array(), array('context' => 'ampm', 'langcode' => $langcode));
+        $datestring .= t($date->format($c), array(), array(
+          'context' => 'ampm',
+          'langcode' => $langcode,
+        ));
         break;
 
       // The timezone name translations can use t().
@@ -1837,7 +1914,6 @@ function date_format_interval($date, $granularity = 2, $display_ago = TRUE) {
  *   (optional) PHP DateTimeZone object, string or NULL allowed. Optionally
  *   force time to a specific timezone, defaults to user timezone, if set,
  *   otherwise site timezone. Defaults to NULL.
- *
  * @param bool $reset
  *   (optional) Static cache reset.
  *
@@ -1845,9 +1921,11 @@ function date_format_interval($date, $granularity = 2, $display_ago = TRUE) {
  *   The current time as a date object.
  */
 function date_now($timezone = NULL, $reset = FALSE) {
-  $static_var = __FUNCTION__ . $timezone;
   if ($timezone instanceof DateTimeZone) {
     $static_var = __FUNCTION__ . $timezone->getName();
+  }
+  else {
+    $static_var = __FUNCTION__ . $timezone;
   }
 
   if ($reset) {
@@ -1861,7 +1939,7 @@ function date_now($timezone = NULL, $reset = FALSE) {
   }
 
   // Avoid unexpected manipulation of cached $now object
-  // by subsequent code execution
+  // by subsequent code execution.
   // @see https://drupal.org/node/2261395
   $clone = clone $now;
   return $clone;
@@ -2060,8 +2138,8 @@ function date_week_range($week, $year) {
   date_modify($min_date, '-' . strval((7 + $day_wday - $first_day) % 7) . ' days');
 
   // Move forwards to the last day of the week.
-  $max_date = clone($min_date);
-  date_modify($max_date, '+6 days');
+  $max_date = clone $min_date;
+  date_modify($max_date, '+6 days +23 hours +59 minutes +59 seconds');
 
   if (date_format($min_date, 'Y') != $year) {
     $min_date = new DateObject($year . '-01-01 00:00:00');
@@ -2097,8 +2175,8 @@ function date_iso_week_range($week, $year) {
   }
 
   // Move forwards to the last day of the week.
-  $max_date = clone($min_date);
-  date_modify($max_date, '+6 days');
+  $max_date = clone $min_date;
+  date_modify($max_date, '+6 days +23 hours +59 minutes +59 seconds');
   return array($min_date, $max_date);
 }
 
@@ -2148,7 +2226,7 @@ function date_week($date) {
 
   // Remove the leap week if it's present.
   if ($date_year > intval($parts[0])) {
-    $last_date = clone($date);
+    $last_date = clone $date;
     date_modify($last_date, '-7 days');
     $week = date_format($last_date, 'W') + 1;
   }
@@ -2202,7 +2280,7 @@ function date_pad($value, $size = 2) {
  * @return bool
  *   TRUE if the granularity contains a time portion, FALSE otherwise.
  */
-function date_has_time($granularity) {
+function date_has_time(array $granularity) {
   if (!is_array($granularity)) {
     $granularity = array();
   }
@@ -2219,7 +2297,7 @@ function date_has_time($granularity) {
  * @return bool
  *   TRUE if the granularity contains a date portion, FALSE otherwise.
  */
-function date_has_date($granularity) {
+function date_has_date(array $granularity) {
   if (!is_array($granularity)) {
     $granularity = array();
   }
@@ -2266,7 +2344,7 @@ function date_part_format($part, $format) {
  * @return string
  *   The format string with all other elements removed.
  */
-function date_limit_format($format, $granularity) {
+function date_limit_format($format, array $granularity) {
   // Use the advanced drupal_static() pattern to improve performance.
   static $drupal_static_fast;
   if (!isset($drupal_static_fast)) {
@@ -2436,12 +2514,12 @@ function date_format_order($format) {
  * Strips out unwanted granularity elements.
  *
  * @param array $granularity
- *   An array like ('year', 'month', 'day', 'hour', 'minute', 'second');
+ *   An array like ('year', 'month', 'day', 'hour', 'minute', 'second').
  *
  * @return array
  *   A reduced set of granularitiy elements.
  */
-function date_nongranularity($granularity) {
+function date_nongranularity(array $granularity) {
   $options = array(
     'year',
     'month',
@@ -2473,7 +2551,10 @@ function date_api_theme($existing, $type, $theme, $path) {
   return array(
     'date_nav_title' => $base + array(
       'variables' => array(
-        'granularity' => NULL, 'view' => NULL, 'link' => NULL, 'format' => NULL
+        'granularity' => NULL,
+        'view' => NULL,
+        'link' => NULL,
+        'format' => NULL,
       ),
     ),
     'date_timezone' => $base + array('render element' => 'element'),
@@ -2483,21 +2564,76 @@ function date_api_theme($existing, $type, $theme, $path) {
     'date_textfield_element' => $base + array('render element' => 'element'),
     'date_part_hour_prefix' => $base + array('render element' => 'element'),
     'date_part_minsec_prefix' => $base + array('render element' => 'element'),
-    'date_part_label_year' => $base + array('variables' => array('date_part' => NULL, 'element' => NULL)),
-    'date_part_label_month' => $base + array('variables' => array('date_part' => NULL, 'element' => NULL)),
-    'date_part_label_day' => $base + array('variables' => array('date_part' => NULL, 'element' => NULL)),
-    'date_part_label_hour' => $base + array('variables' => array('date_part' => NULL, 'element' => NULL)),
-    'date_part_label_minute' => $base + array('variables' => array('date_part' => NULL, 'element' => NULL)),
-    'date_part_label_second' => $base + array('variables' => array('date_part' => NULL, 'element' => NULL)),
-    'date_part_label_ampm' => $base + array('variables' => array('date_part' => NULL, 'element' => NULL)),
-    'date_part_label_timezone' => $base + array('variables' => array('date_part' => NULL, 'element' => NULL)),
-    'date_part_label_date' => $base + array('variables' => array('date_part' => NULL, 'element' => NULL)),
-    'date_part_label_time' => $base + array('variables' => array('date_part' => NULL, 'element' => NULL)),
-    'date_views_filter_form' => $base + array('template' => 'date-views-filter-form', 'render element' => 'form'),
+    'date_part_label_year' => $base + array(
+      'variables' => array(
+        'date_part' => NULL,
+        'element' => NULL,
+      ),
+    ),
+    'date_part_label_month' => $base + array(
+      'variables' => array(
+        'date_part' => NULL,
+        'element' => NULL,
+      ),
+    ),
+    'date_part_label_day' => $base + array(
+      'variables' => array(
+        'date_part' => NULL,
+        'element' => NULL,
+      ),
+    ),
+    'date_part_label_hour' => $base + array(
+      'variables' => array(
+        'date_part' => NULL,
+        'element' => NULL,
+      ),
+    ),
+    'date_part_label_minute' => $base + array(
+      'variables' => array(
+        'date_part' => NULL,
+        'element' => NULL,
+      ),
+    ),
+    'date_part_label_second' => $base + array(
+      'variables' => array(
+        'date_part' => NULL,
+        'element' => NULL,
+      ),
+    ),
+    'date_part_label_ampm' => $base + array(
+      'variables' => array(
+        'date_part' => NULL,
+        'element' => NULL,
+      ),
+    ),
+    'date_part_label_timezone' => $base + array(
+      'variables' => array(
+        'date_part' => NULL,
+        'element' => NULL,
+      ),
+    ),
+    'date_part_label_date' => $base + array(
+      'variables' => array(
+        'date_part' => NULL,
+        'element' => NULL,
+      ),
+    ),
+    'date_part_label_time' => $base + array(
+      'variables' => array(
+        'date_part' => NULL,
+        'element' => NULL,
+      ),
+    ),
+    'date_views_filter_form' => $base + array(
+      'template' => 'date-views-filter-form',
+      'render element' => 'form',
+    ),
     'date_calendar_day' => $base + array('variables' => array('date' => NULL)),
     'date_time_ago' => $base + array(
       'variables' => array(
-        'start_date' => NULL, 'end_date' => NULL, 'interval' => NULL
+        'start_date' => NULL,
+        'end_date' => NULL,
+        'interval' => NULL,
       ),
     ),
   );
@@ -2524,6 +2660,10 @@ function date_get_timezone($handling, $timezone = '') {
       $timezone = 'UTC';
       break;
 
+    case 'site':
+      $timezone = date_default_timezone(FALSE);
+      break;
+
     default:
       $timezone = date_default_timezone();
   }
@@ -2544,14 +2684,14 @@ function date_get_timezone($handling, $timezone = '') {
  */
 function date_get_timezone_db($handling, $timezone = NULL) {
   switch ($handling) {
-    case ('utc'):
-    case ('site'):
-    case ('user'):
+    case 'utc':
+    case 'site':
+    case 'user':
       // These handling modes all convert to UTC before storing in the DB.
       $timezone = 'UTC';
       break;
 
-    case ('date'):
+    case 'date':
       if ($timezone == NULL) {
         // This shouldn't happen, since it's meaning is undefined. But we need
         // to fall back to *something* that's a legal timezone.
@@ -2559,10 +2699,9 @@ function date_get_timezone_db($handling, $timezone = NULL) {
       }
       break;
 
-    case ('none'):
+    case 'none':
     default:
       $timezone = date_default_timezone();
-      break;
   }
   return $timezone;
 }
@@ -2679,7 +2818,7 @@ function date_range_years($string, $date = NULL) {
  * @return string
  *   A min and max year string like '-3:+1'.
  */
-function date_range_string($years) {
+function date_range_string(array $years) {
   $this_year = date_format(date_now(), 'Y');
 
   if ($years[0] < $this_year) {
@@ -2776,21 +2915,32 @@ function date_example_date() {
  * @param string $string2
  *   A string date in datetime format for the 'end' date.
  * @param string $granularity
- *   (optional) The granularity of the date. Defaults to 'second'.
+ *   (optional) The granularity of the date. Allowed values are:
+ *   - 'second' (default)
+ *   - 'minute'
+ *   - 'hour'
  * @param int $increment
- *   (optional) The increment of the date. Defaults to 1.
+ *   (optional) The increment of the date. Only allows positive integers.
+ *   Defaults to 1.
  *
  * @return bool
  *   TRUE if the date is all day, FALSE otherwise.
  */
 function date_is_all_day($string1, $string2, $granularity = 'second', $increment = 1) {
+  // Both date strings must be present.
   if (empty($string1) || empty($string2)) {
     return FALSE;
   }
+  // The granularity argument only allows three options.
   elseif (!in_array($granularity, array('hour', 'minute', 'second'))) {
     return FALSE;
   }
+  // The increment must be an integer.
+  elseif (!is_int($increment) || $increment === 0) {
+    return FALSE;
+  }
 
+  // Verify the first date argument is a valid date string.
   preg_match('/([0-9]{4}-[0-9]{2}-[0-9]{2}) (([0-9]{2}):([0-9]{2}):([0-9]{2}))/', $string1, $matches);
   $count = count($matches);
   $date1 = $count > 1 ? $matches[1] : '';
@@ -2798,6 +2948,11 @@ function date_is_all_day($string1, $string2, $granularity = 'second', $increment
   $hour1 = $count > 3 ? intval($matches[3]) : 0;
   $min1 = $count > 4 ? intval($matches[4]) : 0;
   $sec1 = $count > 5 ? intval($matches[5]) : 0;
+  if (empty($date1) || empty($time1)) {
+    return FALSE;
+  }
+
+  // Verify the second date argument is a valid date string.
   preg_match('/([0-9]{4}-[0-9]{2}-[0-9]{2}) (([0-9]{2}):([0-9]{2}):([0-9]{2}))/', $string2, $matches);
   $count = count($matches);
   $date2 = $count > 1 ? $matches[1] : '';
@@ -2805,10 +2960,7 @@ function date_is_all_day($string1, $string2, $granularity = 'second', $increment
   $hour2 = $count > 3 ? intval($matches[3]) : 0;
   $min2 = $count > 4 ? intval($matches[4]) : 0;
   $sec2 = $count > 5 ? intval($matches[5]) : 0;
-  if (empty($date1) || empty($date2)) {
-    return FALSE;
-  }
-  if (empty($time1) || empty($time2)) {
+  if (empty($date2) || empty($time2)) {
     return FALSE;
   }
 
@@ -2817,31 +2969,25 @@ function date_is_all_day($string1, $string2, $granularity = 'second', $increment
   $tmp = date_minutes('i', TRUE, $increment);
   $max_minutes = intval(array_pop($tmp));
 
-  // See if minutes and seconds are the maximum allowed for an increment or the
+  // See if minutes and seconds are the maximum allowed for an increment, or the
   // maximum possible (59), or 0.
   switch ($granularity) {
     case 'second':
-      $min_match = $time1 == '00:00:00'
-        || ($hour1 == 0 && $min1 == 0 && $sec1 == 0);
-      $max_match = $time2 == '00:00:00'
-        || ($hour2 == 23 && in_array($min2, array($max_minutes, 59)) && in_array($sec2, array($max_seconds, 59)))
-        || ($hour1 == 0 && $hour2 == 0 && $min1 == 0 && $min2 == 0 && $sec1 == 0 && $sec2 == 0);
+      $min_match = ($hour1 == 0 && $min1 == 0 && $sec1 == 0);
+      $max_match = ($hour2 == 23 && in_array($min2, array($max_minutes, 59)) && in_array($sec2, array($max_seconds, 59)))
+        || ($date1 != $date2 && $hour1 == 0 && $hour2 == 0 && $min1 == 0 && $min2 == 0 && $sec1 == 0 && $sec2 == 0);
       break;
 
     case 'minute':
-      $min_match = $time1 == '00:00:00'
-        || ($hour1 == 0 && $min1 == 0);
-      $max_match = $time2 == '00:00:00'
-        || ($hour2 == 23 && in_array($min2, array($max_minutes, 59)))
-        || ($hour1 == 0 && $hour2 == 0 && $min1 == 0 && $min2 == 0);
+      $min_match = ($hour1 == 0 && $min1 == 0);
+      $max_match = ($hour2 == 23 && in_array($min2, array($max_minutes, 59)))
+        || ($date1 != $date2 && $hour1 == 0 && $hour2 == 0 && $min1 == 0 && $min2 == 0);
       break;
 
     case 'hour':
-      $min_match = $time1 == '00:00:00'
-        || ($hour1 == 0);
-      $max_match = $time2 == '00:00:00'
-        || ($hour2 == 23)
-        || ($hour1 == 0 && $hour2 == 0);
+      $min_match = ($hour1 == 0);
+      $max_match = ($hour2 == 23)
+        || ($date1 != $date2 && $hour1 == 0 && $hour2 == 0);
       break;
 
     default:
@@ -2907,9 +3053,10 @@ function date_is_date($date) {
  * Replace specific ISO values using patterns.
  *
  * Function will replace ISO values that have the pattern 9999-00-00T00:00:00
- * with a pattern like 9999-01-01T00:00:00, to match the behavior of non-ISO dates
- * and ensure that date objects created from this value contain a valid month
- * and day.
+ * with a pattern like 9999-01-01T00:00:00, to match the behavior of non-ISO
+ * dates and ensure that date objects created from this value contain a valid
+ * month and day.
+ *
  * Without this fix, the ISO date '2020-00-00T00:00:00' would be created as
  * November 30, 2019 (the previous day in the previous month).
  *
@@ -2919,7 +3066,7 @@ function date_is_date($date) {
  * @return mixed|string
  *   replaced value, or incoming value.
  *
- * @TODO Expand on this to work with all sorts of partial ISO dates.
+ * @todo Expand on this to work with all sorts of partial ISO dates.
  */
 function date_make_iso_valid($iso_string) {
   // If this isn't a value that uses an ISO pattern, there is nothing to do.

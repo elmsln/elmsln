@@ -4,16 +4,15 @@
  * @file
  * Adds All Day functionality to the Date field.
  *
- * This module implements a number of hooks in the Date field and
- * Date api element processing and to add an All Day checkbox to
- * date widgets, and also adds an All Day theme and
- * All Day information to the formatting.
+ * This module implements a number of hooks in the Date field and Date API
+ * element processing and to add an All Day checkbox to date widgets, and also
+ * adds an All Day theme and All Day information to the formatting.
  *
- * Keep in mind that the process hooks are fired from the top down,
- * first date_combo, then the date_select or date_popup.
+ * Keep in mind that the process hooks are fired from the top down, first
+ * date_combo, then the date_select or date_popup.
  *
- * Validation fires from the bottom up, first date_select and
- * date_popup, then date_combo.
+ * Validation fires from the bottom up, first date_select and date_popup, then
+ * date_combo.
  */
 
 /**
@@ -44,12 +43,9 @@ function date_all_day_theme() {
 
 /**
  * Implements hook_date_formatter_dates_alter().
- *
- * This allows us to alter the $dates array created
- * by date_formatter_process.
  */
 function date_all_day_date_formatter_dates_alter(&$dates, $context) {
-
+  // This allows us to alter the $dates array created by date_formatter_process.
   $field = $context['field'];
   $instance = $context['instance'];
   $format = $context['format'];
@@ -57,7 +53,6 @@ function date_all_day_date_formatter_dates_alter(&$dates, $context) {
   $entity = $context['entity'];
   $date1 = $dates['value']['local']['object'];
   $date2 = $dates['value2']['local']['object'];
-
   $is_all_day = date_all_day_field($field, $instance, $date1, $date2);
 
   $all_day1 = '';
@@ -71,7 +66,8 @@ function date_all_day_date_formatter_dates_alter(&$dates, $context) {
       'date2' => $date2,
       'format' => $format,
       'entity_type' => $entity_type,
-      'entity' => $entity));
+      'entity' => $entity,
+    ));
     $all_day2 = theme('date_all_day', array(
       'field' => $field,
       'instance' => $instance,
@@ -80,7 +76,8 @@ function date_all_day_date_formatter_dates_alter(&$dates, $context) {
       'date2' => $date2,
       'format' => $format,
       'entity_type' => $entity_type,
-      'entity' => $entity));
+      'entity' => $entity,
+    ));
     $dates['value']['formatted_time'] = theme('date_all_day_label');
     $dates['value2']['formatted_time'] = theme('date_all_day_label');
     $dates['value']['formatted'] = $all_day1;
@@ -91,39 +88,29 @@ function date_all_day_date_formatter_dates_alter(&$dates, $context) {
 /**
  * Adjust start/end date format to account for 'all day' .
  *
- * @params array $field
- *   The field definition for this date field.
+ * @param array $vars
+ *   Contains the following items:
+ *   'field' - The field definition for this date field.
+ *    'which' - Which value to return, 'date1' or 'date2'.
+ *    'date1' - A date/time object for the 'start' date.
+ *    'date2' - A date/time object for the 'end' date.
+ *    'format' - A date/time format.
+ *    'entity' - The node this date comes from (may be incomplete, always
+ *       contains nid).
+ *    'view' - The view this node comes from, if applicable.
  *
- * @params string $which
- *   Which value to return, 'date1' or 'date2'.
- *
- * @params object $date1
- *   A date/time object for the 'start' date.
- *
- * @params object $date2
- *   A date/time object for the 'end' date.
- *
- * @params string $format
- *   A date/time format
- *
- * @params object $entity
- *   The node this date comes from (may be incomplete, always contains nid).
- *
- * @params object $view
- *   The view this node comes from, if applicable.
- *
- * @return string
+ * @return string|null
  *   Formatted date.
  */
 function theme_date_all_day($vars) {
-  $field    = $vars['field'];
+  $field = $vars['field'];
   $instance = $vars['instance'];
-  $which    = $vars['which'];
-  $date1    = $vars['date1'];
-  $date2    = $vars['date2'];
-  $format   = $vars['format'];
-  $entity   = $vars['entity'];
-  $view     = !empty($vars['view']) ? $vars['view'] : NULL;
+  $which = $vars['which'];
+  $date1 = $vars['date1'];
+  $date2 = $vars['date2'];
+  $format = $vars['format'];
+  $entity = $vars['entity'];
+  $view = !empty($vars['view']) ? $vars['view'] : NULL;
 
   if (empty($date1) || !is_object($date1) || $format == 'format_interval') {
     return;
@@ -156,7 +143,7 @@ function theme_date_all_day($vars) {
  * Theme the way an 'all day' label will look.
  */
 function theme_date_all_day_label() {
-  return '(' . t('All day', array(), array('context' => 'datetime')) . ')';
+  return t('(All day)', array(), array('context' => 'datetime'));
 }
 
 /**
@@ -164,42 +151,61 @@ function theme_date_all_day_label() {
  *
  * @param array $field
  *   The field definition for this date field.
- *
  * @param array $instance
  *   The field instance for this date field.
- *
  * @param object $date1
  *   A date/time object for the 'Start' date.
- *
  * @param object $date2
  *   A date/time object for the 'End' date.
  *
  * @return bool
  *   TRUE or FALSE.
  */
-function date_all_day_field($field, $instance, $date1, $date2 = NULL) {
+function date_all_day_field(array $field, array $instance, $date1, $date2 = NULL) {
   if (empty($date1) || !is_object($date1)) {
     return FALSE;
   }
   elseif (!date_has_time($field['settings']['granularity'])) {
-    return TRUE;
+    return FALSE;
   }
+  // The master setting for the 'all day' functionality.
+  elseif (empty($instance['widget']['settings']['display_all_day'])) {
+    return FALSE;
+  }
+
   if (empty($date2)) {
     $date2 = $date1;
   }
 
+  // Several scenarios result in the two date values being the same, e.g.
+  // date_formatter_process().
+  if ($date1 == $date2) {
+    // Clone the date object so that changes made to the object won't affect
+    // both variables.
+    $date1 = clone $date2;
+
+    // Set the time to midnight so that the two variables can be properly
+    // compared later in date_is_all_day().
+    $date1->setTime(0, 0, 0);
+  }
+
+  // Use central logic for determining the granularity.
   $granularity = date_granularity_precision($field['settings']['granularity']);
-  $increment = isset($instance['widget']['settings']['increment']) ? $instance['widget']['settings']['increment'] : 1;
+
+  // The increment is 1 by default, but it can be overridden.
+  $increment = 1;
+  if (isset($instance['widget']['settings']['increment'])) {
+    $increment = $instance['widget']['settings']['increment'];
+  }
+
   return date_is_all_day(date_format($date1, DATE_FORMAT_DATETIME), date_format($date2, DATE_FORMAT_DATETIME), $granularity, $increment);
 }
 
 /**
  * Implements hook_date_combo_process_alter().
- *
- * This hook lets us make changes to the date_combo element.
  */
 function date_all_day_date_combo_process_alter(&$element, &$form_state, $context) {
-
+  // This hook lets us make changes to the date_combo element.
   $field = $context['field'];
   $instance = $context['instance'];
 
@@ -211,13 +217,15 @@ function date_all_day_date_combo_process_alter(&$element, &$form_state, $context
     $all_day_id = $first_parent . '[' . implode('][', $parents) . '][all_day]';;
     foreach (array('value', 'value2') as $key) {
       if (array_key_exists($key, $element)) {
-        $element[$key]['#date_all_day_id']  = $all_day_id;
+        $element[$key]['#date_all_day_id'] = $all_day_id;
       }
     }
 
     $from = $element['#default_value']['value'];
     $to = !empty($element['#default_value']['value2']) ? $element['#default_value']['value2'] : $element['#default_value']['value'];
-    $date_is_all_day = date_is_all_day($from, $to);
+    $granularity = date_granularity_precision($context['field']['settings']['granularity']);
+    $increment = isset($context['instance']['widget']['settings']['increment']) ? $context['instance']['widget']['settings']['increment'] : 1;
+    $date_is_all_day = date_is_all_day($from, $to, $granularity, $increment);
     $all_day = !empty($form_state['values']['all_day']) || $date_is_all_day;
     $element['all_day'] = array(
       '#title' => t('All Day'),
@@ -236,30 +244,24 @@ function date_all_day_date_combo_process_alter(&$element, &$form_state, $context
   }
 }
 
-
 /**
  * Implements hook_date_text_process_alter().
- *
- * This hook lets us make changes to the date_select widget.
  */
 function date_all_day_date_text_process_alter(&$element, &$form_state, $context) {
+  // This hook lets us make changes to the date_select widget.
   $all_day_id = !empty($element['#date_all_day_id']) ? $element['#date_all_day_id'] : '';
   if ($all_day_id != '') {
-    // All Day handling on text dates works only
-    // if the user leaves the time out of the input value.
-    // There is no element to hide or show.
+    // All Day handling on text dates works only if the user leaves the time
+    // out of the input value. There is no element to hide or show.
   }
 }
 
 /**
  * Implements hook_date_select_process_alter().
- *
- * This hook lets us make changes to the date_select widget.
  */
 function date_all_day_date_select_process_alter(&$element, &$form_state, $context) {
-
-  // Hide or show this element in reaction
-  // to the all_day status for this element.
+  // This hook lets us make changes to the date_select widget. Hide or show
+  // this element in reaction to the all_day status for this element.
   $all_day_id = !empty($element['#date_all_day_id']) ? $element['#date_all_day_id'] : '';
   if ($all_day_id != '') {
     foreach (array('hour', 'minute', 'second', 'ampm') as $field) {
@@ -267,7 +269,8 @@ function date_all_day_date_select_process_alter(&$element, &$form_state, $contex
         $element[$field]['#states'] = array(
           'visible' => array(
             'input[name="' . $all_day_id . '"]' => array('checked' => FALSE),
-          ));
+          ),
+        );
       }
     }
   }
@@ -275,69 +278,60 @@ function date_all_day_date_select_process_alter(&$element, &$form_state, $contex
 
 /**
  * Implements hook_date_popup_process_alter().
- *
- * This hook lets us make changes to the date_popup element.
  */
 function date_all_day_date_popup_process_alter(&$element, &$form_state, $context) {
-
-  // Hide or show this element in reaction to
-  // the all_day status for this element.
+  // This hook lets us make changes to the date_popup element. Hide or show
+  // this element in reaction to the all_day status for this element.
   $all_day_id = !empty($element['#date_all_day_id']) ? $element['#date_all_day_id'] : '';
   if ($all_day_id != '' && array_key_exists('time', $element)) {
     $element['time']['#states'] = array(
       'visible' => array(
         'input[name="' . $all_day_id . '"]' => array('checked' => FALSE),
-      ));
+      ),
+    );
   }
 }
 
 /**
  * Implements hook_date_select_pre_validate_alter().
- *
- * This hook lets us alter the element or the form_state before the rest
- * of the date_select validation gets fired.
  */
 function date_all_day_date_text_pre_validate_alter(&$element, &$form_state, &$input) {
-  // Let Date module massage the format for all day
-  // values so they will pass validation.
-  // The All day flag, if used, actually exists on the parent element.
+  // This hook lets us alter the element or the form_state before the rest of
+  // the date_select validation gets fired. Let Date module massage the format
+  // for all day values so they will pass validation. The All day flag, if
+  // used, actually exists on the parent element.
   date_all_day_value($element, $form_state);
 }
 
 /**
  * Implements hook_date_select_pre_validate_alter().
- *
- * This hook lets us alter the element or the form_state before the rest
- * of the date_select validation gets fired.
  */
 function date_all_day_date_select_pre_validate_alter(&$element, &$form_state, &$input) {
-  // Let Date module massage the format for all
-  // day values so they will pass validation.
-  // The All day flag, if used, actually exists on the parent element.
+  // This hook lets us alter the element or the form_state before the rest of
+  // the date_select validation gets fired. Let Date module massage the format
+  // for all day values so they will pass validation. The All day flag, if
+  // used, actually exists on the parent element.
   date_all_day_value($element, $form_state);
 }
 
 /**
  * Implements hook_date_select_pre_validate_alter().
- *
- * This hook lets us alter the element or the form_state before the rest
- * of the date_popup validation gets fired.
  */
 function date_all_day_date_popup_pre_validate_alter(&$element, &$form_state, &$input) {
-  // Let Date module massage the format for all
-  // day values so they will pass validation.
-  // The All day flag, if used, actually exists on the parent element.
+  // This hook lets us alter the element or the form_state before the rest of
+  // the date_popup validation gets fired. Let Date module massage the format
+  // for all day values so they will pass validation. The All day flag, if
+  // used, actually exists on the parent element.
   date_all_day_value($element, $form_state);
 }
 
 /**
  * A helper function date_all_day_value().
- *
- * To check if the all day flag is set on the parent of an
- * element, and adjust the date_format accordingly so the missing time will
- * not cause validation errors.
  */
 function date_all_day_value(&$element, $form_state) {
+  // To check if the all day flag is set on the parent of an element, and
+  // adjust the date_format accordingly so the missing time will not cause
+  // validation errors.
   if (!empty($element['#date_all_day_id'])) {
     $parents = $element['#parents'];
     array_pop($parents);
@@ -352,14 +346,11 @@ function date_all_day_value(&$element, $form_state) {
 
 /**
  * Implements hook_date_combo_pre_validate_alter().
- *
- * This hook lets us alter the element or the form_state before the rest
- * of the date_combo validation gets fired.
  */
 function date_all_day_date_combo_pre_validate_alter(&$element, &$form_state, $context) {
-
+  // This hook lets us alter the element or the form_state before the rest of
+  // the date_combo validation gets fired.
   if (!empty($context['item']['all_day'])) {
-
     $field = $context['field'];
 
     // If we have an all day flag on this date and the time is empty,
@@ -375,13 +366,11 @@ function date_all_day_date_combo_pre_validate_alter(&$element, &$form_state, $co
 
 /**
  * Implements hook_date_combo_validate_date_start_alter().
- *
- * This hook lets us alter the local date objects
- * created by the date_combo validation before they are
- * converted back to the database timezone and stored.
  */
 function date_all_day_date_combo_validate_date_start_alter(&$date, &$form_state, $context) {
-  // If this is an 'All day' value, set the time to midnight.
+  // This hook lets us alter the local date objects created by the date_combo
+  // validation before they are converted back to the database timezone and
+  // stored. If this is an 'All day' value, set the time to midnight.
   if (!empty($context['element']['#date_is_all_day'])) {
     $date->setTime(0, 0, 0);
   }
@@ -389,24 +378,26 @@ function date_all_day_date_combo_validate_date_start_alter(&$date, &$form_state,
 
 /**
  * Implements hook_date_combo_validate_date_end_alter().
- *
- * This hook lets us alter the local date objects
- * created by the date_combo validation before
- * they are converted back to the database timezone and stored.
  */
 function date_all_day_date_combo_validate_date_end_alter(&$date, &$form_state, $context) {
-  // If this is an 'All day' value, set the time to midnight.
+  // This hook lets us alter the local date objects created by the date_combo
+  // validation before they are converted back to the database timezone and
+  // stored. If this is an 'All day' value, set the time as close to midnight as
+  // possible.
   if (!empty($context['element']['#date_is_all_day'])) {
-    $date->setTime(0, 0, 0);
+    $increment = isset($context['instance']['widget']['settings']['increment']) ? $context['instance']['widget']['settings']['increment'] : 1;
+    // @todo Should this reduce by an additional 1 minute if the increment is
+    // more than 1? For example, if the increment is 15 should the upper value
+    // be 23:45:59 or 23:44:59?
+    $date->setTime(23, 60 - $increment, 59);
   }
 }
 
 /**
  * Implements hook_field_widget_info_alter().
- *
- * This Field API hook lets us add a new setting to the widgets.
  */
 function date_all_day_field_widget_info_alter(&$info) {
+  // This Field API hook lets us add a new setting to the widgets.
   // Add a setting to a widget type.
   $info['date_select']['settings'] += array(
     'display_all_day' => 0,
@@ -423,12 +414,10 @@ function date_all_day_field_widget_info_alter(&$info) {
 
 /**
  * Implements hook_date_field_widget_settings_form_alter().
- *
- * This hook lets us alter the field settings form by adding a place
- * to set the value added above.
  */
 function date_all_day_date_field_widget_settings_form_alter(&$form, $context) {
-
+  // This hook lets us alter the field settings form by adding a place to set
+  // the value added above.
   $field = $context['field'];
   $instance = $context['instance'];
 

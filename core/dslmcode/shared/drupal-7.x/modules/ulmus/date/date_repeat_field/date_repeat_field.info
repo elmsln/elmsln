@@ -1,15 +1,18 @@
 name = Date Repeat Field
 description = Creates the option of Repeating date fields and manages Date fields that use the Date Repeat API.
-dependencies[] = date_api
-dependencies[] = date
-dependencies[] = date_repeat
-stylesheets[all][] = date_repeat_field.css
 package = Date/Time
 core = 7.x
 
-; Information added by Drupal.org packaging script on 2017-04-07
-version = "7.x-2.10"
+dependencies[] = date:date_api
+dependencies[] = date:date
+dependencies[] = date:date_repeat
+
+stylesheets[all][] = date_repeat_field.css
+
+files[] = tests/DateRepeatFieldTestCase.test
+
+; Information added by Drupal.org packaging script on 2022-08-04
+version = "7.x-2.13"
 core = "7.x"
 project = "date"
-datestamp = "1491562090"
-
+datestamp = "1659633190"

@@ -44,13 +44,13 @@ class DateExampleMigration extends XMLMigration {
     );
 
     // Our test data is in an XML file.
-    $xml_folder = drupal_get_path('module', 'date_migrate_example');
-    $items_url = $xml_folder . '/date_migrate_example.xml';
+    $xml_folder = drupal_get_path('module', 'date_migrate_test');
+    $items_url = $xml_folder . '/example_data.xml';
     $item_xpath = '/source_data/item';
     $item_id_xpath = 'id';
     $items_class = new MigrateItemsXML($items_url, $item_xpath, $item_id_xpath);
     $this->source = new MigrateSourceMultiItems($items_class, $fields);
-    $this->destination = new MigrateDestinationNode('date_migrate_example');
+    $this->destination = new MigrateDestinationNode('date_test');
 
     // Basic fields.
     $this->addFieldMapping('title', 'title')
@@ -93,7 +93,8 @@ class DateExampleMigration extends XMLMigration {
 
     // Unmapped destination fields.
     $this->addUnmigratedDestinations(array('is_new', 'status', 'promote',
-      'revision', 'language', 'sticky', 'created', 'changed', 'revision_uid'));
+      'revision', 'language', 'sticky', 'created', 'changed', 'revision_uid',
+    ));
   }
 
   /**
@@ -128,4 +129,5 @@ class DateExampleMigration extends XMLMigration {
     $current_row->date_repeat_rrule
       = (string) $current_row->xml->date_repeat->rule[0];
   }
+
 }

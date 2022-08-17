@@ -2,25 +2,43 @@
 
 /**
  * @file
- * Basic functions for Date tests.
+ * Shared test functionality.
  */
-abstract class DateFieldBasic extends DrupalWebTestCase {
-  protected $privileged_user;
+
+/**
+ * Shared test functionality.
+ */
+abstract class DateFieldTestBase extends DrupalWebTestCase {
 
   /**
-   * @todo.
+   * Drupal privileged user.
+   *
+   * @var object|false
    */
-  protected function setUp() {
-    // Load the date_api module.
-    parent::setUp('field', 'field_ui', 'date_api', 'date', 'date_popup', 'date_tools');
+  protected $privilegedUser;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    $modules[] = 'field';
+    $modules[] = 'field_ui';
+    $modules[] = 'date_api';
+    $modules[] = 'date';
+    $modules[] = 'date_tools';
+    parent::setUp($modules);
 
     // Create and log in our privileged user.
-    $this->privileged_user = $this->drupalCreateUser(
-      array('administer content types', 'administer nodes', 'bypass node access', 'administer date tools', 'administer fields')
+    $perms = array(
+      'administer content types',
+      'administer nodes',
+      'bypass node access',
+      'administer date tools',
+      'administer fields',
+      'administer site configuration',
     );
-    $this->drupalLogin($this->privileged_user);
-
-    variable_set('date_popup_timepicker', 'none');
+    $this->privilegedUser = $this->drupalCreateUser($perms);
+    $this->drupalLogin($this->privilegedUser);
 
     module_load_include('inc', 'node', 'content_types');
     module_load_include('inc', 'node', 'node.pages');
@@ -32,7 +50,6 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
     $edit['type'] = 'story';
     $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
     $this->assertText('The content type Story has been added.', 'Content type added.');
-
   }
 
   /**
@@ -42,6 +59,7 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
    * different.
    */
   protected function createDateField($values = array()) {
+    $this->verbose($values);
     extract($values);
 
     $field_name = !empty($field_name) ? $field_name : 'field_test';
@@ -53,17 +71,18 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
     $todate = !empty($todate) ? $todate : 'optional';
     $widget_type = !empty($widget_type) ? $widget_type : 'date_select';
     $tz_handling = !empty($tz_handling) ? $tz_handling : 'site';
-    $granularity = !empty($granularity) ? $granularity : array('year', 'month', 'day', 'hour', 'minute');
+    $granularity = !empty($granularity) ? $granularity : array('year', 'month',
+      'day', 'hour', 'minute',
+    );
     $year_range = !empty($year_range) ? $year_range : '2010:+1';
     $input_format = !empty($input_format) ? $input_format : date_default_format($widget_type);
     $input_format_custom = !empty($input_format_custom) ? $input_format_custom : '';
     $text_parts = !empty($text_parts) ? $text_parts : array();
     $increment = !empty($increment) ? $increment : 15;
     $default_value = !empty($default_value) ? $default_value : 'now';
+    $default_value_code = !empty($default_value_code) ? $default_value_code : NULL;
     $default_value2 = !empty($default_value2) ? $default_value2 : 'blank';
     $default_format = !empty($default_format) ? $default_format : 'long';
-    $cache_enabled = !empty($cache_enabled);
-    $cache_count = !empty($cache_count) ? $cache_count : 4;
 
     $field = array(
       'field_name' => $field_name,
@@ -75,8 +94,6 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
         'timezone_db' => date_get_timezone_db($tz_handling),
         'repeat' => $repeat,
         'todate' => $todate,
-        'cache_enabled' => $cache_enabled,
-        'cache_count' => $cache_count,
       ),
     );
     $instance = array(
@@ -84,8 +101,8 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
       'field_name' => $field_name,
       'label' => $label,
       'bundle' => $bundle,
-      // Move the date right below the title.
-      'weight' => -4,
+      // Move the date to the top.
+      'weight' => -100,
       'widget' => array(
         'type' => $widget_type,
         // Increment for minutes and seconds, can be 1, 5, 10, 15, or 30.
@@ -100,10 +117,11 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
           'label_position' => 'above',
           'repeat_collapsed' => 0,
         ),
-        'weight' => -4,
+        'weight' => -100,
       ),
       'settings' => array(
         'default_value' => $default_value,
+        'default_value_code' => $default_value_code,
         'default_value2' => $default_value2,
       ),
     );
@@ -139,16 +157,18 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
       ),
     );
 
+    $this->verbose($field);
     $field = field_create_field($field);
+
+    $this->verbose($instance);
     $instance = field_create_instance($instance);
 
-    field_info_cache_clear(TRUE);
-    field_cache_clear(TRUE);
+    field_info_cache_clear();
+    field_cache_clear();
 
     // Look at how the field got configured.
     $this->drupalGet("admin/structure/types/manage/$bundle/fields/$field_name");
     $this->drupalGet("admin/structure/types/manage/$bundle/display");
-
   }
 
   /**
@@ -170,7 +190,9 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
     $widget_type = !empty($widget_type) ? $widget_type : 'date_select';
     $this->verbose(!empty($tz_handling));
     $tz_handling = !empty($tz_handling) ? $tz_handling : 'site';
-    $granularity = !empty($granularity) ? $granularity : array('year', 'month', 'day', 'hour', 'minute');
+    $granularity = !empty($granularity) ? $granularity : array('year', 'month',
+      'day', 'hour', 'minute',
+    );
     $year_range = !empty($year_range) ? $year_range : '2010:+1';
     $input_format = !empty($input_format) ? $input_format : date_default_format($widget_type);
     $input_format_custom = !empty($input_format_custom) ? $input_format_custom : '';
@@ -179,8 +201,6 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
     $default_value = !empty($default_value) ? $default_value : 'now';
     $default_value2 = !empty($default_value2) ? $default_value2 : 'blank';
     $default_format = !empty($default_format) ? $default_format : 'long';
-    $cache_enabled = !empty($cache_enabled);
-    $cache_count = !empty($cache_count) ? $cache_count : 4;
     $cardinality = !empty($cardinality) ? $cardinality : 1;
 
     $field = array(
@@ -193,8 +213,6 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
         'timezone_db' => date_get_timezone_db($tz_handling),
         'repeat' => $repeat,
         'todate' => $todate,
-        'cache_enabled' => $cache_enabled,
-        'cache_count' => $cache_count,
       ),
     );
     $instance = array(
@@ -202,8 +220,8 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
       'field_name' => $field_name,
       'label' => $label,
       'bundle' => $bundle,
-      // Move the date right below the title.
-      'weight' => -4,
+      // Move the date to the top.
+      'weight' => -100,
       'widget' => array(
         'type' => $widget_type,
         // Increment for minutes and seconds, can be 1, 5, 10, 15, or 30.
@@ -218,7 +236,7 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
           'label_position' => 'above',
           'repeat_collapsed' => 0,
         ),
-        'weight' => -4,
+        'weight' => -100,
       ),
       'settings' => array(
         'default_value' => $default_value,
@@ -260,16 +278,17 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
     $field = field_create_field($field);
     $instance = field_create_instance($instance);
 
-    field_info_cache_clear(TRUE);
-    field_cache_clear(TRUE);
+    field_info_cache_clear();
+    field_cache_clear();
 
     // Look at how the field got configured.
+    $this->drupalGet("admin/structure/types/manage/$bundle/fields");
     $this->drupalGet("admin/structure/types/manage/$bundle/fields/$field_name");
     $this->drupalGet("admin/structure/types/manage/$bundle/display");
   }
 
   /**
-   * @todo.
+   * Test delete date field.
    */
   protected function deleteDateField($label, $bundle = 'story', $bundle_name = 'Story') {
     $this->drupalGet("admin/structure/types/manage/$bundle/fields");
@@ -278,52 +297,32 @@ abstract class DateFieldBasic extends DrupalWebTestCase {
     $this->assertText("The field $label has been deleted from the $bundle_name content type.", 'Removed date field.');
   }
 
-}
-
-class DateFieldTestCase extends DateFieldBasic {
-
   /**
-   * @todo.
+   * {@inheritdoc}
    */
-  public static function getInfo() {
-    return array(
-      'name' => 'Date Field',
-      'description' => 'Test date field settings and Start/End date interaction.',
-      'group' => 'Date',
-    );
-  }
-
-  /**
-   * @todo.
-   */
-  public function testField() {
-    // Create a date fields with simple values.
-    foreach (array('date', 'datestamp', 'datetime') as $field_type) {
-      foreach (array('date_select', 'date_popup', 'date_text') as $widget_type) {
-        $field_name = "field_test_$widget_type";
-        $label = 'Test';
-        $options = array(
-          'label' => $label,
-          'widget_type' => $widget_type,
-          'field_name' => $field_name,
-          'field_type' => $field_type,
-          'input_format' => 'm/d/Y - H:i',
-        );
-        $this->createDateField($options);
-        $this->dateForm($field_name, $field_type, $widget_type);
-        $this->deleteDateField($label);
-      }
+  protected function verbose($message, $title = NULL) {
+    // Handle arrays, objects, etc.
+    if (!is_string($message)) {
+      $message = "<pre>\n" . print_r($message, TRUE) . "\n</pre>\n";
     }
+
+    // Optional title to go before the output.
+    if (!empty($title)) {
+      $title = '<h2>' . check_plain($title) . "</h2>\n";
+    }
+
+    parent::verbose($title . $message);
   }
 
   /**
-   * @todo.
+   * Tests that date field functions properly.
    */
   public function dateForm($field_name, $field_type, $widget_type, $todate = TRUE) {
-    // Tests that date field functions properly.
+    $this->verbose(func_get_args());
+
     $edit = array();
-    $edit['title'] = $this->randomName(8);
-    if ($widget_type == 'date_select') {
+    $edit['title'] = self::randomName(8);
+    if ($widget_type === 'date_select') {
       $edit[$field_name . '[und][0][value][year]'] = '2010';
       $edit[$field_name . '[und][0][value][month]'] = '10';
       $edit[$field_name . '[und][0][value][day]'] = '7';
@@ -338,14 +337,14 @@ class DateFieldTestCase extends DateFieldBasic {
         $edit[$field_name . '[und][0][value2][minute]'] = '30';
       }
     }
-    elseif ($widget_type == 'date_text') {
+    elseif ($widget_type === 'date_text') {
       $edit[$field_name . '[und][0][value][date]'] = '10/07/2010 - 10:30';
       if ($todate) {
         $edit[$field_name . '[und][0][show_todate]'] = '1';
         $edit[$field_name . '[und][0][value2][date]'] = '10/07/2010 - 11:30';
       }
     }
-    elseif ($widget_type == 'date_popup') {
+    elseif ($widget_type === 'date_popup') {
       $edit[$field_name . '[und][0][value][date]'] = '10/07/2010';
       $edit[$field_name . '[und][0][value][time]'] = '10:30';
       if ($todate) {
@@ -354,9 +353,9 @@ class DateFieldTestCase extends DateFieldBasic {
         $edit[$field_name . '[und][0][value2][time]'] = '11:30';
       }
     }
+
     // Test that the date is displayed correctly using both the 'short' and
     // 'long' date types.
-    //
     // For the short type, save an explicit format and assert that is the one
     // which is displayed.
     variable_set('date_format_short', 'l, m/d/Y - H:i:s');
@@ -367,6 +366,7 @@ class DateFieldTestCase extends DateFieldBasic {
     $this->assertText($edit['title'], "Node has been created");
     $should_be = $todate ? 'Thursday, 10/07/2010 - 10:30 to 11:30' : 'Thursday, 10/07/2010 - 10:30';
     $this->assertText($should_be, "Found the correct date for a $field_type field using the $widget_type widget displayed using the short date format.");
+
     // For the long format, do not save anything, and assert that the displayed
     // date uses the expected default value of this format provided by Drupal
     // core ('l, F j, Y - H:i').
@@ -378,4 +378,32 @@ class DateFieldTestCase extends DateFieldBasic {
     $should_be = $todate ? 'Thursday, October 7, 2010 - 10:30 to 11:30' : 'Thursday, October 7, 2010 - 10:30';
     $this->assertText($should_be, "Found the correct date for a $field_type field using the $widget_type widget displayed using the long date format.");
   }
+
+  /**
+   * Run some tests against a specific field type/widget combination.
+   *
+   * @param string $field_type
+   *   The field type to use.
+   * @param string $widget_type
+   *   The widget type to use.
+   * @param bool $delete_when_done
+   *   Whether to delete the field when it's finished; defaults to TRUE.
+   */
+  protected function checkDateField($field_type, $widget_type, $delete_when_done = TRUE) {
+    $field_name = "field_test_$widget_type";
+    $label = 'Test';
+    $options = array(
+      'label' => $label,
+      'widget_type' => $widget_type,
+      'field_name' => $field_name,
+      'field_type' => $field_type,
+      'input_format' => 'm/d/Y - H:i',
+    );
+    $this->createDateField($options);
+    $this->dateForm($field_name, $field_type, $widget_type);
+    if ($delete_when_done) {
+      $this->deleteDateField($label);
+    }
+  }
+
 }

@@ -32,7 +32,6 @@ function date_field_diff_view($items, $context) {
       case 'value2':
         $diff_items[$delta] = $date[$display['settings']['fromto']]['formatted'];
         break;
-
     }
   }
   return $diff_items;

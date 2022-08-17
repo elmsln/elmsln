@@ -1,6 +1,9 @@
 <?php
+
 /**
  * @file
+ * Primary hook implementations for the Date Repeat module.
+ *
  * This module creates a form element that allows users to select
  * repeat rules for a date, and reworks the result into an iCal
  * RRULE string that can be stored in the database.
@@ -70,9 +73,9 @@ function date_repeat_interval_options() {
 /**
  * Helper function for FREQ options.
  *
- * Translated and untranslated arrays of the iCal day of week names.
- * We need the untranslated values for date_modify(), translated
- * values when displayed to user.
+ * Translated and untranslated arrays of the iCal day of week names. We need the
+ * untranslated values for date_modify(), translated values when displayed to
+ * user.
  */
 function date_repeat_dow_day_options($translated = TRUE) {
   return array(
@@ -104,10 +107,16 @@ function date_repeat_dow_day_options_abbr($translated = TRUE, $length = 3) {
 
     default:
       $context = '';
-      break;
   }
   foreach (date_repeat_dow_day_untranslated() as $key => $day) {
-    $return[$key] = $translated ? t(substr($day, 0, $length), array(), array('context' => $context)) : substr($day, 0, $length);
+    if ($translated) {
+      $return[$key] = t(substr($day, 0, $length), array(), array(
+        'context' => $context,
+      ));
+    }
+    else {
+      $return[$key] = substr($day, 0, $length);
+    }
   }
   return $return;
 }
@@ -125,7 +134,7 @@ function date_repeat_dow_day_untranslated() {
       'WE' => 'Wednesday',
       'TH' => 'Thursday',
       'FR' => 'Friday',
-      'SA' => 'Saturday'
+      'SA' => 'Saturday',
     );
   }
   return $date_repeat_weekdays;
@@ -157,7 +166,7 @@ function date_repeat_dow_count_options() {
 /**
  * Helper function for BYDAY options.
  *
- * Creates options like -1SU and 2TU
+ * Creates options like -1SU and 2TU.
  */
 function date_repeat_dow_options() {
   $options = array();
@@ -172,10 +181,12 @@ function date_repeat_dow_options() {
 /**
  * Translate a day of week position to the iCal day name.
  *
- * Used with date_format($date, 'w') or get_variable('date_first_day'),
- * which return 0 for Sunday, 1 for Monday, etc.
+ * Used with date_format($date, 'w') or get_variable('date_first_day'), which
+ * return 0 for Sunday, 1 for Monday, etc.
  *
  * dow 2 becomes 'TU', dow 3 becomes 'WE', and so on.
+ *
+ * @todo Document this more thoroughly.
  */
 function date_repeat_dow2day($dow) {
   $days_of_week = array_keys(date_repeat_dow_day_options(FALSE));
@@ -183,7 +194,9 @@ function date_repeat_dow2day($dow) {
 }
 
 /**
- * Shift the array of iCal day names into the right order for a specific week start day.
+ * Shift the array of iCal day names into the right order.
+ *
+ * @todo Document this more thoroughly.
  */
 function date_repeat_days_ordered($week_start_day) {
   $days = array_flip(array_keys(date_repeat_dow_day_options(FALSE)));
@@ -247,7 +260,6 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
 
     default:
       $description['!interval'] = format_plural($rrule['INTERVAL'], 'every day', 'every @count days') . ' ';
-      break;
   }
 
   if (!empty($rrule['BYDAY'])) {
@@ -265,7 +277,7 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
         array(
           '!repeats_every_interval ' => '',
           '!date_order' => $order,
-          '!day_of_week' => $days[$day]
+          '!day_of_week' => $days[$day],
         )));
       }
       else {
@@ -287,14 +299,14 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
         array(
           '!repeats_every_interval ' => '',
           '!month_days' => implode(', ', $rrule['BYMONTHDAY']),
-          '!month_names' => implode(', ', $results)
+          '!month_names' => implode(', ', $results),
         )));
       }
       else {
         $description['!bymonth'] = trim(t('!repeats_every_interval on !month_names',
         array(
           '!repeats_every_interval ' => '',
-          '!month_names' => implode(', ', $results)
+          '!month_names' => implode(', ', $results),
         )));
       }
     }
@@ -312,7 +324,7 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
     $description['!until'] = trim(t('!repeats_every_interval until !until_date',
     array(
       '!repeats_every_interval ' => '',
-      '!until_date' => date_format_date($until, 'custom', $format)
+      '!until_date' => date_format_date($until, 'custom', $format),
     )));
   }
   if ($exceptions) {
@@ -325,13 +337,15 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
     $description['!except'] = trim(t('!repeats_every_interval except !except_dates',
     array(
       '!repeats_every_interval ' => '',
-      '!except_dates' => implode(', ', $values)
+      '!except_dates' => implode(', ', $values),
     )));
   }
   if (!empty($rrule['WKST'])) {
     $day_names = date_repeat_dow_day_options();
-    $description['!week_starts_on'] = trim(t('!repeats_every_interval where the week start on !day_of_week',
-    array('!repeats_every_interval ' => '', '!day_of_week' => $day_names[trim($rrule['WKST'])])));
+    $description['!week_starts_on'] = trim(t('!repeats_every_interval where the week start on !day_of_week', array(
+      '!repeats_every_interval ' => '',
+      '!day_of_week' => $day_names[trim($rrule['WKST'])],
+    )));
   }
   if ($additions) {
     $values = array();

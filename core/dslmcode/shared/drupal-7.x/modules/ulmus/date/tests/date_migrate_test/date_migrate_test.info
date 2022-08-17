@@ -1,0 +1,21 @@
+name = Date Migration Test Helper
+description = "Helper for the Date module's Migrate API integration."
+package = Date/Time
+core = 7.x
+hidden = TRUE
+
+; Load the Date module's test feature so there are some default data structures
+; to work with.
+dependencies[] = date:date_test_feature
+
+; Load the Migrate API system.
+dependencies[] = migrate:migrate
+
+; Load the custom Migrate API class.
+files[] = date_migrate_test.migrate.inc
+
+; Information added by Drupal.org packaging script on 2022-08-04
+version = "7.x-2.13"
+core = "7.x"
+project = "date"
+datestamp = "1659633190"

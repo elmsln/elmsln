@@ -1,13 +1,17 @@
 name = Date All Day
 description = Adds 'All Day' functionality to date fields, including an 'All Day' theme and 'All Day' checkboxes for the Date select and Date popup widgets.
-dependencies[] = date_api
-dependencies[] = date
 package = Date/Time
 core = 7.x
 
-; Information added by Drupal.org packaging script on 2017-04-07
-version = "7.x-2.10"
+dependencies[] = date:date_api
+dependencies[] = date:date
+
+; Test coverage.
+files[] = tests/DateAllDayUiTestCase.test
+files[] = tests/DateAllDayUpdatesTest.test
+
+; Information added by Drupal.org packaging script on 2022-08-04
+version = "7.x-2.13"
 core = "7.x"
 project = "date"
-datestamp = "1491562090"
-
+datestamp = "1659633190"

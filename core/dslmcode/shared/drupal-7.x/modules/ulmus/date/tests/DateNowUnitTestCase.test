@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * @file
+ * Test Date Now unit tests.
+ */
+
+/**
+ * Test Date Now unit tests.
+ */
+class DateNowUnitTestCase extends DrupalUnitTestCase {
+
+  /**
+   * Test Date Now function.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Date Now'),
+      'description' => t('Test Date Now function.'),
+      'group' => 'date',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    drupal_load('module', 'date_api');
+    parent::setUp();
+  }
+
+  /**
+   * Test without passing a timezone.
+   */
+  public function testDateNowNoTimezone() {
+    $now = date_now();
+    $this->assertTrue(($now instanceof DateObject), 'Test date_now() returns a DateObject');
+  }
+
+  /**
+   * Test with a string timezone.
+   */
+  public function testDateNowStringTimezones() {
+    $la_time = date_now('America/Los_Angeles');
+    $ny_time = date_now('America/New_York');
+
+    $this->assertTrue(($la_time instanceof DateObject), 'Test America/Los_Angeles returns a DateObject');
+    $this->assertTrue(($ny_time instanceof DateObject), 'Test America/New_York returns a DateObject');
+
+    $this->assertEqual($la_time->getTimestamp(), $ny_time->getTimestamp(), 'Test different timezones have same Unix timestamp');
+  }
+
+  /**
+   * Test with object timezones.
+   */
+  public function testDateNowObjectTimezones() {
+    $la_tz = new DateTimeZone('America/Los_Angeles');
+    $ny_tz = new DateTimeZone('America/New_York');
+
+    $la_time = date_now($la_tz);
+    $ny_time = date_now($ny_tz);
+
+    $this->assertTrue(($la_time instanceof DateObject), 'Test America/Los_Angeles returns a DateObject');
+    $this->assertTrue(($ny_time instanceof DateObject), 'Test America/New_York returns a DateObject');
+
+    $this->assertEqual($la_time->getTimestamp(), $ny_time->getTimestamp(), 'Test different timezones have same Unix timestamp');
+  }
+
+}

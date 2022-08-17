@@ -1,0 +1,21 @@
+name = Date Repeat Test Feature
+description = Examples for testing the Date Repeat module.
+core = 7.x
+package = Date/Time
+hidden = TRUE
+dependencies[] = date:date
+dependencies[] = date:date_repeat
+dependencies[] = date:date_repeat_field
+dependencies[] = features:features
+features[features_api][] = api:2
+features[field_base][] = body
+features[field_base][] = field_date_repeat
+features[field_instance][] = node-date_repeat_test-body
+features[field_instance][] = node-date_repeat_test-field_date_repeat
+features[node][] = date_repeat_test
+
+; Information added by Drupal.org packaging script on 2022-08-04
+version = "7.x-2.13"
+core = "7.x"
+project = "date"
+datestamp = "1659633190"

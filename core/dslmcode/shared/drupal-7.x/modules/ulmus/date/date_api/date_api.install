@@ -128,8 +128,8 @@ function date_api_update_7000() {
   // 'date_format_type' table.
   if (db_table_exists('date_format_types')) {
     // Find all the custom entries in the D6 table.
-    $result = db_select('date_format_types', 'old')
-      ->fields('old', array('type', 'title', 'locked'))
+    $result = db_select('date_format_types', 'old_formats')
+      ->fields('old_formats', array('type', 'title', 'locked'))
       ->condition('locked', 0)
       ->execute()
       ->fetchAll(PDO::FETCH_ASSOC);
@@ -138,7 +138,7 @@ function date_api_update_7000() {
     foreach ($result as $row) {
       // See if this value already exists in the new table
       // (it might have been added manually before this update got run).
-      $count = db_select('date_format_type', 'new')
+      $count = db_select('date_format_type', 'new_formats')
         ->condition('type', $row['type'])
         ->countQuery()
         ->execute()
@@ -167,8 +167,8 @@ function date_api_update_7000() {
   // 'd6_date_formats') to the new 'date_formats' table.
   if (db_table_exists('d6_date_formats')) {
     // Find all the custom entries in the D6 table.
-    $result = db_select('d6_date_formats', 'old')
-      ->fields('old', array('format', 'type', 'locked'))
+    $result = db_select('d6_date_formats', 'old_formats')
+      ->fields('old_formats', array('format', 'type', 'locked'))
       ->condition('type', 'custom')
       ->execute()
       ->fetchAll(PDO::FETCH_ASSOC);
@@ -177,7 +177,7 @@ function date_api_update_7000() {
     foreach ($result as $row) {
       // See if this value already exists in the new table (it might have been
       // added manually before this update got run).
-      $count = db_select('date_formats', 'new')
+      $count = db_select('date_formats', 'new_formats')
         ->condition('format', $row['format'])
         ->condition('type', $row['type'])
         ->countQuery()
@@ -205,8 +205,8 @@ function date_api_update_7000() {
   // to 'd6_date_format_locale') to the new 'date_format_locale' table.
   if (db_table_exists('d6_date_format_locale')) {
     // Find all the custom entries in the D6 table.
-    $result = db_select('d6_date_format_locale', 'old')
-      ->fields('old', array('format', 'type', 'language'))
+    $result = db_select('d6_date_format_locale', 'old_formats')
+      ->fields('old_formats', array('format', 'type', 'language'))
       ->condition('type', 'custom')
       ->execute()
       ->fetchAll(PDO::FETCH_ASSOC);
@@ -215,7 +215,7 @@ function date_api_update_7000() {
     foreach ($result as $row) {
       // See if this value already exists in the new table (it might have been
       // added manually before this update got run).
-      $count = db_select('date_format_locale', 'new')
+      $count = db_select('date_format_locale', 'new_formats')
         ->condition('format', $row['format'])
         ->condition('type', $row['type'])
         ->condition('language', $row['language'])
@@ -241,7 +241,6 @@ function date_api_update_7000() {
     db_drop_table('d6_date_format_locale');
   }
 }
-
 
 /**
  * Drop D6 timezone_name field on {users} after upgrading to D7.

@@ -1,0 +1,105 @@
+<?php
+
+/**
+ * @file
+ * Test Date All Day functionality.
+ */
+
+/**
+ * Test Date All Day functionality.
+ */
+class DateAllDayUiTestCase extends DateFieldTestBase {
+
+  /**
+   * Date All Day.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Date All Day unit'),
+      'description' => t('Test Date All Day functions.'),
+      'group' => 'date',
+    );
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    $modules[] = 'date_all_day';
+    $modules[] = 'date_all_day_test_feature';
+    parent::setUp($modules);
+
+    // Provide a date format that includes the main values.
+    variable_set('date_format_long', 'D, m/d/Y - H:i');
+
+    // Turn off the option to let users change their timezone, so that all date
+    // values will have a fixed output.
+    variable_set('configurable_timezones', FALSE);
+  }
+
+  /**
+   * Test the node form, confirm the "Date all day" field exists & works.
+   */
+  public function testAllDayField() {
+    // A first node, with the "all day" option disabled.
+    $this->drupalGet('node/add/date-all-day-test');
+    $this->assertResponse(200);
+
+    // Confirm the 'date all day' field exists.
+    $this->assertFieldByName('field_date_all_day[und][0][all_day]');
+    $this->assertFieldByName('field_date_all_day[und][0][value][month]');
+    $this->assertFieldByName('field_date_all_day[und][0][value][day]');
+    $this->assertFieldByName('field_date_all_day[und][0][value][year]');
+    $this->assertFieldByName('field_date_all_day[und][0][value][hour]');
+    $this->assertFieldByName('field_date_all_day[und][0][value][minute]');
+
+    // Submit the node form.
+    $edit = array(
+      'title' => 'Testing the All Day option',
+      'field_date_all_day[und][0][all_day]' => FALSE,
+      'field_date_all_day[und][0][value][month]' => 2,
+      'field_date_all_day[und][0][value][day]' => 11,
+      'field_date_all_day[und][0][value][year]' => 2021,
+      'field_date_all_day[und][0][value][hour]' => 18,
+      'field_date_all_day[und][0][value][minute]' => 15,
+    );
+    $this->drupalPost(NULL, $edit, 'Save');
+    $this->assertResponse(200);
+
+    // Confirm the data is displayed correctly.
+    $this->assertText('Testing the All Day option');
+    $this->assertText('Date All Day');
+    $this->assertText('Thu, 02/11/2021 - 18:15');
+
+    // A second node, this time with the "all day" option enabled.
+    $this->drupalGet('node/add/date-all-day-test');
+    $this->assertResponse(200);
+
+    // Submit the node form.
+    $edit = array(
+      'title' => 'Testing the All Day option again',
+      'field_date_all_day[und][0][all_day]' => TRUE,
+      'field_date_all_day[und][0][value][month]' => 2,
+      'field_date_all_day[und][0][value][day]' => 11,
+      'field_date_all_day[und][0][value][year]' => 2021,
+      'field_date_all_day[und][0][value][hour]' => 18,
+      'field_date_all_day[und][0][value][minute]' => 15,
+    );
+    $this->drupalPost(NULL, $edit, 'Save');
+    $this->assertResponse(200);
+
+    // Confirm the data is displayed correctly.
+    $this->assertText('Testing the All Day option again');
+    $this->assertText('Date All Day');
+    $this->assertText('Thu, 02/11/2021 (All day)');
+
+    // Load the node and confirm the data is as expected.
+    $node = node_load(2);
+    $this->verbose($node);
+    $this->assertEqual($node->title, $edit['title']);
+    $this->assertTrue(isset($node->field_date_all_day[LANGUAGE_NONE][0]['value']));
+    $this->assertEqual($node->field_date_all_day[LANGUAGE_NONE][0]['value'], '2021-02-11 23:45:59');
+  }
+
+}

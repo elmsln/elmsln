@@ -1,0 +1,143 @@
+<?php
+
+/**
+ * @file
+ * Test Date (ISO) and the Entity Metadata Wrappers play well together.
+ */
+
+/**
+ * Test Date (ISO) and the Entity Metadata Wrappers play well together.
+ */
+class DateEmwTestCase extends DrupalWebTestCase {
+
+  /**
+   * Info about this test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Date Entity Metadata Wrappers',
+      'description' => 'Ensure default timezone setting in metadata wrapper integration is working as expected.',
+      'group' => 'date',
+      'dependencies' => array('entity'),
+    );
+  }
+
+  /**
+   * Set up a user and a content type with a Date (ISO) field.
+   */
+  public function setUp(array $modules = array()) {
+    // Define the dependencies.
+    $modules[] = 'date_api';
+    $modules[] = 'date';
+    $modules[] = 'field';
+    $modules[] = 'field_ui';
+    $modules[] = 'entity';
+    $modules[] = 'entity_token';
+    parent::setUp($modules);
+
+    // Select a specific default timezone, and turn off user-configurable
+    // timezone handling.
+    variable_set('date_default_timezone', 'Pacific/Honolulu');
+    variable_set('configurable_timezones', 0);
+
+    // Create a privileged user and log in with it.
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'administer site configuration',
+      'administer content types',
+      'administer nodes',
+      'bypass node access',
+      'administer fields',
+    ));
+    $this->drupalLogin($this->privileged_user);
+
+    // Create a content type to which we can add our date fields.
+    $edit = array();
+    $edit['name'] = 'Story';
+    $edit['type'] = 'story';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Story has been added.', 'Content type added.');
+
+    // Add each of our date field types.
+    $this->date_types = array(
+      'date' => 'Date (ISO format)',
+      'datetime' => 'Date',
+      'datestamp' => 'Date (Unix timestamp)',
+    );
+    foreach ($this->date_types as $type => $label) {
+      $field_name_for_human = 'test_' . $type;
+
+      // Add the field.
+      $field = array();
+      $field['fields[_add_new_field][label]'] = $label;
+      $field['fields[_add_new_field][field_name]'] = $field_name_for_human;
+      $field['fields[_add_new_field][type]'] = $type;
+      $field['fields[_add_new_field][widget_type]'] = 'date_text';
+      $this->drupalPost('admin/structure/types/manage/story/fields', $field, 'Save');
+      $this->assertText('These settings apply to the ' . $field['fields[_add_new_field][label]'] . ' field everywhere it is used.', $label . ' field added to content type.');
+
+      // Set the timezone handling to 'none'.
+      $field = array();
+      $field['field[settings][tz_handling]'] = 'none';
+      $this->drupalPost('admin/structure/types/manage/story/fields/field_' . $field_name_for_human, $field, 'Save settings');
+      $this->assertText('Saved ' . $label . ' configuration.');
+    }
+  }
+
+  /**
+   * Test the edge case where timezone_db is empty.
+   *
+   * In this case the value returned by entity metadata wrappers is not the same
+   * as that which is stored in the node.
+   *
+   * @see https://www.drupal.org/node/2123039
+   */
+  public function testCheckEntityMetadataWrapper() {
+    // Create and save a edit.
+    $edit = array();
+    $edit['title'] = 'Testing dates';
+    $edit['type'] = 'story';
+    $this->drupalCreateNode($edit);
+    // Fetch the Node.
+    $node = $this->drupalGetNodeByTitle($edit['title']);
+    // Prepare variables for token replacement.
+    $variables['node'] = $node;
+    // At this point we have a node with the appropriate field types available.
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $original = '1482721671';
+    foreach ($this->date_types as $type => $label) {
+      $field = 'field_test_' . $type;
+      $wrapper->{$field} = $original;
+      $from_metadata_wrapper = $wrapper->{$field}->value();
+
+      $this->assertEqual(
+        $original,
+        $from_metadata_wrapper,
+        t(
+          '!type plays nicely with Entity Metadata Wrappers. !original == !fetched',
+          array(
+            '!type' => $label,
+            '!original' => $original,
+            '!fetched' => $from_metadata_wrapper,
+          )
+        )
+      );
+
+      $token = "[node:field-test-${type}:raw]";
+      $from_token = token_replace($token, $variables);
+
+      $this->assertEqual(
+        $original,
+        $from_token,
+        t(
+          '!type plays nicely with Entity tokens. !original == !fetched',
+          array(
+            '!type' => $label,
+            '!original' => $original,
+            '!fetched' => $from_token,
+          )
+        )
+      );
+    }
+  }
+
+}

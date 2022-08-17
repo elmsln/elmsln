@@ -36,6 +36,10 @@ jquery.timepicker-1.1.2.js and jquery.timepicker-1.1.2.css. Rename them to
 jquery.timepicker.js and jquery.timepicker.css and copy them into
 'sites/all/libraries/wvega-timepicker'.
 
+The date_popup_timepicker module is also supported:
+* https://www.drupal.org/project/date_popup_timepicker
+
+
 ================================================================================
 Usage
 ================================================================================

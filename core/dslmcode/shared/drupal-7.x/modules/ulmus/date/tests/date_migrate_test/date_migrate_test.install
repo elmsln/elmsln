@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Date Migrate Test module.
+ */
+
+/**
+ * Implements hook_disable().
+ */
+function date_migrate_test_disable() {
+  Migration::deregisterMigration('DateExample');
+}

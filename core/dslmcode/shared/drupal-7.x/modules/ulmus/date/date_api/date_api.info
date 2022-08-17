@@ -2,16 +2,16 @@ name = Date API
 description = A Date API that can be used by other modules.
 package = Date/Time
 core = 7.x
-php = 5.2
-
-stylesheets[all][] = date.css
 
 files[] = date_api.module
 files[] = date_api_sql.inc
 
-; Information added by Drupal.org packaging script on 2017-04-07
-version = "7.x-2.10"
+; Test coverage.
+files[] = tests/DateApiTestCase.test
+files[] = tests/DateApiUnitTestCase.test
+
+; Information added by Drupal.org packaging script on 2022-08-04
+version = "7.x-2.13"
 core = "7.x"
 project = "date"
-datestamp = "1491562090"
-
+datestamp = "1659633190"

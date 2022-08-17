@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * @file
+ * Test the handling of the Date Repeat Field module.
+ */
+
+/**
+ * Test the handling of the Date Repeat Field module.
+ */
+class DateRepeatFieldTestCase extends DateFieldTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    $modules[] = 'date_repeat_test_feature';
+    parent::setUp($modules);
+  }
+
+  /**
+   * Date Field.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Date Repeat Field',
+      'description' => 'Test handling of repeating date fields.',
+      'group' => 'date',
+    );
+  }
+
+  /**
+   * Test the rrule output.
+   */
+  public function testRruleOutput() {
+    // Create a node with a repeating date value.
+    $this->drupalGet('node/add/date-repeat-test');
+    $this->assertResponse(200);
+    $edit = array(
+      'title' => $this->randomName(8),
+      'body[und][0][value]' => $this->randomName(16),
+      // "From" date - 2021-01-14 @ 7:16pm.
+      'field_date_repeat[und][0][value][year]' => 2021,
+      'field_date_repeat[und][0][value][month]' => 1,
+      'field_date_repeat[und][0][value][day]' => 14,
+      'field_date_repeat[und][0][value][hour]' => 19,
+      'field_date_repeat[und][0][value][minute]' => 16,
+      // The repeat rules. For this test repeat the event every day.
+      'field_date_repeat[und][0][show_repeat_settings]' => TRUE,
+      'field_date_repeat[und][0][rrule][FREQ]' => 'DAILY',
+      'field_date_repeat[und][0][rrule][daily][byday_radios]' => 'INTERVAL',
+      'field_date_repeat[und][0][rrule][daily][INTERVAL_child]' => 1,
+      'field_date_repeat[und][0][rrule][range_of_repeat]' => 'COUNT',
+      'field_date_repeat[und][0][rrule][count_child]' => 10,
+    );
+    $this->drupalPost(NULL, $edit, 'Save');
+    $this->assertResponse(200);
+    $this->assertText('Date Repeat Test ' . $edit['title'] . ' has been created.');
+
+    // Verify the default output.
+    $this->assertText('Repeats every day 10 times.');
+    $this->assertText('Thu, 01/14/2021 - 19:16');
+    $this->assertText('Fri, 01/15/2021 - 19:16');
+    $this->assertText('Sat, 01/16/2021 - 19:16');
+    $this->assertText('Sun, 01/17/2021 - 19:16');
+    $this->assertText('Mon, 01/18/2021 - 19:16');
+    $this->assertText('Tue, 01/19/2021 - 19:16');
+    $this->assertText('Wed, 01/20/2021 - 19:16');
+    $this->assertText('Thu, 01/21/2021 - 19:16');
+    $this->assertText('Fri, 01/22/2021 - 19:16');
+    $this->assertText('Sat, 01/23/2021 - 19:16');
+
+    // Make sure there isn't an 11th occurrence.
+    $this->assertNoText('Sun, 01/24/2021 - 19:16');
+
+    // Examine the stored data.
+    $node = node_load(1);
+    $this->verbose($node);
+    $this->assertTrue(count($node->field_date_repeat[LANGUAGE_NONE]), 10);
+  }
+
+}

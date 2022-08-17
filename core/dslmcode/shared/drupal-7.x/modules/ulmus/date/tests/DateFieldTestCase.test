@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Test the handling of the two included field widgets.
+ */
+
+/**
+ * Test the handling of the two included field widgets.
+ */
+class DateFieldTestCase extends DateFieldTestBase {
+
+  /**
+   * Test relative default values.
+   */
+  public function testRelativeDefault() {
+    $edit = array();
+    $edit['name'] = 'Date Relative Default Test';
+    $edit['type'] = 'date_relative_default_test';
+    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->assertText('The content type Date Relative Default Test has been added.', 'Content type added.');
+
+    $options = array(
+      'bundle' => 'date_relative_default_test',
+      'default_value' => 'strtotime',
+      'default_value_code' => '+1',
+    );
+    $this->createDateField($options);
+
+    $edit = array();
+    $edit['title'] = self::randomName(8);
+    $this->drupalPost('node/add/date-relative-default-test', $edit, t('Save'));
+
+  }
+
+  /**
+   * Date Field.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Date Field',
+      'description' => 'Test date field settings and Start/End date interaction.',
+      'group' => 'date',
+    );
+  }
+
+  /**
+   * Check all of the included field types for basic functionality.
+   */
+  public function testField() {
+    // Create a date fields with simple values.
+    foreach (array('date', 'datestamp', 'datetime') as $field_type) {
+      foreach (array('date_select', 'date_text') as $widget_type) {
+        $this->checkDateField($field_type, $widget_type, TRUE);
+      }
+    }
+  }
+
+}

@@ -20,8 +20,8 @@ function date_get_entity_bundle($entity_type, $entity) {
 
     default:
       $bundle = field_extract_bundle($entity_type, $entity);
-      break;
   }
+
   // If there is no bundle name, field_info() uses the entity name as the bundle
   // name in its arrays.
   if (empty($bundle)) {
@@ -157,7 +157,7 @@ function date_theme() {
 /**
  * Implements hook_element_info().
  *
- * date_combo will create a 'start' and optional 'end' date, along with
+ * Date_combo will create a 'start' and optional 'end' date, along with
  * an optional 'timezone' column for date-specific timezones. Each
  * 'start' and 'end' date will be constructed from date_select or date_text.
  */
@@ -170,6 +170,11 @@ function date_element_info() {
     '#process' => array('date_combo_element_process'),
     '#element_validate' => array('date_combo_validate'),
     '#theme_wrappers' => array('date_combo'),
+    '#attached' => array(
+      'css' => array(
+        drupal_get_path('module', 'date_api') . '/date.css',
+      ),
+    ),
   );
   if (module_exists('ctools')) {
     $type['date_combo']['#pre_render'] = array('ctools_dependent_pre_render');
@@ -185,7 +190,7 @@ function date_element_info() {
  * @param string $formatter
  *   The date formatter.
  * @param string $entity_type
- *   The entity_type for the instance
+ *   The entity_type for the instance.
  * @param object $entity
  *   The entity object.
  * @param array $field
@@ -215,7 +220,7 @@ function date_element_info() {
  *       )
  *     )
  */
-function date_formatter_process($formatter, $entity_type, $entity, $field, $instance, $langcode, $item, $display) {
+function date_formatter_process($formatter, $entity_type, $entity, array $field, array $instance, $langcode, array $item, array $display) {
   $dates = array();
   $timezone = date_default_timezone();
   if (empty($timezone)) {
@@ -302,6 +307,8 @@ function date_formatter_process($formatter, $entity_type, $entity, $field, $inst
     'item' => $item,
     'display' => $display,
   );
+
+  // Trigger hook_date_formatter_dates_alter().
   drupal_alter('date_formatter_dates', $dates, $context);
 
   $dates['format'] = $format;
@@ -338,12 +345,12 @@ function _get_custom_date_format($date, $format) {
  * $field['settings']['granularity'] will contain an array like
  * ('hour' => 'hour', 'month' => 0) where the values turned on return their own
  * names and the values turned off return a zero need to reconfigure this into
- * simple array of the turned on values
+ * simple array of the turned on values.
  *
  * @param array $field
  *   The field array.
  */
-function date_granularity($field) {
+function date_granularity(array $field) {
   if (!is_array($field) || !is_array($field['settings']['granularity'])) {
     $granularity = drupal_map_assoc(array('year', 'month', 'day'));
     $field['settings']['granularity'] = $granularity;
@@ -352,9 +359,15 @@ function date_granularity($field) {
 }
 
 /**
- * Helper function to create an array of the date values in a field that need to be processed.
+ * Create an array of the date values in a field that need to be processed.
+ *
+ * @param array $field
+ *   The field being processed.
+ *
+ * @return array
+ *   The date values which need to be processed.
  */
-function date_process_values($field) {
+function date_process_values(array $field) {
   return $field['settings']['todate'] ? array('value', 'value2') : array('value');
 }
 
@@ -449,7 +462,6 @@ function date_formatter_format($formatter, $settings, $granularity = array(), $l
       else {
         $format = date_format_type_format($format_type, $langcode);
       }
-      break;
   }
 
   // A selected format might include timezone information.
@@ -471,7 +483,7 @@ function date_format_type_format($format_type, $langcode = NULL) {
     // we receive (due to inconsistency of core api) an array of all (other)
     // formats available for $langcode in locale table.
     // However there's no guarantee that the key $format_type exists.
-    // See http://drupal.org/node/1302358.
+    // @see http://drupal.org/node/1302358
     if (!is_string($format)) {
       // If the configuration page at admin/config/regional/date-time was
       // never saved, the default core date format variables
@@ -492,20 +504,18 @@ function date_format_type_format($format_type, $langcode = NULL) {
         // 'medium' type.
         case 'medium':
         default:
-          // @todo: If a non-core module provides a date type and does not
-          // variable_set() a default for it, the default assumed here may
-          // not be correct (since the default format used by 'medium' may
-          // not even be one of the allowed formats for the date type in
-          // question). To fix this properly, we should really call
-          // system_get_date_formats($format_type) and take the first
-          // format from that list as the default. However, this function
-          // is called often (on many different page requests), so calling
+          // @todo If a non-core module provides a date type and does not
+          // variable_set() a default for it, the default assumed here may not
+          // be correct (since the default format used by 'medium' may not even
+          // be one of the allowed formats for the date type in question). To
+          // fix this properly, we should really call
+          // system_get_date_formats($format_type) and take the first format
+          // from that list as the default. However, this function is called
+          // often (on many different page requests), so calling
           // system_get_date_formats() from here would be a performance hit
-          // since that function writes several records to the database
-          // during each page request that calls it.
+          // since that function writes several records to the database during
+          // each page request that calls it.
           $default = 'D, m/d/Y - H:i';
-          break;
-
       }
       $format = variable_get('date_format_' . $format_type, $default);
     }
@@ -651,12 +661,27 @@ function date_entity_metadata_field_getter($entity, array $options, $name, $enti
  * Getter callback to return date values as datestamp in UTC.
  */
 function date_entity_metadata_struct_getter($item, array $options, $name, $type, $info) {
+  // Return early if we don't have a value to work with.
+  if (!isset($item[$name])) {
+    return NULL;
+  }
   $value = trim($item[$name]);
   if (empty($value)) {
     return NULL;
   }
 
-  $timezone_db = !empty($item['timezone_db']) ? $item['timezone_db'] : 'UTC';
+  // Determine timezone data from the field if available.
+  if (isset($info['field']['settings']['tz_handling'])) {
+    $timezone_db = date_get_timezone_db($info['field']['settings']['tz_handling']);
+  }
+  elseif (!empty($item['timezone_db'])) {
+    $timezone_db = $item['timezone_db'];
+  }
+  // Fall back to UTC if we couldn't determine timezone data.
+  else {
+    $timezone_db = 'UTC';
+  }
+
   $date = new DateObject($value, $timezone_db);
   return !empty($date) ? date_format_date($date, 'custom', 'U') : NULL;
 }
@@ -682,7 +707,7 @@ function date_entity_metadata_field_setter(&$entity, $name, $value, $langcode, $
   $field = field_info_field($name);
   if (!isset($langcode)) {
     // Try to figure out the default language used by the entity.
-    // @todo: Update once http://drupal.org/node/1260640 has been fixed.
+    // @todo Update once http://drupal.org/node/1260640 has been fixed.
     $langcode = isset($entity->language) ? $entity->language : LANGUAGE_NONE;
   }
   $values = $field['cardinality'] == 1 ? array($value) : (array) $value;
@@ -714,7 +739,8 @@ function date_entity_metadata_struct_create($name, $property_info) {
  *
  * Based on entity_property_verbatim_set().
  *
- * The passed in unix timestamp (UTC) is converted to the right value and format dependent on the field.
+ * The passed in unix timestamp (UTC) is converted to the right value and format
+ * dependent on the field.
  *
  * $name is either 'value' or 'value2'.
  */
@@ -736,25 +762,37 @@ function date_entity_metadata_struct_setter(&$item, $name, $value, $langcode, $t
 }
 
 /**
- * Duplicate functionality of what is now date_all_day_field() in the Date All Day module.
+ * Duplicate of what is now date_all_day_field() in the Date All Day module.
  *
- * Copy left here to avoid breaking other modules that use this function.
+ * Left here to avoid breaking other modules that use this function.
  *
- * DEPRECATED!, will be removed at some time in the future.
+ * DEPRECATED! Will be removed at some time in the future.
  */
 function date_field_all_day($field, $instance, $date1, $date2 = NULL) {
   if (empty($date1) || !is_object($date1)) {
     return FALSE;
   }
   elseif (!date_has_time($field['settings']['granularity'])) {
-    return TRUE;
+    return FALSE;
   }
+  // The master setting for the 'all day' functionality.
+  elseif (empty($instance['settings']['widget']['settings']['display_all_day'])) {
+    return FALSE;
+  }
+
   if (empty($date2)) {
     $date2 = $date1;
   }
 
+  // Use central logic for determining the granularity.
   $granularity = date_granularity_precision($field['settings']['granularity']);
-  $increment = isset($instance['widget']['settings']['increment']) ? $instance['widget']['settings']['increment'] : 1;
+
+  // The increment is 1 by default, but it can be overridden.
+  $increment = 1;
+  if (isset($instance['widget']['settings']['increment'])) {
+    $increment = $instance['widget']['settings']['increment'];
+  }
+
   return date_is_all_day(date_format($date1, DATE_FORMAT_DATETIME), date_format($date2, DATE_FORMAT_DATETIME), $granularity, $increment);
 }
 
@@ -769,9 +807,9 @@ function date_field_all_day($field, $instance, $date1, $date2 = NULL) {
  * @param string $compare_tz
  *   The timezone used for comparison values in the SQL.
  *
- * DEPRECATED!, will be removed at some time in the future.
+ * @deprecated Will be removed at some time in the future.
  */
-function date_field_get_sql_handler($field, $compare_tz = NULL) {
+function date_field_get_sql_handler(array $field, $compare_tz = NULL) {
   module_load_include('inc', 'date_api', 'date_api_sql');
 
   $db_info = date_api_database_info($field);
@@ -802,11 +840,11 @@ function date_field_get_sql_handler($field, $compare_tz = NULL) {
 
 /**
  * Implements hook_field_widget_properties_alter().
- *
- * Alters the widget properties of a field instance before it gets displayed.
- * Used here to flag new entities so we can later tell if they need default values.
  */
-function date_field_widget_properties_alter(&$widget, $context) {
+function date_field_widget_properties_alter(array &$widget, $context) {
+  // Alters the widget properties of a field instance before it gets displayed.
+  // Used here to flag new entities so we can later tell if they need default
+  // values.
   if (in_array($widget['type'], array('date_select', 'date_text', 'date_popup'))) {
     $entity_type = $context['entity_type'];
     $entity = $context['entity'];
@@ -817,4 +855,15 @@ function date_field_widget_properties_alter(&$widget, $context) {
       $widget['is_new'] = TRUE;
     }
   }
+}
+
+/**
+ * Implements hook_migrate_api().
+ */
+function date_migrate_api() {
+  $api = array(
+    'api' => 2,
+    'field handlers' => array('DateMigrateFieldHandler'),
+  );
+  return $api;
 }

@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Defines date-related Views data and plugins:
+ * Defines date-related Views data and plugins:.
  *
  * Date argument:
  *   A generic date argument that has an option to select one or more
@@ -126,7 +127,6 @@ function date_views_views_data() {
  * Implements hook_views_data_alter().
  */
 function date_views_views_data_alter(&$data) {
-
   // Mark all the core date handlers as date fields.
   // This will identify all handlers that directly use the _date handlers,
   // will not pick up any that extend those handlers.
@@ -146,12 +146,12 @@ function date_views_views_data_alter(&$data) {
  *
  * In the SQL date handler.
  *
- * The date handler will use this information to decide if the
- * database value needs a timezone conversion.
+ * The date handler will use this information to decide if the database value
+ * needs a timezone conversion.
  *
- * In Views, we will always be comparing to a local date value,
- * so the goal is to convert the database value to the right
- * value to compare to the local value.
+ * In Views, we will always be comparing to a local date value, so the goal is
+ * to convert the database value to the right value to compare to the local
+ * value.
  */
 function date_views_set_timezone(&$date_handler, &$view, $field) {
   switch ($field['tz_handling']) {
@@ -174,7 +174,6 @@ function date_views_set_timezone(&$date_handler, &$view, $field) {
     default:
       $date_handler->db_timezone = 'UTC';
       $date_handler->local_timezone = date_default_timezone();
-      break;
   }
 }
 
@@ -183,33 +182,37 @@ function date_views_set_timezone(&$date_handler, &$view, $field) {
  *
  * @param object $view
  *   A View object.
- *
  * @param array $extra_params
  *   An extra parameters.
  *
- * @return null/string
+ * @return null|string
  *   Return a query or NULL.
  */
-function date_views_querystring($view, $extra_params = array()) {
+function date_views_querystring($view, array $extra_params = array()) {
   $query_params = array_merge($_GET, $extra_params);
+
   // Allow NULL params to be removed from the query string.
   foreach ($extra_params as $key => $value) {
     if (!isset($value)) {
       unset($query_params[$key]);
     }
   }
+
   // Filter the special "q" and "view" variables out of the query string.
   $exclude = array('q');
+
   // If we don't explicitly add a value for "view", filter it out.
   if (empty($extra_params['view'])) {
     $exclude[] = 'view';
   }
+
   // Clear out old date pager settings if not explicitly added.
   if (!empty($view->date_info->pager_id) && empty($extra_params[$view->date_info->pager_id])) {
     $exclude[] = $view->date_info->pager_id;
   }
 
   $query = drupal_get_query_parameters($query_params, $exclude);
+
   // To prevent an empty query string from adding a "?" on to the end of a URL,
   // we return NULL.
   return !empty($query) ? $query : NULL;
