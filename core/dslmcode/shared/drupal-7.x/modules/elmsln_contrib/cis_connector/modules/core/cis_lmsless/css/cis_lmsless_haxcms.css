@@ -1260,7 +1260,7 @@ simple-modal::part(titlebar) {
 
   @media screen and (max-width: 900px) {
       .haxcms-theme-element::part(site-body) {
-          position: relative;
+        height: 100vh;
       }
   }
 
