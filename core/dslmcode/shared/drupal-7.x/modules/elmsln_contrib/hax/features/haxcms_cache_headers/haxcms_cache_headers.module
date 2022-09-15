@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Code for the HAXcms cache headers feature.
+ */
+
+include_once 'haxcms_cache_headers.features.inc';

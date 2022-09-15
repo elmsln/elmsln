@@ -1,0 +1,10 @@
+name = HAXcms cache headers
+description = Helps optimize in page navigation so that subsequent requests load off disk. This overrides server / site defaults
+core = 7.x
+package = Webcomponents
+dependencies[] = ctools
+dependencies[] = haxcms
+dependencies[] = http_response_headers
+features[ctools][] = http_response_headers:http_response_headers_default_rule:1
+features[features_api][] = api:2
+features[http_response_headers][] = haxapi_cache
