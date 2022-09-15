@@ -19,7 +19,9 @@ function elmsln_core_drush_command() {
   $items['elmsln-rebuild-service-password'] = array(
     'description' => dt('Ensures the password is correct for service accounts based on salt / hash value changes.'),
     'aliases' => array('elmsln-service-pwd'),
-    'options' => array(),
+    'options' => array(
+      'show-password' => 'Output password into console for developers when running rebuild.',
+    ),
     'examples' => array(
       'drush elmsln-service-pwd' =>
         'Updates the service account password',
@@ -72,6 +74,7 @@ function drush_elmsln_core_elmsln_change_salt() {
 function drush_elmsln_core_elmsln_rebuild_service_password() {
   require_once DRUPAL_ROOT . '/includes/password.inc';
   // tee up profile to look up the registry about this tool
+  $showPassword = drush_get_option('show-password', FALSE);
   $tool = elmsln_core_get_profile_key();
   $registry = _cis_connector_build_registry($tool);
   // load the account
@@ -80,6 +83,9 @@ function drush_elmsln_core_elmsln_rebuild_service_password() {
   if (!$usr) {
     // ensure that user and pass are set
     if (isset($registry['user']) && isset($registry['pass'])) {
+      if ($showPassword) {
+        drush_print('Service account Basic Auth: ' . $registry['user'] . ':' . $registry['pass']);
+      }
       // make sure this account doesn't already exist to avoid an error
       if (!user_load_by_name($registry['user'])) {
         // we know we need to make an account, look for mail address
