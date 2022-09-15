@@ -1,0 +1,21 @@
+name = "Cache Expiration"
+description = "Logic for expiring page caches"
+recommends[] = nodereferrer
+package = "Performance and scalability"
+core = 7.x
+
+files[] = expire.module
+files[] = expire.admin.inc
+files[] = expire.domain.inc
+files[] = expire.drush.inc
+files[] = expire.node_reference.inc
+files[] = expire.rules.inc
+files[] = expire.votingapi.inc
+configure = admin/config/development/performance/expire
+
+; Information added by drupal.org packaging script on 2013-03-02
+version = "7.x-1.0-beta1"
+core = "7.x"
+project = "expire"
+datestamp = "1362245712"
+

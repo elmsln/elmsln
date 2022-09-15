@@ -1,0 +1,208 @@
+<?php
+
+/**
+ * @file
+ * Tests for http_response_headers.module.
+ */
+
+class HttpResponseHeadersTestCase extends DrupalWebTestCase {
+  protected $adminUser;
+
+  /**
+   * Test case meta information.
+   *
+   * @return array
+   *   An array of test case details.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Http Response Headers functionality test',
+      'description' => 'Add, edit and delete HTTP header rule.',
+      'group' => 'HTTP response headers',
+    );
+  }
+
+  /**
+   * Sets up test environment.
+   */
+  protected function setUp() {
+    parent::setUp('http_response_headers');
+
+    // Create and log in an administrative user.
+    $this->adminUser = $this->drupalCreateUser(array(
+      'administer http response headers',
+      'access administration pages',
+    ));
+    $this->drupalLogin($this->adminUser);
+
+    // Set up default header list on configuration page.
+    $this->setupDefaultConfiguration();
+  }
+
+
+  /**
+   * Test header rule visibility.
+   */
+  public function testHeaderRuleVisibility() {
+    // Create a random name for the header rule.
+    $name = $this->randomName(8);
+    $visibility_options = array();
+    $visibility_options['pages'] = 'user*';
+    $visibility_options['visibility'] = HTTP_RESPONSE_HEADERS_VISIBILITY_NOTLISTED;
+    $visibility_options['roles'] = DRUPAL_AUTHENTICATED_RID;
+    $header = 'Cache-Control';
+    $header_value = 'max-age=3600';
+    $this->createHeaderRule(strtolower($name), $name, $header, $header_value, $visibility_options);
+
+    $this->drupalGet('');
+    $headers = $this->drupalGetHeaders();
+    $this->assertEqual($headers[strtolower($header)], $header_value, 'Header rule was applied on the front page.');
+
+    $this->drupalGet('user');
+    $headers = $this->drupalGetHeaders();
+    $this->assertNotEqual($headers[strtolower($header)], $header_value, 'Header rule was not applied according to block visibility rules.');
+
+    $this->drupalGet('USER/' . $this->adminUser->uid);
+    $headers = $this->drupalGetHeaders();
+    $this->assertNotEqual($headers[strtolower($header)], $header_value, 'Header rule was not applied according to header rule visibility rules regardless of path case.');
+
+    // Confirm that the rule is not applied to anonymous users.
+    $this->drupalLogout();
+    $this->drupalGet('');
+    $headers = $this->drupalGetHeaders();
+    $this->assertNotEqual($headers[strtolower($header)], $header_value, 'Header rule was not applied to anonymous users.');
+  }
+
+  /**
+   * Test header rule with empty "pages".
+   */
+  public function testHeaderRuleVisibilityListedEmpty() {
+    // Create a random name for the header rule.
+    $name = $this->randomName(8);
+    $visibility_options = array();
+    $visibility_options['visibility'] = BLOCK_VISIBILITY_LISTED;
+    $header = 'Cache-Control';
+    $header_value = 'max-age=3600';
+    $this->createHeaderRule(strtolower($name), $name, $header, $header_value, $visibility_options);
+
+    $this->drupalGet('');
+    $headers = $this->drupalGetHeaders();
+    $this->assertNotEqual($headers[strtolower($header)], $header_value, 'Header rule was not applied according to visibility rules.');
+
+    $this->drupalGet('user');
+    $headers = $this->drupalGetHeaders();
+    $this->assertNotEqual($headers[strtolower($header)], $header_value, 'Header rule was not applied according to visibility rules regardless of path case.');
+
+    // Confirm that the header rule is not applied to anonymous users.
+    $this->drupalLogout();
+    $this->drupalGet('');
+    $headers = $this->drupalGetHeaders();
+    $this->assertNotEqual($headers[strtolower($header)], $header_value, 'Header rule was not applied to anonymous user.');
+  }
+
+  /**
+   * Test header rule helpers that changes the user input.
+   */
+  public function testHeaderRuleHelpers() {
+    // Create a header rule with 'Expires' header.
+    $name = $this->randomName(8);
+    $visibility_options = array(
+      'pages' => 'user*',
+      'visibility' => HTTP_RESPONSE_HEADERS_VISIBILITY_LISTED,
+    );
+    $header = 'Expires';
+    $header_value = '3600';
+    $this->createHeaderRule(strtolower($name), $name, $header, $header_value, $visibility_options);
+
+    // Get user page to check Expires has
+    // 'Mon, 14 Oct 2013 15:42:25 +0000' format value, instead of 3600.
+    $this->drupalGet('user');
+    $expected_value = http_response_headers_expires_callback($header_value);
+    $headers = $this->drupalGetHeaders();
+    $this->assertEqual($headers[strtolower($header)], $expected_value, 'Expires header was applied to user pages.');
+
+    // Create a header rule with 'Last-Modified' header.
+    $name = $this->randomName(8);
+    $visibility_options = array(
+      'pages' => 'user*',
+      'visibility' => HTTP_RESPONSE_HEADERS_VISIBILITY_LISTED,
+    );
+    $header = 'Last-Modified';
+    $header_value = '3600';
+    $this->createHeaderRule(strtolower($name), $name, $header, $header_value, $visibility_options);
+
+    // Get user page to check Last-Modified has
+    // 'Mon, 14 Oct 2013 15:42:25 +0000' format value, instead of 3600.
+    $this->drupalGet('user');
+    $expected_value = http_response_headers_last_modified_callback($header_value);
+    $headers = $this->drupalGetHeaders();
+    $this->assertEqual($headers[strtolower($header)], $expected_value, 'Last-Modified header was applied to user pages.');
+
+  }
+
+  /**
+   * Setup default configuration for HTTP response headers.
+   */
+  protected function setupDefaultConfiguration() {
+    variable_set('http_response_headers_allowed_headers', array(
+      'Cache-Control' => 'Cache-Control',
+      'Expires' => 'Expires',
+      'X-Frame-Options' => 'X-Frame-Options',
+      'Last-Modified' => 'Last-Modified',
+    ));
+    // Make sure admin pages are excluded globally.
+    variable_set('http_response_headers_exclude_pages', 'admin*');
+  }
+
+  /**
+   * Helper to create new header rule.
+   *
+   * @param string $machine_name
+   *   A string rule ID.
+   * @param string $name
+   *   A string name.
+   * @param string  $header
+   *   A string header.
+   * @param mixed $header_value
+   *   Header value
+   * @param array $visibility_options
+   *   An array of visibility options.
+   *
+   * @return string
+   *   A string rule ID created.
+   */
+  protected function createHeaderRule($machine_name, $name, $header, $header_value, $visibility_options = array()) {
+    $header_rule = new HttpResponseHeadersRule();
+    $header_rule->description = $name;
+    $header_rule->machine_name = $machine_name;
+    $header_rule->header = $header;
+    $header_rule->header_value = $header_value;
+    $header_rule->visibility = isset($visibility_options['visibility']) ? $visibility_options['visibility'] : HTTP_RESPONSE_HEADERS_VISIBILITY_NOTLISTED;
+
+    if (isset($visibility_options['pages'])) {
+      $header_rule->pages = $visibility_options['pages'];
+    }
+
+    if (isset($visibility_options['types'])) {
+      $header_rule->types = $visibility_options['types'];
+    }
+
+    if (isset($visibility_options['roles'])) {
+      $header_rule->roles = $visibility_options['roles'];
+    }
+
+    http_response_headers_rule_save($header_rule);
+    return $machine_name;
+  }
+
+  /**
+   * Deletes a rule with given rule ID.
+   *
+   * @param string $machine_name
+   *   A string rule ID.
+   */
+  protected function deleteHeaderRule($machine_name) {
+    http_response_headers_rule_delete($machine_name);
+  }
+
+}

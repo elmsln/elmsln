@@ -1,0 +1,12 @@
+name = HTTP Response Headers UI
+description = Allows to customize HTTP response headers through UI.
+core = 7.x
+dependencies[] = http_response_headers
+files[] = http_response_headers_ui.test
+configure = admin/config/system/http-response-headers/settings
+
+; Information added by Drupal.org packaging script on 2021-02-03
+version = "7.x-1.2"
+core = "7.x"
+project = "http_response_headers"
+datestamp = "1612382480"

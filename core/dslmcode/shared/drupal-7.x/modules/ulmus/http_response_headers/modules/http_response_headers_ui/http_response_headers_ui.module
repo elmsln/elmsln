@@ -1,0 +1,177 @@
+<?php
+
+/**
+ * @file
+ * Contains definitions.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function http_response_headers_ui_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'export_ui') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Menu callback for header rule configuration.
+ */
+function http_response_headers_ui_form(&$form, &$form_state) {
+  $rule = $form_state['item'];
+  $machine_name = $rule->getMachineName();
+  $form['description'] = array(
+    '#title' => t('Description'),
+    '#type' => 'textfield',
+    '#default_value' => $rule->description,
+    '#description' => t('The human-readable name of this rule. It is recommended that this name begin with a capital letter and contain only letters, numbers, and spaces. This name must be unique.'),
+    '#disabled' => isset($machine_name) ? TRUE : FALSE,
+    '#required' => TRUE,
+    '#size' => 30,
+  );
+  $form['machine_name'] = array(
+    '#type' => 'machine_name',
+    '#default_value' => $machine_name,
+    '#maxlength' => 32,
+    '#disabled' => isset($machine_name) ? TRUE : FALSE,
+    '#machine_name' => array(
+      'exists' => 'http_response_headers_ui_rule_exists',
+      'source' => array('description'),
+      'label' => t('Machine name'),
+      'replace_pattern' => '[^a-z0-9_]+',
+      'replace' => '_',
+    ),
+    '#description' => t('A unique machine-readable name for this rule. It must only contain lowercase letters, numbers, and underscores.'),
+  );
+  $form['settings']['header'] = array(
+    '#type' => 'select',
+    '#title' => t('HTTP header'),
+    '#description' => '',
+    '#default_value' => $rule->getHeader(),
+    '#options' => variable_get('http_response_headers_allowed_headers', array()),
+    '#empty_option' => t('Select a header'),
+    '#required' => TRUE,
+  );
+  $form['settings']['header_value'] = array(
+    '#type' => 'textfield',
+    '#title' => t('HTTP header value'),
+    '#description' => '',
+    '#default_value' => $rule->getHeaderValue(),
+    '#required' => TRUE,
+  );
+
+  // Visibility settings.
+  $form['visibility_title'] = array(
+    '#type' => 'item',
+    '#title' => t('Visibility settings'),
+  );
+  $form['visibility'] = array(
+    '#type' => 'vertical_tabs',
+    '#attached' => array(
+      'js' => array(drupal_get_path('module', 'http_response_headers_ui') . '/http_response_headers_ui.js'),
+    ),
+  );
+
+  // Per-path visibility.
+  $form['visibility']['path'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Pages'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'visibility',
+    '#weight' => 0,
+  );
+
+  $options = array(
+    HTTP_RESPONSE_HEADERS_VISIBILITY_NOTLISTED => t('All pages except those listed'),
+    HTTP_RESPONSE_HEADERS_VISIBILITY_LISTED => t('Only the listed pages'),
+  );
+  $description = t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
+    '%blog' => 'blog',
+    '%blog-wildcard' => 'blog/*',
+    '%front' => '<front>',
+  ));
+
+  $form['visibility']['path']['visibility'] = array(
+    '#type' => 'radios',
+    '#title' => t('Set header on specific pages'),
+    '#options' => $options,
+    '#default_value' => $rule->getVisibility(),
+  );
+
+  $form['visibility']['path']['pages'] = array(
+    '#type' => 'textarea',
+    '#title' => '<span class="element-invisible">' . t('Pages') . '</span>',
+    '#default_value' => $rule->pages,
+    '#description' => $description,
+  );
+
+  // Per-node-type visibility.
+  $default_type_options = array();
+  $types = $rule->getTypes();
+  if (!empty($types)) {
+    $default_type_options = explode(',', $types);
+  }
+  $form['visibility']['node_type'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Content types'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'visibility',
+    '#weight' => 5,
+  );
+  $form['visibility']['node_type']['types'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Set header for specific content types'),
+    '#default_value' => $default_type_options,
+    '#options' => node_type_get_names(),
+    '#description' => t('Set this header only on pages that display content of the given type(s). If you select no types, there will be no type-specific limitation.'),
+  );
+
+  // Per-role visibility.
+  $default_role_options = array();
+  $roles = $rule->getRoles();
+  if (!empty($roles)) {
+    $default_role_options = explode(',', $roles);
+  }
+  $role_options = array_map('check_plain', user_roles());
+  $form['visibility']['role'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Roles'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'visibility',
+    '#weight' => 10,
+  );
+  $form['visibility']['role']['roles'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Set header for specific roles'),
+    '#default_value' => $default_role_options,
+    '#options' => $role_options,
+    '#description' => t('Set this header only for the selected role(s). If you select no roles, the rule will be visible to all users.'),
+  );
+
+  // Get rid of default element from export_ui.
+  unset($form['info']['machine_name']);
+
+}
+
+/**
+ * Form submission handler for http_response_headers_ui_rule_form().
+ */
+function http_response_headers_ui_form_submit($form, &$form_state) {
+  $form_state['item']->updateRoles($form_state['values']['roles']);
+  $form_state['item']->updateTypes($form_state['values']['types']);
+
+  unset($form_state['values']['roles']);
+  unset($form_state['values']['types']);
+}
+
+/**
+ * Returns whether a rule with given machine name exists.
+ *
+ * @see http_response_headers_ui_rule_form()
+ */
+function http_response_headers_ui_rule_exists($machine_name) {
+  return (bool) db_query_range('SELECT 1 FROM {http_response_headers} WHERE machine_name = :machine_name', 0, 1, array(':machine_name' => $machine_name))->fetchField();
+}

@@ -1,0 +1,68 @@
+<?php
+
+/**
+ * @file
+ * Install file for expire module
+ */
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function expire_uninstall() {
+  $vars = array(
+    'expire_flush_front',
+    'expire_flush_node_terms',
+    'expire_flush_menu_items',
+    'expire_flush_node_references',
+    'expire_include_base_url',
+  );
+  foreach ($vars as $var) {
+    variable_del($var);
+  }
+  $t = get_t();
+  drupal_set_message($t('Removed Expire variables'));
+}
+
+
+/**
+ * Implementation of hook_requirements().
+ *
+ * Make sure the module is not enabled and doing nothing useful.
+ */
+function expire_requirements($phase) {
+  if ($phase == 'install') {
+    return array();
+  }
+
+  $requirements = array();
+
+  // Check hook_expire_cache implementation.
+  $modules = module_implements('expire_cache');
+  if (empty($modules)) {
+    $requirements['hook status'] = array(
+      'value' => t('No expirable cache enabled'),
+      'description' => t('None of the enabled modules implements hook_expire_cache(). This means that expire.module will not be having any effect. You should enable a module implements this hook, like the <a href="http://drupal.org/project/varnish">Varnish</a> module.'),
+      'severity' => REQUIREMENT_WARNING,
+    );
+  }
+  else {
+    $requirements['hook status'] = array(
+      'value' => t('hook_expire_cache() implemented: @modules', array('@modules' => implode(', ', $modules))),
+      'severity' => REQUIREMENT_OK,
+    );
+    if (in_array('varnish', $modules)) {
+      if (variable_get('varnish_cache_clear', VARNISH_DEFAULT_CLEAR) == VARNISH_DEFAULT_CLEAR) {
+        $requirements['varnish status'] = array(
+          'value' => t('Varnish module is enabled, but configured to use default clearing: expire.module will be redundant with default clearing. Configure varnish.module to use selective clearing instead.'),
+          'severity' => REQUIREMENT_WARNING,
+        );
+      }
+    }
+  }
+
+ foreach ($requirements as $key => $value) {
+    $requirements[$key]['title'] = t('Cache Expiration - @key', array('@key' => $key));
+  }
+
+  return $requirements;
+}

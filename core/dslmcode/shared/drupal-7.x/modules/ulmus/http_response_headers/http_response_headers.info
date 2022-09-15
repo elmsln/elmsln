@@ -1,0 +1,12 @@
+name = HTTP Response Headers
+description = Allows to customize HTTP response headers.
+core = 7.x
+dependencies[] = ctools
+files[] = http_response_headers.test
+files[] = includes/http_response_headers.rule.inc
+
+; Information added by Drupal.org packaging script on 2021-02-03
+version = "7.x-1.2"
+core = "7.x"
+project = "http_response_headers"
+datestamp = "1612382480"

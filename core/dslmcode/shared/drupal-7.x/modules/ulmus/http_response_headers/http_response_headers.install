@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the HTTP response headers module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function http_response_headers_schema() {
+  $schema['http_response_headers'] = array(
+    'description' => 'Stores customisation settings of HTTP headers, such as region and visibility settings.',
+    'export' => array(
+      'key' => 'machine_name',
+      'key name' => 'Machine name',
+      // Cache exported data.
+      'cache defaults' => TRUE,
+      'identifier' => 'header_rule',
+      'default hook' => 'http_response_headers_default_rule',
+      'api' => array(
+        'owner' => 'http_response_headers',
+        'api' => 'http_response_headers_default_rule',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+
+      'create callback' => 'http_response_headers_rule_create',
+      'load callback' => 'http_response_headers_rule_load',
+      'save callback' => 'http_response_headers_rule_save',
+      'export callback' => 'http_response_headers_rule_export',
+      'object factory' => 'http_response_headers_rule_factory',
+    ),
+    'fields' => array(
+      'rid' => array(
+        'description' => 'Primary ID field for the table. Not used for anything except internal lookups.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        // Do not export database-only keys.
+        'no export' => TRUE,
+      ),
+      'machine_name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Machine name for each pool. Used to identify them programmatically.',
+      ),
+      'description' => array(
+        'description' => 'A human readable description of a rule.',
+        'type' => 'varchar',
+        'default' => '',
+        'length' => '255',
+      ),
+      'header' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => "The HTTP header; for example, 'Cache-Control' to set cache lifetime.",
+      ),
+      'header_value' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => "The HTTP header value;",
+      ),
+      'visibility' => array(
+        'type' => 'varchar',
+        'length' => 11,
+        'not null' => FALSE,
+        'description' => 'Flag to indicate how to set headers on pages. (0 = Show on all pages except listed pages, 1 = Show only on listed pages)',
+      ),
+      'pages' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'Contains a list of paths on which to include/exclude the rule, depending on "visibility" setting.',
+      ),
+      'types' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'Content types',
+      ),
+      'roles' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'User roles',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'A serialized array with extra parameters pool provides.',
+        'serialize' => TRUE,
+        // Handle exporting of this field manually.
+        'no export' => TRUE,
+      ),
+    ),
+    'primary key' => array('rid'),
+    'unique keys' => array(
+      'machine_name' => array('machine_name'),
+    ),
+  );
+
+  $schema['cache_http_response_headers'] = drupal_get_schema_unprocessed('system', 'cache');
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function http_response_headers_uuninstall() {
+  // Remove variables created.
+  variable_del('http_response_headers_allowed_headers');
+  variable_del('http_response_headers_exclude_pages');
+}
+
+/**
+ * Convert "types" and "roles" db columns from varchar to text.
+ */
+function http_response_headers_update_7001() {
+  $types_new_spec = array(
+    'type' => 'text',
+    'not null' => FALSE,
+    'description' => 'Content types',
+  );
+  db_change_field('http_response_headers', 'types', 'types', $types_new_spec);
+
+  $roles_new_spec = array(
+    'type' => 'text',
+    'not null' => FALSE,
+    'description' => 'User roles',
+  );
+  db_change_field('http_response_headers', 'roles', 'roles', $roles_new_spec);
+}

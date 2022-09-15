@@ -1,0 +1,544 @@
+<?php
+
+/**
+ * @file
+ * Provides logic for page cache expiration
+ */
+
+// Defaults used if variable_get is not set.
+define('EXPIRE_FLUSH_NODE_TERMS', TRUE);
+define('EXPIRE_FLUSH_MENU_ITEMS', 1);
+define('EXPIRE_FLUSH_NODE_REFERENCES', TRUE);
+define('EXPIRE_FLUSH_FRONT', TRUE);
+define('EXPIRE_INCLUDE_BASE_URL', TRUE);
+
+/**
+ * Implementation of hook_menu().
+ */
+function expire_menu() {
+  $items = array();
+  $items['admin/config/development/performance/default'] = array(
+    'title'             => 'Performance',
+    'type'              => MENU_DEFAULT_LOCAL_TASK,
+    'file path'         => drupal_get_path('module', 'system'),
+    'weight'            => -5,
+  );
+  $items['admin/config/development/performance/expire'] = array(
+    'type'              => MENU_LOCAL_TASK,
+    'title'             => 'Cache Expiration',
+    'page callback'     => 'drupal_get_form',
+    'page arguments'    => array('expire_admin_settings_form'),
+    'access arguments'  => array('administer site configuration'),
+    'file path'         => drupal_get_path('module', 'expire'),
+    'file'              => 'expire.admin.inc',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_comment_insert().
+ *
+ * Acts on new comments.
+ */
+function expire_comment_insert($comment) {
+  if (!empty($comment->nid)) {
+    $node = node_load($comment->nid);
+    if ($node) {
+      expire_node($node);
+    }
+  }
+}
+
+/**
+ * Implements hook_comment_update().
+ *
+ * Acts on comments updates.
+ */
+function expire_comment_update($comment) {
+  if (!empty($comment->nid)) {
+    $node = node_load($comment->nid);
+    if ($node) {
+      expire_node($node);
+    }
+  }
+}
+
+/**
+ * Implements hook_comment_publish().
+ *
+ * Acts when publishing comments.
+ */
+function expire_comment_publish($comment) {
+  if (!empty($comment->nid)) {
+    $node = node_load($comment->nid);
+    if ($node) {
+      expire_node($node);
+    }
+  }
+}
+
+/**
+ * Implements hook_comment_unpublish().
+ *
+ * Acts when unpublishing comments.
+ */
+function expire_comment_unpublish($comment) {
+  if (!empty($comment->nid)) {
+    $node = node_load($comment->nid);
+    if ($node) {
+      expire_node($node);
+    }
+  }
+}
+
+/**
+ * Implements hook_comment_delete().
+ *
+ * Acts when deleting comments.
+ */
+function expire_comment_delete($comment) {
+  if (!empty($comment->nid)) {
+    $node = node_load($comment->nid);
+    if ($node) {
+      expire_node($node);
+    }
+  }
+}
+
+
+/**
+ * Implements hook_node_insert().
+ *
+ * Acts on new nodes.
+ */
+function expire_node_insert($node) {
+  if (!empty($node->nid)) {
+    expire_node($node);
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ *
+ * Acts on node updates.
+ */
+function expire_node_update($node) {
+  if (!empty($node->nid)) {
+    expire_node($node);
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ *
+ * Acts on deletion of nodes.
+ */
+function expire_node_delete($node) {
+  if (!empty($node->nid)) {
+    expire_node($node);
+  }
+}
+
+/**
+ * Implements hook_node_revision_delete().
+ *
+ * Acts on deletion of revisions.
+ */
+function expire_node_revision_delete($node) {
+  if (!empty($node->nid)) {
+    expire_node($node);
+  }
+}
+
+
+/**
+ * Implements hook_user_insert
+ *
+ * Acts on user account creation
+ */
+function expire_user_insert(&$edit, $account, $category = NULL) {
+  // Return if no user id is attached to the user object.
+  if (empty($account->uid)) {
+    return;
+  }
+  // Expire the relevant user page from the static page cache to prevent serving stale content.
+  $paths[] = 'user/' . $account->uid;
+  $flushed = expire_cache_derivative($paths, $account);
+  watchdog('expire', 'User !uid was created resulting in !flushed pages being expired from the cache',  array(
+    '!uid' => $account->uid,
+    '!flushed' => $flushed,
+  ));
+}
+
+/**
+ * Implements hook_user_delete
+ *
+ * Acts on user account deletion
+ */
+function expire_user_delete($account) {
+  // Return if no user id is attached to the user object.
+  if (empty($account->uid)) {
+    return;
+  }
+  // Expire the relevant user page from the static page cache to prevent serving stale content.
+  $paths[] = 'user/' . $account->uid;
+  $flushed = expire_cache_derivative($paths, $account);
+  watchdog('expire', 'User !uid was deleted resulting in !flushed pages being expired from the cache',  array(
+    '!uid' => $account->uid,
+    '!flushed' => $flushed,
+  ));
+}
+
+/**
+ * Implements hook_user_update
+ *
+ * Acts on user account updates
+ */
+function expire_user_update(&$edit, $account, $category = NULL) {
+  // Return if no user id is attached to the user object.
+  if (empty($account->uid)) {
+    return;
+  }
+  // Expire the relevant user page from the static page cache to prevent serving stale content.
+  $paths[] = 'user/' . $account->uid;
+  $flushed = expire_cache_derivative($paths, $account);
+  watchdog('expire', 'User !uid was updated resulting in !flushed pages being expired from the cache',  array(
+    '!uid' => $account->uid,
+    '!flushed' => $flushed,
+  ));
+}
+
+/**
+ * Expires a node from the cache; including related pages.
+ *
+ * Expires front page if promoted, taxonomy terms,
+ *
+ * @param $node
+ *  node object
+ */
+function expire_node($node) {
+  $paths = array();
+
+  // Check node object
+  if (empty($node->nid)) {
+    return FALSE;
+  }
+
+  // Expire this node
+  $paths['node'] = 'node/' . $node->nid;
+
+  // If promoted to front page, expire front page
+  if (variable_get('expire_flush_front', EXPIRE_FLUSH_FRONT) && $node->promote == 1) {
+    $paths['front'] = '<front>';
+  }
+
+  // Get taxonomy terms and flush
+  if (module_exists('taxonomy') && variable_get('expire_flush_node_terms', EXPIRE_FLUSH_NODE_TERMS)) {
+    $terms = array();
+    $info = field_info_fields();
+
+    foreach (field_info_instances('node', $node->type) as $name => $instance) {
+      if ($info[$name]['type'] == 'taxonomy_term_reference') {
+        $new_terms = field_get_items('node', $node, $name);
+        if (is_array($new_terms)) {
+          $terms = array_merge($new_terms, $terms);
+        }
+        $old_terms = isset($node->original) && !empty($node->original) ? field_get_items('node', $node->original, $name) : array();
+        if (is_array($old_terms)) {
+          $terms = array_merge($old_terms, $terms);
+        }
+      }
+    }
+
+    foreach ($terms as $term) {
+      $paths['term' . $term['tid']] = 'taxonomy/term/' . $term['tid'];
+    }
+  }
+
+  // Get menu and flush related items in the menu.
+  if (module_exists('menu') && variable_get('expire_flush_menu_items', EXPIRE_FLUSH_MENU_ITEMS) != 0) {
+    if (!isset($node->menu['menu_name'])) {
+      $menu_node = clone $node;
+      menu_node_prepare($menu_node);
+      $menu = menu_tree_all_data($menu_node->menu['menu_name']);
+    }
+    else {
+      $menu = menu_tree_all_data($node->menu['menu_name']);
+    }
+    $tempa = NULL;
+    $tempb = NULL;
+    if (variable_get('expire_flush_menu_items', EXPIRE_FLUSH_MENU_ITEMS) == 1) {
+      $links = expire_get_menu_structure($menu, FALSE, 'node/' . $node->nid, NULL, $tempa, $tempb);
+    }
+    elseif (variable_get('expire_flush_menu_items', EXPIRE_FLUSH_MENU_ITEMS) == 2) {
+      $links = expire_get_menu_structure($menu, NULL, NULL, NULL, $tempa, $tempb);
+    }
+    unset($tempa);
+    unset($tempb);
+    $paths = array_merge($links, $paths);
+  }
+
+  // Get Node References and flush.
+  if (variable_get('expire_flush_node_references', EXPIRE_FLUSH_NODE_REFERENCES)
+   && module_exists('node_reference')
+   && module_load_include('inc', 'expire', 'expire.node_reference') != FALSE) {
+    $node_references = expire_get_node_references($node);
+    $paths = array_merge($node_references, $paths);
+  }
+
+  // Flush array of paths
+  if (!empty($paths)) {
+    $flushed = expire_cache_derivative($paths, $node);
+    watchdog('expire', 'Node !nid was flushed resulting in !flushed pages being expired from the cache',  array(
+      '!nid' => $node->nid,
+      '!flushed' => $flushed,
+    ));
+  }
+}
+
+/**
+ * Finds parent, siblings and children of the menu item. UGLY CODE...
+ *
+ * @param array $menu
+ *  Output from menu_tree_all_data()
+ * @param bool $found
+ *  Signal for when the needle was found in the menu array.
+ *  Set TRUE to get entire menu
+ * @param string $needle
+ *  Name of menu link. Example 'node/21'
+ * @param bool $first
+ *  Keep track of the first call; this is a recursive function.
+ * @param bool &$found_global
+ *  Used to signal the parent item was found in one of it's children
+ * @param bool &$menu_out
+ *  Output array of parent, siblings and children menu links
+ */
+function expire_get_menu_structure($menu, $found, $needle, $first, &$found_global, &$menu_out) {
+  // Set Defaults
+  $found = !is_null($found) ? $found : TRUE;
+  $needle = !is_null($needle) ? $needle : '';
+  $first = !is_null($first) ? $first : TRUE;
+  $found_global = FALSE;
+  $menu_out = !is_null($menu_out) ? $menu_out : array();
+
+  // Get Siblings
+  foreach ($menu as $item) {
+    if ($item['link']['hidden'] == 0 && $item['link']['page_callback'] != '' && ($item['link']['link_path'] == $needle || $found)) {
+      $menu_out[] = $item['link']['link_path'];
+      $found = TRUE;
+    }
+  }
+  // Get Children
+  foreach ($menu as $item) {
+    if ($item['link']['hidden'] != 0) {
+      continue;
+    }
+    if ($item['link']['page_callback'] != '' && ($item['link']['link_path'] == $needle || $found)) {
+      $menu_out[] = $item['link']['link_path'];
+      $found = TRUE;
+    }
+    // Get Grandkids
+    if (!empty($item['below'])) {
+      $sub_menu = array();
+      foreach ($item['below'] as $below) {
+        if ($below['link']['hidden'] == 0) {
+          $sub_menu[] = $below;
+        }
+      }
+      expire_get_menu_structure($sub_menu, $needle, $found, FALSE, $found_global, $menu_out);
+      $structure[$item['link']['link_path']][] = $sub_menu;
+      if ($item['link']['page_callback'] != '' && $found_global) {
+        // Get Parent of kid
+        $menu_out[] = $item['link']['link_path'];
+      }
+    }
+    else {
+      $structure[$item['link']['link_path']] = '';
+    }
+  }
+
+  // Clean up
+  if (isset($structure)) {
+    if (is_array($structure)) {
+      $structure = array_unique($structure);
+    }
+  }
+  else {
+    $structure = array();
+  }
+  $found_global = $found;
+  if ($first) {
+    if (isset($menu_out) && is_array($menu_out)) {
+      $menu_out = array_unique($menu_out);
+      sort($menu_out);
+      return $menu_out;
+    }
+    else {
+      return array();
+    }
+  }
+  else {
+    return $structure;
+  }
+}
+
+/**
+ * Finds all possible paths/redirects/aliases given the root path.
+ *
+ * @param $paths
+ *   Array of current URLs
+ * @param $node
+ *   node object
+ */
+function expire_cache_derivative($paths, &$node = NULL) {
+  global $base_path;
+  $expire = array();
+
+  if (empty($paths)) {
+    return FALSE;
+  }
+  $site_frontpage = variable_get('site_frontpage', 'node');
+  foreach ($paths as $path) {
+    // Special front page handling
+    if ($path == $site_frontpage || $path == '' || $path == '<front>') {
+      $expire[] = '';
+      $expire[] = 'rss.xml';
+      $expire[] = $site_frontpage;
+    }
+
+    // Add given path
+    if ($path != '<front>') {
+      $expire[] = $path;
+    }
+
+    // Path alias
+    $path_alias = url($path, array('absolute' => FALSE));
+    // Remove the base path
+    $expire[] = substr($path_alias, strlen($base_path));
+
+    // Path redirects
+    if (module_exists('redirect')) {
+      $redirects = redirect_load_multiple(array(), array('redirect' => $path));
+      if (isset($redirects) && !empty($redirects)) {
+        foreach ($redirects as $redirect) {
+          if (!empty($redirect->source)) {
+            $expire[] = $redirect->source;
+          }
+        }
+      }
+    }
+  }
+
+  // Allow other modules to modify the list prior to expiring
+  drupal_alter('expire_cache', $expire, $node, $paths);
+
+  // Expire cached files
+  if (empty($expire)) {
+    return FALSE;
+  }
+  $expire = array_unique($expire);
+  // Add on the url to these paths
+  $urls = array();
+  if (variable_get('expire_include_base_url', EXPIRE_INCLUDE_BASE_URL)) {
+    $base_urls[] = url('', array('absolute' => TRUE));
+    if (module_exists('domain')
+     && module_load_include('inc', 'expire', 'expire.domain') != FALSE) {
+      $base_urls = array_merge($base_urls, expire_get_base_urls($node));
+    }
+    foreach ($expire as $path) {
+      foreach ($base_urls as $base) {
+        // If domain access is enabled the $base_urls is an array with configured subdomains
+        if (is_array($base)) {
+          foreach ($base as $subdomain) {
+            $urls[] = $subdomain . $path;
+          }
+        }
+        else {
+          $base = rtrim($base, '/') . '/';
+          $urls[] = $base . $path;
+        }
+      }
+    }
+  }
+  else {
+    $urls = $expire;
+  }
+  // hook_expire_cache
+  $modules = module_implements('expire_cache');
+  foreach ($modules as $module) {
+    module_invoke($module, 'expire_cache', $urls);
+  }
+  watchdog('expire', 'Input: !paths <br /> Output: !urls <br /> Modules Using hook_expire_cache(): !modules', array(
+    '!paths' => expire_print_r($paths),
+    '!urls' => expire_print_r($urls),
+    '!modules' => expire_print_r($modules),
+  ));
+  return count($urls);
+}
+
+/**
+ * Simple print_r to html function
+ *
+ * @param $data
+ *
+ * @return string
+ *   print_r contents in nicely formatted html
+ */
+function expire_print_r($data) {
+  return str_replace('    ', '&nbsp;&nbsp;&nbsp;&nbsp;', nl2br(htmlentities(print_r($data, TRUE))));
+}
+
+function expire_normal_path_check($path) {
+  $original_map = arg(NULL, $path);
+  $parts = array_slice($original_map, 0, MENU_MAX_PARTS);
+  $ancestors = menu_get_ancestors($parts);
+
+  $router_item = db_query_range('SELECT path FROM {menu_router} WHERE path IN (:ancestors) ORDER BY fit DESC', 0, 1, array(':ancestors' => $ancestors))->fetchAssoc();
+  return $router_item;
+}
+
+/**
+ * Implementation of hook_votingapi_insert().
+ *
+ * @param $votes
+ *  array of votes
+ */
+function expire_votingapi_insert($votes) {
+  _expire_votingapi($votes);
+}
+
+/**
+ * Implementation of hook_votingapi_delete().
+ *
+ * @param $votes
+ *  array of votes
+ */
+function expire_votingapi_delete($votes) {
+  _expire_votingapi($votes);
+}
+
+/**
+ * Common expiry logic for votingapi.
+ */
+function _expire_votingapi($votes) {
+  foreach ($votes as $vote) {
+    if ($vote['entity_type'] == 'comment') {
+      $nid = db_query("SELECT nid FROM {comment} WHERE cid = :cid", array(':cid' => $vote['entity_id']))->fetchField();
+      if (is_numeric($nid)) {
+        $node = node_load($nid);
+        if ($node) {
+          expire_node($node);
+        }
+      }
+    }
+    if ($vote['entity_type'] == 'node') {
+      $node = node_load($vote['entity_id']);
+      if ($node) {
+        expire_node($node);
+      }
+    }
+  }
+}
+

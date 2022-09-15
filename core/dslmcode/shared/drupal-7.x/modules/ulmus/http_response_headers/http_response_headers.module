@@ -1,0 +1,462 @@
+<?php
+
+/**
+ * @file
+ * Contains HTTP response headers.
+ */
+
+/**
+ * Sets this header on every page except the listed pages.
+ */
+define('HTTP_RESPONSE_HEADERS_VISIBILITY_NOTLISTED', 0);
+
+/**
+ * Sets this header on only the listed pages.
+ */
+define('HTTP_RESPONSE_HEADERS_VISIBILITY_LISTED', 1);
+
+/**
+ * Cache bin for HTTP headers.
+ */
+define('HTTP_RESPONSE_HEADERS_CACHE_BIN', 'cache_http_response_headers');
+
+
+/**
+ * Implements hook_help().
+ */
+function http_response_headers_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#http_response_headers':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The HTTP response headers module allows you to create header rules, which are rendered to one or more pages of a website. The <a href="@http_response_headers">HTTP response header administration page</a> provides an interface to manage header rules.', array('@http_response_headers' => url('admin/config/system/http-response-headers/settings'))) . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Configure HTTP headers') . '</dt>';
+      $output .= '<dd>' . t('Users with the <em>Administer blocks</em> permission can configure the list of allowed headers to create rules. Headers list can be configured from <a href="@header-config">HTTP response header settings page</a>.', array('@header-config' => url('admin/config/system/http-response-headers/settings'))) . '</dd>';
+      $output .= '<dt>' . t('Creating header rules') . '</dt>';
+      $output .= '<dd>' . t('Users with the <em>administer http response headers</em> permission can <a href="@header-add">add header rules</a>, which are then listed on the <a href="@header-list">HTTP response headers administration page</a>.', array('@header-list' => url('admin/config/system/http-response-headers'), '@header-add' => url('admin/config/system/http-response-headers/add'))) . '</dd>';
+      $output .= '<dt>' . t('Controlling visibility') . '</dt>';
+      $output .= '<dd>' . t('Header rules can be configured to be applied only on certain pages, only to users of certain roles, or only on pages displaying certain <a href="@content-type">content types</a>.', array('@content-type' => url('admin/structure/types'), '@user' => url('user'))) . '</dd>';
+      $output .= '</dl>';
+      return $output;
+
+    case 'admin/config/system/http-response-headers':
+      return '<p>' . t('The allowed headers can be configured from  <a href="@header_url">configuration</a>', array('@header_url' => url('admin/config/system/http-response-headers/settings'))) . '</p>';
+  }
+}
+
+/**
+ * Implements hook_init().
+ */
+function http_response_headers_init() {
+
+  // Exclude pages on global exclude list.
+  if (http_response_headers_exclude_path()) {
+    return;
+  }
+
+  $rules = http_response_headers_get_rules();
+
+  foreach ($rules as $rule) {
+    $header_value = $rule->getHeaderValue();
+    $header = $rule->getHeader();
+
+    // Handle custom callback cases.
+    switch (strtolower($header)) {
+      case 'expires':
+        $header_value = http_response_headers_expires_callback($header_value);
+        break;
+
+      case 'last-modified':
+        $header_value = http_response_headers_last_modified_callback($header_value);
+        break;
+    }
+
+    // Set response header.
+    drupal_add_http_header($header, $header_value);
+  }
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function http_response_headers_menu() {
+  $items['admin/config/system/http-response-headers/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('http_response_headers_settings_form'),
+    'access arguments' => array('administer http response headers'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'http_response_headers.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function http_response_headers_permission() {
+  return array(
+    'administer http response headers' => array(
+      'title' => t('Administer HTTP response headers'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_flush_cache().
+ */
+function http_response_headers_flush_caches() {
+  return array('cache_http_response_headers');
+}
+
+/**
+ * Creates new object.
+ *
+ * Chaos tools export create callback for the http_response_headers table.
+ *
+ * @param bool $set_defaults
+ *   A boolean passed in from Chaos tools, TRUE by default.
+ *
+ * @return Object
+ *   A HttpResponseHeaders object.
+ */
+function http_response_headers_rule_create($set_defaults = TRUE) {
+  return new HttpResponseHeadersRule();
+}
+
+/**
+ * Loads a HTTP header rule  object from the database.
+ *
+ * @param string $machine_name
+ *   ID of the rule to load.
+ * @param bool $reset
+ *   Flag to reset cached objects.
+ *
+ * @return stdClass
+ *   A header rule object.
+ */
+function http_response_headers_rule_load($machine_name, $reset = FALSE) {
+  // Use CTools export API to fetch this header rule.
+  ctools_include('export');
+
+  // Reset the static cache if required.
+  if ($reset) {
+    ctools_export_load_object_reset('http_response_headers');
+  }
+
+  $result = ctools_export_load_object('http_response_headers', 'names', array($machine_name));
+
+  if (isset($result[$machine_name])) {
+    return $result[$machine_name];
+  }
+}
+
+/**
+ * Load all header rules.
+ *
+ * @return array
+ *   An array of HttpResponseHeadersRule objects, keyed by the machine name of
+ *   each pool.
+ */
+function http_response_headers_rule_load_all() {
+  // Use CTools export API to fetch this header rule.
+  ctools_include('export');
+  $result = ctools_export_load_object('http_response_headers', 'all');
+
+  return $result;
+}
+
+/**
+ * Save a single header rule to the database.
+ *
+ * @param HttpResponseHeadersRule $rule
+ *   The rule object.
+ *
+ * @return bool
+ *   TRUE or FALSE flag of save operation.
+ */
+function http_response_headers_rule_save(HttpResponseHeadersRule $rule) {
+  db_merge('http_response_headers')
+    ->key(array('machine_name' => $rule->getMachineName()))
+    ->fields(array(
+      'description' => $rule->getDescription(),
+      'header' => $rule->getHeader(),
+      'header_value' => $rule->getHeaderValue(),
+      'pages' => $rule->getPages(),
+      'visibility' => $rule->getVisibility(),
+      'types' => $rule->getTypes(),
+      'roles' => $rule->getRoles(),
+      // Serialize the whole object into data column, this way, any classes that
+      // subclass the base object will have an opportunity to save their data
+      // too!
+      'data' => serialize($rule),
+
+    ))
+    ->execute();
+
+  // Clear the header rules cache.
+  http_response_headers_cache_reset();
+
+  return TRUE;
+}
+
+/**
+ * Export a single message queue pool from the DB.
+ */
+function http_response_headers_rule_export($object, $indent = '') {
+  $output = $indent . '$header_rule = new ' . get_class($object) . '()' . ";\n";
+  $output .= $indent . '$header_rule->disabled = FALSE; /* Edit this to true to make a default pool disabled initially */' . "\n";
+  $output .= $indent . '$header_rule->api_version = 1' . ";\n";
+  $output .= $indent . '$header_rule->machine_name = "' . $object->getMachineName() . "\";\n";
+  $output .= $indent . '$header_rule->description = "' . $object->getDescription() . "\";\n";
+  $output .= $indent . '$header_rule->header = "' . $object->getHeader() . "\";\n";
+  $output .= $indent . '$header_rule->header_value = "' . $object->getHeaderValue() . "\";\n";
+  $output .= $indent . '$header_rule->visibility = "' . $object->getVisibility() . "\";\n";
+  $output .= $indent . '$header_rule->pages = "' . $object->getPages() . "\";\n";
+  $output .= $indent . '$header_rule->types = "' . $object->getTypes() . "\";\n";
+  $output .= $indent . '$header_rule->roles = "' . $object->getRoles() . "\";\n";
+
+  return $output;
+}
+
+/**
+ * Factory for rule objects.
+ *
+ * Chaos tools export object factory callback for the
+ * http_response_headers table.
+ *
+ * @param string $schema
+ *   An array, a Drupal table schema definition as returned by
+ *   drupal_get_schema().
+ * @param object $data
+ *   An object, a row from the http_response_headers table.
+ *
+ * @return HttpResponseHeadersRule
+ *   A HttpResponseHeadersRule object.
+ */
+function http_response_headers_rule_factory($schema, $data) {
+  $rule = unserialize($data->data);
+  $rule->setMachineName($data->machine_name)
+    ->setDescription($data->description)
+    ->setHeader($data->header)
+    ->setHeaderValue($data->header_value)
+    ->setPages($data->pages)
+    ->setVisibility($data->visibility)
+    ->setTypes($data->types)
+    ->setRoles($data->roles);
+
+  return $rule;
+}
+
+/**
+ * Provides applicable rules for current page.
+ *
+ * @return mixed
+ *   An array of matching header rules indexed with rule ID, NULL otherwise.
+ */
+function http_response_headers_get_rules() {
+  global $user;
+
+  // Convert the Drupal path to lowercase.
+  $path = drupal_strtolower(drupal_get_path_alias());
+
+  // Cache key for page.
+  $cid = 'http_response_headers_page:' . _http_response_headers_get_page_cache_id($path);
+
+  // Get rules from cache for this page, if exist.
+  if ($rule_cached = cache_get($cid, HTTP_RESPONSE_HEADERS_CACHE_BIN)) {
+    return $rule_cached->data;
+  }
+
+  $rules = http_response_headers_rule_load_all();
+  foreach ($rules as $key => $rule) {
+
+    // If a rule has no roles associated, it is displayed for every role.
+    // For rules with roles associated, if none of the user's roles matches
+    // the settings from this rule, remove it from the rule list.
+    if ($rule->hasRoles() && $rule->rolesExist($user->roles)) {
+      // No match.
+      unset($rules[$key]);
+      continue;
+    }
+
+    $enabled = TRUE;
+    // Limited visibility rules must list at least one page.
+    if ($rule->getVisibility() == HTTP_RESPONSE_HEADERS_VISIBILITY_LISTED && $rule->hasPages() === FALSE) {
+      $enabled = FALSE;
+    }
+
+    if (!$enabled) {
+      unset($rules[$key]);
+      continue;
+    }
+
+    // Match path if necessary.
+    if ($rule->hasPages()) {
+      // Convert path to lowercase. This allows comparison of the same path
+      // with different case. Ex: /Page, /page, /PAGE.
+      $pages = drupal_strtolower($rule->getPages());
+      $rule_visibility = $rule->getVisibility();
+      if ($rule_visibility <= HTTP_RESPONSE_HEADERS_VISIBILITY_LISTED) {
+        // Compare the lowercase internal and lowercase path alias (if any).
+        $page_match = drupal_match_path($path, $pages);
+        $current_path = request_path();
+        if ($path != $current_path) {
+          $page_match = $page_match || drupal_match_path($current_path, $pages);
+        }
+        // When $rule->getVisibility() has a value of 0
+        // (HTTP_RESPONSE_HEADERS_VISIBILITY_NOTLISTED),the header is set on
+        // all pages except those listed in $rule->pages.
+        // When set to 1 (HTTP_RESPONSE_HEADERS_VISIBILITY_LISTED), it is set
+        // only on those pages listed in $rule->pages.
+        $page_match = !($rule_visibility xor $page_match);
+      }
+      else {
+        $page_match = FALSE;
+      }
+    }
+    else {
+      $page_match = TRUE;
+    }
+    if (!$page_match) {
+      unset($rules[$key]);
+    }
+
+    // Match content types.
+    $node = menu_get_object();
+    $node_types = node_type_get_types();
+    if (arg(0) == 'node' && arg(1) == 'add' && arg(2)) {
+      $node_add_arg = strtr(arg(2), '-', '_');
+    }
+    // If a rule has no node types associated, it is displayed for every type.
+    // For rules with node types associated, if the node type does not match
+    // the settings from this rule, remove it from the list.
+    if ($rule_node_types = $rule->getTypeArray()) {
+      if (!empty($node)) {
+        // This is a node or node edit page.
+        if (!in_array($node->type, $rule_node_types)) {
+          // This rule should not be set for this node type.
+          unset($rules[$key]);
+          continue;
+        }
+      }
+      elseif (isset($node_add_arg) && isset($node_types[$node_add_arg])) {
+        // This is a node creation page.
+        if (!in_array($node_add_arg, $rule_node_types)) {
+          // This header should not be set for this node type.
+          unset($rules[$key]);
+          continue;
+        }
+      }
+      else {
+        // This is not a node page, remove the rule.
+        unset($rules[$key]);
+        continue;
+      }
+    }
+  }
+
+  // Set it to cache to use next time.
+  cache_set($cid, $rules, HTTP_RESPONSE_HEADERS_CACHE_BIN);
+
+  return $rules;
+}
+
+/**
+ * Callback to delete a header rule.
+ *
+ * @param string $machine_name
+ *   A string rule ID to delete.
+ */
+function http_response_headers_rule_delete($machine_name) {
+  db_delete('http_response_headers')
+    ->condition('machine_name', $machine_name)
+    ->execute();
+
+  // Clear the header rules cache.
+  http_response_headers_cache_reset();
+
+}
+
+/**
+ * Clears the header rule per page cache.
+ */
+function http_response_headers_cache_reset() {
+  cache_clear_all('http_response_headers_page:', HTTP_RESPONSE_HEADERS_CACHE_BIN, TRUE);
+}
+
+/**
+ * Process callback for expires header.
+ *
+ * @param int $seconds
+ *   Number of seconds to expire header.
+ *
+ * @return string
+ *   String of formatted date time.
+ */
+function http_response_headers_expires_callback($seconds = 0) {
+  return gmdate(DATE_RFC1123, strtotime('+' . $seconds . ' second'));
+}
+
+/**
+ * Process callback for last modified header.
+ *
+ * @param int $seconds
+ *   Number of seconds to modified header.
+ *
+ * @return string
+ *   String of formatted date time.
+ */
+function http_response_headers_last_modified_callback($seconds = 0) {
+  return gmdate(DATE_RFC1123, strtotime('+' . $seconds . ' second'));
+}
+
+/**
+ * Helper to verify given path in exclude list.
+ *
+ * Path can be any drupal internal path.
+ *
+ * @param string|null $path
+ *   A string path. Current path used, if no path specified explicitly.
+ *
+ * @return bool
+ *   TRUE if path in exclude list, FALSE otherwise.
+ */
+function http_response_headers_exclude_path($path = NULL) {
+  if (!$path) {
+    // Convert the Drupal path to lowercase.
+    $path = drupal_strtolower(drupal_get_path_alias());
+  }
+
+  if ($pages = variable_get('http_response_headers_exclude_pages', NULL)) {
+    $pages = drupal_strtolower($pages);
+    // Compare the lowercase internal and lowercase path alias (if any).
+    return drupal_match_path($path, $pages);
+  }
+  return FALSE;
+}
+
+/**
+ * Helper to format cache key.
+ *
+ * @param string $cache_key
+ *   A string key.
+ *
+ * @return string
+ *   A updated hash key value.
+ */
+function _http_response_headers_get_page_cache_id($cache_key) {
+  // Don't calculate roles for anonymous user.
+  if (!user_is_anonymous()) {
+    global $user;
+    $roles = array_keys($user->roles);
+    asort($roles);
+    // Cache by path and user roles.
+    $cache_key .= implode(':', $roles);
+  }
+  return md5($cache_key);
+}
