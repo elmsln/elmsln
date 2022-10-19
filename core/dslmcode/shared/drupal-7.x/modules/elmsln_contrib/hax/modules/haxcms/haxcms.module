@@ -92,12 +92,18 @@ function haxcms_webcomponents_build_integration_markup_alter(&$markup) {
               window.__appPrevRoute
             );
             // ignore admin menu calls
-            if (!e.detail.router.location.pathname.includes("admin_menu") &&
+            if (e.detail.router.location.pathname.includes("/users/") ||
+            e.detail.router.location.pathname.includes("/user/login") ||
+            e.detail.router.location.pathname.includes("/user/logout")) {
+              window.history.replaceState( {} , "Redirecting..", e.detail.router.location.pathname);  
+            }
+            else if (!e.detail.router.location.pathname.includes("admin_menu") &&
             !e.detail.router.location.pathname.includes("masquerade") &&
             !e.detail.router.location.pathname.includes("token=")) {
               // remove link and replace it with the redirect. sneaky charlie.. we\'re going to be sneaky
               window.history.replaceState( {} , "Redirecting..", e.detail.router.location.pathname + "?destination=" + window.__appPrevRoute );
             }
+            
             window.location.reload();
         }
         else {
