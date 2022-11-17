@@ -173,7 +173,7 @@ function haxcms_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
   );
-  // load site.json format
+  // load site.json format - fallback to default one
   $items['haxapi/loadJOS'] = array(
     'page callback' => '_haxcms_loadJOS',
     'page arguments' => array(),
@@ -181,7 +181,15 @@ function haxcms_menu() {
     'access callback' => '_haxcms_node_access',
     'access arguments' => array('view'),
   );
-  // load site.json format
+  // load site.json - fallback to default one
+  $items['site.json'] = array(
+    'page callback' => '_haxcms_loadJOS',
+    'page arguments' => array(),
+    'type' => MENU_CALLBACK,
+    'access callback' => '_haxcms_node_access',
+    'access arguments' => array('view'),
+  );
+  // load site.json format for a specific node
   $items['haxapi/loadJOS/%node'] = array(
     'page callback' => '_haxcms_loadJOS',
     'page arguments' => array(2),
