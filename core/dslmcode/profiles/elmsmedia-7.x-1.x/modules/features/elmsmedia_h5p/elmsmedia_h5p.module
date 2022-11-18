@@ -37,17 +37,22 @@ function elmsmedia_h5p_page_build(&$page) {
 function elmsmedia_h5p_embedded_h5p_alter(&$head, $node) {
   // append domain partcial if we can for avoiding XSS blocking on same origin root
   if ($domain = _cis_connector_parent_domain()) {
-    $head .= "\n" . '<script>document.domain = "' . $domain . '"</script>';
+    $head .= "\n" . '<script>document.domain = "' . $domain . '";window.addEventListener("click", (e) => window.WCAutoload.process());</script>';
   }
-  // @todo appends this stuff to the head like a normal web components domain
-  $location = variable_get('webcomponents_project_location', 'sites/all/libraries/webcomponents/');
-  // append base_path if this site has a url to start it
-  if (strpos($location, 'http') === FALSE) {
-    $location = base_path() . $location;
+  $location = variable_get('webcomponents_project_location', 'https://cdn.webcomponents.psu.edu/cdn/');
+  if ($location == 'sites/all/libraries/webcomponents/') {
+    $location = base_path() . variable_get('webcomponents_project_location');
   }
-  // load webcomponentsjs polyfill library if it exists
+  else if ($location == 'other') {
+    $location = variable_get('webcomponents_project_location_other', '');  
+  }
+  $buildLocation = $location;
+  // support for build file to come local but assets via CDN
+  if (variable_get('webcomponents_project_local_build_file', false)) {
+    $buildLocation = base_path() . 'sites/all/libraries/webcomponents/';
+  }
   $wc = new WebComponentsService();
-  $head .= $wc->applyWebcomponents($location);
+  $head .= $wc->applyWebcomponents($buildLocation, $location);
 }
 
 /**
