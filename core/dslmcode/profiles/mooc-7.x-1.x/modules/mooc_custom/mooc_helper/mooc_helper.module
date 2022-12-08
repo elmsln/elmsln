@@ -66,7 +66,7 @@ function mooc_helper_haxcms_slots($node) {
   if (user_access('use hax')) {
     $ary = array(
       array(
-        'title' => t('More options'),
+        'title' => t('ELMS options'),
         'icon' => 'hax:settings',
         'id' => 'elmsln-administer-edit',
       ),

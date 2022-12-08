@@ -265,6 +265,14 @@ function haxcms_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('use hax'),
   );
+  // saveOutline from outline-designer
+  $items['haxapi/saveOutline/%'] = array(
+    'page callback' => '_haxcms_saveOutline',
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
+  );
   // settings for theme / JOS spec settings Drupal won't have
   $items['admin/config/content/haxcms'] = array(
     'title' => 'HAXcms configuration',
@@ -439,7 +447,7 @@ function _haxcms_convert_request_structure($token, $validateOnly = FALSE, $metho
   // ensure we had data POST here and it is valid
   $postData = file_get_contents("php://input");
   $postData = json_decode($postData, TRUE);
-  if ($_SERVER['REQUEST_METHOD'] == $method && drupal_valid_token($token, 'hax') && isset($postData['node'])) {
+  if ($_SERVER['REQUEST_METHOD'] == $method && drupal_valid_token($token, 'hax') && (isset($postData['node']) || isset($postData['items']))) {
     // if we were only asked to validate the return the node path
     if ($validateOnly) {
       return TRUE;
@@ -519,14 +527,13 @@ function _haxcms_login() {
           $settings->backText = t('Back to front page');
           // @todo comment in when we implement these in Drupal
           //$settings->saveManifestPath = $path . 'saveManifest';
-          //$settings->saveOutlinePath = $path . 'saveOutline';
+          $settings->saveOutlinePath = $path . 'saveOutline';
           //$settings->setConfigPath = $path . 'setConfig';
           //$settings->getConfigPath = $path . 'getConfig';
           //$settings->getNodeFieldsPath = $path . 'getNodeFields';
           //$settings->getSiteFieldsPath = $path . 'formLoad?haxcms_form_id=siteSettings';
           // form token to validate form submissions as unique to the session
           $settings->getFormToken = drupal_get_token('hax');
-          // @todo comment in when we fully implement the above UX and test it more thoroughly
           $settings->createNodePath = $path . 'createNode/' . drupal_get_token('hax');
           $settings->deleteNodePath = $path . 'deleteNode/' . drupal_get_token('hax');
           $settings->getUserDataPath = $path . 'getUserData/' . drupal_get_token('hax');
@@ -632,82 +639,228 @@ function _haxcms_getUserData($token) {
 }
 
 /**
+ * Callback to save outline
+ * @todo THIS IS MOSTLY STUB CODE THAT NEEDS TO SUPPORT LOADING AND SAVING EXISTING NODES
+ * WHILE THIS IS CURRENTLY ABOUT MAKING NEW THINGS EACH TIME
+ */
+function _haxcms_saveOutline($token) {
+  $status = 403;
+  $message = t('Access denied');
+  $node = new stdClass();
+  $items = array();
+  if (_haxcms_convert_request_structure($token, TRUE)) {
+    $postData = file_get_contents("php://input");
+    $postData = json_decode($postData, TRUE);
+    // resolve multiple vs singular creation request
+    if (isset($postData['items'])) {
+      for ($i=0; $i < count($nodeParams['items']); $i++) {
+        array_push($items, array(
+          "parent" => $nodeParams['items'][$i]['parent'],
+          "title" => $nodeParams['items'][$i]['title'],
+          "slug" => $nodeParams['items'][$i]['slug'],
+          "order" => $nodeParams['items'][$i]['order'],
+          "id" => $nodeParams['items'][$i]['id'],
+          "indent" => $nodeParams['items'][$i]['indent'],
+          "contents" => $nodeParams['items'][$i]['contents'],
+          "location" => $nodeParams['items'][$i]['location'],
+        ));
+      }
+    }
+    // run through and create the array of items
+    for ($i=0; $i < count($items); $i++) {
+      $activeNode = $items[$i]['node'];
+      $status = 500;
+      $message = t('Node creation failed!');
+      $parent = NULL;
+      // parent node is required or we don't know where to place this item
+      if ($link = menu_link_load(str_replace('mlid-', '', $activeNode['parent']))) {
+        $parent = node_load(str_replace('node/', '', $link['link_path']));
+      }
+      else {
+        // totally possible to be null still. allow other modules to figure out what active is
+        // in elmsln this will be section context in mooc distro.
+        drupal_alter('haxcms_root_node_loader', $parent);
+      }
+      // should be able to get either of these
+      if ($parent != null) {
+        // load this from an actual setting / default setting
+        // default to the parent's type
+        $type = variable_get('book_child_type', $parent->type);
+        // set the node
+        $node->type = $type;
+        node_object_prepare($node);
+        
+        $node->title = $activeNode['title'];
+        $node->uid = $GLOBALS['user']->uid;
+        // default to setting parent language if set, otherwise none
+        $node->language = isset($parent->language) ? $parent->language : LANGUAGE_NONE;
+        // copy over book structure
+        $node->book['weight'] = $activeNode['order'];
+        $node->book['plid'] = $activeNode['parent'] != null ? $parent->book['mlid'] : null;
+        $node->book['bid'] = $parent->book['bid'];
+        // minor support for OG
+        if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
+          $node->og_group_ref = $parent->og_group_ref;
+        }
+        $node->book['menu_name'] = $parent->book['menu_name'];
+        $node->book['module'] = $parent->book['module'];
+
+        // support for duplicating the content of another item
+        if (isset($activeNode['duplicate'])) {
+          // verify we can load this id
+          if ($linkToDuplicate = menu_link_load(str_replace('mlid-', '', $activeNode['duplicate']))) {
+            $nodeToDuplicate = node_load(str_replace('node/', '', $linkToDuplicate['link_path']));
+            $node->body['und'][0]['value'] = $nodeToDuplicate->body['und'][0]['value'];
+            if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
+              $node->body['und'][0]['format'] = filter_default_format();
+            }
+            $node->book['weight'] = $nodeToDuplicate->book['weight'] - 1;
+          }
+        }
+        // leave a trace that haxcms processed this
+        $node->_haxcms = TRUE;
+        // allow other projects to jump in as needed for this very specific node save context
+        drupal_alter('haxcms_save_node', $node);
+
+        // Allow other modules to alter the new book node.
+        if (node_access('create', $node->type)) {
+          node_save($node);
+          // allow front end to set path if defined
+          $nodePath = 'node/' . $node->nid;
+          if (isset($activeNode['location']) && $activeNode['location'] != '' && $activeNode['location'] != NULL) {
+            $pathMap = array("source" => 'node/' . $node->nid, "alias" => $activeNode['location']);
+            path_save($pathMap);
+            $nodePath = $activeNode['location'];
+          }
+          $status = 200;
+          $message = t('Node created!');
+          $node->slug = $nodePath;
+        }
+      }
+    }
+  }
+  // send back happy headers
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', $status);
+  $return = array(
+    'status' => $status,
+    'message' => $message,
+    'data' => $node,
+  );
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
+}
+
+/**
  * Callback to create a new node
  */
 function _haxcms_createNode($token) {
   $status = 403;
   $message = t('Access denied');
   $node = new stdClass();
+  $items = array();
   if (_haxcms_convert_request_structure($token, TRUE)) {
     $postData = file_get_contents("php://input");
     $postData = json_decode($postData, TRUE);
-    $nodeData = $postData['node'];
-    $status = 500;
-    $message = t('Node creation failed!');
-    $parent = NULL;
-    // parent node is required or we don't know where to place this item
-    if ($link = menu_link_load(str_replace('mlid-', '', $postData['parent']))) {
-      $parent = node_load(str_replace('node/', '', $link['link_path']));
+    // resolve multiple vs singular creation request
+    if (isset($postData['items'])) {
+      for ($i=0; $i < count($nodeParams['items']); $i++) {
+        array_push($items, array(
+          "parent" => $nodeParams['items'][$i]['parent'],
+          "title" => $nodeParams['items'][$i]['title'],
+          "slug" => $nodeParams['items'][$i]['slug'],
+          "order" => $nodeParams['items'][$i]['order'],
+          "id" => $nodeParams['items'][$i]['id'],
+          "indent" => $nodeParams['items'][$i]['indent'],
+          "contents" => $nodeParams['items'][$i]['contents'],
+          "location" => $nodeParams['items'][$i]['location'],
+        ));
+      }
     }
     else {
-      // totally possible to be null still. allow other modules to figure out what active is
-      // in elmsln this will be section cvontextr in mooc distro.
-      drupal_alter('haxcms_root_node_loader', $parent);
+      array_push($items, array(
+        "parent" => $postData['parent'],
+        "parent" => $postData['order'],
+        "title" => $nodeParams['node']['title'],
+        "slug" => $nodeParams['node']['slug'],
+        "id" => $nodeParams['node']['id'],
+        "indent" => $nodeParams['node']['indent'],
+        "contents" => $nodeParams['node']['contents'],
+        "location" => $nodeParams['node']['location'],
+      ));
     }
-    // should be able to get either of these
-    if ($parent != null) {
-      // load this from an actual setting / default setting
-      // default to the parent's type
-      $type = variable_get('book_child_type', $parent->type);
-      // set the node
-      $node->type = $type;
-      node_object_prepare($node);
-      
-      $node->title = $nodeData['title'];
-      $node->uid = $GLOBALS['user']->uid;
-      // default to setting parent language if set, otherwise none
-      $node->language = isset($parent->language) ? $parent->language : LANGUAGE_NONE;
-      // copy over book structure
-      $node->book['weight'] = $postData['order'];
-      $node->book['plid'] = $postData['parent'] != null ? $parent->book['mlid'] : null;
-      $node->book['bid'] = $parent->book['bid'];
-      // minor support for OG
-      if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
-        $node->og_group_ref = $parent->og_group_ref;
+    // run through and create the array of items
+    for ($i=0; $i < count($items); $i++) {
+      $activeNode = $items[$i]['node'];
+      $status = 500;
+      $message = t('Node creation failed!');
+      $parent = NULL;
+      // parent node is required or we don't know where to place this item
+      if ($link = menu_link_load(str_replace('mlid-', '', $activeNode['parent']))) {
+        $parent = node_load(str_replace('node/', '', $link['link_path']));
       }
-      $node->book['menu_name'] = $parent->book['menu_name'];
-      $node->book['module'] = $parent->book['module'];
+      else {
+        // totally possible to be null still. allow other modules to figure out what active is
+        // in elmsln this will be section context in mooc distro.
+        drupal_alter('haxcms_root_node_loader', $parent);
+      }
+      // should be able to get either of these
+      if ($parent != null) {
+        // load this from an actual setting / default setting
+        // default to the parent's type
+        $type = variable_get('book_child_type', $parent->type);
+        // set the node
+        $node->type = $type;
+        node_object_prepare($node);
+        
+        $node->title = $activeNode['title'];
+        $node->uid = $GLOBALS['user']->uid;
+        // default to setting parent language if set, otherwise none
+        $node->language = isset($parent->language) ? $parent->language : LANGUAGE_NONE;
+        // copy over book structure
+        $node->book['weight'] = $activeNode['order'];
+        $node->book['plid'] = $activeNode['parent'] != null ? $parent->book['mlid'] : null;
+        $node->book['bid'] = $parent->book['bid'];
+        // minor support for OG
+        if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
+          $node->og_group_ref = $parent->og_group_ref;
+        }
+        $node->book['menu_name'] = $parent->book['menu_name'];
+        $node->book['module'] = $parent->book['module'];
 
-      // support for duplicating the content of another item
-      if (isset($nodeData['duplicate'])) {
-        // verify we can load this id
-        if ($linkToDuplicate = menu_link_load(str_replace('mlid-', '', $nodeData['duplicate']))) {
-          $nodeToDuplicate = node_load(str_replace('node/', '', $linkToDuplicate['link_path']));
-          $node->body['und'][0]['value'] = $nodeToDuplicate->body['und'][0]['value'];
-          if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
-            $node->body['und'][0]['format'] = filter_default_format();
+        // support for duplicating the content of another item
+        if (isset($activeNode['duplicate'])) {
+          // verify we can load this id
+          if ($linkToDuplicate = menu_link_load(str_replace('mlid-', '', $activeNode['duplicate']))) {
+            $nodeToDuplicate = node_load(str_replace('node/', '', $linkToDuplicate['link_path']));
+            $node->body['und'][0]['value'] = $nodeToDuplicate->body['und'][0]['value'];
+            if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
+              $node->body['und'][0]['format'] = filter_default_format();
+            }
+            $node->book['weight'] = $nodeToDuplicate->book['weight'] - 1;
           }
-          $node->book['weight'] = $nodeToDuplicate->book['weight'] - 1;
         }
-      }
-      // leave a trace that haxcms processed this
-      $node->_haxcms = TRUE;
-      // allow other projects to jump in as needed for this very specific node save context
-      drupal_alter('haxcms_save_node', $node);
+        // leave a trace that haxcms processed this
+        $node->_haxcms = TRUE;
+        // allow other projects to jump in as needed for this very specific node save context
+        drupal_alter('haxcms_save_node', $node);
 
-      // Allow other modules to alter the new book node.
-      if (node_access('create', $node->type)) {
-        node_save($node);
-        // allow front end to set path if defined
-        $nodePath = 'node/' . $node->nid;
-        if (isset($nodeData['location']) && $nodeData['location'] != '' && $nodeData['location'] != NULL) {
-          $pathMap = array("source" => 'node/' . $node->nid, "alias" => $nodeData['location']);
-          path_save($pathMap);
-          $nodePath = $nodeData['location'];
+        // Allow other modules to alter the new book node.
+        if (node_access('create', $node->type)) {
+          node_save($node);
+          // allow front end to set path if defined
+          $nodePath = 'node/' . $node->nid;
+          if (isset($activeNode['location']) && $activeNode['location'] != '' && $activeNode['location'] != NULL) {
+            $pathMap = array("source" => 'node/' . $node->nid, "alias" => $activeNode['location']);
+            path_save($pathMap);
+            $nodePath = $activeNode['location'];
+          }
+          $status = 200;
+          $message = t('Node created!');
+          $node->slug = $nodePath;
         }
-        $status = 200;
-        $message = t('Node created!');
-        $node->slug = $nodePath;
       }
     }
   }
