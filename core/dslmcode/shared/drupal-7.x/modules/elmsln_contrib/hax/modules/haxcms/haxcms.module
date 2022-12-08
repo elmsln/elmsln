@@ -266,9 +266,8 @@ function haxcms_menu() {
     'access arguments' => array('use hax'),
   );
   // saveOutline from outline-designer
-  $items['haxapi/saveOutline/%'] = array(
+  $items['haxapi/saveOutline'] = array(
     'page callback' => '_haxcms_saveOutline',
-    'page arguments' => array(2),
     'type' => MENU_CALLBACK,
     'access callback' => 'user_access',
     'access arguments' => array('use hax'),
@@ -643,37 +642,52 @@ function _haxcms_getUserData($token) {
  * @todo THIS IS MOSTLY STUB CODE THAT NEEDS TO SUPPORT LOADING AND SAVING EXISTING NODES
  * WHILE THIS IS CURRENTLY ABOUT MAKING NEW THINGS EACH TIME
  */
-function _haxcms_saveOutline($token) {
+function _haxcms_saveOutline() {
   $status = 403;
   $message = t('Access denied');
-  $node = new stdClass();
   $items = array();
+  $postData = file_get_contents("php://input");
+  $postData = json_decode($postData, TRUE);
+  $token = $postData['jwt'];
   if (_haxcms_convert_request_structure($token, TRUE)) {
-    $postData = file_get_contents("php://input");
-    $postData = json_decode($postData, TRUE);
     // resolve multiple vs singular creation request
     if (isset($postData['items'])) {
-      for ($i=0; $i < count($nodeParams['items']); $i++) {
-        array_push($items, array(
-          "parent" => $nodeParams['items'][$i]['parent'],
-          "title" => $nodeParams['items'][$i]['title'],
-          "slug" => $nodeParams['items'][$i]['slug'],
-          "order" => $nodeParams['items'][$i]['order'],
-          "id" => $nodeParams['items'][$i]['id'],
-          "indent" => $nodeParams['items'][$i]['indent'],
-          "contents" => $nodeParams['items'][$i]['contents'],
-          "location" => $nodeParams['items'][$i]['location'],
-        ));
+      for ($i=0; $i < count($postData['items']); $i++) {
+        if (isset($postData['items'][$i]['delete']) && $postData['items'][$i]['delete'] == true) {
+          // do nothing, need to clean up later and delete these
+          // verify access to this operation
+          $tmpNode = node_load($postData['items'][$i]['id']);
+          if (node_access('delete', $tmpNode)) {
+            node_delete($postData['items'][$i]['id']);
+          }
+        }
+        else {
+          array_push($items, array(
+            "parent" => $postData['items'][$i]['parent'],
+            "title" => $postData['items'][$i]['title'],
+            "slug" => $postData['items'][$i]['slug'],
+            "order" => $postData['items'][$i]['order'],
+            "id" => $postData['items'][$i]['id'],
+            "indent" => $postData['items'][$i]['indent'],
+            "contents" => $postData['items'][$i]['contents'],
+            "location" => $postData['items'][$i]['location'],
+            "duplicate" => $postData['items'][$i]['duplicate'],
+          ));
+        }
       }
     }
     // run through and create the array of items
     for ($i=0; $i < count($items); $i++) {
+      $node = new stdClass();
       $activeNode = $items[$i]['node'];
       $status = 500;
       $message = t('Node creation failed!');
       $parent = NULL;
       // parent node is required or we don't know where to place this item
       if ($link = menu_link_load(str_replace('mlid-', '', $activeNode['parent']))) {
+        $parent = node_load(str_replace('node/', '', $link['link_path']));
+      }
+      else if ($link = menu_link_load(str_replace('mlid-', '', $itemMap[$activeNode['parent']]))) {
         $parent = node_load(str_replace('node/', '', $link['link_path']));
       }
       else {
@@ -683,27 +697,32 @@ function _haxcms_saveOutline($token) {
       }
       // should be able to get either of these
       if ($parent != null) {
-        // load this from an actual setting / default setting
-        // default to the parent's type
-        $type = variable_get('book_child_type', $parent->type);
-        // set the node
-        $node->type = $type;
-        node_object_prepare($node);
-        
+        // see if we can't load the existing node vs a full rebuild
+        if ($tmp = node_load($activeNode['id'])) {
+          $node = $tmp;
+        }
+        else {
+          // load this from an actual setting / default setting
+          // default to the parent's type
+          $type = variable_get('book_child_type', $parent->type);
+          // set the node
+          $node->type = $type;
+          node_object_prepare($node);
+          $node->uid = $GLOBALS['user']->uid;
+          // default to setting parent language if set, otherwise none
+          $node->language = isset($parent->language) ? $parent->language : LANGUAGE_NONE;
+          $node->book['bid'] = $parent->book['bid'];
+          // minor support for OG
+          if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
+            $node->og_group_ref = $parent->og_group_ref;
+          }
+          $node->book['menu_name'] = $parent->book['menu_name'];
+          $node->book['module'] = $parent->book['module'];
+        }
         $node->title = $activeNode['title'];
-        $node->uid = $GLOBALS['user']->uid;
-        // default to setting parent language if set, otherwise none
-        $node->language = isset($parent->language) ? $parent->language : LANGUAGE_NONE;
         // copy over book structure
         $node->book['weight'] = $activeNode['order'];
         $node->book['plid'] = $activeNode['parent'] != null ? $parent->book['mlid'] : null;
-        $node->book['bid'] = $parent->book['bid'];
-        // minor support for OG
-        if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
-          $node->og_group_ref = $parent->og_group_ref;
-        }
-        $node->book['menu_name'] = $parent->book['menu_name'];
-        $node->book['module'] = $parent->book['module'];
 
         // support for duplicating the content of another item
         if (isset($activeNode['duplicate'])) {
@@ -717,13 +736,20 @@ function _haxcms_saveOutline($token) {
             $node->book['weight'] = $nodeToDuplicate->book['weight'] - 1;
           }
         }
+        // body content trumps duplication if it is set
+        if (isset($activeNode['contents'])) {
+          $node->body['und'][0]['value'] = $activeNode['contents'];
+          if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
+            $node->body['und'][0]['format'] = filter_default_format();
+          }
+        }
         // leave a trace that haxcms processed this
         $node->_haxcms = TRUE;
         // allow other projects to jump in as needed for this very specific node save context
         drupal_alter('haxcms_save_node', $node);
 
-        // Allow other modules to alter the new book node.
-        if (node_access('create', $node->type)) {
+        // verify access to the operation in question prior to execution
+        if (isset($node->nid) && node_access('update', $node) || !isset($node->nid) && node_access('create', $node->type)) {
           node_save($node);
           // allow front end to set path if defined
           $nodePath = 'node/' . $node->nid;
@@ -733,7 +759,7 @@ function _haxcms_saveOutline($token) {
             $nodePath = $activeNode['location'];
           }
           $status = 200;
-          $message = t('Node created!');
+          $message = t('Outline updated!');
           $node->slug = $nodePath;
         }
       }
@@ -759,46 +785,57 @@ function _haxcms_saveOutline($token) {
 function _haxcms_createNode($token) {
   $status = 403;
   $message = t('Access denied');
-  $node = new stdClass();
   $items = array();
+  $itemMap = array();
   if (_haxcms_convert_request_structure($token, TRUE)) {
     $postData = file_get_contents("php://input");
     $postData = json_decode($postData, TRUE);
     // resolve multiple vs singular creation request
     if (isset($postData['items'])) {
-      for ($i=0; $i < count($nodeParams['items']); $i++) {
-        array_push($items, array(
-          "parent" => $nodeParams['items'][$i]['parent'],
-          "title" => $nodeParams['items'][$i]['title'],
-          "slug" => $nodeParams['items'][$i]['slug'],
-          "order" => $nodeParams['items'][$i]['order'],
-          "id" => $nodeParams['items'][$i]['id'],
-          "indent" => $nodeParams['items'][$i]['indent'],
-          "contents" => $nodeParams['items'][$i]['contents'],
-          "location" => $nodeParams['items'][$i]['location'],
-        ));
+      for ($i=0; $i < count($postData['items']); $i++) {
+        if (isset($postData['items'][$i]['delete']) && $postData['items'][$i]['delete'] == true) {
+          // do nothing
+        }
+        else {
+          array_push($items, array(
+            "parent" => $postData['items'][$i]['parent'],
+            "title" => $postData['items'][$i]['title'],
+            "slug" => $postData['items'][$i]['slug'],
+            "order" => $postData['items'][$i]['order'],
+            "id" => $postData['items'][$i]['id'],
+            "indent" => $postData['items'][$i]['indent'],
+            "contents" => $postData['items'][$i]['contents'],
+            "location" => $postData['items'][$i]['location'],
+            "duplicate" => $postData['items'][$i]['duplicate'],
+          ));
+        }
       }
     }
     else {
       array_push($items, array(
         "parent" => $postData['parent'],
-        "parent" => $postData['order'],
-        "title" => $nodeParams['node']['title'],
-        "slug" => $nodeParams['node']['slug'],
-        "id" => $nodeParams['node']['id'],
-        "indent" => $nodeParams['node']['indent'],
-        "contents" => $nodeParams['node']['contents'],
-        "location" => $nodeParams['node']['location'],
+        "order" => $postData['order'],
+        "title" => $postData['node']['title'],
+        "slug" => $postData['node']['slug'],
+        "id" => $postData['node']['id'],
+        "indent" => $postData['node']['indent'],
+        "contents" => $postData['node']['contents'],
+        "location" => $postData['node']['location'],
+        "duplicate" => $postData['node']['duplicate'],
       ));
     }
     // run through and create the array of items
     for ($i=0; $i < count($items); $i++) {
-      $activeNode = $items[$i]['node'];
+      $node = new stdClass();
+      $activeNode = $items[$i];
       $status = 500;
       $message = t('Node creation failed!');
       $parent = NULL;
       // parent node is required or we don't know where to place this item
       if ($link = menu_link_load(str_replace('mlid-', '', $activeNode['parent']))) {
+        $parent = node_load(str_replace('node/', '', $link['link_path']));
+      }
+      else if ($link = menu_link_load(str_replace('mlid-', '', $itemMap[$activeNode['parent']]))) {
         $parent = node_load(str_replace('node/', '', $link['link_path']));
       }
       else {
@@ -814,7 +851,6 @@ function _haxcms_createNode($token) {
         // set the node
         $node->type = $type;
         node_object_prepare($node);
-        
         $node->title = $activeNode['title'];
         $node->uid = $GLOBALS['user']->uid;
         // default to setting parent language if set, otherwise none
@@ -829,7 +865,6 @@ function _haxcms_createNode($token) {
         }
         $node->book['menu_name'] = $parent->book['menu_name'];
         $node->book['module'] = $parent->book['module'];
-
         // support for duplicating the content of another item
         if (isset($activeNode['duplicate'])) {
           // verify we can load this id
@@ -842,6 +877,13 @@ function _haxcms_createNode($token) {
             $node->book['weight'] = $nodeToDuplicate->book['weight'] - 1;
           }
         }
+        // body content trumps duplication if it is set
+        if (isset($activeNode['contents'])) {
+          $node->body['und'][0]['value'] = $activeNode['contents'];
+          if (!isset($node->body['und'][0]['format']) || $node->body['und'][0]['format'] == '') {
+            $node->body['und'][0]['format'] = filter_default_format();
+          }
+        }
         // leave a trace that haxcms processed this
         $node->_haxcms = TRUE;
         // allow other projects to jump in as needed for this very specific node save context
@@ -850,6 +892,8 @@ function _haxcms_createNode($token) {
         // Allow other modules to alter the new book node.
         if (node_access('create', $node->type)) {
           node_save($node);
+          // set record of what it WAS and what it became
+          $itemMap[$activeNode['id']] = $node->nid;
           // allow front end to set path if defined
           $nodePath = 'node/' . $node->nid;
           if (isset($activeNode['location']) && $activeNode['location'] != '' && $activeNode['location'] != NULL) {
