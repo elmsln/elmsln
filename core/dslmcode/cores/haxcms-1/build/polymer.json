@@ -102,7 +102,7 @@
     {
       "name": "es6",
       "browserCapabilities": [
-        "es2017",
+        "es2018",
         "modules"
       ],
       "js": {
