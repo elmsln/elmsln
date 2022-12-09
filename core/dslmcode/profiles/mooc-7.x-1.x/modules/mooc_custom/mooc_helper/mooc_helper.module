@@ -66,21 +66,9 @@ function mooc_helper_haxcms_slots($node) {
   if (user_access('use hax')) {
     $ary = array(
       array(
-        'title' => t('ELMS options'),
-        'icon' => 'hax:settings',
+        'title' => t('More'),
+        'icon' => 'more-vert',
         'id' => 'elmsln-administer-edit',
-      ),
-      array(
-        'path' => 'admin/content/book/' . $node->book['bid'],
-        'title' => t('Outline designer'),
-        'icon' => 'hax:site-map',
-        'id' => 'elmsln-outline-designer',
-      ),
-      array(
-        'path' => 'node/' . $node->nid . '/edit',
-        'title' => t('Legacy editor'),
-        'icon' => 'hax:page-details',
-        'id' => 'elmsln-node-edit',
       ),
       array(
         'path' => 'admin/config/content/haxcms',

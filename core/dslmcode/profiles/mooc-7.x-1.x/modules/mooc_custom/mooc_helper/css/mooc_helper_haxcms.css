@@ -2,7 +2,8 @@ haxcms-site-editor-ui::part(logoutbtn),
 haxcms-site-editor-ui::part(newjourneybtn),
 haxcms-site-editor-ui::part(manifestbtn),
 haxcms-site-editor-ui::part(hax-logo),
-haxcms-site-editor-ui::part(detailsbtn)
+haxcms-site-editor-ui::part(detailsbtn),
+haxcms-site-editor-ui::part(morebtn)
  {
   display: none !important;
 }

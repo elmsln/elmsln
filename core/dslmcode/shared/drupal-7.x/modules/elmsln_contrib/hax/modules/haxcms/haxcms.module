@@ -646,6 +646,7 @@ function _haxcms_saveOutline() {
   $status = 403;
   $message = t('Access denied');
   $items = array();
+  $itemMap = array();
   $postData = file_get_contents("php://input");
   $postData = json_decode($postData, TRUE);
   $token = $postData['jwt'];
@@ -653,12 +654,19 @@ function _haxcms_saveOutline() {
     // resolve multiple vs singular creation request
     if (isset($postData['items'])) {
       for ($i=0; $i < count($postData['items']); $i++) {
+        $nid = null;
+        // rewrite node IDs so we stop looking them up everywhere
+        if (!isset($postData['items'][$i]['new']) && isset($postData['items'][$i]['id']) && $link = menu_link_load(str_replace('mlid-', '', $postData['items'][$i]['id']))) {
+          $nid = str_replace('node/', '', $link['link_path']);
+        }
+        // delete things prior to running through the whole list
         if (isset($postData['items'][$i]['delete']) && $postData['items'][$i]['delete'] == true) {
           // do nothing, need to clean up later and delete these
           // verify access to this operation
-          $tmpNode = node_load($postData['items'][$i]['id']);
+          $tmpNode = node_load($nid);
           if (node_access('delete', $tmpNode)) {
-            node_delete($postData['items'][$i]['id']);
+            node_delete($nid);
+            watchdog('outline-designer', 'Node: ' . $nid . ' deleted');
           }
         }
         else {
@@ -672,6 +680,7 @@ function _haxcms_saveOutline() {
             "contents" => $postData['items'][$i]['contents'],
             "location" => $postData['items'][$i]['location'],
             "duplicate" => $postData['items'][$i]['duplicate'],
+            "nid" => $nid,
           ));
         }
       }
@@ -679,16 +688,16 @@ function _haxcms_saveOutline() {
     // run through and create the array of items
     for ($i=0; $i < count($items); $i++) {
       $node = new stdClass();
-      $activeNode = $items[$i]['node'];
+      $activeNode = $items[$i];
       $status = 500;
       $message = t('Node creation failed!');
       $parent = NULL;
       // parent node is required or we don't know where to place this item
-      if ($link = menu_link_load(str_replace('mlid-', '', $activeNode['parent']))) {
+      if ($activeNode['parent'] != NULL && $link = menu_link_load(str_replace('mlid-', '', $activeNode['parent']))) {
         $parent = node_load(str_replace('node/', '', $link['link_path']));
       }
-      else if ($link = menu_link_load(str_replace('mlid-', '', $itemMap[$activeNode['parent']]))) {
-        $parent = node_load(str_replace('node/', '', $link['link_path']));
+      else if ($activeNode['parent'] != NULL && isset($itemMap[$activeNode['parent']])) {
+        $parent = node_load($itemMap[$activeNode['parent']]);
       }
       else {
         // totally possible to be null still. allow other modules to figure out what active is
@@ -698,7 +707,7 @@ function _haxcms_saveOutline() {
       // should be able to get either of these
       if ($parent != null) {
         // see if we can't load the existing node vs a full rebuild
-        if ($tmp = node_load($activeNode['id'])) {
+        if ($tmp = node_load($activeNode['nid'])) {
           $node = $tmp;
         }
         else {
@@ -719,10 +728,12 @@ function _haxcms_saveOutline() {
           $node->book['menu_name'] = $parent->book['menu_name'];
           $node->book['module'] = $parent->book['module'];
         }
-        $node->title = $activeNode['title'];
+        if (isset($activeNode['title']) && $activeNode['title'] != '') {
+          $node->title = $activeNode['title'];
+        }
         // copy over book structure
         $node->book['weight'] = $activeNode['order'];
-        $node->book['plid'] = $activeNode['parent'] != null ? $parent->book['mlid'] : null;
+        $node->book['plid'] = $activeNode['parent'] != null ? $parent->book['mlid'] : $node->book['bid'];
 
         // support for duplicating the content of another item
         if (isset($activeNode['duplicate'])) {
@@ -750,21 +761,27 @@ function _haxcms_saveOutline() {
 
         // verify access to the operation in question prior to execution
         if (isset($node->nid) && node_access('update', $node) || !isset($node->nid) && node_access('create', $node->type)) {
-          node_save($node);
+          if (isset($node->nid)) {
+            node_save($node);
+            watchdog('outline-designer', 'Node ('. $node->nid . ') updated: ' . $node->title);
+          }
+          else {
+            node_save($node);
+            watchdog('outline-designer', 'New ' . $node->type . ': ' . $node->title . ' created!');
+          }
+          $itemMap[$activeNode['id']] = $node->nid;
           // allow front end to set path if defined
-          $nodePath = 'node/' . $node->nid;
-          if (isset($activeNode['location']) && $activeNode['location'] != '' && $activeNode['location'] != NULL) {
-            $pathMap = array("source" => 'node/' . $node->nid, "alias" => $activeNode['location']);
+          if (isset($activeNode['slug']) && $activeNode['slug'] != '' && $activeNode['slug'] != NULL) {
+            $pathMap = array("source" => 'node/' . $node->nid, "alias" => $activeNode['slug']);
             path_save($pathMap);
-            $nodePath = $activeNode['location'];
           }
           $status = 200;
           $message = t('Outline updated!');
-          $node->slug = $nodePath;
         }
       }
     }
   }
+  $node = $postData;
   // send back happy headers
   drupal_add_http_header('Content-Type', 'application/json');
   // define status
@@ -835,8 +852,8 @@ function _haxcms_createNode($token) {
       if ($link = menu_link_load(str_replace('mlid-', '', $activeNode['parent']))) {
         $parent = node_load(str_replace('node/', '', $link['link_path']));
       }
-      else if ($link = menu_link_load(str_replace('mlid-', '', $itemMap[$activeNode['parent']]))) {
-        $parent = node_load(str_replace('node/', '', $link['link_path']));
+      else if ($itemMap[$activeNode['parent']]) {
+        $parent = node_load($itemMap[$activeNode['parent']]);
       }
       else {
         // totally possible to be null still. allow other modules to figure out what active is
@@ -851,14 +868,17 @@ function _haxcms_createNode($token) {
         // set the node
         $node->type = $type;
         node_object_prepare($node);
-        $node->title = $activeNode['title'];
+        if (isset($activeNode['title']) && $activeNode['title'] != '') {
+          $node->title = $activeNode['title'];
+        }
         $node->uid = $GLOBALS['user']->uid;
         // default to setting parent language if set, otherwise none
         $node->language = isset($parent->language) ? $parent->language : LANGUAGE_NONE;
         // copy over book structure
         $node->book['weight'] = $activeNode['order'];
-        $node->book['plid'] = $activeNode['parent'] != null ? $parent->book['mlid'] : null;
         $node->book['bid'] = $parent->book['bid'];
+        // no such thing as a null parent in drupal
+        $node->book['plid'] = $activeNode['parent'] != null ? $parent->book['mlid'] : $node->book['bid'];
         // minor support for OG
         if (!empty($parent->og_group_ref[LANGUAGE_NONE][0]['target_id'])){
           $node->og_group_ref = $parent->og_group_ref;
@@ -892,18 +912,16 @@ function _haxcms_createNode($token) {
         // Allow other modules to alter the new book node.
         if (node_access('create', $node->type)) {
           node_save($node);
+          watchdog('outline-designer', 'New ' . $node->type . ': ' . $node->title . ' created!');
           // set record of what it WAS and what it became
           $itemMap[$activeNode['id']] = $node->nid;
           // allow front end to set path if defined
-          $nodePath = 'node/' . $node->nid;
-          if (isset($activeNode['location']) && $activeNode['location'] != '' && $activeNode['location'] != NULL) {
-            $pathMap = array("source" => 'node/' . $node->nid, "alias" => $activeNode['location']);
+          if (isset($activeNode['slug']) && $activeNode['slug'] != '' && $activeNode['slug'] != NULL) {
+            $pathMap = array("source" => 'node/' . $node->nid, "alias" => $activeNode['slug']);
             path_save($pathMap);
-            $nodePath = $activeNode['location'];
           }
           $status = 200;
           $message = t('Node created!');
-          $node->slug = $nodePath;
         }
       }
     }
@@ -984,7 +1002,6 @@ function _haxcms_saveNode($token) {
       $postData = json_decode($postData, TRUE);
       // body post
       if (isset($postData['node']['body'])) {
-        // @todo need to process body to find page-break tag and remove it from output
         // if it's found we also need to update title, publishing (hidden or published if not there)
         // and locked status (made up meta data?)
         // IF for some reason these do not exist or item-id !== mlid of this item, just ignore the info
@@ -1001,7 +1018,7 @@ function _haxcms_saveNode($token) {
           $body = preg_replace("/(<page-break(.*?)><\/page-break>)/", "",$body);  
           // now just work against the 1st one for the node and ignore the rest
           $data = $pageData[0];
-          if (isset($data["attributes"]["title"]) && $node->title != $data["attributes"]["title"]) {
+          if (isset($data["attributes"]["title"]) && $data["attributes"]["title"] != '' && $node->title != $data["attributes"]["title"]) {
             $node->title = $data["attributes"]["title"];
           }
           $newSlug = '';
@@ -1055,8 +1072,8 @@ function _haxcms_saveNode($token) {
       // @note currently not supported bc UI hides this
       else if (isset($postData['node']['details'])) {
         // @todo support other fields
-        if (isset($postData['node']['details']['title'])) {
-          $node->title = $postData['node']['details'];
+        if (isset($postData['node']['details']['title']) && $postData['node']['details']['title'] != '') {
+          $node->title = $postData['node']['details']['title'];
         }
       }
       // check for revision to ensure it's set automatically if globally set
@@ -1067,6 +1084,7 @@ function _haxcms_saveNode($token) {
       $node->log = t('saved via HAXcms');
       $node->revision = in_array('revision', $node_options);
       node_save($node);
+      watchdog('haxcms', 'Node ('. $node->nid . ') updated: ' . $node->title);
       $status = 200;
       $message = t('Save successful!');
     }
