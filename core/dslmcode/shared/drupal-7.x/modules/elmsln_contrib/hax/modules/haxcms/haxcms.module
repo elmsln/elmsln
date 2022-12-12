@@ -639,8 +639,7 @@ function _haxcms_getUserData($token) {
 
 /**
  * Callback to save outline
- * @todo THIS IS MOSTLY STUB CODE THAT NEEDS TO SUPPORT LOADING AND SAVING EXISTING NODES
- * WHILE THIS IS CURRENTLY ABOUT MAKING NEW THINGS EACH TIME
+ * This can't handle lock but the rest works
  */
 function _haxcms_saveOutline() {
   $status = 403;
@@ -666,6 +665,9 @@ function _haxcms_saveOutline() {
           $tmpNode = node_load($nid);
           if (node_access('delete', $tmpNode)) {
             node_delete($nid);
+            // make the book ID be the parent. This should force it to the top of the stack
+            // if the parent gets removed
+            $itemMap[$postData['items'][$i]['id']] = $tmpNode->book['bid'];
             watchdog('outline-designer', 'Node: ' . $nid . ' deleted');
           }
         }

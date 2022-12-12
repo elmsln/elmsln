@@ -7,6 +7,10 @@ haxcms-site-editor-ui::part(morebtn)
  {
   display: none !important;
 }
+/* hide the lock button as we don't support it in elms */
+haxcms-outline-editor-dialog {
+  --outline-designer-lock-visibility: hidden;
+}
 haxcms-site-editor-ui a {
   display: block;
   color: var(--simple-colors-default-theme-grey-12) !important;
