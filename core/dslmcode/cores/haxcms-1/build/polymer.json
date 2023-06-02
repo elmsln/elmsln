@@ -30,6 +30,7 @@
     "node_modules/@lrnwebcomponents/*/lib/*",
     "node_modules/@lrnwebcomponents/*/lib/**",
     "node_modules/@lrnwebcomponents/*/locales/*.json",
+    "node_modules/@lrnwebcomponents/haxcms-elements/package.json",
     "node_modules/@lrnwebcomponents/haxcms-elements/**",
     "node_modules/@lrnwebcomponents/*/lib/*/*.js",
     "node_modules/@lrnwebcomponents/*/lib/*/*",
@@ -107,22 +108,6 @@
       ],
       "js": {
         "minify": false,
-        "transformImportMeta": true
-      },
-      "css": {
-        "minify": false
-      },
-      "html": {
-        "minify": false
-      },
-      "bundle": false
-    },
-    {
-      "name": "es5-amd",
-      "js": {
-        "compile": "es5",
-        "minify": false,
-        "transformModulesToAmd": true,
         "transformImportMeta": true
       },
       "css": {
