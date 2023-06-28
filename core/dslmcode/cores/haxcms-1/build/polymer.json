@@ -76,6 +76,8 @@
     "node_modules/msr/MediaStreamRecorder.min.js",
     "node_modules/@lrnwebcomponents/chartist-render/lib/chartist/dist/chartist.min.js",
     "node_modules/@lrnwebcomponents/code-sample/lib/highlightjs/languages/*.js",
+    "node_modules/idb-keyval/dist/*.js",
+    "node_modules/safari-14-idb-fix/dist/*.js",
     "!node_modules/@polymer/app-layout/templates/**",
     "!node_modules/@polymer/app-layout/patterns/**",
     "!node_modules/@polymer/*/demo/*.js",
