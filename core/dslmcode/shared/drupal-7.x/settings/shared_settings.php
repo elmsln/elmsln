@@ -36,7 +36,6 @@ $conf['hax_autoload_element_list'] = '{
   "vocab-term": "@lrnwebcomponents/vocab-term/vocab-term.js",
   "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
   "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js",
-  "lrndesign-timeline": "@lrnwebcomponents/lrndesign-timeline/lrndesign-timeline.js",
   "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
   "place-holder": "@lrnwebcomponents/place-holder/place-holder.js",
   "q-r": "@lrnwebcomponents/q-r/q-r.js",
