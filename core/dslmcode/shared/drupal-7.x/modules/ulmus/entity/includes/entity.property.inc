@@ -34,6 +34,9 @@ function entity_get_property_info($entity_type = NULL) {
       $info = $cache->data;
     }
     else {
+      // Workaround to empty cached entity_property_info hook
+      // in the issue queue - https://www.drupal.org/node/1819790 .
+      module_implements('entity_property_info', FALSE, TRUE);
       $info = module_invoke_all('entity_property_info');
       // Let other modules alter the entity info.
       drupal_alter('entity_property_info', $info);
