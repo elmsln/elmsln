@@ -27,6 +27,7 @@ haxcms-site-editor-ui simple-toolbar-menu:active {
 }
 
 haxcms-site-builder clean-one::part(pdf-page-btn),
+haxcms-site-builder clean-one::part(email-btn),
 haxcms-site-builder clean-one::part(print-branch-btn),
 haxcms-site-builder clean-one::part(qr-code-btn) {
   display: none !important;
