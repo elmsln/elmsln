@@ -1001,6 +1001,7 @@
     display: flex;
     float:right;
     justify-content: flex-end;
+    flex-flow: initial;
   }
   #etb-course-nav .top-bar-right-actions ul lrnsys-drawer {
     height: 64px;
