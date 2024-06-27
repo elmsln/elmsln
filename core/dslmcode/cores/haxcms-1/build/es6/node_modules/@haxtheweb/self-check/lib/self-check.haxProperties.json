@@ -1,0 +1,108 @@
+{
+  "canScale": false,
+
+  "canEditSource": true,
+  "contentEditable": false,
+  "gizmo": {
+    "title": "Self Check",
+    "description": "The user will be able to complete a self-check.",
+    "icon": "icons:check-circle",
+    "color": "orange",
+    "tags": [
+      "Instructional",
+      "media",
+      "self check",
+      "pedagogy",
+      "quiz",
+      "question",
+      "image"
+    ],
+    "handles": [
+      {
+        "type": "image",
+        "source": "image",
+        "title": "question",
+        "description": "answer"
+      }
+    ],
+    "meta": {
+      "author": "HAXTheWeb core team",
+      "outlineDesigner": true
+    }
+  },
+  "settings": {
+    "configure": [
+      {
+        "property": "image",
+        "title": "Image",
+        "description": "The image of the element",
+        "inputMethod": "haxupload",
+        "noVoiceRecord": true
+      },
+      {
+        "property": "title",
+        "title": "Title",
+        "description": "The title of the element",
+        "inputMethod": "textfield"
+      },
+      {
+        "property": "alt",
+        "title": "Alt Text",
+        "description": "Add alt text to the image",
+        "inputMethod": "alt"
+      },
+      {
+        "slot": "question",
+        "title": "Question",
+        "inputMethod": "textarea"
+      },
+      {
+        "slot": "",
+        "title": "Answer",
+        "inputMethod": "textarea"
+      },
+      {
+        "property": "accentColor",
+        "title": "Accent Color",
+        "description": "The accent color of the self-check",
+        "inputMethod": "colorpicker"
+      },
+      {
+        "property": "dark",
+        "title": "Dark Theme",
+        "description": "Enable Dark Theme",
+        "inputMethod": "boolean"
+      }
+    ],
+    "advanced": [
+      {
+        "property": "link",
+        "title": "More link",
+        "description": "Link to additional information",
+        "inputMethod": "textfield"
+      }
+    ]
+  },
+  "saveOptions": {
+    "unsetAttributes": [
+      "__utils",
+      "colors",
+      "image-loaded",
+      "t",
+      "correct",
+      "element-visible"
+    ]
+  },
+  "demoSchema": [
+    {
+      "tag": "self-check",
+      "properties": {
+        "accentColor": "light-blue",
+        "title": "Sharks Self Check",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/480px-White_shark.jpg",
+        "alt": "Great White Shark"
+      },
+      "content": "<p slot=\"question\">How large can the average great white shark grow to be?</p><p>The Great White shark can grow to be 15 ft to more than 20 ft in length and weigh 2.5 tons or more.</p>"
+    }
+  ]
+}

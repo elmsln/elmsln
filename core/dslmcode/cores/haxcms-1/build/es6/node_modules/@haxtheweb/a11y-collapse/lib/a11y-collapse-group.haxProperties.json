@@ -1,0 +1,44 @@
+{
+  "canScale": false,
+
+  "canEditSource": true,
+  "type": "grid",
+  "gizmo": {
+    "title": "Expand Collapse Group",
+    "description": "A group of expand collapse elements.",
+    "icon": "icons:view-day",
+    "color": "grey",
+    "tags": ["Layout"]
+  },
+  "settings": {
+    "configure": [
+      {
+        "property": "radio",
+        "title": "Expand only one",
+        "description": "Only one item can be expanded.",
+        "inputMethod": "boolean"
+      },
+      {
+        "slot": "",
+        "title": "Collapse Items",
+        "description": "The collapse items.",
+        "inputMethod": "code-editor",
+        "slotWrapper": "a11y-collapse",
+        "editMode": {
+          "disabled": false
+        }
+      }
+    ],
+    "advanced": []
+  },
+  "saveOptions": {
+    "unsetAttributes": ["expanded"]
+  },
+  "demoSchema": [
+    {
+      "tag": "a11y-collapse-group",
+      "properties": {},
+      "content": "<p>Optional info</p><a11y-collapse heading=\"Collapse 1\"><p slot=\"content\">Hidden content 1.</p></a11y-collapse><a11y-collapse heading=\"Collapse 2\"><p slot=\"content\">Hidden content 2.</p></a11y-collapse>"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "api": "1",
+  "type": "element",
+  "editingElement": "core",
+  "hideDefaultSettings": false,
+  "canScale": true,
+  "canEditSource": true,
+  "contentEditable": false,
+  "gizmo": {
+    "title": "Matching question",
+    "description": "",
+    "icon": "editor:drag-handle",
+    "color": "purple",
+    "tags": ["Instructional", "matching", "drag and drop", "question"],
+    "handles": [],
+    "meta": {
+      "author": "HAXTheWeb core team"
+    }
+  },
+  "settings": {
+    "configure": [],
+    "advanced": [],
+    "developer": []
+  },
+  "saveOptions": {
+    "unsetAttributes": []
+  },
+  "documentation": {
+    "howTo": null,
+    "purpose": null
+  },
+  "demoSchema": [
+    {
+      "tag": "matching-question",
+      "content": "",
+      "properties": {}
+    }
+  ]
+}

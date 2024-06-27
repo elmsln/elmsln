@@ -1,1 +1,1 @@
-import"../node_modules/@lrnwebcomponents/app-hax/app-hax.js";
+import"../node_modules/@haxtheweb/app-hax/app-hax.js";

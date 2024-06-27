@@ -1,0 +1,81 @@
+{
+  "type": "element",
+  "canScale": false,
+  "designSystem": {
+    "card": true,
+    "primary": true
+  },
+  "canEditSource": false,
+  "gizmo": {
+    "title": "iFrame",
+    "description": "A basic way to frame external web content",
+    "icon": "hax:iframe",
+    "color": "blue-grey",
+    "tags": ["Resource", "iframe", "embed", "web", "link"],
+    "handles": [
+      {
+        "type": "link",
+        "source": "source",
+        "height": "height",
+        "width": "width"
+      },
+      {
+        "type": "pdf",
+        "source": "source",
+        "height": "height",
+        "width": "width"
+      },
+      {
+        "type": "document",
+        "source": "source",
+        "height": "height",
+        "width": "width"
+      },
+      {
+        "type": "html",
+        "source": "source",
+        "height": "height",
+        "width": "width"
+      }
+    ],
+    "meta": {
+      "author": "HAXTheWeb core team"
+    }
+  },
+  "settings": {
+    "configure": [
+      {
+        "property": "source",
+        "title": "Resource url",
+        "description": "Resource url",
+        "inputMethod": "textfield",
+        "icon": "link",
+        "required": true,
+        "validationType": "url"
+      },
+      {
+        "property": "height",
+        "title": "Height",
+        "description": "Content frame height",
+        "inputMethod": "textfield"
+      },
+      {
+        "property": "width",
+        "title": "Width",
+        "description": "Content frame width",
+        "inputMethod": "textfield"
+      }
+    ],
+    "advanced": []
+  },
+  "demoSchema": [
+    {
+      "tag": "iframe-loader",
+      "properties": {
+        "source": "https://haxtheweb.org",
+        "disabled": true
+      },
+      "content": ""
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "canScale": true,
+
+  "canEditSource": true,
+  "gizmo": {
+    "title": "GIF",
+    "description": "Make animated GIFs accessible.",
+    "icon": "gif",
+    "color": "grey",
+    "tags": [
+      "Images",
+      "player",
+      "gif",
+      "media",
+      "a11y",
+      "accessibility",
+      "animation",
+      "image"
+    ],
+    "handles": [
+      {
+        "type": "gif",
+        "type_exclusive": true,
+        "source": "src",
+        "source2": "srcWithoutAnimation",
+        "alt": "alt"
+      },
+      {
+        "type": "image",
+        "source": "src",
+        "source2": "srcWithoutAnimation",
+        "alt": "alt"
+      }
+    ],
+    "meta": {
+      "author": "HAXTheWeb core team"
+    }
+  },
+  "settings": {
+    "configure": [
+      {
+        "property": "src",
+        "title": "Animated GIF",
+        "description": "The URL to your animated GIF.",
+        "inputMethod": "haxupload",
+        "noVoiceRecord": true,
+        "icon": "link",
+        "validationType": "url",
+        "required": true
+      },
+      {
+        "property": "alt",
+        "title": "Alt Text",
+        "description": "Alternative text for the image.",
+        "inputMethod": "alt",
+        "icon": "accessibility",
+        "required": true
+      }
+    ],
+    "advanced": [
+      {
+        "property": "srcWithoutAnimation",
+        "title": "Still Image",
+        "description": "The URL to a still image version of your GIF.",
+        "inputMethod": "haxupload",
+        "noVoiceRecord": true,
+        "icon": "link",
+        "validationType": "url",
+        "required": true
+      },
+      {
+        "property": "longdesc",
+        "title": "Long Description",
+        "description": "Long descriptions of the GIF for accessibiility",
+        "inputMethod": "textarea"
+      }
+    ]
+  },
+  "saveOptions": {
+    "unsetAttributes": ["__playing", "__gif-loaded", "element-visible", "t"]
+  },
+  "demoSchema": [
+    {
+      "tag": "a11y-gif-player",
+      "properties": {
+        "alt": "It's Always Sunny in Philadelphia Pepe Silvia Meme with GIFs",
+        "src": "https://media0.giphy.com/media/zHaPZZvl6cVHi/giphy.gif",
+        "longdesc": "Pepe Silvia scene from It's Always Sunny in Philadelphia. The GIF's don't stop.",
+        "elementVisible": true
+      }
+    }
+  ]
+}

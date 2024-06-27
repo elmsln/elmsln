@@ -1,0 +1,69 @@
+{
+  "canScale": false,
+
+  "canEditSource": false,
+  "gizmo": {
+    "title": "Vocab",
+    "description": "Vocabulary term",
+    "icon": "hax:vocab",
+    "color": "red",
+    "tags": ["Instructional", "definition", "term", "vocabulary", "glossary"],
+    "handles": [
+      {
+        "type": "inline",
+        "text": "term"
+      }
+    ],
+    "meta": {
+      "author": "HAXTheWeb core team",
+      "inlineOnly": true
+    }
+  },
+  "settings": {
+    "inline": [],
+    "configure": [
+      {
+        "property": "term",
+        "title": "Term",
+        "inputMethod": "textfield",
+        "icon": "editor:title",
+        "required": true
+      },
+      {
+        "property": "information",
+        "title": "Definition",
+        "description": "The definitition to display when the term is clicked.",
+        "inputMethod": "textarea",
+        "required": true
+      },
+      {
+        "property": "popoverMode",
+        "title": "Popover",
+        "description": "Display the definition in a popover instead of inline.",
+        "inputMethod": "boolean",
+        "required": false
+      }
+    ],
+    "advanced": [
+      {
+        "property": "links",
+        "title": "Links",
+        "description": "List of links for supplamental use. 1 per line with a , in between title and URL",
+        "inputMethod": "code-editor",
+        "required": false
+      }
+    ]
+  },
+  "demoSchema": [
+    {
+      "tag": "vocab-term",
+      "properties": {
+        "term": "HAX Camp",
+        "information": "An event dedicated to spreading web components knowledge person to person.",
+        "links": "Website,https://hax.camp/",
+        "popoverMode": true
+      },
+      "content": ""
+    }
+  ]
+}

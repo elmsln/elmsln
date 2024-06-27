@@ -1,0 +1,69 @@
+{
+  "api": "1",
+  "type": "element",
+  "editingElement": "core",
+  "hideDefaultSettings": false,
+  "canScale": false,
+  "canEditSource": true,
+  "contentEditable": false,
+  "gizmo": {
+    "title": "RunKit embed",
+    "description": "",
+    "icon": "hax:code",
+    "color": "red",
+    "tags": ["Other", "runkit", "code"],
+    "handles": [],
+    "meta": {
+      "author": "HAXTheWeb core team"
+    }
+  },
+  "settings": {
+    "configure": [
+      {
+        "slot": "",
+        "slotWrapper": "template",
+        "slotAttributes": {
+          "preserve-content": "preserve-content"
+        },
+        "title": "Source",
+        "description": "Code to be presented in content area",
+        "inputMethod": "code-editor"
+      },
+      {
+        "property": "mode",
+        "title": "Mode",
+        "description": "Whether to build a live endpoint or run in-place",
+        "inputMethod": "select",
+        "options": {
+          "default": "default",
+          "endpoint": "endpoint"
+        }
+      },
+      {
+        "property": "nodeVersion",
+        "title": "Node Version",
+        "description": "Semver node version",
+        "inputMethod": "textfield"
+      }
+    ],
+    "advanced": [],
+    "developer": []
+  },
+  "saveOptions": {
+    "unsetAttributes": ["source", "loading"]
+  },
+  "documentation": {
+    "howTo": null,
+    "purpose": null
+  },
+  "demoSchema": [
+    {
+      "tag": "runkit-embed",
+      "content": "<template>console.log(\"Hello World\");</template>",
+      "properties": {
+        "mode": "default",
+        "nodeVersion": "18.x.x"
+      }
+    }
+  ]
+}

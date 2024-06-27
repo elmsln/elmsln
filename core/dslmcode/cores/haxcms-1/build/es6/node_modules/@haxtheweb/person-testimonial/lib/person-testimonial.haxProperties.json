@@ -1,0 +1,96 @@
+{
+  "type": "grid",
+  "canScale": false,
+
+  "canEditSource": true,
+  "gizmo": {
+    "title": "Image Blockquote",
+    "description": "A quote well designed with an optional image",
+    "icon": "editor:format-quote",
+    "color": "orange",
+    "tags": [
+      "Layout",
+      "content",
+      "presentation",
+      "blockquote",
+      "quote",
+      "testimonial",
+      "person",
+      "design",
+      "image"
+    ],
+    "handles": [
+      {
+        "type": "image",
+        "source": "image",
+        "title": "name",
+        "caption": "position"
+      }
+    ],
+    "meta": {
+      "author": "HAXTheWeb core team"
+    }
+  },
+  "settings": {
+    "configure": [
+      {
+        "property": "image",
+        "title": "Image",
+        "description": "Adds image to testimonial",
+        "inputMethod": "haxupload",
+        "noVoiceRecord": true,
+        "icon": "editor:insert-photo"
+      },
+      {
+        "property": "accentColor",
+        "title": "Accent color",
+        "description": "Select the accent color use",
+        "inputMethod": "colorpicker",
+        "icon": "editor:format-color-fill"
+      },
+      {
+        "property": "dark",
+        "title": "Dark",
+        "description": "Use dark theme",
+        "inputMethod": "boolean",
+        "icon": "invert-colors"
+      },
+      {
+        "property": "name",
+        "title": "Full Name",
+        "description": "Credit the person making the testimonial",
+        "inputMethod": "textfield",
+        "icon": "account-circle"
+      },
+      {
+        "property": "position",
+        "title": "Position or Job Title",
+        "description": "List the position and job title",
+        "inputMethod": "textfield",
+        "icon": "icons:work"
+      },
+      {
+        "slot": "",
+        "title": "Quote",
+        "description": "Quote by the person giving the testimonial",
+        "inputMethod": "textfield",
+        "slotWrapper": "p",
+        "allowedSlotWrappers": ["p"]
+      }
+    ],
+    "advanced": []
+  },
+  "demoSchema": [
+    {
+      "tag": "person-testimonial",
+      "properties": {
+        "accentColor": "blue",
+        "dark": true,
+        "position": "Coffee drinker",
+        "name": "bto-pro",
+        "image": "https://github.com/btopro.png"
+      },
+      "content": "<p>I at times, enjoy coffee. Those times, are all times.</p>"
+    }
+  ]
+}

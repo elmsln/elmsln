@@ -1,0 +1,40 @@
+{
+  "canScale": false,
+
+  "canEditSource": true,
+  "type": "grid",
+  "gizmo": {
+    "title": "Sorting question",
+    "description": "Sort options in the right order to get a score!",
+    "icon": "credit-card",
+    "color": "blue",
+    "tags": ["Instructional", "self check", "assessment", "sort"]
+  },
+  "settings": {
+    "configure": [
+      {
+        "property": "question",
+        "title": "Question",
+        "description": "Question Header.",
+        "inputMethod": "textfield"
+      },
+      {
+        "slot": "",
+        "title": "Options",
+        "description": "Options to sort",
+        "required": true,
+        "slotWrapper": "sorting-option"
+      }
+    ],
+    "advanced": []
+  },
+  "demoSchema": [
+    {
+      "tag": "sorting-question",
+      "properties": {
+        "question": "Sorting these in numerical order"
+      },
+      "content": "<p slot=\"evidence\">Self evident, Refer back to 1st grade</p><p slot=\"hint\">Consider that numbers tend to go zero, one, two...</p><sorting-option>1</sorting-option><sorting-option>2</sorting-option><sorting-option>3</sorting-option>"
+    }
+  ]
+}

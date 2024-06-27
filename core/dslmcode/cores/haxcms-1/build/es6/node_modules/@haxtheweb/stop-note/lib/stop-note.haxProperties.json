@@ -1,0 +1,92 @@
+{
+  "type": "grid",
+  "canScale": true,
+
+  "canEditSource": true,
+  "gizmo": {
+    "title": "Stop Note",
+    "description": "A message to alert readers to specific directions.",
+    "icon": "icons:report",
+    "color": "orange",
+    "tags": [
+      "Instructional",
+      "content",
+      "layout",
+      "pedagogy",
+      "warning",
+      "notice",
+      "stop",
+      "note"
+    ],
+    "handles": [
+      {
+        "type": "text",
+        "title": "label"
+      }
+    ],
+    "meta": {
+      "author": "HAXTheWeb core team"
+    }
+  },
+  "settings": {
+    "configure": [
+      {
+        "property": "title",
+        "title": "Title",
+        "description": "Enter title for stop-note.",
+        "inputMethod": "textfield",
+        "required": true
+      },
+      {
+        "property": "url",
+        "title": "URL",
+        "description": "Enter an external url.",
+        "inputMethod": "haxupload",
+        "noVoiceRecord": true,
+        "noCamera": true,
+        "required": true
+      },
+      {
+        "property": "status",
+        "title": "Status",
+        "description": "Setting status changes the colors and icons to match",
+        "inputMethod": "select",
+        "options": {
+          "stop": "Stop",
+          "warning": "Warning",
+          "success": "Confirmation",
+          "info": "Notice"
+        }
+      },
+      {
+        "slot": "message",
+        "title": "Note Text",
+        "description": "IText for the stop-note.",
+        "inputMethod": "textfield",
+        "slotWrapper": "p",
+        "allowedSlotWrappers": ["p", "div"]
+      }
+    ],
+    "advanced": []
+  },
+  "saveOptions": {
+    "unsetAttributes": ["colors", "t"]
+  },
+  "demoSchema": [
+    {
+      "tag": "stop-note",
+      "properties": {
+        "title": "Hold up there"
+      },
+      "content": "<p slot=\"message\"><strong>Read these important things!</strong>\n</p>\n"
+    },
+    {
+      "tag": "stop-note",
+      "properties": {
+        "title": "Warning",
+        "icon": "stopnoteicons:warning-icon"
+      },
+      "content": "<p slot=\"message\">You can write any warning message you want here.</p>\n"
+    }
+  ]
+}
