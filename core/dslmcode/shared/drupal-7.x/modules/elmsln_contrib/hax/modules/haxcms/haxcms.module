@@ -1485,10 +1485,10 @@ function haxcms_page_build(&$page) {
     $loader = array(
       "preload" => array(
         base_path() . drupal_get_path('module', 'haxcms') . '/build-haxcms.js',
-        $base . 'build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css',
+        $base . 'build/es6/node_modules/@haxtheweb/haxcms-elements/lib/base.css',
       ),
       "modulepreload" => array(
-        $base . 'build/es6/node_modules/@lrnwebcomponents/' . variable_get("haxcms_settings_theme", "clean-one") . '/' . variable_get("haxcms_settings_theme", "clean-one") . '.js',
+        $base . 'build/es6/node_modules/@haxtheweb/' . variable_get("haxcms_settings_theme", "clean-one") . '/' . variable_get("haxcms_settings_theme", "clean-one") . '.js',
       )
     );
     foreach ($loader as $rel => $data) {
@@ -1501,7 +1501,7 @@ function haxcms_page_build(&$page) {
           ),
         );
         if ($rel == "preload") {
-          if ($src == $base . 'build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css') {
+          if ($src == $base . 'build/es6/node_modules/@haxtheweb/haxcms-elements/lib/base.css') {
             $tag['#attributes']['as'] = 'style';
           }
           else {

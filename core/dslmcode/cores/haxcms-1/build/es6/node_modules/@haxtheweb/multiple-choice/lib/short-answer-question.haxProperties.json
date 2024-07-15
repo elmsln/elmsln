@@ -2,12 +2,16 @@
   "canScale": false,
   "canEditSource": true,
   "type": "grid",
+  "designSystem": {
+    "accent": true,
+    "primary": true
+  },
   "editMode": {
     "editMode": true
   },
   "gizmo": {
-    "title": "Short Answer",
-    "description": "Question",
+    "title": "Short Answer Question",
+    "description": "Have the user answer a basic question",
     "icon": "hax:multiple-choice",
     "color": "purple",
     "tags": ["Instructional", "question", "quiz", "short answer"],
@@ -25,16 +29,21 @@
         "inputMethod": "textfield"
       },
       {
-        "property": "correctText",
-        "title": "Correct feedback",
-        "description": "Feedback when they get it right",
-        "inputMethod": "textfield"
-      },
-      {
-        "property": "incorrectText",
-        "title": "Incorrect feedback",
-        "description": "Feedback when they get it wrong",
-        "inputMethod": "textfield"
+        "property": "answers",
+        "title": "Possible Answers",
+        "inputMethod": "array",
+        "itemLabel": "label",
+        "hideReorder": true,
+        "expanded": true,
+        "hideDuplicate": true,
+        "properties": [
+          {
+            "property": "label",
+            "title": "Answer",
+            "inputMethod": "textfield",
+            "required": true
+          }
+        ]
       }
     ],
     "advanced": [],
@@ -53,7 +62,10 @@
       "displayed-answers",
       "colors",
       "answers",
-      "shortanswer"
+      "shortanswer",
+      "show-answer",
+      "t",
+      "attempts"
     ]
   },
   "demoSchema": [

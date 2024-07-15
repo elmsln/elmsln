@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/mooc-content/mooc-content.js",
+    "element": "node_modules/@haxtheweb/elmsln-apps/lib/mooc-content/mooc-content.js",
     "title": "",
     "endpoints": {
       "data": {

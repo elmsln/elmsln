@@ -1,8 +1,11 @@
 {
   "canScale": false,
-
   "canEditSource": true,
   "type": "grid",
+  "designSystem": {
+    "accent": true,
+    "primary": true
+  },
   "editMode": {
     "editMode": true
   },
@@ -53,6 +56,9 @@
         "title": "Answers",
         "inputMethod": "array",
         "itemLabel": "label",
+        "hideReorder": true,
+        "expanded": true,
+        "hideDuplicate": true,
         "properties": [
           {
             "property": "correct",
@@ -67,21 +73,10 @@
             "required": true
           }
         ]
-      },
-      {
-        "property": "correctText",
-        "title": "Correct feedback",
-        "description": "Feedback when they get it right",
-        "inputMethod": "textfield"
-      },
-      {
-        "property": "incorrectText",
-        "title": "Incorrect feedback",
-        "description": "Feedback when they get it wrong",
-        "inputMethod": "textfield"
       }
     ],
-    "advanced": [
+    "advanced": [],
+    "developer": [
       {
         "property": "quizName",
         "title": "Name of the quiz",
@@ -91,15 +86,19 @@
     ]
   },
   "saveOptions": {
-    "unsetAttributes": ["__utils", "displayed-answers", "colors", "answers"]
+    "unsetAttributes": ["__utils", "displayed-answers", "colors", "answers", "show-answer",
+    "t",
+    "attempts"]
   },
   "demoSchema": [
     {
       "tag": "multiple-choice",
       "properties": {
+        "question": "Which is correct?",
+        "singleOption": true,
         "randomize": true
       },
-      "content": "<input type=\"checkbox\" value=\"Option 1 - Correct answer\" correct>\n<input type=\"checkbox\" value=\"Option 2\">"
+      "content": "<input type=\"checkbox\" value=\"Correct answer\" correct>\n<input type=\"checkbox\" value=\"Another option\">"
     }
   ]
 }

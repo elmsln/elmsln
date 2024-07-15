@@ -1,11 +1,15 @@
 {
   "api": "1",
-  "type": "element",
+  "type": "grid",
   "editingElement": "core",
   "hideDefaultSettings": false,
   "canScale": true,
   "canEditSource": true,
   "contentEditable": false,
+  "designSystem": {
+    "primary": true,
+    "accent": true
+  },
   "gizmo": {
     "title": "Fill in the blanks",
     "description": "",
@@ -18,12 +22,41 @@
     }
   },
   "settings": {
-    "configure": [],
+    "configure": [
+      {
+        "property": "question",
+        "title": "Question",
+        "description": "Question for users to respond to.",
+        "inputMethod": "textfield"
+      },
+      {
+        "property": "statement",
+        "title": "Statement",
+        "description": "Statement that will be converted into the mark the words interaction.",
+        "inputMethod": "textarea"
+      }
+    ],
     "advanced": [],
-    "developer": []
+    "developer": [
+      {
+        "property": "quizName",
+        "title": "Name of the quiz",
+        "description": "Quiz name passed in for use in xAPI driven environments for identification of this item",
+        "inputMethod": "textfield"
+      }
+    ]
   },
   "saveOptions": {
-    "unsetAttributes": []
+    "unsetAttributes": [
+      "word-list",
+      "number-correct",
+      "number-guessed",
+      "attempts",
+      "answers",
+      "displayed-answers",
+      "t",
+      "show-answer"
+    ]
   },
   "documentation": {
     "howTo": null,
@@ -33,7 +66,10 @@
     {
       "tag": "fill-in-the-blanks",
       "content": "",
-      "properties": {}
+      "properties": {
+        "question": "Complete this sentence",
+        "statement": "[hax] is really [good~great] at authoring [content|kittens|kites|moons] which is nice.."
+      }
     }
   ]
 }

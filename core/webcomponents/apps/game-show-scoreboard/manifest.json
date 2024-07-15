@@ -6,7 +6,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/game-show-scoreboard/game-show-scoreboard.js",
+    "element": "node_modules/@haxtheweb/elmsln-apps/lib/game-show-scoreboard/game-show-scoreboard.js",
     "title": "",
     "endpoints": {
       "options": {

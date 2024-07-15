@@ -6,7 +6,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/lrnapp-studio-submission/lrnapp-studio-submission.js",
+    "element": "node_modules/@haxtheweb/elmsln-apps/lib/lrnapp-studio-submission/lrnapp-studio-submission.js",
     "title": "Submissions",
     "endpoints": {
       "api/submissions": {

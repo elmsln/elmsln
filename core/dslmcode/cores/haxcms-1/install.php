@@ -14,12 +14,12 @@ if (is_dir('_sites') && is_dir('_config') && is_dir('_published') && is_dir('_ar
     <meta charset="utf-8">
     <title>HAXcms Installation</title>
     <link rel="preload" href="./build/es6/dist/build-install.js" as="script" crossorigin="anonymous">
-    <link rel="preload" href="./build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/core/site-list/haxcms-site-listing.js"
+    <link rel="preload" href="./build/es6/node_modules/@haxtheweb/haxcms-elements/lib/core/site-list/haxcms-site-listing.js"
       as="script" crossorigin="anonymous">
-    <link rel="preload" href="./build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css" as="style">
+    <link rel="preload" href="./build/es6/node_modules/@haxtheweb/haxcms-elements/lib/base.css" as="style">
     <link rel="preconnect" crossorigin href="https://fonts.googleapis.com">
     <link rel="preconnect" crossorigin href="https://cdnjs.cloudflare.com">   
-    <link rel="stylesheet" href="./build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css" />
+    <link rel="stylesheet" href="./build/es6/node_modules/@haxtheweb/haxcms-elements/lib/base.css" />
     <style>
       body {
         color: #222222;

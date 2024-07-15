@@ -32,7 +32,7 @@ $schema->metadata->theme = new stdClass();
 $schema->metadata->theme->variables = new stdClass();
 $schema->metadata->theme->element = "outline-player";
 $schema->metadata->theme->path =
-    "@lrnwebcomponents/outline-player/outline-player.js";
+    "@haxtheweb/outline-player/outline-player.js";
 $schema->metadata->theme->name = "Outline player";
 $schema->metadata->theme->variables->hexCode = '#aeff00';
 $schema->metadata->site->created = time();

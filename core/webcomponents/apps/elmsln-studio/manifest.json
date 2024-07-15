@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-studio/elmsln-studio.js",
+    "element": "node_modules/@haxtheweb/elmsln-studio/elmsln-studio.js",
     "title": "View studio projects",
     "endpoints": {
       "assignments-source": {

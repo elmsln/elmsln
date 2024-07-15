@@ -921,13 +921,13 @@ class HAXCMSSite
   <link rel="preload" href="' . $base . 'build.js" as="script" />
   <link rel="preload" href="' . $base . 'build-haxcms.js" as="script" />
   <link rel="preload" href="' . $base . 'wc-registry.json" as="fetch" crossorigin="anonymous" />
-  <link rel="preload" href="' . $base . 'build/es6/node_modules/@lrnwebcomponents/dynamic-import-registry/dynamic-import-registry.js" as="script" crossorigin="anonymous" />
-  <link rel="modulepreload" href="' . $base . 'build/es6/node_modules/@lrnwebcomponents/dynamic-import-registry/dynamic-import-registry.js" />
-  <link rel="preload" href="' . $base . 'build/es6/node_modules/@lrnwebcomponents/wc-autoload/wc-autoload.js" as="script" crossorigin="anonymous" />
-  <link rel="modulepreload" href="' . $base . 'build/es6/node_modules/@lrnwebcomponents/wc-autoload/wc-autoload.js" />
+  <link rel="preload" href="' . $base . 'build/es6/node_modules/@haxtheweb/dynamic-import-registry/dynamic-import-registry.js" as="script" crossorigin="anonymous" />
+  <link rel="modulepreload" href="' . $base . 'build/es6/node_modules/@haxtheweb/dynamic-import-registry/dynamic-import-registry.js" />
+  <link rel="preload" href="' . $base . 'build/es6/node_modules/@haxtheweb/wc-autoload/wc-autoload.js" as="script" crossorigin="anonymous" />
+  <link rel="modulepreload" href="' . $base . 'build/es6/node_modules/@haxtheweb/wc-autoload/wc-autoload.js" />
   <link rel="preload" href="' . $base . 'build/es6/node_modules/web-animations-js/web-animations-next-lite.min.js" as="script" />
 ' . $themePreload . $contentPreload . '
-  <link rel="preload" href="' . $base . 'build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css" as="style" />
+  <link rel="preload" href="' . $base . 'build/es6/node_modules/@haxtheweb/haxcms-elements/lib/base.css" as="style" />
   <meta name="generator" content="HAXcms">
   <link rel="manifest" href="manifest.json">
   <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">

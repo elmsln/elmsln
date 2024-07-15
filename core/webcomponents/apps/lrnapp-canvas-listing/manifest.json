@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/lrnapp-canvas-listing/lrnapp-canvas-listing.js",
+    "element": "node_modules/@haxtheweb/elmsln-apps/lib/lrnapp-canvas-listing/lrnapp-canvas-listing.js",
     "title": "Canvas course list",
     "endpoints": {
       "data": {

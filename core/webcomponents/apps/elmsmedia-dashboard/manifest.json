@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/elmsmedia-dashboard/elmsmedia-dashboard.js",
+    "element": "node_modules/@haxtheweb/elmsln-apps/lib/elmsmedia-dashboard/elmsmedia-dashboard.js",
     "title": "Media dashboard",
     "endpoints": {
       "api/data": {

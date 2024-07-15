@@ -11,12 +11,12 @@ $appSettings = $HAXCMS->appJWTConnectionSettings();
   <head>
     <meta charset="utf-8">
     <link rel="preload" href="./build/es6/dist/build-home.js" as="script" crossorigin="anonymous">
-    <link rel="preload" href="./build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/core/site-list/haxcms-site-listing.js"
+    <link rel="preload" href="./build/es6/node_modules/@haxtheweb/haxcms-elements/lib/core/site-list/haxcms-site-listing.js"
       as="script" crossorigin="anonymous">
-    <link rel="preload" href="./build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css" as="style">
+    <link rel="preload" href="./build/es6/node_modules/@haxtheweb/haxcms-elements/lib/base.css" as="style">
     <link rel="preconnect" crossorigin href="https://fonts.googleapis.com">
     <link rel="preconnect" crossorigin href="https://cdnjs.cloudflare.com">   
-    <link rel="stylesheet" href="build/es6/node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css" /> 
+    <link rel="stylesheet" href="build/es6/node_modules/@haxtheweb/haxcms-elements/lib/base.css" /> 
     <script type="text/javascript">
       document.write("<base href='" + document.location.pathname.replace('index.html', '') + "' />");
     </script>

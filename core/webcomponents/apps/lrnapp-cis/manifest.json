@@ -6,7 +6,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/lrnapp-cis/lrnapp-cis.js",
+    "element": "node_modules/@haxtheweb/elmsln-apps/lib/lrnapp-cis/lrnapp-cis.js",
     "title": "",
     "menu": {
       "title": "Courses",

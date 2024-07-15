@@ -78,8 +78,8 @@ function webcomponents_page_build(&$page) {
       $base . "build/es6/node_modules/web-animations-js/web-animations-next-lite.min.js",
     ),
     "modulepreload" => array(
-      $base . "build/es6/node_modules/@lrnwebcomponents/wc-autoload/wc-autoload.js",
-      $base . "build/es6/node_modules/@lrnwebcomponents/dynamic-import-registry/dynamic-import-registry.js"
+      $base . "build/es6/node_modules/@haxtheweb/wc-autoload/wc-autoload.js",
+      $base . "build/es6/node_modules/@haxtheweb/dynamic-import-registry/dynamic-import-registry.js"
     )
   );
   foreach ($loader as $rel => $data) {

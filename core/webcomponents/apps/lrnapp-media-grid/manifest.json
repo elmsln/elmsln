@@ -6,7 +6,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/lrnapp-media-grid/lrnapp-media-grid.js", 
+    "element": "node_modules/@haxtheweb/elmsln-apps/lib/lrnapp-media-grid/lrnapp-media-grid.js", 
     "menu": {
       "menu_name": "menu-elmsln-navigation",
       "weight": 11
