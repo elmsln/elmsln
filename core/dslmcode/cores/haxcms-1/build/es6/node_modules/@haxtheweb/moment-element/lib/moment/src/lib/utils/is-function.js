@@ -1,1 +1,0 @@
-export default function isFunction(t){return t instanceof Function||"[object Function]"===Object.prototype.toString.call(t)}

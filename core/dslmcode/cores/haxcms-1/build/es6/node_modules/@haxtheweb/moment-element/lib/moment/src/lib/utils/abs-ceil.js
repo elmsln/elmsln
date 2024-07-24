@@ -1,1 +1,0 @@
-export default function absCeil(t){return t<0?Math.floor(t):Math.ceil(t)}

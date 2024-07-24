@@ -1,1 +1,0 @@
-export default function isObject(t){return null!=t&&"[object Object]"===Object.prototype.toString.call(t)}

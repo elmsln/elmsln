@@ -1,1 +1,0 @@
-export default function hasOwnProp(t,r){return Object.prototype.hasOwnProperty.call(t,r)}

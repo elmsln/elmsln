@@ -1,1 +1,0 @@
-export default function isUndefined(e){return void 0===e}

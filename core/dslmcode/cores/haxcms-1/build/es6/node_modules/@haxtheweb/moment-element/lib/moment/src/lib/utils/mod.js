@@ -1,1 +1,0 @@
-export default function mod(t,e){return(t%e+e)%e}

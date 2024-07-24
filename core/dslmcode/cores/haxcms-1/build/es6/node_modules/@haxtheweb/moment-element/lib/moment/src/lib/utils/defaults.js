@@ -1,1 +1,0 @@
-export default function defaults(l,u,n){return null!=l?l:null!=u?u:n}

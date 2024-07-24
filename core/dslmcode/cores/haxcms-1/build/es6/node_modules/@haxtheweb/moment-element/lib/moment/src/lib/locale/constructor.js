@@ -1,1 +1,0 @@
-export function Locale(t){null!=t&&this.set(t)}
