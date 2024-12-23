@@ -1,6 +1,6 @@
 # &lt;vaadin-upload&gt;
 
-> ⚠️ Starting from Vaadin 20, the source code and issues for this component are migrated to the [`vaadin/web-components`](https://github.com/vaadin/web-components/tree/master/packages/vaadin-upload) monorepository.
+> ⚠️ Starting from Vaadin 20, the source code and issues for this component are migrated to the [`vaadin/web-components`](https://github.com/vaadin/web-components/tree/main/packages/upload) monorepository.
 > This repository contains the source code and releases of `<vaadin-upload>` for the Vaadin versions 10 to 19.
 
 [&lt;vaadin-upload&gt;](https://vaadin.com/components/vaadin-upload) is a Web Component for uploading files, part of the [Vaadin components](https://vaadin.com/components).
