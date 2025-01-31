@@ -33,6 +33,20 @@ function elmsln_core_stream_wrappers() {
 }
 
 /**
+ * Implements hook_html_head_alter()
+ */
+function elmsln_core_html_head_alter(&$head_elements) {
+  // remove notice that this is drupal
+  unset($head_elements['system_meta_generator']);
+  // remove shortcut icon default loading
+  foreach ($head_elements as $key => $value) {
+    if (strpos($key, 'drupal_add_html_head_link:shortcut icon:') === 0) {
+      unset($head_elements[$key]);
+    }
+  }
+}
+
+/**
  * Fallback for drupal_realpath() because it doesn't like us currently.
  */
 function _elmsln_core_realpath($uri) {
